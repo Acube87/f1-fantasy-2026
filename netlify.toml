@@ -1,0 +1,9 @@
+# Netlify Configuration
+[build]
+  publish = "."
+  
+[[redirects]]
+  from = "/*"
+  to = "/index-simple.html"
+  status = 200
+

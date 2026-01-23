@@ -1,0 +1,17 @@
+# Ignore sensitive files
+config.php
+*.log
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Keep config.railway.php as example
+!config.railway.php
+

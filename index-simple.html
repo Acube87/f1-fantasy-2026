@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 2026 Fantasy - Simple Version</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+            min-height: 100vh;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #e10600 0%, #ff4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-card-premium {
+            background: linear-gradient(135deg, rgba(225, 6, 0, 0.1) 0%, rgba(225, 6, 0, 0.05) 100%);
+            border: 1px solid rgba(225, 6, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card-premium:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(225, 6, 0, 0.2);
+        }
+        
+        .points-glow {
+            text-shadow: 0 0 20px rgba(225, 6, 0, 0.5);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-red-900 via-red-800 to-red-900 border-b border-red-700/50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🏎️</span>
+                    <h1 class="text-xl font-bold">F1 2026 Fantasy</h1>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <span id="userName" class="text-white/80"></span>
+                    <button id="loginBtn" onclick="showLogin()" class="bg-white text-red-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">Login</button>
+                    <button id="logoutBtn" onclick="logout()" class="hidden text-white/80 hover:text-white transition">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="card-glass rounded-2xl p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6 gradient-text">Enter Your Name</h2>
+            <input type="text" id="playerName" placeholder="Your name" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 mb-4 focus:outline-none focus:border-red-500">
+            <button onclick="login()" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3 rounded-lg font-semibold transition">
+                Start Playing
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Hero Section -->
+        <section class="text-center mb-16 animate-fade-in-up">
+            <h1 class="text-5xl md:text-7xl font-black mb-6 gradient-text">
+                F1 2026 Fantasy
+            </h1>
+            <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Predict race winners, compete with friends, and climb the leaderboard!
+            </p>
+        </section>
+
+        <!-- Stats (if logged in) -->
+        <div id="statsSection" class="hidden mb-12 animate-fade-in-up">
+            <h2 class="text-3xl font-bold mb-6 flex items-center">
+                <i class="fas fa-chart-bar text-red-400 mr-3"></i>
+                Your Stats
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="stat-card-premium rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm mb-1">Total Points</p>
+                            <p id="totalPoints" class="text-4xl font-black text-red-400 points-glow">0</p>
+                        </div>
+                        <div class="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
+                            <i class="fas fa-trophy text-red-400 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card-premium rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm mb-1">Races Participated</p>
+                            <p id="racesCount" class="text-4xl font-black text-blue-400">0</p>
+                        </div>
+                        <div class="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
+                            <i class="fas fa-flag-checkered text-blue-400 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Races -->
+        <section class="mb-12 animate-fade-in-up">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-3xl font-bold flex items-center">
+                    <i class="fas fa-calendar-alt text-red-400 mr-3"></i>
+                    Upcoming Races
+                </h2>
+            </div>
+            
+            <div id="racesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Races will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Leaderboard -->
+        <section class="mb-12 animate-fade-in-up">
+            <h2 class="text-3xl font-bold mb-6 flex items-center">
+                <i class="fas fa-trophy text-yellow-500 mr-3"></i>
+                Leaderboard
+            </h2>
+            <div id="leaderboard" class="card-glass rounded-2xl overflow-hidden">
+                <!-- Leaderboard will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
