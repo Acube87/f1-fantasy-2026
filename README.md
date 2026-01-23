@@ -54,3 +54,4 @@ A simple HTML-based Formula 1 fantasy game where users can predict race winners 
 
 ```
 
+# f1-fantasy-2026
