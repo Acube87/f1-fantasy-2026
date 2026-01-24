@@ -48,6 +48,23 @@ $stmt = $db->prepare("SELECT DISTINCT team FROM drivers ORDER BY team");
 $stmt->execute();
 $constructors = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+// Get previous race predictions (to offer as template)
+$previousPredictions = [];
+$stmt = $db->prepare("
+    SELECT rp.driver_id, rp.predicted_position 
+    FROM race_predictions rp
+    JOIN races r ON rp.race_id = r.id
+    WHERE rp.user_id = ? AND r.race_date < ? 
+    ORDER BY r.race_date DESC 
+    LIMIT 1
+");
+$stmt->bind_param("is", $userId, $race['race_date']);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $previousPredictions[$row['driver_id']] = $row['predicted_position'];
+}
+
 // Scoring system
 $pointsSystem = [
     'exact' => 10,
@@ -57,6 +74,32 @@ $pointsSystem = [
 // Handle POST requests for saving predictions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_GET['action'])) {
     $input = json_decode(file_get_contents('php://input'), true);
+    
+    // Handle copy from previous race
+    if ($input && $input['action'] === 'copy_previous') {
+        $raceId = $input['race_id'];
+        
+        // Get previous race predictions
+        $stmt = $db->prepare("
+            SELECT rp.driver_id, rp.predicted_position 
+            FROM race_predictions rp
+            JOIN races r ON rp.race_id = r.id
+            WHERE rp.user_id = ? AND r.race_date < (SELECT race_date FROM races WHERE id = ?)
+            ORDER BY r.race_date DESC 
+            LIMIT 1
+        ");
+        $stmt->bind_param("ii", $userId, $raceId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $prevPreds = [];
+        while ($row = $result->fetch_assoc()) {
+            $prevPreds[$row['driver_id']] = $row['predicted_position'];
+        }
+        
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'predictions' => $prevPreds]);
+        exit;
+    }
     
     if ($input && $input['action'] === 'save_predictions') {
         $raceId = $input['race_id'];
@@ -313,7 +356,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
                         <i class="fas fa-grip-vertical text-red-500"></i>
                         Drag to Reorder Drivers
                     </h2>
-                    <p class="text-gray-400 text-sm mb-6">Arrange drivers 1-22 in your predicted finishing order. Drag up/down to reorder.</p>
+                    <p class="text-gray-400 text-sm mb-4">Arrange drivers 1-22 in your predicted finishing order. Drag up/down to reorder.</p>
+                    
+                    <!-- Search and Controls -->
+                    <div class="flex gap-2 mb-4">
+                        <div class="flex-1">
+                            <input type="text" id="searchDrivers" placeholder="🔍 Search drivers..." 
+                                   class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition">
+                        </div>
+                        <?php if (!empty($previousPredictions)): ?>
+                        <button onclick="copyFromPreviousRace()" class="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/15 transition flex items-center gap-2 whitespace-nowrap">
+                            <i class="fas fa-copy"></i> Use Previous
+                        </button>
+                        <?php endif; ?>
+                    </div>
                     
                     <ul class="prediction-list" id="predictionList">
                         <?php 
@@ -328,7 +384,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
                             $position = $predictions[$driver['id']] ?? ($idx + 1);
                             $teamClass = strtolower(str_replace([' ', '-'], '-', $driver['team']));
                         ?>
-                        <li class="prediction-item" draggable="true" data-driver-id="<?php echo $driver['id']; ?>" data-team="<?php echo htmlspecialchars($driver['team']); ?>">
+                        <li class="prediction-item" draggable="true" data-driver-id="<?php echo $driver['id']; ?>" data-team="<?php echo htmlspecialchars($driver['team']); ?>" data-driver-name="<?php echo htmlspecialchars($driver['driver_name']); ?>">
                             <div class="drag-handle">
                                 <i class="fas fa-grip-vertical"></i>
                             </div>
@@ -534,6 +590,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
             if (confirm('Reset all predictions? This cannot be undone.')) {
                 location.reload();
             }
+        }
+
+        // Search and filter drivers
+        document.getElementById('searchDrivers').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.prediction-item');
+            
+            items.forEach(item => {
+                const driverName = item.getAttribute('data-driver-name').toLowerCase();
+                const team = item.getAttribute('data-team').toLowerCase();
+                
+                if (driverName.includes(searchTerm) || team.includes(searchTerm)) {
+                    item.style.display = '';
+                    item.style.opacity = '1';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Copy predictions from previous race
+        function copyFromPreviousRace() {
+            fetch('predict.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    race_id: <?php echo $raceId; ?>,
+                    action: 'copy_previous'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.predictions) {
+                    // Get driver ID to array map
+                    const driverMap = {};
+                    document.querySelectorAll('.prediction-item').forEach(item => {
+                        driverMap[item.getAttribute('data-driver-id')] = item;
+                    });
+                    
+                    // Sort items by previous predictions
+                    const list = document.getElementById('predictionList');
+                    const sortedItems = [];
+                    
+                    // Create array of [driverId, position] and sort
+                    const predictions = Object.entries(data.predictions);
+                    predictions.sort((a, b) => a[1] - b[1]);
+                    
+                    // Reorder list items
+                    const fragment = document.createDocumentFragment();
+                    predictions.forEach(([driverId, position]) => {
+                        if (driverMap[driverId]) {
+                            fragment.appendChild(driverMap[driverId]);
+                        }
+                    });
+                    
+                    // Add remaining drivers (not in previous predictions)
+                    document.querySelectorAll('.prediction-item').forEach(item => {
+                        if (fragment.querySelector(`[data-driver-id="${item.getAttribute('data-driver-id')}"]`) === null) {
+                            fragment.appendChild(item);
+                        }
+                    });
+                    
+                    list.innerHTML = '';
+                    list.appendChild(fragment);
+                    
+                    // Update position numbers and points
+                    updatePositionNumbers();
+                    updateConstructorPoints();
+                    
+                    // Clear search
+                    document.getElementById('searchDrivers').value = '';
+                    
+                    alert('✓ Loaded predictions from previous race!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading previous predictions');
+            });
         }
 
         document.addEventListener('DOMContentLoaded', updateConstructorPoints);
