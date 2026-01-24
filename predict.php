@@ -84,112 +84,136 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/style.css">
     <style>
         * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1400px; margin: 0 auto; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
         h1 { color: #333; margin: 0 0 5px 0; }
         .race-info { color: #666; font-size: 14px; margin: 0 0 20px 0; }
-        .content { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+        .content { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
         
         .prediction-section {
             background: white;
             padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .prediction-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 2px solid #e5e5e5;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         
-        .drivers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #fafafa;
-            border-radius: 6px;
-            border: 2px dashed #ddd;
-        }
-        
-        .driver-card {
+        .prediction-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e5e5;
             background: white;
-            border: 2px solid #ddd;
-            padding: 12px;
-            border-radius: 6px;
-            cursor: move;
-            transition: all 0.3s;
-            text-align: center;
-            font-size: 13px;
+            cursor: grab;
+            transition: background 0.2s, box-shadow 0.2s;
             user-select: none;
         }
         
-        .driver-card:hover {
-            background: #fff;
-            border-color: #e8003e;
-            box-shadow: 0 4px 8px rgba(232, 0, 62, 0.2);
-        }
+        .prediction-item:last-child { border-bottom: none; }
+        .prediction-item:hover { background: #f9f9f9; }
+        .prediction-item.dragging { opacity: 0.5; background: #f0f0f0; }
+        .prediction-item.drag-over { background: #e8f4f8; border-top: 2px solid #0066cc; }
         
-        .driver-card.dragging { opacity: 0.5; }
-        
-        .position-list {
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            max-height: 600px;
-            overflow-y: auto;
-            border: 2px dashed #ccc;
-            min-height: 400px;
-        }
-        
-        .position-item {
-            background: white;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 4px;
+        .drag-handle {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-left: 4px solid #e8003e;
+            gap: 4px;
+            color: #ccc;
+            font-size: 20px;
             cursor: grab;
+            flex-shrink: 0;
         }
         
-        .position-item.top3 { border-left-color: #FFD700; background: #fffbf0; }
-        .position-item.top10 { border-left-color: #90EE90; }
+        .drag-handle:active { cursor: grabbing; }
         
-        .position-number {
+        .position-num {
+            min-width: 32px;
             font-weight: bold;
-            min-width: 30px;
-            text-align: center;
             color: #666;
+            text-align: center;
+            font-size: 14px;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            flex-shrink: 0;
         }
         
-        .driver-name { flex: 1; margin: 0 10px; font-size: 14px; font-weight: bold; }
-        .driver-team { font-size: 11px; color: #999; background: #f0f0f0; padding: 2px 6px; border-radius: 3px; }
+        .driver-info { flex: 1; min-width: 0; }
+        .driver-name { font-weight: 600; color: #333; font-size: 14px; }
+        .driver-team { font-size: 12px; color: #999; margin-top: 2px; }
+        
+        .team-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .team-alpine { background: #0082FA; color: white; }
+        .team-aston { background: #006F62; color: white; }
+        .team-audi { background: #00A19A; color: white; }
+        .team-cadillac { background: #FD1E1E; color: white; }
+        .team-ferrari { background: #DC0000; color: white; }
+        .team-haas { background: #FFFFFF; color: #000; border: 1px solid #ccc; }
+        .team-mclaren { background: #FF8700; color: white; }
+        .team-mercedes { background: #00D2BE; color: black; }
+        .team-red-bull { background: #0600EF; color: white; }
+        .team-racing-bulls { background: #2D826D; color: white; }
+        .team-williams { background: #005AFF; color: white; }
         
         .sidebar {
             background: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             height: fit-content;
             position: sticky;
             top: 20px;
         }
         
-        .sidebar h3 { margin-top: 0; }
-        .constructor-item { background: #f9f9f9; padding: 10px; margin: 8px 0; border-radius: 4px; border-left: 3px solid #e8003e; font-size: 13px; }
-        .constructor-name { font-weight: bold; }
-        .constructor-points { color: #e8003e; font-weight: bold; }
+        .sidebar h3 { margin-top: 0; margin-bottom: 16px; color: #333; font-size: 16px; }
+        
+        .constructor-item { 
+            background: #f9f9f9; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border-radius: 6px; 
+            border-left: 3px solid #e8003e; 
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .constructor-name { font-weight: 600; color: #333; }
+        .constructor-points { 
+            color: #e8003e; 
+            font-weight: bold;
+            font-size: 18px;
+        }
         
         .scoring-info {
             background: #e8f5e9;
             padding: 12px;
-            border-radius: 4px;
+            border-radius: 6px;
             margin-top: 20px;
             font-size: 12px;
             border-left: 3px solid #4caf50;
         }
         
-        .scoring-info h4 { margin: 8px 0; }
-        .scoring-info p { margin: 4px 0; }
+        .scoring-info h4 { margin: 0 0 8px 0; font-size: 13px; }
+        .scoring-info p { margin: 4px 0; line-height: 1.4; }
         
         .buttons {
             display: flex;
@@ -201,10 +225,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flex: 1;
             padding: 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 14px;
+            transition: all 0.2s;
         }
         
         .btn-save { background: #4caf50; color: white; }
@@ -214,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         .message {
             padding: 12px;
-            border-radius: 4px;
+            border-radius: 6px;
             margin-bottom: 15px;
             display: none;
         }
@@ -231,29 +256,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <div class="content">
         <div class="prediction-section">
-            <h2>Drag Drivers to Predict Finishing Order (1-20)</h2>
+            <h2>Drag to Reorder Drivers (1-22)</h2>
+            <p style="color: #666; font-size: 13px; margin: 0 0 16px 0;">Drag drivers up/down to set your finishing predictions. Points calculated in real-time on the right.</p>
             
-            <h3>Available Drivers</h3>
-            <div class="drivers-grid" id="availableDrivers">
-                <?php foreach ($drivers as $driver): 
-                    $predicted = isset($predictions[$driver['id']]);
+            <ul class="prediction-list" id="predictionList">
+                <?php 
+                $orderedDrivers = $drivers;
+                // Sort by predicted position if predictions exist
+                usort($orderedDrivers, function($a, $b) use ($predictions) {
+                    $posA = $predictions[$a['id']] ?? 999;
+                    $posB = $predictions[$b['id']] ?? 999;
+                    return $posA - $posB;
+                });
+                
+                foreach ($orderedDrivers as $idx => $driver): 
+                    $position = $predictions[$driver['id']] ?? ($idx + 1);
+                    $teamClass = strtolower(str_replace([' ', '-'], '-', $driver['team']));
                 ?>
-                <div class="driver-card" draggable="true" data-driver-id="<?php echo $driver['id']; ?>" data-driver-name="<?php echo htmlspecialchars($driver['driver_name']); ?>" data-team="<?php echo htmlspecialchars($driver['team']); ?>" <?php echo $predicted ? 'style="display:none;"' : ''; ?>>
-                    <div><?php echo htmlspecialchars($driver['driver_name']); ?></div>
-                    <div style="font-size: 11px; color: #666;"><?php echo htmlspecialchars($driver['team']); ?></div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-            
-            <h3>Your Predictions (Drag drivers here)</h3>
-            <div class="position-list" id="positionList">
-                <?php for ($i = 1; $i <= 20; $i++): ?>
-                    <div class="position-item" data-position="<?php echo $i; ?>">
-                        <span class="position-number"><?php echo $i; ?></span>
-                        <span class="driver-info" style="flex: 1; color: #999;">Drop driver here</span>
+                <li class="prediction-item" draggable="true" data-driver-id="<?php echo $driver['id']; ?>" data-team="<?php echo htmlspecialchars($driver['team']); ?>">
+                    <div class="drag-handle">⋮⋮</div>
+                    <div class="position-num" id="pos-<?php echo $driver['id']; ?>"><?php echo $position; ?></div>
+                    <div class="driver-info">
+                        <div class="driver-name"><?php echo htmlspecialchars($driver['driver_name']); ?></div>
+                        <div class="driver-team"><?php echo htmlspecialchars($driver['team']); ?></div>
                     </div>
-                <?php endfor; ?>
-            </div>
+                    <div class="team-badge team-<?php echo $teamClass; ?>"><?php echo htmlspecialchars($driver['team']); ?></div>
+                </li>
+                <?php endforeach; ?>
+            </ul>
             
             <div class="buttons">
                 <button class="btn btn-save" onclick="savePredictions()">✓ Save Predictions</button>
@@ -262,140 +292,175 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         
         <div class="sidebar">
-            <h3>📊 Predicted Points</h3>
+            <h3>📊 Constructor Points</h3>
             <div id="constructorPoints">
                 <?php foreach ($constructors as $const): ?>
                     <div class="constructor-item" data-constructor="<?php echo htmlspecialchars($const['team']); ?>">
                         <div class="constructor-name"><?php echo htmlspecialchars($const['team']); ?></div>
-                        <div class="constructor-points">Points: <span class="points-value">0</span></div>
+                        <div class="constructor-points"><span class="points-value">0</span></div>
                     </div>
                 <?php endforeach; ?>
             </div>
             
             <div class="scoring-info">
                 <h4>🎯 Scoring System</h4>
-                <p><strong>Drivers & Constructors:</strong></p>
                 <p>+<?php echo $pointsSystem['exact']; ?> pts - Exact position</p>
                 <p>+<?php echo $pointsSystem['top3PodiumBonus']; ?> pts - Top 3 Podium</p>
-                <p style="margin-top: 10px; font-size: 11px; color: #666;">Constructors points = Top driver from team</p>
+                <p style="margin-top: 8px; color: #666;">Constructors = Top driver from team</p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-const drivers_data = <?php echo json_encode(array_map(fn($d) => ['id' => $d['id'], 'team' => $d['team']], $drivers)); ?>;
+const driversData = <?php echo json_encode(array_map(fn($d) => ['id' => $d['id'], 'team' => $d['team']], $drivers)); ?>;
 let draggedElement = null;
 
-document.querySelectorAll('.driver-card').forEach(card => {
-    card.addEventListener('dragstart', e => {
-        draggedElement = card;
-        card.classList.add('dragging');
+document.addEventListener('dragstart', function(e) {
+    if (e.target.classList.contains('prediction-item')) {
+        draggedElement = e.target;
+        e.target.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
-    });
-    card.addEventListener('dragend', e => card.classList.remove('dragging'));
+    }
 });
 
-document.querySelectorAll('.position-item').forEach(pos => {
-    pos.addEventListener('dragover', e => {
+document.addEventListener('dragend', function(e) {
+    if (e.target.classList.contains('prediction-item')) {
+        e.target.classList.remove('dragging');
+        draggedElement = null;
+    }
+});
+
+document.addEventListener('dragover', function(e) {
+    if (draggedElement && e.target.classList.contains('prediction-item')) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
-        pos.style.background = '#fff5e6';
-    });
-    pos.addEventListener('dragleave', e => pos.style.background = '');
-    pos.addEventListener('drop', e => {
-        e.preventDefault();
-        pos.style.background = '';
-        if (!draggedElement) return;
-        
-        const driverId = draggedElement.dataset.driverId;
-        const driverName = draggedElement.dataset.driverName;
-        const team = draggedElement.dataset.team;
-        const position = pos.dataset.position;
-        
-        document.querySelectorAll('.position-item').forEach(item => {
-            if (item.dataset.position !== position && item.querySelector('[data-driver-id="' + driverId + '"]')) {
-                item.querySelector('.driver-info').innerHTML = 'Drop driver here';
-                item.querySelector('.driver-info').removeAttribute('data-driver-id');
-            }
-        });
-        
-        let html = `<strong>${driverName}</strong><br><span style="font-size: 11px; color: #666;">${team}</span>`;
-        pos.querySelector('.driver-info').innerHTML = html;
-        pos.querySelector('.driver-info').setAttribute('data-driver-id', driverId);
-        
-        pos.classList.remove('top3', 'top10');
-        if (position <= 3) pos.classList.add('top3');
-        else if (position <= 10) pos.classList.add('top10');
-        
-        draggedElement.style.display = 'none';
-        updateConstructorPoints();
-        draggedElement = null;
-    });
+        e.target.classList.add('drag-over');
+    }
 });
 
+document.addEventListener('dragleave', function(e) {
+    if (e.target.classList.contains('prediction-item')) {
+        e.target.classList.remove('drag-over');
+    }
+});
+
+document.addEventListener('drop', function(e) {
+    e.preventDefault();
+    
+    if (draggedElement && e.target.classList.contains('prediction-item')) {
+        e.target.classList.remove('drag-over');
+        
+        // Reorder items
+        const list = document.getElementById('predictionList');
+        const allItems = [...list.querySelectorAll('.prediction-item')];
+        const draggedIndex = allItems.indexOf(draggedElement);
+        const targetIndex = allItems.indexOf(e.target);
+        
+        if (draggedIndex < targetIndex) {
+            e.target.parentNode.insertBefore(draggedElement, e.target.nextSibling);
+        } else {
+            e.target.parentNode.insertBefore(draggedElement, e.target);
+        }
+        
+        updatePositionNumbers();
+        updateConstructorPoints();
+    }
+});
+
+function updatePositionNumbers() {
+    const list = document.getElementById('predictionList');
+    const items = list.querySelectorAll('.prediction-item');
+    
+    items.forEach((item, index) => {
+        const position = index + 1;
+        const positionNum = item.querySelector('.position-num');
+        if (positionNum) {
+            positionNum.textContent = position;
+        }
+    });
+}
+
 function updateConstructorPoints() {
-    const predictions = {};
-    document.querySelectorAll('.position-item').forEach(item => {
-        const driverId = item.querySelector('.driver-info').getAttribute('data-driver-id');
-        if (driverId) {
-            const team = drivers_data.find(d => d.id == driverId).team;
-            predictions[team] = item.dataset.position;
+    const list = document.getElementById('predictionList');
+    const items = list.querySelectorAll('.prediction-item');
+    const teamTopPositions = {};
+    
+    items.forEach((item, index) => {
+        const position = index + 1;
+        const team = item.getAttribute('data-team');
+        
+        if (!teamTopPositions[team] || position < teamTopPositions[team]) {
+            teamTopPositions[team] = position;
         }
     });
     
     document.querySelectorAll('.constructor-item').forEach(item => {
-        const team = item.dataset.constructor;
-        const position = predictions[team];
+        const team = item.getAttribute('data-constructor');
+        const position = teamTopPositions[team];
         let points = 0;
+        
         if (position) {
             points = <?php echo $pointsSystem['exact']; ?>;
             if (position <= 3) points += <?php echo $pointsSystem['top3PodiumBonus']; ?>;
         }
+        
         item.querySelector('.points-value').textContent = points;
     });
 }
 
 function savePredictions() {
+    const list = document.getElementById('predictionList');
+    const items = list.querySelectorAll('.prediction-item');
     const predictions = [];
-    document.querySelectorAll('.position-item').forEach(item => {
-        const driverId = item.querySelector('.driver-info').getAttribute('data-driver-id');
-        if (driverId) predictions.push(driverId);
+    
+    items.forEach((item, index) => {
+        const position = index + 1;
+        const driverId = item.getAttribute('data-driver-id');
+        predictions.push({
+            driver_id: parseInt(driverId),
+            predicted_position: position
+        });
     });
     
-    if (predictions.length === 0) {
-        alert('Please make at least one prediction!');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('predictions', JSON.stringify(predictions));
-    
-    fetch(window.location.href, {
+    fetch('predict.php', {
         method: 'POST',
-        body: formData
-    }).then(r => r.json()).then(data => {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            race_id: <?php echo $raceId; ?>,
+            predictions: predictions,
+            action: 'save_predictions'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
-            document.getElementById('message').textContent = '✓ Predictions saved successfully!';
-            document.getElementById('message').classList.add('success');
-            setTimeout(() => location.href = 'index.php', 2000);
+            const msg = document.getElementById('message');
+            msg.textContent = '✓ Predictions saved successfully!';
+            msg.classList.add('success');
+            setTimeout(() => { msg.classList.remove('success'); }, 3000);
+        } else {
+            alert('✗ Error saving predictions: ' + (data.message || 'Unknown error'));
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('✗ Error saving predictions');
     });
 }
 
 function resetPredictions() {
-    if (confirm('Reset all predictions?')) {
-        document.querySelectorAll('.position-item').forEach(item => {
-            item.querySelector('.driver-info').innerHTML = 'Drop driver here';
-            item.querySelector('.driver-info').removeAttribute('data-driver-id');
-            item.classList.remove('top3', 'top10');
-        });
-        document.querySelectorAll('.driver-card').forEach(card => card.style.display = 'block');
-        updateConstructorPoints();
+    if (confirm('Reset all predictions? This cannot be undone.')) {
+        location.reload();
     }
 }
 
-updateConstructorPoints();
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateConstructorPoints();
+});
 </script>
 </body>
 </html>
