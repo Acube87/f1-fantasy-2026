@@ -52,5 +52,4 @@ function getDB() {
     }
     return $conn;
 }
-?>
 
