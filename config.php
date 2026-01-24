@@ -39,7 +39,7 @@ function getDB() {
             $port = 40739;
             $user = 'root';
             $pass = 'ryKCglHSFcskNaRRpCooVWkxRqyKIyHt';
-            $dbname = 'railway';
+            $dbname = 'f1_fantasy';  // The database that has our schema
             
             $conn = @new mysqli($host, $user, $pass, $dbname, $port);
             if ($conn->connect_error) {
