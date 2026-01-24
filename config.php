@@ -34,32 +34,18 @@ function getDB() {
     static $conn = null;
     if ($conn === null) {
         try {
-            // Try different connection approaches for Railway
-            $hosts = [
-                getenv('MYSQLHOST'),           // From Railway env
-                getenv('RAILWAY_PRIVATE_DOMAIN'),
-                'mysql',                        // Default service name
-                'localhost'                     // Fallback
-            ];
+            // For Railway: use the known public proxy connection
+            $host = 'metro.proxy.rlwy.net';
+            $port = 40739;
+            $user = 'root';
+            $pass = 'ryKCglHSFcskNaRRpCooVWkxRqyKIyHt';
+            $dbname = 'railway';
             
-            $user = getenv('MYSQLUSER') ?: 'root';
-            $pass = getenv('MYSQLPASSWORD') ?: getenv('MYSQL_ROOT_PASSWORD') ?: '';
-            $dbname = getenv('MYSQLDATABASE') ?: 'railway';
-            $port = (int)(getenv('MYSQLPORT') ?: '3306');
-            
-            $conn = null;
-            foreach ($hosts as $host) {
-                if (!$host) continue;
-                $conn = new mysqli($host, $user, $pass, $dbname, $port);
-                if (!$conn->connect_error) {
-                    $conn->set_charset("utf8mb4");
-                    return $conn;
-                }
+            $conn = @new mysqli($host, $user, $pass, $dbname, $port);
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
             }
-            
-            // If we got here, all connections failed
-            die("Connection failed: Could not connect to any host. Last error: " . $conn->connect_error);
-            
+            $conn->set_charset("utf8mb4");
         } catch (Exception $e) {
             die("Database connection error: " . $e->getMessage());
         }
