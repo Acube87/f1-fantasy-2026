@@ -1,5 +1,5 @@
 # Ignore sensitive files
-config.php
+# config.php - NOW TRACKED (needed for Railway)
 *.log
 
 # Ignore OS files
