@@ -34,16 +34,18 @@ function getDB() {
     static $conn = null;
     if ($conn === null) {
         try {
-            // Use Railway private domain for internal communication
-            $host = getenv('RAILWAY_PRIVATE_DOMAIN') ?: 'localhost';
+            // Railway environment variables
+            $host = getenv('MYSQLHOST') ?: getenv('RAILWAY_PRIVATE_DOMAIN') ?: 'localhost';
             $user = getenv('MYSQLUSER') ?: 'root';
-            $pass = getenv('MYSQL_ROOT_PASSWORD') ?: '';
-            $dbname = getenv('MYSQL_DATABASE') ?: 'railway';
-            $port = 3306;
+            $pass = getenv('MYSQLPASSWORD') ?: getenv('MYSQL_ROOT_PASSWORD') ?: '';
+            $dbname = getenv('MYSQLDATABASE') ?: getenv('MYSQL_DATABASE') ?: 'railway';
+            $port = (int)(getenv('MYSQLPORT') ?: '3306');
+            
+            error_log("DB Connection: host=$host, user=$user, db=$dbname, port=$port");
             
             $conn = new mysqli($host, $user, $pass, $dbname, $port);
             if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error . " (host: $host)");
+                die("Connection failed: " . $conn->connect_error . " (host: $host:$port)");
             }
             $conn->set_charset("utf8mb4");
         } catch (Exception $e) {
