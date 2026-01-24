@@ -260,5 +260,4 @@ function getLeaderboard($limit = 50) {
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
-?>
 

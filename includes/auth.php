@@ -109,5 +109,4 @@ function logoutUser() {
     header('Location: /login.php');
     exit;
 }
-?>
 
