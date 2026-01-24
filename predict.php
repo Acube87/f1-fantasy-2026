@@ -105,24 +105,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
         $raceId = $input['race_id'];
         $predictions = $input['predictions'];
         
-        // Clear existing predictions
-        $stmt = $db->prepare("DELETE FROM race_predictions WHERE race_id = ? AND user_id = ?");
-        $stmt->bind_param("ii", $raceId, $userId);
-        $stmt->execute();
-        
-        // Insert new predictions
-        $stmt = $db->prepare("INSERT INTO race_predictions (race_id, user_id, driver_id, predicted_position) VALUES (?, ?, ?, ?)");
-        
-        foreach ($predictions as $pred) {
-            $driverId = $pred['driver_id'];
-            $position = $pred['predicted_position'];
-            $stmt->bind_param("iiii", $raceId, $userId, $driverId, $position);
-            $stmt->execute();
-        }
-        
         header('Content-Type: application/json');
-        echo json_encode(['success' => true]);
-        exit;
+        
+        try {
+            // Clear existing predictions
+            $stmt = $db->prepare("DELETE FROM race_predictions WHERE race_id = ? AND user_id = ?");
+            if (!$stmt) {
+                throw new Exception('Prepare delete failed: ' . $db->error);
+            }
+            $stmt->bind_param("ii", $raceId, $userId);
+            if (!$stmt->execute()) {
+                throw new Exception('Delete failed: ' . $stmt->error);
+            }
+            
+            // Insert new predictions
+            $stmt = $db->prepare("INSERT INTO race_predictions (race_id, user_id, driver_id, predicted_position) VALUES (?, ?, ?, ?)");
+            if (!$stmt) {
+                throw new Exception('Prepare insert failed: ' . $db->error);
+            }
+            
+            foreach ($predictions as $pred) {
+                $driverId = $pred['driver_id'];
+                $position = $pred['predicted_position'];
+                $stmt->bind_param("iiii", $raceId, $userId, $driverId, $position);
+                if (!$stmt->execute()) {
+                    throw new Exception('Insert failed: ' . $stmt->error);
+                }
+            }
+            
+            echo json_encode(['success' => true, 'message' => 'Predictions saved']);
+            exit;
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            exit;
+        }
     }
 }
 ?>
@@ -573,16 +589,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
                     action: 'save_predictions'
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     alert('✓ Predictions saved successfully!');
                     setTimeout(() => window.location.href = 'dashboard.php', 1000);
+                } else {
+                    alert('✗ Error saving predictions: ' + (data.message || 'Unknown error'));
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error saving predictions');
+                alert('✗ Error saving predictions: ' + error.message);
             });
         }
 
