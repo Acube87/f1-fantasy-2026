@@ -590,7 +590,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             });
         }
 
-        function updateConstructorPoints() {
+        // Calculate team rankings based on best driver position
+        function calculateTeamRankings() {
             const list = document.getElementById('predictionList');
             const items = list.querySelectorAll('.prediction-item');
             const teamTopPositions = {};
@@ -606,13 +607,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             });
             
             // Create sorted array of teams by their best driver position
-            const teamRankings = Object.entries(teamTopPositions)
+            return Object.entries(teamTopPositions)
                 .sort((a, b) => a[1] - b[1]) // Sort by position (lower is better)
                 .map((entry, index) => ({
                     team: entry[0],
                     bestPosition: entry[1],
                     constructorRank: index + 1
                 }));
+        }
+
+        function updateConstructorPoints() {
+            const teamRankings = calculateTeamRankings();
             
             // Update the UI with sorted teams and calculated positions
             const container = document.getElementById('constructorPoints');
@@ -639,6 +644,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 
                 item.className += itemClass;
                 
+                // Get ordinal suffix for position
+                const getOrdinalSuffix = (num) => {
+                    const j = num % 10, k = num % 100;
+                    if (j === 1 && k !== 11) return 'st';
+                    if (j === 2 && k !== 12) return 'nd';
+                    if (j === 3 && k !== 13) return 'rd';
+                    return 'th';
+                };
+                
                 item.innerHTML = `
                     <div class="flex items-center gap-2">
                         ${positionBadge}
@@ -649,7 +663,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     </div>
                     <div class="constructor-points">
                         <span class="points-value text-lg font-bold">${ranking.constructorRank}</span>
-                        <span class="text-xs text-gray-400">st</span>
+                        <span class="text-xs text-gray-400">${getOrdinalSuffix(ranking.constructorRank)}</span>
                     </div>
                 `;
                 
@@ -674,25 +688,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 });
             });
             
-            // Calculate constructor predictions based on best driver positions
-            const teamTopPositions = {};
-            items.forEach((item, index) => {
-                const position = index + 1;
-                const team = item.getAttribute('data-team');
-                
-                if (!teamTopPositions[team] || position < teamTopPositions[team]) {
-                    teamTopPositions[team] = position;
-                }
-            });
-            
-            // Sort teams by best position to get constructor rankings
-            const constructorPredictions = Object.entries(teamTopPositions)
-                .sort((a, b) => a[1] - b[1])
-                .map((entry, index) => ({
-                    constructor_id: entry[0], // Using team name as ID for now
-                    constructor_name: entry[0],
-                    predicted_position: index + 1
-                }));
+            // Calculate constructor predictions using shared function
+            const teamRankings = calculateTeamRankings();
+            const constructorPredictions = teamRankings.map(ranking => ({
+                constructor_id: ranking.team, // Note: Using team name as ID (technical debt)
+                constructor_name: ranking.team,
+                predicted_position: ranking.constructorRank
+            }));
             
             fetch('predict.php', {
                 method: 'POST',
