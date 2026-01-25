@@ -486,9 +486,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 <div class="card-glass rounded-xl p-6 border border-white/10 mb-6 sticky top-4">
                     <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
                         <i class="fas fa-trophy text-yellow-500"></i>
-                        Live Constructor Standings
+                        Points
                     </h3>
-                    <p class="text-xs text-gray-400 mb-4">Updates as you reorder drivers</p>
                     
                     <div class="space-y-2" id="constructorPoints">
                         <?php foreach ($constructors as $const): ?>
@@ -503,11 +502,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     
                     <!-- Scoring Info -->
                     <div class="mt-6 pt-6 border-t border-white/10">
-                        <h4 class="font-bold text-sm mb-3 text-yellow-400">🏁 How It Works</h4>
+                        <h4 class="font-bold text-sm mb-3 text-yellow-400">🎯 Scoring</h4>
                         <div class="space-y-2 text-xs text-gray-300">
-                            <p>Teams ranked by <strong>best driver position</strong></p>
-                            <p class="text-gray-500">Example: If Ferrari's best driver is P1, Ferrari ranks #1</p>
-                            <p class="text-yellow-400 font-semibold mt-3">🥇 Top team highlighted in gold</p>
+                            <p><span class="text-red-400 font-bold">+<?php echo $pointsSystem['exact']; ?></span> Exact position</p>
+                            <p><span class="text-yellow-400 font-bold">+<?php echo $pointsSystem['top3PodiumBonus']; ?></span> Top 3 podium bonus</p>
+                            <p class="text-gray-500 mt-3 pt-3 border-t border-white/10">Points = Top driver from team</p>
                         </div>
                     </div>
                 </div>
@@ -616,53 +615,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 }));
         }
 
-        // Get ordinal suffix for position numbers (1st, 2nd, 3rd, etc.)
-        function getOrdinalSuffix(num) {
-            const j = num % 10, k = num % 100;
-            if (j === 1 && k !== 11) return 'st';
-            if (j === 2 && k !== 12) return 'nd';
-            if (j === 3 && k !== 13) return 'rd';
-            return 'th';
-        }
-
         function updateConstructorPoints() {
             const teamRankings = calculateTeamRankings();
             
-            // Update the UI with sorted teams and calculated positions
+            // Update the UI - keep original simple format but dynamically sorted
             const container = document.getElementById('constructorPoints');
             container.innerHTML = ''; // Clear existing items
             
             teamRankings.forEach(ranking => {
                 const item = document.createElement('div');
-                let itemClass = 'constructor-item';
-                
-                // Add position indicator and styling
-                let positionBadge = '';
-                if (ranking.constructorRank === 1) {
-                    positionBadge = '<span class="text-yellow-400 font-bold text-lg mr-2">🥇</span>';
-                    itemClass += ' border-2 border-yellow-400 bg-yellow-400/10';
-                } else if (ranking.constructorRank === 2) {
-                    positionBadge = '<span class="text-gray-300 font-bold text-lg mr-2">🥈</span>';
-                    itemClass += ' border border-gray-400 bg-gray-400/5';
-                } else if (ranking.constructorRank === 3) {
-                    positionBadge = '<span class="text-orange-400 font-bold text-lg mr-2">🥉</span>';
-                    itemClass += ' border border-orange-400 bg-orange-400/5';
-                }
-                
-                item.className = itemClass;
+                item.className = 'constructor-item';
                 item.setAttribute('data-constructor', ranking.team);
                 
+                // Keep original simple structure - just team name and points
                 item.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        ${positionBadge}
-                        <div>
-                            <div class="constructor-name">${ranking.team}</div>
-                            <div class="text-xs text-gray-400">P${ranking.constructorRank} • Best driver: P${ranking.bestPosition}</div>
-                        </div>
-                    </div>
+                    <div class="constructor-name">${ranking.team}</div>
                     <div class="constructor-points">
-                        <span class="points-value text-lg font-bold">${ranking.constructorRank}</span>
-                        <span class="text-xs text-gray-400">${getOrdinalSuffix(ranking.constructorRank)}</span>
+                        <span class="points-value">${ranking.constructorRank}</span>
                     </div>
                 `;
                 
