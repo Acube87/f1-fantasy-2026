@@ -616,6 +616,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 }));
         }
 
+        // Get ordinal suffix for position numbers (1st, 2nd, 3rd, etc.)
+        function getOrdinalSuffix(num) {
+            const j = num % 10, k = num % 100;
+            if (j === 1 && k !== 11) return 'st';
+            if (j === 2 && k !== 12) return 'nd';
+            if (j === 3 && k !== 13) return 'rd';
+            return 'th';
+        }
+
         function updateConstructorPoints() {
             const teamRankings = calculateTeamRankings();
             
@@ -625,33 +634,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             
             teamRankings.forEach(ranking => {
                 const item = document.createElement('div');
-                item.className = 'constructor-item';
-                item.setAttribute('data-constructor', ranking.team);
+                let itemClass = 'constructor-item';
                 
                 // Add position indicator and styling
                 let positionBadge = '';
-                let itemClass = '';
                 if (ranking.constructorRank === 1) {
                     positionBadge = '<span class="text-yellow-400 font-bold text-lg mr-2">🥇</span>';
-                    itemClass = ' border-2 border-yellow-400 bg-yellow-400/10';
+                    itemClass += ' border-2 border-yellow-400 bg-yellow-400/10';
                 } else if (ranking.constructorRank === 2) {
                     positionBadge = '<span class="text-gray-300 font-bold text-lg mr-2">🥈</span>';
-                    itemClass = ' border border-gray-400 bg-gray-400/5';
+                    itemClass += ' border border-gray-400 bg-gray-400/5';
                 } else if (ranking.constructorRank === 3) {
                     positionBadge = '<span class="text-orange-400 font-bold text-lg mr-2">🥉</span>';
-                    itemClass = ' border border-orange-400 bg-orange-400/5';
+                    itemClass += ' border border-orange-400 bg-orange-400/5';
                 }
                 
-                item.className += itemClass;
-                
-                // Get ordinal suffix for position
-                const getOrdinalSuffix = (num) => {
-                    const j = num % 10, k = num % 100;
-                    if (j === 1 && k !== 11) return 'st';
-                    if (j === 2 && k !== 12) return 'nd';
-                    if (j === 3 && k !== 13) return 'rd';
-                    return 'th';
-                };
+                item.className = itemClass;
+                item.setAttribute('data-constructor', ranking.team);
                 
                 item.innerHTML = `
                     <div class="flex items-center gap-2">
