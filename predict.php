@@ -10,7 +10,15 @@ if (!$user) {
 }
 
 $db = getDB();
-$raceId = $_GET['race_id'] ?? null;
+$raceId = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (isset($input['race_id'])) {
+        $raceId = $input['race_id'];
+    }
+} else {
+    $raceId = $_GET['race_id'] ?? null;
+}
 $userId = $user['id'];
 
 if (!$raceId) {
