@@ -84,7 +84,7 @@ $pointsSystem = [
 ];
 
 // Handle POST requests for saving predictions
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_GET['action'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) {
     $input = json_decode(file_get_contents('php://input'), true);
     
     // Handle copy from previous race
