@@ -119,15 +119,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
             }
             
             // Insert new predictions
-            $stmt = $db->prepare("INSERT INTO predictions (race_id, user_id, driver_id, predicted_position) VALUES (?, ?, ?, ?)");
+            $stmt = $db->prepare("INSERT INTO predictions (race_id, user_id, driver_id, driver_name, predicted_position) VALUES (?, ?, ?, ?, ?)");
             if (!$stmt) {
                 throw new Exception('Prepare insert failed: ' . $db->error);
             }
             
             foreach ($predictions as $pred) {
                 $driverId = $pred['driver_id'];
+                $driverName = $pred['driver_name'];
                 $position = $pred['predicted_position'];
-                $stmt->bind_param("iisi", $raceId, $userId, $driverId, $position);
+                $stmt->bind_param("iissi", $raceId, $userId, $driverId, $driverName, $position);
                 if (!$stmt->execute()) {
                     throw new Exception('Insert failed: ' . $stmt->error);
                 }
@@ -572,8 +573,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
             items.forEach((item, index) => {
                 const position = index + 1;
                 const driverId = item.getAttribute('data-driver-id');
+                const driverName = item.getAttribute('data-driver-name');
                 predictions.push({
                     driver_id: driverId,
+                    driver_name: driverName,
                     predicted_position: position
                 });
             });
