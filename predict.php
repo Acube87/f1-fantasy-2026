@@ -119,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
 
         $raceId = $input['race_id'];
         $predictions = $input['predictions'];
+        $constructorPredictions = $input['constructor_predictions'] ?? [];
         
         try {
             // Clear existing predictions
@@ -129,6 +130,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             $stmt->bind_param("ii", $raceId, $userId);
             if (!$stmt->execute()) {
                 throw new Exception('Delete failed: ' . $stmt->error);
+            }
+            
+            // Clear existing constructor predictions
+            $stmt = $db->prepare("DELETE FROM constructor_predictions WHERE race_id = ? AND user_id = ?");
+            if (!$stmt) {
+                throw new Exception('Prepare constructor delete failed: ' . $db->error);
+            }
+            $stmt->bind_param("ii", $raceId, $userId);
+            if (!$stmt->execute()) {
+                throw new Exception('Constructor delete failed: ' . $stmt->error);
             }
             
             // Insert new predictions
@@ -144,6 +155,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 $stmt->bind_param("iissi", $raceId, $userId, $driverId, $driverName, $position);
                 if (!$stmt->execute()) {
                     throw new Exception('Insert failed: ' . $stmt->error);
+                }
+            }
+            
+            // Insert new constructor predictions
+            if (!empty($constructorPredictions)) {
+                $stmt = $db->prepare("INSERT INTO constructor_predictions (race_id, user_id, constructor_id, constructor_name, predicted_position) VALUES (?, ?, ?, ?, ?)");
+                if (!$stmt) {
+                    throw new Exception('Prepare constructor insert failed: ' . $db->error);
+                }
+                
+                foreach ($constructorPredictions as $pred) {
+                    $constructorId = $pred['constructor_id'];
+                    $constructorName = $pred['constructor_name'];
+                    $position = $pred['predicted_position'];
+                    $stmt->bind_param("iissi", $raceId, $userId, $constructorId, $constructorName, $position);
+                    if (!$stmt->execute()) {
+                        throw new Exception('Constructor insert failed: ' . $stmt->error);
+                    }
                 }
             }
             
@@ -457,8 +486,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 <div class="card-glass rounded-xl p-6 border border-white/10 mb-6 sticky top-4">
                     <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
                         <i class="fas fa-trophy text-yellow-500"></i>
-                        Points
+                        Live Constructor Standings
                     </h3>
+                    <p class="text-xs text-gray-400 mb-4">Updates as you reorder drivers</p>
                     
                     <div class="space-y-2" id="constructorPoints">
                         <?php foreach ($constructors as $const): ?>
@@ -473,11 +503,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     
                     <!-- Scoring Info -->
                     <div class="mt-6 pt-6 border-t border-white/10">
-                        <h4 class="font-bold text-sm mb-3 text-yellow-400">🎯 Scoring</h4>
+                        <h4 class="font-bold text-sm mb-3 text-yellow-400">🏁 How It Works</h4>
                         <div class="space-y-2 text-xs text-gray-300">
-                            <p><span class="text-red-400 font-bold">+<?php echo $pointsSystem['exact']; ?></span> Exact position</p>
-                            <p><span class="text-yellow-400 font-bold">+<?php echo $pointsSystem['top3PodiumBonus']; ?></span> Top 3 podium bonus</p>
-                            <p class="text-gray-500 mt-3 pt-3 border-t border-white/10">Points = Top driver from team</p>
+                            <p>Teams ranked by <strong>best driver position</strong></p>
+                            <p class="text-gray-500">Example: If Ferrari's best driver is P1, Ferrari ranks #1</p>
+                            <p class="text-yellow-400 font-semibold mt-3">🥇 Top team highlighted in gold</p>
                         </div>
                     </div>
                 </div>
@@ -565,6 +595,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             const items = list.querySelectorAll('.prediction-item');
             const teamTopPositions = {};
             
+            // Calculate best position for each team
             items.forEach((item, index) => {
                 const position = index + 1;
                 const team = item.getAttribute('data-team');
@@ -574,17 +605,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 }
             });
             
-            document.querySelectorAll('.constructor-item').forEach(item => {
-                const team = item.getAttribute('data-constructor');
-                const position = teamTopPositions[team];
-                let points = 0;
+            // Create sorted array of teams by their best driver position
+            const teamRankings = Object.entries(teamTopPositions)
+                .sort((a, b) => a[1] - b[1]) // Sort by position (lower is better)
+                .map((entry, index) => ({
+                    team: entry[0],
+                    bestPosition: entry[1],
+                    constructorRank: index + 1
+                }));
+            
+            // Update the UI with sorted teams and calculated positions
+            const container = document.getElementById('constructorPoints');
+            container.innerHTML = ''; // Clear existing items
+            
+            teamRankings.forEach(ranking => {
+                const item = document.createElement('div');
+                item.className = 'constructor-item';
+                item.setAttribute('data-constructor', ranking.team);
                 
-                if (position) {
-                    points = <?php echo $pointsSystem['exact']; ?>;
-                    if (position <= 3) points += <?php echo $pointsSystem['top3PodiumBonus']; ?>;
+                // Add position indicator and styling
+                let positionBadge = '';
+                let itemClass = '';
+                if (ranking.constructorRank === 1) {
+                    positionBadge = '<span class="text-yellow-400 font-bold text-lg mr-2">🥇</span>';
+                    itemClass = ' border-2 border-yellow-400 bg-yellow-400/10';
+                } else if (ranking.constructorRank === 2) {
+                    positionBadge = '<span class="text-gray-300 font-bold text-lg mr-2">🥈</span>';
+                    itemClass = ' border border-gray-400 bg-gray-400/5';
+                } else if (ranking.constructorRank === 3) {
+                    positionBadge = '<span class="text-orange-400 font-bold text-lg mr-2">🥉</span>';
+                    itemClass = ' border border-orange-400 bg-orange-400/5';
                 }
                 
-                item.querySelector('.points-value').textContent = points;
+                item.className += itemClass;
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        ${positionBadge}
+                        <div>
+                            <div class="constructor-name">${ranking.team}</div>
+                            <div class="text-xs text-gray-400">P${ranking.constructorRank} • Best driver: P${ranking.bestPosition}</div>
+                        </div>
+                    </div>
+                    <div class="constructor-points">
+                        <span class="points-value text-lg font-bold">${ranking.constructorRank}</span>
+                        <span class="text-xs text-gray-400">st</span>
+                    </div>
+                `;
+                
+                container.appendChild(item);
             });
         }
 
@@ -593,6 +662,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             const items = list.querySelectorAll('.prediction-item');
             const predictions = [];
             
+            // Build driver predictions
             items.forEach((item, index) => {
                 const position = index + 1;
                 const driverId = item.getAttribute('data-driver-id');
@@ -604,6 +674,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 });
             });
             
+            // Calculate constructor predictions based on best driver positions
+            const teamTopPositions = {};
+            items.forEach((item, index) => {
+                const position = index + 1;
+                const team = item.getAttribute('data-team');
+                
+                if (!teamTopPositions[team] || position < teamTopPositions[team]) {
+                    teamTopPositions[team] = position;
+                }
+            });
+            
+            // Sort teams by best position to get constructor rankings
+            const constructorPredictions = Object.entries(teamTopPositions)
+                .sort((a, b) => a[1] - b[1])
+                .map((entry, index) => ({
+                    constructor_id: entry[0], // Using team name as ID for now
+                    constructor_name: entry[0],
+                    predicted_position: index + 1
+                }));
+            
             fetch('predict.php', {
                 method: 'POST',
                 headers: {
@@ -612,6 +702,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 body: JSON.stringify({
                     race_id: <?php echo $raceId; ?>,
                     predictions: predictions,
+                    constructor_predictions: constructorPredictions,
                     action: 'save_predictions'
                 })
             })
