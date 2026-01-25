@@ -102,10 +102,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
     }
     
     if ($input && $input['action'] === 'save_predictions') {
+        // Start output buffering to capture any unexpected output
+        ob_start();
+
         $raceId = $input['race_id'];
         $predictions = $input['predictions'];
-        
-        header('Content-Type: application/json');
         
         try {
             // Clear existing predictions
@@ -134,10 +135,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
                 }
             }
             
+            // If successful, clear any buffered output and send success JSON
+            ob_end_clean(); 
+            header('Content-Type: application/json');
             echo json_encode(['success' => true, 'message' => 'Predictions saved']);
             exit;
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            // An exception occurred. Get any buffered output and include it in the error message.
+            $bufferedOutput = ob_get_clean(); 
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'serverOutput' => $bufferedOutput // Include any unexpected output
+            ]);
             exit;
         }
     }
