@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
             foreach ($predictions as $pred) {
                 $driverId = $pred['driver_id'];
                 $position = $pred['predicted_position'];
-                $stmt->bind_param("iiii", $raceId, $userId, $driverId, $position);
+                $stmt->bind_param("iisi", $raceId, $userId, $driverId, $position);
                 if (!$stmt->execute()) {
                     throw new Exception('Insert failed: ' . $stmt->error);
                 }
@@ -573,7 +573,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
                 const position = index + 1;
                 const driverId = item.getAttribute('data-driver-id');
                 predictions.push({
-                    driver_id: parseInt(driverId),
+                    driver_id: driverId,
                     predicted_position: position
                 });
             });
