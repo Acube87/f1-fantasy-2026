@@ -1,10 +1,13 @@
 <?php
+ob_start(); // Start output buffering at the very beginning
+
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 
 // Check if user is logged in
 $user = getCurrentUser();
 if (!$user) {
+    ob_end_flush(); // Flush buffer before redirect
     header('Location: login.php');
     exit;
 }
@@ -22,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $userId = $user['id'];
 
 if (!$raceId) {
+    ob_end_flush(); // Flush buffer before redirect
     header('Location: index.php');
     exit;
 }
