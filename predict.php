@@ -35,7 +35,7 @@ $drivers = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // Get existing predictions for this race
 $predictions = [];
-$stmt = $db->prepare("SELECT driver_id, predicted_position FROM race_predictions WHERE race_id = ? AND user_id = ?");
+$stmt = $db->prepare("SELECT driver_id, predicted_position FROM predictions WHERE race_id = ? AND user_id = ?");
 $stmt->bind_param("ii", $raceId, $userId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -52,7 +52,7 @@ $constructors = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $previousPredictions = [];
 $stmt = $db->prepare("
     SELECT rp.driver_id, rp.predicted_position 
-    FROM race_predictions rp
+    FROM predictions rp
     JOIN races r ON rp.race_id = r.id
     WHERE rp.user_id = ? AND r.race_date < ? 
     ORDER BY r.race_date DESC 
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
         // Get previous race predictions
         $stmt = $db->prepare("
             SELECT rp.driver_id, rp.predicted_position 
-            FROM race_predictions rp
+            FROM predictions rp
             JOIN races r ON rp.race_id = r.id
             WHERE rp.user_id = ? AND r.race_date < (SELECT race_date FROM races WHERE id = ?)
             ORDER BY r.race_date DESC 
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
         
         try {
             // Clear existing predictions
-            $stmt = $db->prepare("DELETE FROM race_predictions WHERE race_id = ? AND user_id = ?");
+            $stmt = $db->prepare("DELETE FROM predictions WHERE race_id = ? AND user_id = ?");
             if (!$stmt) {
                 throw new Exception('Prepare delete failed: ' . $db->error);
             }
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) || isset($_
             }
             
             // Insert new predictions
-            $stmt = $db->prepare("INSERT INTO race_predictions (race_id, user_id, driver_id, predicted_position) VALUES (?, ?, ?, ?)");
+            $stmt = $db->prepare("INSERT INTO predictions (race_id, user_id, driver_id, predicted_position) VALUES (?, ?, ?, ?)");
             if (!$stmt) {
                 throw new Exception('Prepare insert failed: ' . $db->error);
             }
