@@ -2,15 +2,21 @@
 /**
  * Script to fetch drivers and constructors from F1 API
  * Run this once to get the current season's drivers and constructors
- * You can then use this data to populate the prediction forms
+ * This script will populate the 'drivers' and 'constructors' tables in the database.
  */
 
 require_once __DIR__ . '/../config.php';
 
 echo "<h2>Fetching 2026 F1 Drivers and Constructors</h2>";
 
-// Fetch from Ergast API
-$url = F1_API_BASE . "/drivers.json?limit=100";
+$db = getDB();
+
+// Truncate tables to ensure fresh data
+$db->query("TRUNCATE TABLE drivers");
+$db->query("TRUNCATE TABLE constructors");
+
+// Fetch drivers and their teams from Ergast API
+$url = F1_API_BASE . "/driverStandings.json";
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
@@ -23,32 +29,38 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 if ($httpCode !== 200 || !$response) {
-    echo "<p style='color: red;'>Error fetching drivers from API. HTTP Code: $httpCode</p>";
+    echo "<p style='color: red;'>Error fetching driver standings from API. HTTP Code: $httpCode</p>";
     exit;
 }
 
 $data = json_decode($response, true);
 
-if (!isset($data['MRData']['DriverTable']['Drivers'])) {
-    echo "<p style='color: red;'>No drivers found in API response.</p>";
+if (!isset($data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings'])) {
+    echo "<p style='color: red;'>No driver standings found in API response.</p>";
     exit;
 }
 
-$drivers = $data['MRData']['DriverTable']['Drivers'];
+$driverStandings = $data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings'];
 
-echo "<h3>Drivers Found:</h3>";
-echo "<pre>";
-echo "// Drivers array for predict.php\n";
-echo "\$drivers = [\n";
-foreach ($drivers as $driver) {
+// Insert drivers into the database
+$stmt = $db->prepare("INSERT INTO drivers (id, driver_name, team) VALUES (?, ?, ?)");
+$driverCount = 0;
+foreach ($driverStandings as $driverStanding) {
+    $driver = $driverStanding['Driver'];
+    $constructor = $driverStanding['Constructors'][0];
+    
     $id = $driver['driverId'] ?? '';
     $givenName = $driver['givenName'] ?? '';
     $familyName = $driver['familyName'] ?? '';
     $fullName = trim($givenName . ' ' . $familyName);
-    echo "    ['id' => '$id', 'name' => '$fullName'],\n";
+    $team = $constructor['name'] ?? 'Unknown';
+    
+    $stmt->bind_param("sss", $id, $fullName, $team);
+    $stmt->execute();
+    $driverCount++;
 }
-echo "];\n";
-echo "</pre>";
+
+echo "<p style='color: green;'>Successfully inserted $driverCount drivers into the database.</p>";
 
 // Fetch constructors
 $url = F1_API_BASE . "/constructors.json?limit=100";
@@ -69,28 +81,22 @@ if ($httpCode === 200 && $response) {
     if (isset($data['MRData']['ConstructorTable']['Constructors'])) {
         $constructors = $data['MRData']['ConstructorTable']['Constructors'];
         
-        echo "<h3>Constructors Found:</h3>";
-        echo "<pre>";
-        echo "// Constructors array for predict.php\n";
-        echo "\$constructors = [\n";
+        // Insert constructors into the database
+        $stmt = $db->prepare("INSERT INTO constructors (id, name) VALUES (?, ?)");
+        $constructorCount = 0;
         foreach ($constructors as $constructor) {
             $id = $constructor['constructorId'] ?? '';
             $name = $constructor['name'] ?? '';
-            echo "    ['id' => '$id', 'name' => '$name'],\n";
+            
+            $stmt->bind_param("ss", $id, $name);
+            $stmt->execute();
+            $constructorCount++;
         }
-        echo "];\n";
-        echo "</pre>";
+        
+        echo "<p style='color: green;'>Successfully inserted $constructorCount constructors into the database.</p>";
     }
 }
 
-echo "<p><strong>Instructions:</strong></p>";
-echo "<ol>";
-echo "<li>Copy the drivers and constructors arrays above</li>";
-echo "<li>Open predict.php</li>";
-echo "<li>Replace the placeholder arrays with the copied data</li>";
-echo "<li>Save and upload the file</li>";
-echo "</ol>";
-
+echo "<p><strong>The 'drivers' and 'constructors' tables have been populated.</strong></p>";
 echo "<p><a href='../index.php'>Back to Homepage</a></p>";
 ?>
-

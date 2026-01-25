@@ -36,6 +36,19 @@ CREATE TABLE IF NOT EXISTS races (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Drivers table
+CREATE TABLE IF NOT EXISTS drivers (
+    id VARCHAR(50) PRIMARY KEY,
+    driver_name VARCHAR(100) NOT NULL,
+    team VARCHAR(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Constructors table
+CREATE TABLE IF NOT EXISTS constructors (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Race results table (stores actual F1 results)
 CREATE TABLE IF NOT EXISTS race_results (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -116,4 +129,3 @@ CREATE TABLE IF NOT EXISTS user_totals (
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
