@@ -593,32 +593,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
         function calculateTeamRankings() {
             const list = document.getElementById('predictionList');
             const items = list.querySelectorAll('.prediction-item');
-            const teamTopPositions = {};
             
-            // Calculate best position for each team
+            // F1 points system
+            const positionPoints = {
+                1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 
+                6: 8, 7: 6, 8: 4, 9: 2, 10: 1
+            };
+            
+            // Calculate total points for each team (both drivers)
+            const teamPoints = {};
+            const teamDrivers = {};
+            
             items.forEach((item, index) => {
                 const position = index + 1;
                 const team = item.getAttribute('data-team');
+                const points = positionPoints[position] || 0;
                 
-                if (!teamTopPositions[team] || position < teamTopPositions[team]) {
-                    teamTopPositions[team] = position;
+                if (!teamPoints[team]) {
+                    teamPoints[team] = 0;
+                    teamDrivers[team] = [];
                 }
+                teamPoints[team] += points;
+                teamDrivers[team].push({position, points});
             });
             
-            // Create sorted array of teams by their best driver position
-            return Object.entries(teamTopPositions)
-                .sort((a, b) => a[1] - b[1]) // Sort by position (lower is better)
+            // Create sorted array of teams by total points (highest first)
+            return Object.entries(teamPoints)
+                .sort((a, b) => b[1] - a[1]) // Sort by points (higher is better)
                 .map((entry, index) => ({
                     team: entry[0],
-                    bestPosition: entry[1],
-                    constructorRank: index + 1
+                    totalPoints: entry[1],
+                    constructorRank: index + 1,
+                    drivers: teamDrivers[entry[0]]
                 }));
         }
 
         function updateConstructorPoints() {
             const teamRankings = calculateTeamRankings();
             
-            // Update the UI - keep original simple format but dynamically sorted
+            // Update the UI - keep original simple format but show points
             const container = document.getElementById('constructorPoints');
             container.innerHTML = ''; // Clear existing items
             
@@ -627,11 +640,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 item.className = 'constructor-item';
                 item.setAttribute('data-constructor', ranking.team);
                 
-                // Keep original simple structure - just team name and points
+                // Show team name and total points in format: "Ferrari 1 (43pts)"
                 item.innerHTML = `
                     <div class="constructor-name">${ranking.team}</div>
                     <div class="constructor-points">
-                        <span class="points-value">${ranking.constructorRank}</span>
+                        <span class="points-value">${ranking.constructorRank} (${ranking.totalPoints}pts)</span>
                     </div>
                 `;
                 
