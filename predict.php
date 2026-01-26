@@ -508,11 +508,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                         <div class="mb-4">
                             <p class="font-semibold text-xs text-white mb-2">🏎️ Driver Scoring</p>
                             <div class="text-xs text-gray-300 space-y-1 pl-2">
-                                <p class="text-green-400"><strong>Exact Position:</strong> +3 pts <span class="text-white font-bold">(ALL 20 drivers)</span></p>
-                                <p class="text-blue-400"><strong>F1 Race Points:</strong> (Top 10 only)</p>
-                                <p class="pl-2">25-18-15-12-10-8-6-4-2-1</p>
-                                <p class="text-yellow-400"><strong>Podium Bonus:</strong> +3 pts (Top 3)</p>
-                                <p class="text-gray-400 text-[10px] mt-1">Wrong position = 0 pts</p>
+                                <p class="text-blue-400 font-bold"><strong>F1 System Points:</strong> (ALL drivers)</p>
+                                <p class="pl-2 text-[10px]">P1: 25 | P2: 18 | P3: 15 | P4: 12 | P5: 10</p>
+                                <p class="pl-2 text-[10px]">P6: 8 | P7: 6 | P8: 4 | P9: 2 | P10: 1</p>
+                                <p class="pl-2 text-[10px]">P11-P20: 0 pts</p>
+                                <p class="text-green-400 mt-2"><strong>Correct Guess Bonus:</strong> +3 pts</p>
+                                <p class="text-gray-400 text-[10px] mt-1">(+3 awarded for ANY correct position guess)</p>
                             </div>
                         </div>
                         
@@ -529,21 +530,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                         <!-- Examples -->
                         <div class="mb-2 p-2 bg-white/5 rounded space-y-2">
                             <div>
-                                <p class="font-semibold text-xs text-yellow-400 mb-1">Top 10 Example:</p>
+                                <p class="font-semibold text-xs text-yellow-400 mb-1">Example 1 (Correct Guess):</p>
                                 <div class="text-[10px] text-gray-300 space-y-0.5">
-                                    <p>Predict Hamilton P2, Actual P1:</p>
-                                    <p>• Exact: 0 | Podium: +3 | F1: +25</p>
+                                    <p>Predict Verstappen P1, Actual P1:</p>
+                                    <p>• F1 Points: +25 | Correct Bonus: +3</p>
                                     <p class="text-green-400 font-bold">Total: 28 pts</p>
                                 </div>
                             </div>
                             <div class="pt-2 border-t border-white/5">
-                                <p class="font-semibold text-xs text-yellow-400 mb-1">Outside Top 10:</p>
+                                <p class="font-semibold text-xs text-yellow-400 mb-1">Example 2 (Wrong Guess):</p>
+                                <div class="text-[10px] text-gray-300 space-y-0.5">
+                                    <p>Predict Hamilton P2, Actual P1:</p>
+                                    <p>• F1 Points: +25 | Correct Bonus: 0</p>
+                                    <p class="text-green-400 font-bold">Total: 25 pts</p>
+                                </div>
+                            </div>
+                            <div class="pt-2 border-t border-white/5">
+                                <p class="font-semibold text-xs text-yellow-400 mb-1">Example 3 (Outside Top 10):</p>
                                 <div class="text-[10px] text-gray-300 space-y-0.5">
                                     <p>Predict Stroll P15, Actual P15:</p>
-                                    <p>• Exact: +3 | F1: 0 | Podium: 0</p>
+                                    <p>• F1 Points: 0 | Correct Bonus: +3</p>
                                     <p class="text-green-400 font-bold">Total: 3 pts</p>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <!-- API Note -->
+                        <div class="mt-3 p-2 bg-blue-500/10 border border-blue-500/20 rounded">
+                            <p class="text-[10px] text-blue-300">
+                                <strong>Note:</strong> Points calculated via API after race using actual results
+                            </p>
                         </div>
                     </div>
                 </div>
