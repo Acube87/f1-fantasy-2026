@@ -508,7 +508,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                         <div class="mb-4">
                             <p class="font-semibold text-xs text-white mb-2">🏎️ Driver Scoring</p>
                             <div class="text-xs text-gray-300 space-y-1 pl-2">
-                                <p class="text-green-400"><strong>Exact Position:</strong> +3 pts</p>
+                                <p class="text-green-400"><strong>Exact Position:</strong> +3 pts <span class="text-white font-bold">(ALL 20 drivers)</span></p>
                                 <p class="text-blue-400"><strong>F1 Race Points:</strong> (Top 10 only)</p>
                                 <p class="pl-2">25-18-15-12-10-8-6-4-2-1</p>
                                 <p class="text-yellow-400"><strong>Podium Bonus:</strong> +3 pts (Top 3)</p>
@@ -526,15 +526,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                             </div>
                         </div>
                         
-                        <!-- Example -->
-                        <div class="mb-2 p-2 bg-white/5 rounded">
-                            <p class="font-semibold text-xs text-yellow-400 mb-1">Example: Hamilton</p>
-                            <div class="text-[10px] text-gray-300 space-y-0.5">
-                                <p>Predict P2, Actual P1:</p>
-                                <p>• Podium bonus: +3</p>
-                                <p>• F1 points: +25</p>
-                                <p>• Exact: 0 (wrong)</p>
-                                <p class="text-green-400 font-bold">Total: 28 pts</p>
+                        <!-- Examples -->
+                        <div class="mb-2 p-2 bg-white/5 rounded space-y-2">
+                            <div>
+                                <p class="font-semibold text-xs text-yellow-400 mb-1">Top 10 Example:</p>
+                                <div class="text-[10px] text-gray-300 space-y-0.5">
+                                    <p>Predict Hamilton P2, Actual P1:</p>
+                                    <p>• Exact: 0 | Podium: +3 | F1: +25</p>
+                                    <p class="text-green-400 font-bold">Total: 28 pts</p>
+                                </div>
+                            </div>
+                            <div class="pt-2 border-t border-white/5">
+                                <p class="font-semibold text-xs text-yellow-400 mb-1">Outside Top 10:</p>
+                                <div class="text-[10px] text-gray-300 space-y-0.5">
+                                    <p>Predict Stroll P15, Actual P15:</p>
+                                    <p>• Exact: +3 | F1: 0 | Podium: 0</p>
+                                    <p class="text-green-400 font-bold">Total: 3 pts</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -619,38 +627,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
         }
 
         // Calculate team rankings based on predicted constructor order
-        // Note: Actual fantasy points calculated after race based on results
+        // Shows live F1-style points for visualization during prediction
         function calculateTeamRankings() {
             const list = document.getElementById('predictionList');
             const items = list.querySelectorAll('.prediction-item');
             
-            // Track constructor positions based on driver lineup
-            // Constructor rank = best finishing position of their drivers
-            const teamBestPosition = {};
+            // F1 points system for display
+            const positionPoints = {
+                1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 
+                6: 8, 7: 6, 8: 4, 9: 2, 10: 1
+            };
+            
+            // Calculate total points for each team (both drivers)
+            const teamPoints = {};
+            const teamDrivers = {};
             
             items.forEach((item, index) => {
                 const position = index + 1;
                 const team = item.getAttribute('data-team');
+                const points = positionPoints[position] || 0;
                 
-                if (!teamBestPosition[team] || position < teamBestPosition[team]) {
-                    teamBestPosition[team] = position;
+                if (!teamPoints[team]) {
+                    teamPoints[team] = 0;
+                    teamDrivers[team] = [];
                 }
+                teamPoints[team] += points;
+                teamDrivers[team].push({position, points});
             });
             
-            // Sort constructors by best driver position (lowest = best)
-            return Object.entries(teamBestPosition)
-                .sort((a, b) => a[1] - b[1])
+            // Sort constructors by total points (highest first)
+            return Object.entries(teamPoints)
+                .sort((a, b) => b[1] - a[1])
                 .map((entry, index) => ({
                     team: entry[0],
-                    bestDriverPosition: entry[1],
-                    constructorRank: index + 1
+                    totalPoints: entry[1],
+                    constructorRank: index + 1,
+                    drivers: teamDrivers[entry[0]]
                 }));
         }
 
         function updateConstructorPoints() {
             const teamRankings = calculateTeamRankings();
             
-            // Update the UI - show predicted constructor standings
+            // Update the UI - show predicted standings with F1-style points
             const container = document.getElementById('constructorPoints');
             container.innerHTML = ''; // Clear existing items
             
@@ -659,11 +678,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 item.className = 'constructor-item';
                 item.setAttribute('data-constructor', ranking.team);
                 
-                // Show predicted constructor position (points calculated after race)
+                // Show constructor rank and total F1-style points
                 item.innerHTML = `
                     <div class="constructor-name">${ranking.team}</div>
                     <div class="constructor-points">
-                        <span class="points-value">P${ranking.constructorRank}</span>
+                        <span class="points-value">${ranking.constructorRank} (${ranking.totalPoints}pts)</span>
                     </div>
                 `;
                 
