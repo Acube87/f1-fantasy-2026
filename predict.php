@@ -325,7 +325,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
+            padding: 8px 10px;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(225, 6, 0, 0.1);
             border-radius: 6px;
@@ -339,14 +339,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
         
         .constructor-name {
             font-weight: 500;
-            font-size: 13px;
+            font-size: 12px;
             color: #fff;
         }
         
         .constructor-points {
             font-weight: 700;
             color: #ff4444;
-            font-size: 16px;
+            font-size: 14px;
         }
         
         .points-value {
@@ -502,11 +502,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     
                     <!-- Scoring Info -->
                     <div class="mt-6 pt-6 border-t border-white/10">
-                        <h4 class="font-bold text-sm mb-3 text-yellow-400">🎯 Scoring</h4>
-                        <div class="space-y-2 text-xs text-gray-300">
-                            <p><span class="text-red-400 font-bold">+<?php echo $pointsSystem['exact']; ?></span> Exact position</p>
-                            <p><span class="text-yellow-400 font-bold">+<?php echo $pointsSystem['top3PodiumBonus']; ?></span> Top 3 podium bonus</p>
-                            <p class="text-gray-500 mt-3 pt-3 border-t border-white/10">Points = Top driver from team</p>
+                        <h4 class="font-bold text-sm mb-3 text-yellow-400">📊 Scoring Rules</h4>
+                        
+                        <!-- Driver Points -->
+                        <div class="mb-4">
+                            <p class="font-semibold text-xs text-white mb-2">🏎️ Driver Points (F1 System)</p>
+                            <div class="text-xs text-gray-300 space-y-1 pl-2">
+                                <p>P1: 25pts | P2: 18pts | P3: 15pts</p>
+                                <p>P4: 12pts | P5: 10pts | P6: 8pts</p>
+                                <p>P7: 6pts | P8: 4pts | P9: 2pts | P10: 1pt</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Constructor Points -->
+                        <div class="mb-4">
+                            <p class="font-semibold text-xs text-white mb-2">🏆 Constructor Points</p>
+                            <div class="text-xs text-gray-300 space-y-1 pl-2">
+                                <p>Sum of <strong>both drivers'</strong> points</p>
+                                <p class="text-gray-400">Example: Ferrari P1(25) + P3(15) = 40pts</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Double Points Races -->
+                        <div class="mb-2">
+                            <p class="font-semibold text-xs text-red-400 mb-2">⚡ Double Points Races</p>
+                            <div class="text-xs text-gray-300 space-y-1 pl-2">
+                                <p>🇬🇧 British GP</p>
+                                <p>🇨🇳 China GP</p>
+                                <p>🇸🇬 Singapore GP</p>
+                                <p class="text-yellow-400 mt-1">All points × 2</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -600,6 +625,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 6: 8, 7: 6, 8: 4, 9: 2, 10: 1
             };
             
+            // Check if this is a double points race
+            const raceName = '<?php echo htmlspecialchars($race['race_name']); ?>';
+            const doublePointsRaces = ['British Grand Prix', 'Chinese Grand Prix', 'Singapore Grand Prix', 'Britain', 'China', 'Singapore'];
+            const isDoublePoints = doublePointsRaces.some(r => raceName.includes(r));
+            const multiplier = isDoublePoints ? 2 : 1;
+            
             // Calculate total points for each team (both drivers)
             const teamPoints = {};
             const teamDrivers = {};
@@ -607,7 +638,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             items.forEach((item, index) => {
                 const position = index + 1;
                 const team = item.getAttribute('data-team');
-                const points = positionPoints[position] || 0;
+                const points = (positionPoints[position] || 0) * multiplier;
                 
                 if (!teamPoints[team]) {
                     teamPoints[team] = 0;
@@ -624,7 +655,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     team: entry[0],
                     totalPoints: entry[1],
                     constructorRank: index + 1,
-                    drivers: teamDrivers[entry[0]]
+                    drivers: teamDrivers[entry[0]],
+                    isDoublePoints: isDoublePoints
                 }));
         }
 
@@ -640,11 +672,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 item.className = 'constructor-item';
                 item.setAttribute('data-constructor', ranking.team);
                 
-                // Show team name and total points in format: "Ferrari 1 (43pts)"
+                // Show team name and total points in format: "Ferrari 1 (43pts)" or "Ferrari 1 (86pts⚡)" for double points
+                const doublePointsIndicator = ranking.isDoublePoints ? '⚡' : '';
                 item.innerHTML = `
                     <div class="constructor-name">${ranking.team}</div>
                     <div class="constructor-points">
-                        <span class="points-value">${ranking.constructorRank} (${ranking.totalPoints}pts)</span>
+                        <span class="points-value">${ranking.constructorRank} (${ranking.totalPoints}pts${doublePointsIndicator})</span>
                     </div>
                 `;
                 
