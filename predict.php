@@ -502,35 +502,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     
                     <!-- Scoring Info -->
                     <div class="mt-6 pt-6 border-t border-white/10">
-                        <h4 class="font-bold text-sm mb-3 text-yellow-400">📊 Scoring Rules</h4>
+                        <h4 class="font-bold text-sm mb-3 text-yellow-400">📊 Paddock Picks Scoring</h4>
                         
                         <!-- Driver Points -->
                         <div class="mb-4">
-                            <p class="font-semibold text-xs text-white mb-2">🏎️ Driver Points (F1 System)</p>
+                            <p class="font-semibold text-xs text-white mb-2">🏎️ Driver Scoring</p>
                             <div class="text-xs text-gray-300 space-y-1 pl-2">
-                                <p>P1: 25pts | P2: 18pts | P3: 15pts</p>
-                                <p>P4: 12pts | P5: 10pts | P6: 8pts</p>
-                                <p>P7: 6pts | P8: 4pts | P9: 2pts | P10: 1pt</p>
+                                <p class="text-green-400"><strong>Exact Position:</strong> +3 pts</p>
+                                <p class="text-blue-400"><strong>F1 Race Points:</strong> (Top 10 only)</p>
+                                <p class="pl-2">25-18-15-12-10-8-6-4-2-1</p>
+                                <p class="text-yellow-400"><strong>Podium Bonus:</strong> +3 pts (Top 3)</p>
+                                <p class="text-gray-400 text-[10px] mt-1">Wrong position = 0 pts</p>
                             </div>
                         </div>
                         
                         <!-- Constructor Points -->
                         <div class="mb-4">
-                            <p class="font-semibold text-xs text-white mb-2">🏆 Constructor Points</p>
+                            <p class="font-semibold text-xs text-white mb-2">🏆 Constructor Scoring</p>
                             <div class="text-xs text-gray-300 space-y-1 pl-2">
-                                <p>Sum of <strong>both drivers'</strong> points</p>
-                                <p class="text-gray-400">Example: Ferrari P1(25) + P3(15) = 40pts</p>
+                                <p class="text-green-400"><strong>Exact Position:</strong> +5 pts</p>
+                                <p class="text-gray-400 text-[10px]">Wrong position = 0 pts</p>
+                                <p class="text-gray-400 text-[10px] mt-1">Applies to all teams</p>
                             </div>
                         </div>
                         
-                        <!-- Double Points Races -->
-                        <div class="mb-2">
-                            <p class="font-semibold text-xs text-red-400 mb-2">⚡ Double Points Races</p>
-                            <div class="text-xs text-gray-300 space-y-1 pl-2">
-                                <p>🇬🇧 British GP</p>
-                                <p>🇨🇳 China GP</p>
-                                <p>🇸🇬 Singapore GP</p>
-                                <p class="text-yellow-400 mt-1">All points × 2</p>
+                        <!-- Example -->
+                        <div class="mb-2 p-2 bg-white/5 rounded">
+                            <p class="font-semibold text-xs text-yellow-400 mb-1">Example: Hamilton</p>
+                            <div class="text-[10px] text-gray-300 space-y-0.5">
+                                <p>Predict P2, Actual P1:</p>
+                                <p>• Podium bonus: +3</p>
+                                <p>• F1 points: +25</p>
+                                <p>• Exact: 0 (wrong)</p>
+                                <p class="text-green-400 font-bold">Total: 28 pts</p>
                             </div>
                         </div>
                     </div>
@@ -614,56 +618,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             });
         }
 
-        // Calculate team rankings based on best driver position
+        // Calculate team rankings based on predicted constructor order
+        // Note: Actual fantasy points calculated after race based on results
         function calculateTeamRankings() {
             const list = document.getElementById('predictionList');
             const items = list.querySelectorAll('.prediction-item');
             
-            // F1 points system
-            const positionPoints = {
-                1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 
-                6: 8, 7: 6, 8: 4, 9: 2, 10: 1
-            };
-            
-            // Check if this is a double points race
-            const raceName = '<?php echo htmlspecialchars($race['race_name']); ?>';
-            const doublePointsRaces = ['British Grand Prix', 'Chinese Grand Prix', 'Singapore Grand Prix', 'Britain', 'China', 'Singapore'];
-            const isDoublePoints = doublePointsRaces.some(r => raceName.includes(r));
-            const multiplier = isDoublePoints ? 2 : 1;
-            
-            // Calculate total points for each team (both drivers)
-            const teamPoints = {};
-            const teamDrivers = {};
+            // Track constructor positions based on driver lineup
+            // Constructor rank = best finishing position of their drivers
+            const teamBestPosition = {};
             
             items.forEach((item, index) => {
                 const position = index + 1;
                 const team = item.getAttribute('data-team');
-                const points = (positionPoints[position] || 0) * multiplier;
                 
-                if (!teamPoints[team]) {
-                    teamPoints[team] = 0;
-                    teamDrivers[team] = [];
+                if (!teamBestPosition[team] || position < teamBestPosition[team]) {
+                    teamBestPosition[team] = position;
                 }
-                teamPoints[team] += points;
-                teamDrivers[team].push({position, points});
             });
             
-            // Create sorted array of teams by total points (highest first)
-            return Object.entries(teamPoints)
-                .sort((a, b) => b[1] - a[1]) // Sort by points (higher is better)
+            // Sort constructors by best driver position (lowest = best)
+            return Object.entries(teamBestPosition)
+                .sort((a, b) => a[1] - b[1])
                 .map((entry, index) => ({
                     team: entry[0],
-                    totalPoints: entry[1],
-                    constructorRank: index + 1,
-                    drivers: teamDrivers[entry[0]],
-                    isDoublePoints: isDoublePoints
+                    bestDriverPosition: entry[1],
+                    constructorRank: index + 1
                 }));
         }
 
         function updateConstructorPoints() {
             const teamRankings = calculateTeamRankings();
             
-            // Update the UI - keep original simple format but show points
+            // Update the UI - show predicted constructor standings
             const container = document.getElementById('constructorPoints');
             container.innerHTML = ''; // Clear existing items
             
@@ -672,12 +659,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 item.className = 'constructor-item';
                 item.setAttribute('data-constructor', ranking.team);
                 
-                // Show team name and total points in format: "Ferrari 1 (43pts)" or "Ferrari 1 (86pts⚡)" for double points
-                const doublePointsIndicator = ranking.isDoublePoints ? '⚡' : '';
+                // Show predicted constructor position (points calculated after race)
                 item.innerHTML = `
                     <div class="constructor-name">${ranking.team}</div>
                     <div class="constructor-points">
-                        <span class="points-value">${ranking.constructorRank} (${ranking.totalPoints}pts${doublePointsIndicator})</span>
+                        <span class="points-value">P${ranking.constructorRank}</span>
                     </div>
                 `;
                 
