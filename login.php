@@ -37,7 +37,10 @@ if (isLoggedIn()) {
     <header>
         <nav>
             <div class="container">
-                <h1>🏎️ <?php echo SITE_NAME; ?></h1>
+                <div>
+                    <h1>🏎️ <?php echo SITE_NAME; ?></h1>
+                    <p style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 0.25rem;">Powered by Scanerrific</p>
+                </div>
                 <ul>
                     <li><a href="index.php">Home</a></li>
                     <li><a href="signup.php">Sign Up</a></li>
@@ -71,6 +74,10 @@ if (isLoggedIn()) {
             <p class="auth-link">Don't have an account? <a href="signup.php">Sign up here</a></p>
         </div>
     </main>
+
+    <footer style="text-align: center; padding: 2rem 0; color: #999; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 2rem;">
+        <p>Powered by <a href="https://scanerrific.com" target="_blank" style="color: #e10600;">Scanerrific</a></p>
+    </footer>
 </body>
 </html>
 

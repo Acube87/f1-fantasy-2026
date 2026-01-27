@@ -112,7 +112,10 @@ if ($user) {
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
                     <span class="text-2xl">🏎️</span>
-                    <h1 class="text-xl font-bold"><?php echo SITE_NAME; ?></h1>
+                    <div>
+                        <h1 class="text-xl font-bold"><?php echo SITE_NAME; ?></h1>
+                        <p class="text-xs text-white/60">Powered by Scanerrific</p>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-6">
                     <?php if ($user): ?>
@@ -134,7 +137,7 @@ if ($user) {
         <!-- Hero Section -->
         <section class="text-center mb-16 animate-fade-in-up">
             <h1 class="text-5xl md:text-7xl font-black mb-6 gradient-text">
-                F1 2026 Fantasy
+                Formula 1 - Paddock Picks
             </h1>
             <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
                 Predict race winners, compete with friends, and climb the leaderboard!
@@ -282,6 +285,7 @@ if ($user) {
     <footer class="mt-16 border-t border-white/10 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
             <p>&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+            <p class="mt-2">Powered by <a href="https://scanerrific.com" target="_blank" class="text-red-400 hover:text-red-300 transition">Scanerrific</a></p>
         </div>
     </footer>
 </body>

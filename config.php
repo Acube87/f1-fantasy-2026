@@ -15,7 +15,7 @@ define('F1_API_BASE', 'http://ergast.com/api/f1/2026');
 define('F1_API_TIMEOUT', 30);
 
 // Application settings
-define('SITE_NAME', 'F1 2026 Fantasy');
+define('SITE_NAME', 'Formula 1 - Paddock Picks');
 define('SESSION_NAME', 'f1_fantasy_session');
 
 // Scoring configuration
