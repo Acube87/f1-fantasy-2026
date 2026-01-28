@@ -2,13 +2,10 @@
 require_once 'includes/auth.php';
 
 $error = '';
-$login_attempted = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
-    
-    $login_attempted = true;
     
     if (empty($username) || empty($password)) {
         $error = 'Please fill in all fields';
@@ -318,7 +315,7 @@ if (isLoggedIn()) {
                                         <input 
                                             type="text" 
                                             name="username"
-                                            placeholder="your@email.com"
+                                            placeholder="username or email"
                                             class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:border-pink-500 transition"
                                             required
                                         />
@@ -333,14 +330,6 @@ if (isLoggedIn()) {
                                             class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:border-pink-500 transition"
                                             required
                                         />
-                                    </div>
-
-                                    <div class="flex items-center justify-between text-sm">
-                                        <label class="flex items-center space-x-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-600 bg-white/5 text-pink-500 focus:ring-pink-500 focus:ring-offset-0">
-                                            <span class="text-gray-400">Remember me</span>
-                                        </label>
-                                        <a href="#" class="text-pink-400 hover:text-pink-300 transition">Forgot password?</a>
                                     </div>
 
                                     <button 
