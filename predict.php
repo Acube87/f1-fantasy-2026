@@ -365,17 +365,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
         
         .lottie-modal.active {
-            display: flex;
             opacity: 1;
+            visibility: visible;
         }
         
         .lottie-content {
@@ -531,10 +532,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
     </main>
 
     <!-- Lottie Animation Modal -->
-    <div class="lottie-modal" id="lottieModal">
+    <div class="lottie-modal" id="lottieModal" role="dialog" aria-modal="true" aria-labelledby="lottieMessage">
         <div class="lottie-content">
             <dotlottie-wc src="https://lottie.host/fd53e258-4647-4e85-b446-ceac24d3ab63/pTpwiB6KUG.lottie" style="width: 300px; height: 300px;" autoplay></dotlottie-wc>
-            <div class="lottie-message">✓ Predictions Saved Successfully!</div>
+            <div class="lottie-message" id="lottieMessage">✓ Predictions Saved Successfully!</div>
         </div>
     </div>
 
