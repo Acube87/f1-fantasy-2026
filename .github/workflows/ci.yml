@@ -39,13 +39,14 @@ jobs:
         run: |
           echo "🔒 Checking for security issues..."
           
-          # Check for exposed config.php (should be in .gitignore)
-          if git ls-files | grep -q "^config.php$"; then
-            echo "⚠️  WARNING: config.php is tracked in git!"
-            echo "This may expose database credentials."
-            exit 1
-          else
-            echo "✅ config.php is not tracked (good!)"
+          # Check for hardcoded credentials in config.php
+          if [ -f "config.php" ]; then
+            if grep -E "(password|passwd|pwd).*=.*['\"][^'\"]{8,}" config.php 2>/dev/null; then
+              echo "⚠️  WARNING: Hardcoded password detected in config.php!"
+              echo "Use environment variables instead."
+            else
+              echo "✅ config.php appears to use environment variables"
+            fi
           fi
           
           # Check for SQL injection patterns

@@ -1,7 +1,10 @@
 <?php
+// Database configuration - EXAMPLE FILE
+// Copy this file to config.php and update with your credentials
+// DO NOT commit config.php with real credentials to version control!
+
 // Database configuration
 // Railway-compatible: Uses environment variables if available, falls back to defaults
-// Prefer TCP proxy domain for Railway external connections
 define('DB_HOST', getenv('RAILWAY_TCP_PROXY_DOMAIN') ?: getenv('MYSQLHOST') ?: getenv('DB_HOST') ?: 'localhost');
 define('DB_USER', getenv('MYSQLUSER') ?: getenv('DB_USER') ?: 'root');
 define('DB_PASS', getenv('MYSQL_ROOT_PASSWORD') ?: getenv('MYSQLPASSWORD') ?: getenv('DB_PASS') ?: '');
@@ -35,7 +38,6 @@ function getDB() {
     if ($conn === null) {
         try {
             // Use environment variables for Railway/cloud deployment
-            // For Railway, these are automatically provided
             $host = getenv('RAILWAY_TCP_PROXY_DOMAIN') ?: getenv('MYSQLHOST') ?: 'localhost';
             $port = getenv('RAILWAY_TCP_PROXY_PORT') ?: getenv('MYSQLPORT') ?: 3306;
             $user = getenv('MYSQLUSER') ?: 'root';
@@ -53,4 +55,3 @@ function getDB() {
     }
     return $conn;
 }
-
