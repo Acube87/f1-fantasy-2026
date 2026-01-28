@@ -174,6 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
     <title>Predict - <?php echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js" type="module"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         
@@ -354,6 +355,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             background: rgba(255, 255, 255, 0.15);
             border-color: rgba(255, 255, 255, 0.3);
         }
+        
+        /* Lottie Animation Modal */
+        .lottie-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .lottie-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .lottie-content {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        
+        .lottie-modal.active .lottie-content {
+            transform: scale(1);
+        }
+        
+        .lottie-message {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
     </style>
 </head>
 <body class="text-white">
@@ -484,6 +529,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             </div>
         </div>
     </main>
+
+    <!-- Lottie Animation Modal -->
+    <div class="lottie-modal" id="lottieModal">
+        <div class="lottie-content">
+            <dotlottie-wc src="https://lottie.host/fd53e258-4647-4e85-b446-ceac24d3ab63/pTpwiB6KUG.lottie" style="width: 300px; height: 300px;" autoplay></dotlottie-wc>
+            <div class="lottie-message">✓ Predictions Saved Successfully!</div>
+        </div>
+    </div>
 
     <script>
         const driversData = <?php echo json_encode(array_map(fn($d) => ['id' => $d['id'], 'team' => $d['team']], $drivers)); ?>;
@@ -623,8 +676,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             })
             .then(data => {
                 if (data.success) {
-                    alert('✓ Predictions saved successfully!');
-                    setTimeout(() => window.location.href = 'dashboard.php', 1000);
+                    // Show Lottie animation
+                    const lottieModal = document.getElementById('lottieModal');
+                    lottieModal.classList.add('active');
+                    
+                    // Hide animation and redirect after 2.5 seconds
+                    setTimeout(() => {
+                        lottieModal.classList.remove('active');
+                        window.location.href = 'dashboard.php';
+                    }, 2500);
                 } else {
                     alert('✗ Error saving predictions: ' + (data.message || 'Unknown error'));
                 }

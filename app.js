@@ -176,7 +176,15 @@ function savePrediction(raceId) {
     localStorage.setItem('predictions', JSON.stringify(predictions));
     
     closeModal();
-    alert('Prediction saved!');
+    
+    // Show Lottie animation
+    const lottieModal = document.getElementById('lottieModal');
+    lottieModal.classList.add('active');
+    
+    // Hide animation after 2.5 seconds
+    setTimeout(() => {
+        lottieModal.classList.remove('active');
+    }, 2500);
 }
 
 function closeModal() {
