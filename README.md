@@ -36,6 +36,8 @@ A modern, game-style Formula 1 fantasy application where users can predict race 
 
 **Having deployment access issues?** See [DEPLOYMENT_ACCESS_FIX.md](DEPLOYMENT_ACCESS_FIX.md) for troubleshooting.
 
+**⚠️ Feature branch not deploying?** See [WHY_BRANCH_NOT_DEPLOYING.md](WHY_BRANCH_NOT_DEPLOYING.md) for quick fix (2 minutes!)
+
 **Working on a feature branch?** See [BRANCH_DEPLOYMENT_GUIDE.md](BRANCH_DEPLOYMENT_GUIDE.md) to deploy non-main branches.
 
 ### Manual Deployment
