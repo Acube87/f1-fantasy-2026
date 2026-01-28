@@ -1,9 +1,10 @@
 # Formula 1 2026 Fantasy Game
 
-A simple HTML-based Formula 1 fantasy game where users can predict race winners and standings.
+A modern, game-style Formula 1 fantasy application where users can predict race winners and standings. Features a sleek racing-themed UI with neon effects and animated elements.
 
 ## Features
 
+- **Game-Style Landing Page** - Modern racing-themed landing page with login functionality (`index-landing.php`)
 - User authentication (sign up/login)
 - Real-time F1 results from official API
 - Race predictions (drivers and constructors)
@@ -29,16 +30,29 @@ A simple HTML-based Formula 1 fantasy game where users can predict race winners 
 
 **For detailed setup instructions, see [SETUP.md](SETUP.md)**
 
+## Pages
+
+- **index-landing.php** - Modern game-style landing page with login (new!)
+- **index.php** - Original homepage with race listing
+- **login.php** - Standard login page
+- **signup.php** - User registration
+- **dashboard.php** - User dashboard with stats
+- **predict.php** - Make race predictions
+- **leaderboard.php** - View rankings
+- **race-results.php** - View completed race results
+
 ## File Structure
 
 ```
 /
-├── index.php              # Homepage
+├── index-landing.php      # Game-style landing page with login (NEW)
+├── index.php              # Original homepage
 ├── login.php             # Login page
 ├── signup.php            # Registration page
 ├── dashboard.php          # User dashboard
 ├── predict.php            # Prediction interface
 ├── leaderboard.php        # Leaderboard
+├── race-results.php       # Race results
 ├── api/                   # API endpoints
 │   ├── fetch-results.php  # Fetch F1 results
 │   └── calculate-scores.php # Calculate scores
@@ -53,5 +67,16 @@ A simple HTML-based Formula 1 fantasy game where users can predict race winners 
 └── database.sql           # Database schema
 
 ```
+
+## Landing Page Features
+
+The new `index-landing.php` includes:
+- **Racing-themed design** with gradient backgrounds and neon effects
+- **Animated elements** including floating cards and racing stripes
+- **Glass morphism UI** with backdrop blur effects
+- **Login integration** directly on the landing page
+- **Responsive layout** that works on all devices
+- **Modern fonts** using Orbitron (racing font) and Inter
+- **Feature showcase** with stats and highlights
 
 # f1-fantasy-2026
