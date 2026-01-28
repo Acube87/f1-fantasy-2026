@@ -14,11 +14,15 @@ on:
       environment:
         description: 'Deployment environment'
         required: true
-        default: 'production'
+        default: 'staging'
         type: choice
         options:
           - production
           - staging
+      branch:
+        description: 'Branch to deploy (leave empty to use current)'
+        required: false
+        type: string
 
 jobs:
   deploy:
@@ -27,6 +31,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
         
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -44,6 +50,13 @@ jobs:
             echo "⚠️  Warning: config.php contains localhost configuration"
           fi
           
+      - name: Display deployment info
+        run: |
+          echo "🚀 Deployment Information:"
+          echo "   Branch: ${{ github.ref_name }}"
+          echo "   Environment: ${{ github.event.inputs.environment || 'auto' }}"
+          echo "   Trigger: ${{ github.event_name }}"
+          
       - name: Install Railway CLI
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
@@ -59,10 +72,17 @@ jobs:
             echo "📝 To enable automatic deployments:"
             echo "   1. Get token from https://railway.app/account/tokens"
             echo "   2. Add it as a GitHub secret named RAILWAY_TOKEN"
+            echo ""
+            echo "💡 You can also deploy feature branches manually:"
+            echo "   1. Go to Actions tab"
+            echo "   2. Click 'Deploy to Railway'"
+            echo "   3. Click 'Run workflow'"
+            echo "   4. Select your branch and environment"
             exit 0
           fi
           
           echo "🚀 Deploying to Railway..."
+          echo "   Environment: ${{ github.event.inputs.environment || 'production' }}"
           railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} || echo "⚠️  Deployment skipped - configure RAILWAY_SERVICE_ID secret"
           
       - name: Deployment status
@@ -70,6 +90,11 @@ jobs:
         run: |
           if [ "${{ job.status }}" == "success" ]; then
             echo "✅ Deployment completed successfully!"
+            echo ""
+            echo "📝 Deployment Details:"
+            echo "   Branch: ${{ github.ref_name }}"
+            echo "   Commit: ${{ github.sha }}"
+            echo "   Triggered by: ${{ github.event_name }}"
           else
             echo "❌ Deployment failed. Check logs above."
           fi

@@ -36,6 +36,8 @@ A modern, game-style Formula 1 fantasy application where users can predict race 
 
 **Having deployment access issues?** See [DEPLOYMENT_ACCESS_FIX.md](DEPLOYMENT_ACCESS_FIX.md) for troubleshooting.
 
+**Working on a feature branch?** See [BRANCH_DEPLOYMENT_GUIDE.md](BRANCH_DEPLOYMENT_GUIDE.md) to deploy non-main branches.
+
 ### Manual Deployment
 
 1. Upload files to Hostinger hosting
@@ -103,15 +105,22 @@ The new `index-landing.php` includes:
 This repository includes GitHub Actions workflows for:
 - **Continuous Integration** - Validates PHP syntax and checks for security issues
 - **Automated Deployment** - Deploys to Railway on push to main/master branches
+- **Manual Deployment** - Deploy any branch via Actions tab → "Run workflow"
+
+### Branch Deployment Workflow
+- **Main/Master branches**: Auto-deploy to production on every push
+- **Feature branches**: Use manual deployment or Railway preview deployments
+- **See**: [BRANCH_DEPLOYMENT_GUIDE.md](BRANCH_DEPLOYMENT_GUIDE.md) for deploying feature branches
 
 ### Deployment Options
 - **Railway** - Recommended for PHP applications (see [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md))
 - **Hostinger** - Traditional hosting (see [DEPLOYMENT.md](DEPLOYMENT.md))
 - **Other Platforms** - See deployment documentation in repository root
 
-### Troubleshooting Deployment Access
-If you encounter "Cannot setup automatic deploys because no one in the workspace has access to it":
-- See [DEPLOYMENT_ACCESS_FIX.md](DEPLOYMENT_ACCESS_FIX.md) for complete troubleshooting guide
-- Most common fix: Grant repository access to the deployment platform in GitHub Settings
+### Troubleshooting Deployment
+If you encounter deployment issues:
+- **Access denied**: See [DEPLOYMENT_ACCESS_FIX.md](DEPLOYMENT_ACCESS_FIX.md)
+- **Branch not deploying**: See [BRANCH_DEPLOYMENT_GUIDE.md](BRANCH_DEPLOYMENT_GUIDE.md)
+- **General setup**: See [QUICK_START.md](QUICK_START.md)
 
 # f1-fantasy-2026
