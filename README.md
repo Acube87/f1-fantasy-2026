@@ -1,5 +1,8 @@
 # Formula 1 2026 Fantasy Game
 
+[![CI Status](https://github.com/Acube87/f1-fantasy-2026/actions/workflows/ci.yml/badge.svg)](https://github.com/Acube87/f1-fantasy-2026/actions/workflows/ci.yml)
+[![Deploy to Railway](https://github.com/Acube87/f1-fantasy-2026/actions/workflows/deploy.yml/badge.svg)](https://github.com/Acube87/f1-fantasy-2026/actions/workflows/deploy.yml)
+
 A modern, game-style Formula 1 fantasy application where users can predict race winners and standings. Features a sleek racing-themed UI with neon effects and animated elements.
 
 ## Features
@@ -19,6 +22,21 @@ A modern, game-style Formula 1 fantasy application where users can predict race 
 - API: Ergast F1 API (or official F1 API)
 
 ## Quick Setup
+
+### Automated Deployment (Recommended)
+
+**Deploy to Railway (Free Tier Available):**
+1. Fork this repository to your GitHub account
+2. Sign up at [Railway](https://railway.app) using your GitHub account
+3. Click "New Project" → "Deploy from GitHub repo"
+4. Select your forked repository
+5. Railway will auto-detect PHP and deploy automatically
+6. Add MySQL database from Railway dashboard
+7. Configure environment variables (see [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md))
+
+**Having deployment access issues?** See [DEPLOYMENT_ACCESS_FIX.md](DEPLOYMENT_ACCESS_FIX.md) for troubleshooting.
+
+### Manual Deployment
 
 1. Upload files to Hostinger hosting
 2. Create MySQL database
@@ -78,5 +96,22 @@ The new `index-landing.php` includes:
 - **Responsive layout** that works on all devices
 - **Modern fonts** using Orbitron (racing font) and Inter
 - **Feature showcase** with stats and highlights
+
+## Deployment
+
+### Automated Deployments
+This repository includes GitHub Actions workflows for:
+- **Continuous Integration** - Validates PHP syntax and checks for security issues
+- **Automated Deployment** - Deploys to Railway on push to main/master branches
+
+### Deployment Options
+- **Railway** - Recommended for PHP applications (see [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md))
+- **Hostinger** - Traditional hosting (see [DEPLOYMENT.md](DEPLOYMENT.md))
+- **Other Platforms** - See deployment documentation in repository root
+
+### Troubleshooting Deployment Access
+If you encounter "Cannot setup automatic deploys because no one in the workspace has access to it":
+- See [DEPLOYMENT_ACCESS_FIX.md](DEPLOYMENT_ACCESS_FIX.md) for complete troubleshooting guide
+- Most common fix: Grant repository access to the deployment platform in GitHub Settings
 
 # f1-fantasy-2026

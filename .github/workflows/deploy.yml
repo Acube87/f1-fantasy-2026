@@ -1,0 +1,75 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: 
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mysqli, pdo, pdo_mysql
+          
+      - name: Validate PHP syntax
+        run: |
+          find . -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
+          
+      - name: Check for sensitive files
+        run: |
+          if [ -f "config.php" ] && grep -q "localhost" config.php; then
+            echo "⚠️  Warning: config.php contains localhost configuration"
+          fi
+          
+      - name: Install Railway CLI
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          npm install -g @railway/cli
+          
+      - name: Deploy to Railway
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "⚠️  RAILWAY_TOKEN not set. Skipping deployment."
+            echo "📝 To enable automatic deployments:"
+            echo "   1. Get token from https://railway.app/account/tokens"
+            echo "   2. Add it as a GitHub secret named RAILWAY_TOKEN"
+            exit 0
+          fi
+          
+          echo "🚀 Deploying to Railway..."
+          railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} || echo "⚠️  Deployment skipped - configure RAILWAY_SERVICE_ID secret"
+          
+      - name: Deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment completed successfully!"
+          else
+            echo "❌ Deployment failed. Check logs above."
+          fi

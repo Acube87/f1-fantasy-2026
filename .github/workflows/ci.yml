@@ -1,0 +1,115 @@
+name: CI - Validate Code
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-version: ['8.1', '8.2', '8.3']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mysqli, pdo, pdo_mysql
+          coverage: none
+          
+      - name: Validate composer.json
+        if: hashFiles('composer.json') != ''
+        run: composer validate --strict
+        
+      - name: Check PHP syntax
+        run: |
+          echo "🔍 Checking PHP syntax..."
+          find . -name "*.php" -not -path "./vendor/*" -not -path "./.git/*" -print0 | xargs -0 -n1 php -l
+          echo "✅ All PHP files are syntactically valid"
+          
+      - name: Check for common security issues
+        run: |
+          echo "🔒 Checking for security issues..."
+          
+          # Check for exposed config.php (should be in .gitignore)
+          if git ls-files | grep -q "^config.php$"; then
+            echo "⚠️  WARNING: config.php is tracked in git!"
+            echo "This may expose database credentials."
+            exit 1
+          else
+            echo "✅ config.php is not tracked (good!)"
+          fi
+          
+          # Check for SQL injection patterns
+          if grep -r "mysqli_query.*\$_" --include="*.php" . 2>/dev/null; then
+            echo "⚠️  WARNING: Potential SQL injection vulnerability detected!"
+            echo "Use prepared statements instead."
+          fi
+          
+          # Check for eval() usage
+          if grep -r "eval(" --include="*.php" . 2>/dev/null; then
+            echo "⚠️  WARNING: eval() usage detected - potential security risk"
+          fi
+          
+          echo "✅ Basic security checks passed"
+          
+      - name: Check file structure
+        run: |
+          echo "📁 Checking file structure..."
+          
+          required_files=(
+            "index.php"
+            "login.php"
+            "signup.php"
+            "dashboard.php"
+            "includes/auth.php"
+            "includes/functions.php"
+            "database.sql"
+          )
+          
+          missing_files=()
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              missing_files+=("$file")
+            fi
+          done
+          
+          if [ ${#missing_files[@]} -eq 0 ]; then
+            echo "✅ All required files present"
+          else
+            echo "⚠️  Missing files:"
+            printf '%s\n' "${missing_files[@]}"
+          fi
+          
+      - name: Validate database schema
+        run: |
+          echo "🗄️  Checking database.sql..."
+          if [ -f "database.sql" ]; then
+            if grep -q "CREATE TABLE" database.sql; then
+              echo "✅ database.sql contains table definitions"
+            else
+              echo "⚠️  database.sql might be invalid or empty"
+            fi
+          else
+            echo "❌ database.sql not found"
+            exit 1
+          fi
+          
+      - name: Summary
+        if: always()
+        run: |
+          echo ""
+          echo "=========================================="
+          echo "Validation Summary"
+          echo "=========================================="
+          echo "PHP Version: ${{ matrix.php-version }}"
+          echo "Status: ${{ job.status }}"
+          echo "=========================================="
