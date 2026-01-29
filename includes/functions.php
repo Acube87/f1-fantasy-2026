@@ -5,9 +5,12 @@ if (!defined('DB_HOST')) {
     $configPaths = [
         __DIR__ . '/../config.php',           // From includes/ directory
         dirname(__DIR__) . '/config.php',      // Alternative using dirname
-        $_SERVER['DOCUMENT_ROOT'] . '/config.php',  // From document root
-        'config.php'                            // Relative to current working directory
     ];
+    
+    // Only add DOCUMENT_ROOT if it's set and looks valid
+    if (isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT'])) {
+        $configPaths[] = $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+    }
     
     $configLoaded = false;
     foreach ($configPaths as $path) {

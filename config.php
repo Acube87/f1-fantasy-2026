@@ -26,9 +26,11 @@ define('POINTS_CONSTRUCTOR_EXACT', getenv('POINTS_CONSTRUCTOR_EXACT') ?: 10);
 define('POINTS_CONSTRUCTOR_TOP3', getenv('POINTS_CONSTRUCTOR_TOP3') ?: 30);
 
 
-// Start session
+// Start session (only if not already started)
 session_name(SESSION_NAME);
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Database connection
 function getDB() {
