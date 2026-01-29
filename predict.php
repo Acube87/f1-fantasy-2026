@@ -3,6 +3,7 @@ ob_start(); // Start output buffering at the very beginning
 
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
+require_once 'config.php';
 
 // Check if user is logged in
 $user = getCurrentUser();
@@ -77,10 +78,10 @@ while ($row = $result->fetch_assoc()) {
     $previousPredictions[$row['driver_id']] = $row['predicted_position'];
 }
 
-// Scoring system
+// Scoring system from config
 $pointsSystem = [
-    'exact' => 10,
-    'top3PodiumBonus' => 3
+    'constructorExact' => defined('POINTS_CONSTRUCTOR_EXACT') ? POINTS_CONSTRUCTOR_EXACT : 0,
+    'constructorTop3Bonus' => defined('POINTS_CONSTRUCTOR_TOP3') ? POINTS_CONSTRUCTOR_TOP3 : 0
 ];
 
 // Handle POST requests for saving predictions
@@ -171,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predict - <?php echo SITE_NAME; ?></title>
+    <title>Predict - <?php echo defined('SITE_NAME') ? SITE_NAME : 'F1 Fantasy'; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -363,7 +364,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
                     <span class="text-2xl">🏎️</span>
-                    <h1 class="text-xl font-bold"><?php echo SITE_NAME; ?></h1>
+                    <h1 class="text-xl font-bold"><?php echo defined('SITE_NAME') ? SITE_NAME : 'F1 Fantasy'; ?></h1>
                 </div>
                 <div class="flex items-center space-x-6">
                     <a href="dashboard.php" class="text-white/80 hover:text-white transition">Dashboard</a>
@@ -457,7 +458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 <div class="card-glass rounded-xl p-6 border border-white/10 mb-6 sticky top-4">
                     <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
                         <i class="fas fa-trophy text-yellow-500"></i>
-                        Points
+                        Live Predicted Points
                     </h3>
                     
                     <div class="space-y-2" id="constructorPoints">
@@ -475,9 +476,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     <div class="mt-6 pt-6 border-t border-white/10">
                         <h4 class="font-bold text-sm mb-3 text-yellow-400">🎯 Scoring</h4>
                         <div class="space-y-2 text-xs text-gray-300">
-                            <p><span class="text-red-400 font-bold">+<?php echo $pointsSystem['exact']; ?></span> Exact position</p>
-                            <p><span class="text-yellow-400 font-bold">+<?php echo $pointsSystem['top3PodiumBonus']; ?></span> Top 3 podium bonus</p>
-                            <p class="text-gray-500 mt-3 pt-3 border-t border-white/10">Points = Top driver from team</p>
+                            <p><span class="text-red-400 font-bold">+<?php echo $pointsSystem['constructorExact']; ?></span> for a top 10 position</p>
+                            <p><span class="text-yellow-400 font-bold">+<?php echo $pointsSystem['constructorTop3Bonus']; ?></span> bonus for a top 3 position</p>
+                            <p class="text-gray-500 mt-3 pt-3 border-t border-white/10">Points based on your highest predicted driver for each team.</p>
                         </div>
                     </div>
                 </div>
@@ -486,7 +487,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
     </main>
 
     <script>
-        const driversData = <?php echo json_encode(array_map(fn($d) => ['id' => $d['id'], 'team' => $d['team']], $drivers)); ?>;
+        const pointsSystem = <?php echo json_encode($pointsSystem); ?>;
         let draggedElement = null;
 
         document.addEventListener('dragstart', function(e) {
@@ -531,14 +532,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     item.classList.remove('drag-over');
                     
                     const list = document.getElementById('predictionList');
-                    const allItems = [...list.querySelectorAll('.prediction-item')];
-                    const draggedIndex = allItems.indexOf(draggedElement);
-                    const targetIndex = allItems.indexOf(item);
-                    
-                    if (draggedIndex < targetIndex) {
-                        item.parentNode.insertBefore(draggedElement, item.nextSibling);
-                    } else {
+                    if (e.clientY < item.getBoundingClientRect().top + item.offsetHeight / 2) {
                         item.parentNode.insertBefore(draggedElement, item);
+                    } else {
+                        item.parentNode.insertBefore(draggedElement, item.nextSibling);
                     }
                     
                     updatePositionNumbers();
@@ -578,10 +575,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 const team = item.getAttribute('data-constructor');
                 const position = teamTopPositions[team];
                 let points = 0;
-                
+
                 if (position) {
-                    points = <?php echo $pointsSystem['exact']; ?>;
-                    if (position <= 3) points += <?php echo $pointsSystem['top3PodiumBonus']; ?>;
+                    // Points for being in a scoring position (e.g., top 10)
+                    if (position <= 10) {
+                        points += pointsSystem.constructorExact;
+                    }
+
+                    // Bonus points for being in the top 3
+                    if (position <= 3) {
+                        points += pointsSystem.constructorTop3Bonus;
+                    }
                 }
                 
                 item.querySelector('.points-value').textContent = points;
@@ -626,7 +630,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     alert('✓ Predictions saved successfully!');
                     setTimeout(() => window.location.href = 'dashboard.php', 1000);
                 } else {
-                    alert('✗ Error saving predictions: ' + (data.message || 'Unknown error'));
+                    let errorMsg = '✗ Error saving predictions: ' + (data.message || 'Unknown error');
+                    if (data.serverOutput) {
+                        errorMsg += `\n\nServer Output:\n${data.serverOutput}`;
+                    }
+                    alert(errorMsg);
                 }
             })
             .catch(error => {
@@ -651,8 +659,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 const team = item.getAttribute('data-team').toLowerCase();
                 
                 if (driverName.includes(searchTerm) || team.includes(searchTerm)) {
-                    item.style.display = '';
-                    item.style.opacity = '1';
+                    item.style.display = 'flex';
                 } else {
                     item.style.display = 'none';
                 }
@@ -673,45 +680,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success && data.predictions) {
-                    // Get driver ID to array map
-                    const driverMap = {};
-                    document.querySelectorAll('.prediction-item').forEach(item => {
-                        driverMap[item.getAttribute('data-driver-id')] = item;
-                    });
-                    
-                    // Sort items by previous predictions
+                if (_handleApiResponse(data) && data.predictions) {
                     const list = document.getElementById('predictionList');
-                    const sortedItems = [];
+                    const items = [...list.querySelectorAll('.prediction-item')];
                     
-                    // Create array of [driverId, position] and sort
-                    const predictions = Object.entries(data.predictions);
-                    predictions.sort((a, b) => a[1] - b[1]);
-                    
-                    // Reorder list items
-                    const fragment = document.createDocumentFragment();
-                    predictions.forEach(([driverId, position]) => {
-                        if (driverMap[driverId]) {
-                            fragment.appendChild(driverMap[driverId]);
-                        }
+                    items.sort((a, b) => {
+                        const posA = data.predictions[a.getAttribute('data-driver-id')] ?? 999;
+                        const posB = data.predictions[b.getAttribute('data-driver-id')] ?? 999;
+                        return posA - posB;
                     });
                     
-                    // Add remaining drivers (not in previous predictions)
-                    document.querySelectorAll('.prediction-item').forEach(item => {
-                        if (fragment.querySelector(`[data-driver-id="${item.getAttribute('data-driver-id')}"]`) === null) {
-                            fragment.appendChild(item);
-                        }
-                    });
+                    items.forEach(item => list.appendChild(item));
                     
-                    list.innerHTML = '';
-                    list.appendChild(fragment);
-                    
-                    // Update position numbers and points
                     updatePositionNumbers();
                     updateConstructorPoints();
-                    
-                    // Clear search
-                    document.getElementById('searchDrivers').value = '';
                     
                     alert('✓ Loaded predictions from previous race!');
                 }
@@ -721,8 +703,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 alert('Error loading previous predictions');
             });
         }
+        
+        function _handleApiResponse(data) {
+            if (!data || !data.success) {
+                let errorMsg = 'An unexpected error occurred.';
+                if (data && data.message) {
+                    errorMsg = data.message;
+                }
+                if (data && data.serverOutput) {
+                    errorMsg += `\n\nServer Output:\n${data.serverOutput}`;
+                }
+                alert(`✗ API Error: ${errorMsg}`);
+                return false;
+            }
+            return true;
+        }
 
-        document.addEventListener('DOMContentLoaded', updateConstructorPoints);
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePositionNumbers();
+            updateConstructorPoints();
+        });
     </script>
 </body>
 </html>

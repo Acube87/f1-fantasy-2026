@@ -1,32 +1,29 @@
 <?php
-// Database configuration
-// Railway-compatible: Uses environment variables if available, falls back to defaults
-// Prefer TCP proxy domain for Railway external connections
-define('DB_HOST', getenv('RAILWAY_TCP_PROXY_DOMAIN') ?: getenv('MYSQLHOST') ?: getenv('DB_HOST') ?: 'localhost');
-define('DB_USER', getenv('MYSQLUSER') ?: getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('MYSQL_ROOT_PASSWORD') ?: getenv('MYSQLPASSWORD') ?: getenv('DB_PASS') ?: '');
-define('DB_NAME', getenv('MYSQL_DATABASE') ?: getenv('MYSQLDATABASE') ?: getenv('DB_NAME') ?: 'railway');
-define('DB_PORT', getenv('RAILWAY_TCP_PROXY_PORT') ?: getenv('MYSQLPORT') ?: '3306');
+// config.php
 
-// F1 API configuration
-// Using Ergast F1 API (free, no auth required)
-// Alternative: Official F1 API (requires authentication)
-define('F1_API_BASE', 'http://ergast.com/api/f1/2026');
-define('F1_API_TIMEOUT', 30);
+// Check if a Railway-specific config file exists and load it.
+if (file_exists(__DIR__ . '/config.railway.php')) {
+    require_once(__DIR__ . '/config.railway.php');
+} else {
+    // For local development, define credentials here.
+    // This file should be in .gitignore
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+    define('DB_NAME', 'f1_predictions');
+}
 
-// Application settings
-define('SITE_NAME', 'F1 2026 Fantasy');
-define('SESSION_NAME', 'f1_fantasy_session');
+// F1 API
+define('F1_API_BASE', 'https://ergast.com/api/f1/');
 
-// Scoring configuration
-define('POINTS_EXACT_POSITION', 10);      // Points for exact position match
-define('POINTS_OFF_BY_ONE', 1);          // Points if off by 1 position
-define('POINTS_TOP3_BONUS', 30);         // Triple points bonus for correct top 3 (3x10)
-define('POINTS_CONSTRUCTOR_EXACT', 10);   // Points for exact constructor position
-define('POINTS_CONSTRUCTOR_TOP3', 30);    // Triple points bonus for top 3 constructor prediction
+// Scoring points
+define('POINTS_EXACT_POSITION', 10);
+define('POINTS_CORRECT_FINISHER', 5);
+define('POINTS_POLE_POSITION', 7);
+define('POINTS_FASTEST_LAP', 7);
 
 // Start session
-session_name(SESSION_NAME);
+session_name('f1_fantasy_session');
 session_start();
 
 // Database connection
@@ -34,14 +31,7 @@ function getDB() {
     static $conn = null;
     if ($conn === null) {
         try {
-            // For Railway: use the known public proxy connection
-            $host = 'metro.proxy.rlwy.net';
-            $port = 40739;
-            $user = 'root';
-            $pass = 'ryKCglHSFcskNaRRpCooVWkxRqyKIyHt';
-            $dbname = 'f1_fantasy';  // The database that has our schema
-            
-            $conn = @new mysqli($host, $user, $pass, $dbname, $port);
+            $conn = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
             if ($conn->connect_error) {
                 throw new Exception("Connection failed: " . $conn->connect_error);
             }

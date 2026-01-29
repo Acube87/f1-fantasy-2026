@@ -1,0 +1,17 @@
+{
+  "models": [
+    {
+      "title": "Qwen Local (Safe)",
+      "provider": "ollama",
+      "model": "qwen25-continue",
+      "contextLength": 2048,
+      "completionOptions": {
+        "temperature": 0.2,
+        "topP": 0.9
+      }
+    }
+  ],
+  "defaultModel": "Qwen Local (Safe)",
+  "allowAnonymousTelemetry": false
+}
+

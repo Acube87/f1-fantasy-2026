@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS races (
 
 -- Drivers table
 CREATE TABLE IF NOT EXISTS drivers (
-    id VARCHAR(50) PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     driver_name VARCHAR(100) NOT NULL,
     team VARCHAR(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS constructors (
 CREATE TABLE IF NOT EXISTS race_results (
     id INT AUTO_INCREMENT PRIMARY KEY,
     race_id INT NOT NULL,
-    driver_id VARCHAR(50) NOT NULL,
+    driver_id INT NOT NULL,
     driver_name VARCHAR(100) NOT NULL,
     constructor_id VARCHAR(50),
     constructor_name VARCHAR(100),
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS predictions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     race_id INT NOT NULL,
-    driver_id VARCHAR(50) NOT NULL,
+    driver_id INT NOT NULL,
     driver_name VARCHAR(100) NOT NULL,
     predicted_position INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
