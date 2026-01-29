@@ -9,6 +9,7 @@ define('DB_NAME', getenv('DB_NAME') ?: 'f1_predictions');
 
 // F1 API
 define('F1_API_BASE', getenv('F1_API_BASE') ?: 'https://ergast.com/api/f1/');
+define('F1_API_TIMEOUT', getenv('F1_API_TIMEOUT') ?: 30);
 
 // Application settings
 define('SITE_NAME', getenv('SITE_NAME') ?: 'F1 2026 Fantasy');
@@ -16,9 +17,11 @@ define('SESSION_NAME', getenv('SESSION_NAME') ?: 'f1_fantasy_session');
 
 // Scoring points
 define('POINTS_EXACT_POSITION', getenv('POINTS_EXACT_POSITION') ?: 10);
+define('POINTS_OFF_BY_ONE', getenv('POINTS_OFF_BY_ONE') ?: 1);
 define('POINTS_CORRECT_FINISHER', getenv('POINTS_CORRECT_FINISHER') ?: 5);
 define('POINTS_POLE_POSITION', getenv('POINTS_POLE_POSITION') ?: 7);
 define('POINTS_FASTEST_LAP', getenv('POINTS_FASTEST_LAP') ?: 7);
+define('POINTS_TOP3_BONUS', getenv('POINTS_TOP3_BONUS') ?: 30);
 define('POINTS_CONSTRUCTOR_EXACT', getenv('POINTS_CONSTRUCTOR_EXACT') ?: 10);
 define('POINTS_CONSTRUCTOR_TOP3', getenv('POINTS_CONSTRUCTOR_TOP3') ?: 30);
 
