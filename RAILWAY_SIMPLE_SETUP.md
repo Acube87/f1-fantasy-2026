@@ -30,7 +30,7 @@ The app should just work. Visit your Railway URL and you'll see the login page.
 ## Environment Variables (Automatic)
 
 Railway sets these automatically when you add MySQL:
-- `MYSQLHOST` - Database host
+- `MYSQLHOST` - Database host (e.g., containers-us-west-xyz.railway.app)
 - `MYSQLPORT` - Database port (usually 3306)
 - `MYSQLUSER` - Username (usually 'root')
 - `MYSQLPASSWORD` - Password
@@ -38,13 +38,26 @@ Railway sets these automatically when you add MySQL:
 
 The app reads these automatically.
 
+## Important: TCP/IP Connection
+
+The app is configured to use TCP/IP connections (not Unix sockets).
+- Railway always provides network addresses, so this works automatically
+- For local development, the app uses 127.0.0.1 (not localhost) to force TCP/IP
+
 ## Troubleshooting
+
+**If you see "No such file or directory" error:**
+- This means the database connection is trying to use a Unix socket
+- Railway should set `MYSQLHOST` to a network address (not "localhost")
+- Check Railway logs to see the actual connection attempt
+- Verify MySQL service is running in Railway
 
 **If you see database connection errors:**
 
 1. Make sure MySQL is added in Railway (should see it in your project)
 2. Check that your app service is linked to the MySQL service
 3. Check Railway logs for specific error messages
+4. Verify the MySQL service shows as "Active" in Railway
 
 **If tables aren't created:**
 - The app auto-creates tables on first database connection
@@ -55,9 +68,14 @@ The app reads these automatically.
 
 To test locally without Railway:
 1. Install MySQL locally
-2. The app will use default values (localhost, root, no password)
-3. Database and tables will auto-create
+2. Make sure MySQL is running
+3. The app will use 127.0.0.1:3306 with default credentials
+4. Database and tables will auto-create
 
 ## Support
 
-Having issues? Check Railway's documentation or the app logs in Railway dashboard.
+Having issues? Check:
+- Railway's MySQL service logs
+- Your app's deployment logs in Railway dashboard
+- The error message should now show connection details (host, port, user, database)
+
