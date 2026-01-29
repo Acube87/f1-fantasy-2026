@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../config.php';
 
 /**
  * Fetch F1 race results from API

@@ -1,9 +1,9 @@
 <?php
 ob_start(); // Start output buffering at the very beginning
 
+require_once 'config.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
-require_once 'config.php';
 
 // Check if user is logged in
 $user = getCurrentUser();
