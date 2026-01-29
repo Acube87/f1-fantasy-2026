@@ -1,5 +1,27 @@
 <?php
-require_once __DIR__ . '/../config.php';
+// Load config.php if not already loaded
+if (!defined('DB_HOST')) {
+    // Try multiple paths to find config.php
+    $configPaths = [
+        __DIR__ . '/../config.php',           // From includes/ directory
+        dirname(__DIR__) . '/config.php',      // Alternative using dirname
+        $_SERVER['DOCUMENT_ROOT'] . '/config.php',  // From document root
+        'config.php'                            // Relative to current working directory
+    ];
+    
+    $configLoaded = false;
+    foreach ($configPaths as $path) {
+        if (file_exists($path)) {
+            require_once $path;
+            $configLoaded = true;
+            break;
+        }
+    }
+    
+    if (!$configLoaded) {
+        die('Error: Unable to load config.php. Tried paths: ' . implode(', ', $configPaths));
+    }
+}
 
 /**
  * Fetch F1 race results from API
