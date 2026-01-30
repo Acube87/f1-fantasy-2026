@@ -23,12 +23,18 @@ function getCurrentUser() {
         return null;
     }
     
-    $db = getDB();
-    $stmt = $db->prepare("SELECT id, username, email, full_name FROM users WHERE id = ? AND is_active = TRUE");
-    $stmt->bind_param("i", $_SESSION['user_id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    return $result->fetch_assoc();
+    try {
+        $db = getDB();
+        $stmt = $db->prepare("SELECT id, username, email, full_name FROM users WHERE id = ? AND is_active = TRUE");
+        $stmt->bind_param("i", $_SESSION['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    } catch (Exception $e) {
+        // Database connection failed - return null
+        error_log("getCurrentUser failed: " . $e->getMessage());
+        return null;
+    }
 }
 
 /**

@@ -34,12 +34,12 @@ function getDB() {
     static $conn = null;
     if ($conn === null) {
         try {
-            // For Railway: use the known public proxy connection
-            $host = 'metro.proxy.rlwy.net';
-            $port = 40739;
-            $user = 'root';
-            $pass = 'ryKCglHSFcskNaRRpCooVWkxRqyKIyHt';
-            $dbname = 'f1_fantasy';  // The database that has our schema
+            // Use environment variables - Railway will provide these
+            $host = DB_HOST;
+            $port = DB_PORT;
+            $user = DB_USER;
+            $pass = DB_PASS;
+            $dbname = DB_NAME;
             
             $conn = @new mysqli($host, $user, $pass, $dbname, $port);
             if ($conn->connect_error) {
