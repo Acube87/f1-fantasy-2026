@@ -10,9 +10,15 @@ echo "<h2>Adding 2024 F1 Drivers and Constructors</h2>";
 
 $db = getDB();
 
+// Disable foreign key checks to allow truncation
+$db->query("SET FOREIGN_KEY_CHECKS = 0");
+
 // Truncate tables to ensure fresh data
 $db->query("TRUNCATE TABLE drivers");
 $db->query("TRUNCATE TABLE constructors");
+
+// Re-enable foreign key checks
+$db->query("SET FOREIGN_KEY_CHECKS = 1");
 
 // 2024 F1 Drivers (actual lineup)
 $drivers = [
