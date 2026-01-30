@@ -119,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
 
         $raceId = $input['race_id'];
         $predictions = $input['predictions'];
+        $constructorPredictions = $input['constructor_predictions'] ?? [];
         
         try {
             // Clear existing predictions
@@ -129,6 +130,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             $stmt->bind_param("ii", $raceId, $userId);
             if (!$stmt->execute()) {
                 throw new Exception('Delete failed: ' . $stmt->error);
+            }
+            
+            // Clear existing constructor predictions
+            $stmt = $db->prepare("DELETE FROM constructor_predictions WHERE race_id = ? AND user_id = ?");
+            if (!$stmt) {
+                throw new Exception('Prepare constructor delete failed: ' . $db->error);
+            }
+            $stmt->bind_param("ii", $raceId, $userId);
+            if (!$stmt->execute()) {
+                throw new Exception('Constructor delete failed: ' . $stmt->error);
             }
             
             // Insert new predictions
@@ -144,6 +155,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 $stmt->bind_param("iissi", $raceId, $userId, $driverId, $driverName, $position);
                 if (!$stmt->execute()) {
                     throw new Exception('Insert failed: ' . $stmt->error);
+                }
+            }
+            
+            // Insert new constructor predictions
+            if (!empty($constructorPredictions)) {
+                $stmt = $db->prepare("INSERT INTO constructor_predictions (race_id, user_id, constructor_id, constructor_name, predicted_position) VALUES (?, ?, ?, ?, ?)");
+                if (!$stmt) {
+                    throw new Exception('Prepare constructor insert failed: ' . $db->error);
+                }
+                
+                foreach ($constructorPredictions as $pred) {
+                    $constructorId = $pred['constructor_id'];
+                    $constructorName = $pred['constructor_name'];
+                    $position = $pred['predicted_position'];
+                    $stmt->bind_param("iissi", $raceId, $userId, $constructorId, $constructorName, $position);
+                    if (!$stmt->execute()) {
+                        throw new Exception('Constructor insert failed: ' . $stmt->error);
+                    }
                 }
             }
             
@@ -296,7 +325,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
+            padding: 8px 10px;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(225, 6, 0, 0.1);
             border-radius: 6px;
@@ -310,14 +339,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
         
         .constructor-name {
             font-weight: 500;
-            font-size: 13px;
+            font-size: 12px;
             color: #fff;
         }
         
         .constructor-points {
             font-weight: 700;
             color: #ff4444;
-            font-size: 16px;
+            font-size: 14px;
         }
         
         .points-value {
@@ -473,11 +502,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     
                     <!-- Scoring Info -->
                     <div class="mt-6 pt-6 border-t border-white/10">
-                        <h4 class="font-bold text-sm mb-3 text-yellow-400">🎯 Scoring</h4>
-                        <div class="space-y-2 text-xs text-gray-300">
-                            <p><span class="text-red-400 font-bold">+<?php echo $pointsSystem['exact']; ?></span> Exact position</p>
-                            <p><span class="text-yellow-400 font-bold">+<?php echo $pointsSystem['top3PodiumBonus']; ?></span> Top 3 podium bonus</p>
-                            <p class="text-gray-500 mt-3 pt-3 border-t border-white/10">Points = Top driver from team</p>
+                        <h4 class="font-bold text-sm mb-3 text-yellow-400">📊 Paddock Picks Scoring</h4>
+                        
+                        <!-- Driver Points -->
+                        <div class="mb-4">
+                            <p class="font-semibold text-xs text-white mb-2">🏎️ Driver Scoring</p>
+                            <div class="text-xs text-gray-300 space-y-1 pl-2">
+                                <p class="text-blue-400 font-bold"><strong>F1 System Points:</strong> (ALL drivers)</p>
+                                <p class="pl-2 text-[10px]">P1: 25 | P2: 18 | P3: 15 | P4: 12 | P5: 10</p>
+                                <p class="pl-2 text-[10px]">P6: 8 | P7: 6 | P8: 4 | P9: 2 | P10: 1</p>
+                                <p class="pl-2 text-[10px]">P11-P20: 0 pts</p>
+                                <p class="text-green-400 mt-2"><strong>Correct Guess Bonus:</strong> +3 pts</p>
+                                <p class="text-gray-400 text-[10px] mt-1">(+3 awarded for ANY correct position guess)</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Constructor Points -->
+                        <div class="mb-4">
+                            <p class="font-semibold text-xs text-white mb-2">🏆 Constructor Scoring</p>
+                            <div class="text-xs text-gray-300 space-y-1 pl-2">
+                                <p class="text-green-400"><strong>Exact Position:</strong> +5 pts</p>
+                                <p class="text-gray-400 text-[10px]">Wrong position = 0 pts</p>
+                                <p class="text-gray-400 text-[10px] mt-1">Applies to all teams</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Examples -->
+                        <div class="mb-2 p-2 bg-white/5 rounded space-y-2">
+                            <div>
+                                <p class="font-semibold text-xs text-yellow-400 mb-1">Example 1 (Correct Guess):</p>
+                                <div class="text-[10px] text-gray-300 space-y-0.5">
+                                    <p>Predict Verstappen P1, Actual P1:</p>
+                                    <p>• F1 Points: +25 | Correct Bonus: +3</p>
+                                    <p class="text-green-400 font-bold">Total: 28 pts</p>
+                                </div>
+                            </div>
+                            <div class="pt-2 border-t border-white/5">
+                                <p class="font-semibold text-xs text-yellow-400 mb-1">Example 2 (Wrong Guess):</p>
+                                <div class="text-[10px] text-gray-300 space-y-0.5">
+                                    <p>Predict Hamilton P2, Actual P1:</p>
+                                    <p>• F1 Points: +25 | Correct Bonus: 0</p>
+                                    <p class="text-green-400 font-bold">Total: 25 pts</p>
+                                </div>
+                            </div>
+                            <div class="pt-2 border-t border-white/5">
+                                <p class="font-semibold text-xs text-yellow-400 mb-1">Example 3 (Outside Top 10):</p>
+                                <div class="text-[10px] text-gray-300 space-y-0.5">
+                                    <p>Predict Stroll P15, Actual P15:</p>
+                                    <p>• F1 Points: 0 | Correct Bonus: +3</p>
+                                    <p class="text-green-400 font-bold">Total: 3 pts</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- API Note -->
+                        <div class="mt-3 p-2 bg-blue-500/10 border border-blue-500/20 rounded">
+                            <p class="text-[10px] text-blue-300">
+                                <strong>Note:</strong> Points calculated via API after race using actual results
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -560,31 +642,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             });
         }
 
-        function updateConstructorPoints() {
+        // Calculate team rankings based on predicted constructor order
+        // Shows live F1-style points for visualization during prediction
+        function calculateTeamRankings() {
             const list = document.getElementById('predictionList');
             const items = list.querySelectorAll('.prediction-item');
-            const teamTopPositions = {};
+            
+            // F1 points system for display
+            const positionPoints = {
+                1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 
+                6: 8, 7: 6, 8: 4, 9: 2, 10: 1
+            };
+            
+            // Calculate total points for each team (both drivers)
+            const teamPoints = {};
+            const teamDrivers = {};
             
             items.forEach((item, index) => {
                 const position = index + 1;
                 const team = item.getAttribute('data-team');
+                const points = positionPoints[position] || 0;
                 
-                if (!teamTopPositions[team] || position < teamTopPositions[team]) {
-                    teamTopPositions[team] = position;
+                if (!teamPoints[team]) {
+                    teamPoints[team] = 0;
+                    teamDrivers[team] = [];
                 }
+                teamPoints[team] += points;
+                teamDrivers[team].push({position, points});
             });
             
-            document.querySelectorAll('.constructor-item').forEach(item => {
-                const team = item.getAttribute('data-constructor');
-                const position = teamTopPositions[team];
-                let points = 0;
+            // Sort constructors by total points (highest first)
+            return Object.entries(teamPoints)
+                .sort((a, b) => b[1] - a[1])
+                .map((entry, index) => ({
+                    team: entry[0],
+                    totalPoints: entry[1],
+                    constructorRank: index + 1,
+                    drivers: teamDrivers[entry[0]]
+                }));
+        }
+
+        function updateConstructorPoints() {
+            const teamRankings = calculateTeamRankings();
+            
+            // Update the UI - show predicted standings with F1-style points
+            const container = document.getElementById('constructorPoints');
+            container.innerHTML = ''; // Clear existing items
+            
+            teamRankings.forEach(ranking => {
+                const item = document.createElement('div');
+                item.className = 'constructor-item';
+                item.setAttribute('data-constructor', ranking.team);
                 
-                if (position) {
-                    points = <?php echo $pointsSystem['exact']; ?>;
-                    if (position <= 3) points += <?php echo $pointsSystem['top3PodiumBonus']; ?>;
-                }
+                // Show constructor rank and total F1-style points
+                item.innerHTML = `
+                    <div class="constructor-name">${ranking.team}</div>
+                    <div class="constructor-points">
+                        <span class="points-value">${ranking.constructorRank} (${ranking.totalPoints}pts)</span>
+                    </div>
+                `;
                 
-                item.querySelector('.points-value').textContent = points;
+                container.appendChild(item);
             });
         }
 
@@ -593,6 +711,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             const items = list.querySelectorAll('.prediction-item');
             const predictions = [];
             
+            // Build driver predictions
             items.forEach((item, index) => {
                 const position = index + 1;
                 const driverId = item.getAttribute('data-driver-id');
@@ -604,6 +723,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 });
             });
             
+            // Calculate constructor predictions using shared function
+            const teamRankings = calculateTeamRankings();
+            const constructorPredictions = teamRankings.map(ranking => ({
+                constructor_id: ranking.team, // Note: Using team name as ID (technical debt)
+                constructor_name: ranking.team,
+                predicted_position: ranking.constructorRank
+            }));
+            
             fetch('predict.php', {
                 method: 'POST',
                 headers: {
@@ -612,6 +739,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 body: JSON.stringify({
                     race_id: <?php echo $raceId; ?>,
                     predictions: predictions,
+                    constructor_predictions: constructorPredictions,
                     action: 'save_predictions'
                 })
             })
