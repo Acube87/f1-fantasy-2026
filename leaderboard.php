@@ -110,9 +110,45 @@ $currentUser = $user;     // Alias for existing logic
                         ?>
                         <tr class="<?php echo $rowClass; ?> transition">
                             <td class="p-4">
-                                <span class="font-black text-white <?php echo $rank <= 3 ? 'text-orange-400 text-lg' : 'text-gray-500'; ?> w-8 inline-block text-center">
-                                    <?php echo $rank; ?>
-                                </span>
+                                <?php if ($rank === 1): ?>
+                                    <div class="w-10 h-10 inline-block">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                                          <defs>
+                                            <linearGradient id="trophy1" x1="9.106" x2="22.419" y1="28.638" y2="5.579" gradientUnits="userSpaceOnUse">
+                                              <stop offset="0" stop-color="#FFD700"></stop>
+                                              <stop offset="1" stop-color="#FFA500"></stop>
+                                            </linearGradient>
+                                          </defs>
+                                          <path fill="url(#trophy1)" d="M23.24,9H22.114l.706-.711A1,1,0,0,0,22.26,6.6l-3.7-.555L16.9,2.568a1.041,1.041,0,0,0-1.8,0L13.438,6.04,9.74,6.6a1,1,0,0,0-.56,1.694L9.886,9H8.76a2,2,0,0,0-1.28,3.538,11.478,11.478,0,0,1,4.085,7.592l.319,2.882A2,2,0,0,0,10,25v3a2,2,0,0,0,2,2h8a2,2,0,0,0,2-2V25a2,2,0,0,0-1.884-1.988l.319-2.881a11.483,11.483,0,0,1,4.088-7.6A2,2,0,0,0,23.24,9ZM15,19.19V23H13.9l-.342-3.092a13.587,13.587,0,0,0-1.066-3.95.961.961,0,0,0,.211-.079l1.513-.821A11.434,11.434,0,0,1,15,19.19Zm2,0a11.434,11.434,0,0,1,.788-4.132l1.513.821a1.016,1.016,0,0,0,.21.082,13.6,13.6,0,0,0-1.065,3.948L18.1,23H17ZM14.26,7.939a1,1,0,0,0,.754-.557L16,5.318l.986,2.064a1,1,0,0,0,.754.557l2.27.34L18.347,9.953a1,1,0,0,0-.278.869l.386,2.323-1.978-1.074a1,1,0,0,0-.954,0l-1.978,1.074.386-2.323a1,1,0,0,0-.278-.869L11.99,8.279ZM16.025,14.1c-.008.02-.017.039-.025.059-.008-.02-.017-.039-.025-.059L16,14.088ZM8.76,11h3.114l-.487,2.928A13.552,13.552,0,0,0,8.76,11ZM12,28V25h8l0,3Zm8.613-14.072L20.126,11H23.24A13.547,13.547,0,0,0,20.613,13.928Z"></path>
+                                        </svg>
+                                    </div>
+                                <?php elseif ($rank === 2): ?>
+                                    <div class="w-10 h-10 inline-block">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                                          <rect width="22" height="7" x="21" y="54" fill="#C0C0C0" rx="2"></rect>
+                                          <path fill="#fff" d="M40 54v3a2.006 2.006 0 0 1-2 2H21v-3a2.006 2.006 0 0 1 2-2Z" opacity=".2"></path>
+                                          <path fill="#C0C0C0" d="M35 45v9a2.006 2.006 0 0 1-2 2h-2a2.006 2.006 0 0 1-2-2v-9Z"></path>
+                                          <path fill="#fff" d="M32 45v7a2.006 2.006 0 0 1-2 2h-1v-9Z" opacity=".2"></path>
+                                          <path fill="#C0C0C0" d="M47.93 20.1C47.57 26.76 45.37 47 32 47c-12.875.337-15.72-20.003-15.93-26.9a1.998 1.998 0 0 1 2-2.1h27.86a1.998 1.998 0 0 1 2 2.1Z"></path>
+                                          <path fill="#fff" d="M44.93 18c-.051 8.295-4.449 32.43-20.74 25.98-6.51-5.89-7.85-18.81-8.12-23.88a1.998 1.998 0 0 1 2-2.1Z" opacity=".2"></path>
+                                          <path fill="#E8E8E8" d="m38.65 18 .17 6L32 21.57 25.18 24c.06-2.063.152-5.187.2-7.24l-4.42-5.74 6.95-2.05C28.515 8.087 31.469 3.789 32 3l4.09 5.97c1.717.508 5.223 1.542 6.95 2.05l-4.42 5.74Z"></path>
+                                        </svg>
+                                    </div>
+                                <?php elseif ($rank === 3): ?>
+                                    <div class="w-10 h-10 inline-block">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                                          <rect width="22" height="7" x="21" y="54" fill="#CD7F32" rx="2"></rect>
+                                          <path fill="#fff" d="M40 54v3a2.006 2.006 0 0 1-2 2H21v-3a2.006 2.006 0 0 1 2-2Z" opacity=".2"></path>
+                                          <path fill="#CD7F32" d="M35 45v9a2.006 2.006 0 0 1-2 2h-2a2.006 2.006 0 0 1-2-2v-9Z"></path>
+                                          <path fill="#CD7F32" d="M47.93 20.1C47.57 26.76 45.37 47 32 47c-12.875.337-15.72-20.003-15.93-26.9a1.998 1.998 0 0 1 2-2.1h27.86a1.998 1.998 0 0 1 2 2.1Z"></path>
+                                          <path fill="#E6A877" d="m38.65 18 .17 6L32 21.57 25.18 24c.06-2.063.152-5.187.2-7.24l-4.42-5.74 6.95-2.05C28.515 8.087 31.469 3.789 32 3l4.09 5.97c1.717.508 5.223 1.542 6.95 2.05l-4.42 5.74Z"></path>
+                                        </svg>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="w-8 h-8 inline-block opacity-40">
+                                        <img src="https://img.icons8.com/ios-filled/50/CCCCCC/motorbike-helmet.png" alt="helmet" class="w-full h-full">
+                                    </div>
+                                <?php endif; ?>
                             </td>
                             <td class="p-4 flex items-center gap-3">
                                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?php echo $entry['username']; ?>" class="w-8 h-8 rounded-full bg-slate-700">
