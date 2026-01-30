@@ -31,57 +31,81 @@ if (isLoggedIn()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background: #0f0f0f; color: white; }
-    </style>
+    <link rel="stylesheet" href="css/gaming-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col">
-    <header class="bg-red-900 border-b border-red-800 p-4">
-        <nav class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">🏎️ <?php echo SITE_NAME; ?></h1>
-            <ul class="flex space-x-4">
-                <li><a href="index.php" class="hover:text-red-300">Home</a></li>
-                <li><a href="signup.php" class="hover:text-red-300">Sign Up</a></li>
-            </ul>
-        </nav>
-    </header>
+<body class="gaming-theme flex flex-col min-h-screen">
 
-    <main class="container mx-auto flex-grow flex items-center justify-center py-12 px-4">
-        <div class="w-full max-w-md bg-white/5 p-8 rounded-xl border border-white/10">
-            <h2 class="text-3xl font-bold mb-6 text-center">Login</h2>
-            
+    <!-- Navbar -->
+    <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <a href="index.php" class="flex items-center gap-4 hover:opacity-80 transition">
+                <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+                    <i class="fas fa-flag-checkered text-white text-lg"></i>
+                </div>
+                <span class="font-bold text-xl tracking-wide text-white">PADDOCK PICKS</span>
+            </a>
+        </div>
+        <a href="signup.php" class="g-btn g-btn-orange px-6 py-2 text-sm">Sign Up</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center relative pt-20 pb-12 px-4">
+        <!-- Decorative Background Elements -->
+        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-600/20 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-orange-600/20 rounded-full blur-[100px]"></div>
+
+        <div class="g-card p-8 md:p-10 max-w-md w-full relative z-10 border-t-4 border-t-orange-500">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-black text-white italic mb-2">WELCOME BACK</h1>
+                <p class="text-gray-400 text-sm">Log in to manage your team and predictions</p>
+            </div>
+
             <?php if ($error): ?>
-                <div class="bg-red-500/20 text-red-300 p-3 rounded mb-4 text-center"><?php echo htmlspecialchars($error); ?></div>
+                <div class="bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded-xl mb-6 text-sm text-center font-bold">
+                    <i class="fas fa-exclamation-circle mr-2"></i> <?php echo htmlspecialchars($error); ?>
+                </div>
             <?php endif; ?>
-            
-            <form method="POST" action="login.php" class="space-y-4">
+
+            <form method="POST" action="login.php" class="space-y-5">
                 <div>
-                    <label for="username" class="block text-sm font-medium text-gray-400">Username or Email</label>
-                    <input type="text" id="username" name="username" required autofocus class="mt-1 w-full bg-white/10 border border-white/20 rounded p-2 focus:border-red-500 outline-none">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <input type="text" name="username" class="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition" placeholder="Enter username" required autofocus>
+                    </div>
                 </div>
-                
+
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-400">Password</label>
-                    <input type="password" id="password" name="password" required class="mt-1 w-full bg-white/10 border border-white/20 rounded p-2 focus:border-red-500 outline-none">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <input type="password" name="password" class="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition" placeholder="••••••••" required>
+                    </div>
                 </div>
-                
-                <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 rounded transition shadow-lg">Login</button>
+
+                <button type="submit" class="g-btn g-btn-blue w-full py-4 text-lg shadow-lg shadow-blue-500/20 mt-4">
+                    LOGIN <i class="fas fa-arrow-right ml-2 opacity-70"></i>
+                </button>
             </form>
-            
-            <p class="mt-6 text-center text-gray-400">Don't have an account? <a href="signup.php" class="text-red-400 hover:text-red-300">Sign up here</a></p>
+
+            <div class="mt-8 text-center text-sm text-gray-500">
+                Don't have an account? 
+                <a href="signup.php" class="text-orange-500 font-bold hover:underline">Join the Race</a>
+            </div>
         </div>
     </main>
     
-    <footer class="mt-auto border-t border-white/10 py-6 bg-black/20">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-gray-400 mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
-            <p class="text-gray-500 text-sm">
-                Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-red-400 hover:text-red-300 font-semibold transition">Scanerrific</a>
-            </p>
-        </div>
+    <footer class="border-t border-white/5 py-6 text-center z-10 relative bg-slate-900/50 backdrop-blur-md">
+        <p class="text-gray-600 text-xs">
+            &copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-white font-bold transition">Scanerrific</a>
+        </p>
     </footer>
+
 </body>
 </html>
