@@ -39,6 +39,31 @@ if (!$race) {
     die("Race not found");
 }
 
+// Calculate Prediction Deadline (Saturday 00:00 before race)
+$raceDate = new DateTime($race['race_date'], new DateTimeZone('UTC'));
+// Get the Saturday before the race (could be same day if race is Sunday)
+$raceDayOfWeek = (int)$raceDate->format('N'); // 1=Monday, 7=Sunday
+if ($raceDayOfWeek == 7) {
+    // Race is on Sunday, deadline is Saturday 00:00 (1 day before)
+    $deadline = clone $raceDate;
+    $deadline->modify('-1 day')->setTime(0, 0, 0);
+} elseif ($raceDayOfWeek == 6) {
+    // Race is on Saturday (Sprint weekend), deadline is Saturday 00:00 (same day)
+    $deadline = clone $raceDate;
+    $deadline->setTime(0, 0, 0);
+} else {
+    // Race on other day, find previous Saturday
+    $daysToSubtract = ($raceDayOfWeek == 0 ? 1 : 8 - $raceDayOfWeek);
+    $deadline = clone $raceDate;
+    $deadline->modify("-{$daysToSubtract} days")->setTime(0, 0, 0);
+}
+
+$now = new DateTime('now', new DateTimeZone('UTC'));
+$isPredictionOpen = $now < $deadline;
+$deadlineTimestamp = $deadline->getTimestamp();
+$nowTimestamp = $now->getTimestamp();
+$raceDateTimestamp = $raceDate->getTimestamp();
+
 // Get all drivers
 $stmt = $db->prepare("SELECT id, driver_name, team FROM drivers ORDER BY team, driver_name");
 $stmt->execute();
@@ -281,6 +306,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             from { transform: scale(0.9); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
+        
+        /* Prediction Deadline Progress Bar */
+        .deadline-container {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #22c55e 50%, #facc15 100%);
+            border-radius: 999px;
+            transition: width 1s ease;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
+        
+        .progress-bar-fill.warning {
+            background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .progress-bar-fill.closed {
+            background: #64748b;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body class="gaming-theme text-gray-200">
@@ -310,21 +369,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
     <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
         
         <!-- Compact Header -->
-        <div class="mb-6 flex justify-between items-center bg-slate-900/50 p-4 rounded-xl border border-white/5 backdrop-blur-md sticky top-20 z-40 shadow-xl">
-            <div class="flex items-center gap-4">
-                <div class="text-3xl">🇦🇺</div>
-                <div>
-                    <h1 class="text-xl font-bold text-white uppercase tracking-wider"><?php echo htmlspecialchars($race['country']); ?></h1>
-                    <div class="text-xs text-gray-400"><?php echo htmlspecialchars($race['circuit_name']); ?></div>
+        <div class="mb-6 space-y-3">
+            <!-- Race Info & Actions -->
+            <div class="flex justify-between items-center bg-slate-900/50 p-4 rounded-xl border border-white/5 backdrop-blur-md sticky top-20 z-40 shadow-xl">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">🇦🇺</div>
+                    <div>
+                        <h1 class="text-xl font-bold text-white uppercase tracking-wider"><?php echo htmlspecialchars($race['country']); ?></h1>
+                        <div class="text-xs text-gray-400"><?php echo htmlspecialchars($race['circuit_name']); ?></div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="copyFromPreviousRace()" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded text-gray-300 transition">
+                        <i class="fas fa-history mr-1"></i> Copy Prev
+                    </button>
+                     <button id="saveButton" class="g-btn g-btn-blue px-6 py-2 text-sm shadow-lg hover:shadow-blue-500/20" onclick="savePredictions()" <?php if (!$isPredictionOpen) echo 'disabled style="opacity:0.5; cursor:not-allowed;"'; ?>>
+                        SAVE <i class="fas fa-check ml-1"></i>
+                    </button>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="copyFromPreviousRace()" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded text-gray-300 transition">
-                    <i class="fas fa-history mr-1"></i> Copy Prev
-                </button>
-                 <button class="g-btn g-btn-blue px-6 py-2 text-sm shadow-lg hover:shadow-blue-500/20" onclick="savePredictions()">
-                    SAVE <i class="fas fa-check ml-1"></i>
-                </button>
+            
+            <!-- Prediction Deadline Progress Bar -->
+            <div class="deadline-container">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        <i class="fas fa-clock mr-1"></i> Prediction Status
+                    </div>
+                    <div id="deadlineText" class="text-xs font-bold" data-deadline="<?php echo $deadlineTimestamp; ?>" data-now="<?php echo $nowTimestamp; ?>" data-racedate="<?php echo $raceDateTimestamp; ?>">
+                        <?php if ($isPredictionOpen): ?>
+                            <span class="text-green-400">⚡ OPEN</span>
+                        <?php else: ?>
+                            <span class="text-red-400">🔒 CLOSED</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="progressBar" class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <div id="timeRemaining" class="text-[10px] text-gray-500 mt-1.5 text-center font-mono">
+                    Calculating...
+                </div>
             </div>
         </div>
 
@@ -456,7 +540,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             
             // Initial calculation
             updateConstructorPoints();
+            
+            // Initialize Deadline Countdown
+            updateDeadlineProgress();
+            setInterval(updateDeadlineProgress, 1000); // Update every second
         });
+        
+        function updateDeadlineProgress() {
+            const deadlineEl = document.getElementById('deadlineText');
+            const progressBar = document.getElementById('progressBar');
+            const timeRemainingEl = document.getElementById('timeRemaining');
+            
+            if (!deadlineEl) return;
+            
+            const deadlineTimestamp = parseInt(deadlineEl.dataset.deadline) * 1000;
+            const raceDateTimestamp = parseInt(deadlineEl.dataset.racedate) * 1000;
+            const now = Date.now();
+            
+            // Calculate time windows
+            const totalTime = deadlineTimestamp - (deadlineTimestamp - (7 * 24 * 60 * 60 * 1000)); // 7 days before deadline
+            const elapsed = now - (deadlineTimestamp - (7 * 24 * 60 * 60 * 1000));
+            const remaining = deadlineTimestamp - now;
+            
+            // Calculate percentage (0-100)
+            let percentage = (elapsed / totalTime) * 100;
+            percentage = Math.max(0, Math.min(100, percentage));
+            
+            // Update progress bar
+            progressBar.style.width = percentage + '%';
+            
+            // Update bar color based on time remaining
+            progressBar.classList.remove('warning', 'closed');
+            if (remaining <= 0) {
+                progressBar.classList.add('closed');
+                timeRemainingEl.textContent = '🔒 Predictions closed';
+                deadlineEl.innerHTML = '<span class="text-red-400">🔒 CLOSED</span>';
+            } else if (remaining < 24 * 60 * 60 * 1000) { // Less than 24 hours
+                progressBar.classList.add('warning');
+                const hours = Math.floor(remaining / (60 * 60 * 1000));
+                const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+                timeRemainingEl.textContent = `⚠️ ${hours}h ${minutes}m until lockdown`;                deadlineEl.innerHTML = '<span class="text-orange-400">⏰ CLOSING SOON</span>';
+            } else {
+                const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
+                const hours = Math.floor((remaining % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+                timeRemainingEl.textContent = `${days}d ${hours}h remaining • Locks Saturday 00:00 UTC`;
+                deadlineEl.innerHTML = '<span class="text-green-400">⚡ OPEN</span>';
+            }
+        }
 
         function updatePositionNumbers() {
             const list = document.getElementById('predictionList');
