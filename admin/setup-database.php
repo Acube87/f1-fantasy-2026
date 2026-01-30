@@ -127,6 +127,28 @@ if ($db->query($sql) === TRUE) {
     echo "<p style='color:red'>❌ Error creating table 'user_totals': " . $db->error . "</p>";
 }
 
+// 8. Scores Table (Per Race Summary)
+$sql = "CREATE TABLE IF NOT EXISTS scores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    race_id INT NOT NULL,
+    driver_points INT DEFAULT 0,
+    constructor_points INT DEFAULT 0,
+    top3_bonus INT DEFAULT 0,
+    constructor_top3_bonus INT DEFAULT 0,
+    total_points INT DEFAULT 0,
+    calculated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (race_id) REFERENCES races(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_score (user_id, race_id)
+)";
+
+if ($db->query($sql) === TRUE) {
+    echo "<p>✅ Table 'scores' created or checks out.</p>";
+} else {
+    echo "<p style='color:red'>❌ Error creating table 'scores': " . $db->error . "</p>";
+}
+
 echo "<h3>Database setup complete! 🚀</h3>";
 echo "<p>Next steps:</p>";
 echo "<ol>";
