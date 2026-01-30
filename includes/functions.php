@@ -261,3 +261,38 @@ function getLeaderboard($limit = 50) {
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
+
+/**
+ * Get single next upcoming race
+ */
+function getNextRace() {
+     = getUpcomingRaces(1);
+    return !empty($races) ? $races[0] : null;
+}
+
+/**
+ * Get user stats (total points and global rank)
+ */
+function getUserStats($userId) {
+    $db = getDB();
+    
+    // Get total points
+    $stmt = $db->prepare("SELECT total_points FROM user_totals WHERE user_id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc();
+    $totalPoints = $result ? (int)$result['total_points'] : 0;
+    
+    // Calculate Rank
+    // Rank is 1 + count of people with MORE points than me
+    $stmt = $db->prepare("SELECT COUNT(*) as rank_above FROM user_totals WHERE total_points > ?");
+    $stmt->bind_param("i", $totalPoints);
+    $stmt->execute();
+    $rankData = $stmt->get_result()->fetch_assoc();
+    $rank = ($rankData['rank_above'] ?? 0) + 1;
+    
+    return [
+        'total_points' => $totalPoints,
+        'rank' => $rank
+    ];
+}
