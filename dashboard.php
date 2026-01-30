@@ -29,7 +29,7 @@ $leaderboard = getLeaderboard(5);
 // Get Recent Results (Last 3)
 $recentResults = [];
 $stmt = $db->prepare("
-    SELECT r.race_name, r.country, s.total_score, r.race_date 
+    SELECT r.race_name, r.country, s.total_points, r.race_date 
     FROM scores s 
     JOIN races r ON s.race_id = r.id 
     WHERE s.user_id = ? 
@@ -223,7 +223,7 @@ $recentResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="text-lg font-bold text-green-400">+<?php echo $res['total_score']; ?></div>
+                                    <div class="text-lg font-bold text-green-400">+<?php echo $res['total_points']; ?></div>
                                     <div class="text-[10px] text-gray-500 font-bold uppercase">Points</div>
                                 </div>
                             </div>
