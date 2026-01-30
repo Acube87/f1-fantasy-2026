@@ -504,22 +504,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     <div class="mt-6 pt-6 border-t border-white/10">
                         <h4 class="font-bold text-sm mb-3 text-yellow-400">📊 Paddock Picks Scoring</h4>
                         
-                        <!-- Driver Points -->
+                        <!-- Driver Scoring Information -->
+                        <?php 
+                        $isSprint = !empty($race['is_sprint']);
+                        $isDoublePoints = in_array($race['country'], ['China', 'UK', 'Singapore']);
+                        $multiplier = $isDoublePoints ? 2 : 1;
+                        ?>
                         <div class="mb-4">
                             <p class="font-semibold text-xs text-white mb-2">🏎️ Driver Scoring</p>
+                            
+                            <?php if ($isDoublePoints): ?>
+                            <div class="mb-2 bg-yellow-400/20 border border-yellow-400/40 rounded p-2 text-center">
+                                <span class="text-yellow-400 font-bold text-xs">✨ DOUBLE POINTS EVENT ✨</span>
+                            </div>
+                            <?php endif; ?>
+
                             <div class="text-xs text-gray-300 space-y-1 pl-2">
-                                <p class="text-blue-400 font-bold"><strong><?php echo $race['is_sprint'] ? 'Sprint' : 'F1 System'; ?> Points:</strong> (ALL drivers)</p>
-                                <?php if ($race['is_sprint']): ?>
-                                    <p class="pl-2 text-[10px]">P1: 8 | P2: 7 | P3: 6 | P4: 5</p>
-                                    <p class="pl-2 text-[10px]">P5: 4 | P6: 3 | P7: 2 | P8: 1</p>
-                                    <p class="pl-2 text-[10px]">P9+: 0 pts</p>
+                                <p class="text-blue-400 font-bold"><strong><?php echo $isSprint ? 'Sprint' : 'F1 System'; ?> Points:</strong></p>
+                                <?php if ($isSprint): ?>
+                                    <p class="pl-2 text-[10px]">P1: <?php echo 8*$multiplier; ?> | P2: <?php echo 7*$multiplier; ?> | P3: <?php echo 6*$multiplier; ?></p>
+                                    <p class="pl-2 text-[10px]">P4: <?php echo 5*$multiplier; ?> | P5: <?php echo 4*$multiplier; ?> | P6: <?php echo 3*$multiplier; ?></p>
+                                    <p class="pl-2 text-[10px]">P7: <?php echo 2*$multiplier; ?> | P8: <?php echo 1*$multiplier; ?></p>
                                 <?php else: ?>
-                                    <p class="pl-2 text-[10px]">P1: 25 | P2: 18 | P3: 15 | P4: 12 | P5: 10</p>
-                                    <p class="pl-2 text-[10px]">P6: 8 | P7: 6 | P8: 4 | P9: 2 | P10: 1</p>
-                                    <p class="pl-2 text-[10px]">P11+: 0 pts</p>
+                                    <p class="pl-2 text-[10px]">P1: <?php echo 25*$multiplier; ?> | P2: <?php echo 18*$multiplier; ?> | P3: <?php echo 15*$multiplier; ?></p>
+                                    <p class="pl-2 text-[10px]">P4: <?php echo 12*$multiplier; ?> | P5: <?php echo 10*$multiplier; ?> | P6: <?php echo 8*$multiplier; ?></p>
+                                    <p class="pl-2 text-[10px]">P7: <?php echo 6*$multiplier; ?> | P8: <?php echo 4*$multiplier; ?> | P9: <?php echo 2*$multiplier; ?></p>
+                                    <p class="pl-2 text-[10px]">P10: <?php echo 1*$multiplier; ?></p>
                                 <?php endif; ?>
                                 <p class="text-green-400 mt-2"><strong>Correct Guess Bonus:</strong> +3 pts</p>
-                                <p class="text-gray-400 text-[10px] mt-1">(+3 awarded for ANY correct position guess)</p>
                             </div>
                         </div>
 
@@ -655,9 +667,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             const items = list.querySelectorAll('.prediction-item');
             
             // F1 points system for display (Dynamically set based on race type)
-            const isSprint = <?php echo ($race['is_sprint'] ?? 0) ? 'true' : 'false'; ?>;
+            const isSprint = <?php echo !empty($race['is_sprint']) ? 'true' : 'false'; ?>;
+            const isDoublePoints = <?php echo (in_array($race['country'], ['China', 'UK', 'Singapore'])) ? 'true' : 'false'; ?>;
             
-            const pointsSystem = isSprint ? {
+            let pointsSystem = isSprint ? {
                 // Sprint Points (Top 8)
                 1: 8, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1
             } : {
@@ -665,6 +678,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 
                 6: 8, 7: 6, 8: 4, 9: 2, 10: 1
             };
+
+            // Apply Double Points Multiplier
+            if (isDoublePoints) {
+                for (let key in pointsSystem) {
+                    pointsSystem[key] = pointsSystem[key] * 2;
+                }
+            }
             
             // Calculate total points for each team (both drivers)
             const teamPoints = {};
