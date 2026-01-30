@@ -14,6 +14,8 @@ $userId = $user['id'];
 // Get User Stats (Points, Rank)
 $stats = getUserStats($userId);
 $totalPoints = $stats['total_points'] ?? 0;
+$racesParticipated = $stats['races_participated'] ?? 0;
+$level = $racesParticipated; // Level = Number of races participated
 $rank = $stats['rank'] ?? '-';
 $rankSuffix = match($rank) {
     1 => 'st', 2 => 'nd', 3 => 'rd', default => 'th'
@@ -77,7 +79,7 @@ $recentResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             <div class="flex items-center gap-3 pl-6 border-l border-white/10">
                 <div class="text-right hidden sm:block">
                     <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($user['username']); ?></div>
-                    <div class="text-[10px] text-green-400 font-bold">LEVEL <?php echo floor($totalPoints / 100) + 1; ?></div>
+                    <div class="text-[10px] text-green-400 font-bold">LEVEL <?php echo $level; ?></div>
                 </div>
                 <div class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden">
                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
@@ -280,26 +282,6 @@ $recentResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                         <a href="leaderboard.php" class="g-btn g-btn-blue w-full py-3 block text-center text-sm">
                             View Full Standings
                         </a>
-                    </div>
-                </div>
-
-                <!-- Mini Chat / Updates (Visual Mockup) -->
-                <div class="g-card p-6 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl text-white">
-                        <i class="fas fa-comment-alt"></i>
-                    </div>
-                    <h3 class="font-bold text-white text-md mb-4">Paddock Chat</h3>
-                    <div class="space-y-4">
-                        <div class="flex gap-3">
-                            <div class="w-8 h-8 rounded-full bg-pink-500 flex-shrink-0"></div>
-                            <div class="bg-white/5 p-3 rounded-r-xl rounded-bl-xl text-xs text-gray-300">
-                                <span class="font-bold text-pink-400 block mb-1">System</span>
-                                Welcome to the 2026 Season! Don't forget to lock in your predictions for Melbourne.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <input type="text" placeholder="Type a message..." class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-orange-500 outline-none transition">
                     </div>
                 </div>
 

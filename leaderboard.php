@@ -121,7 +121,7 @@ $currentUser = $user;     // Alias for existing logic
                                         <?php echo htmlspecialchars($entry['username']); ?>
                                         <?php if($isMe) echo '<span class="bg-orange-500 text-white text-[10px] px-1 rounded ml-2">YOU</span>'; ?>
                                     </div>
-                                    <div class="text-xs text-gray-500">Level <?php echo floor($entry['total_points'] / 100) + 1; ?></div>
+                                    <div class="text-xs text-gray-500">Level <?php echo $entry['races_participated'] ?? 0; ?></div>
                                 </div>
                             </td>
                             <td class="p-4 text-right font-mono font-bold text-white text-lg">
