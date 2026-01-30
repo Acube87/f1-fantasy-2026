@@ -109,6 +109,24 @@ if ($db->query($sql) === TRUE) {
     echo "<p style='color:red'>❌ Error creating table 'race_results': " . $db->error . "</p>";
 }
 
+// 7. User Totals Table
+$sql = "CREATE TABLE IF NOT EXISTS user_totals (
+    user_id INT PRIMARY KEY,
+    total_points INT DEFAULT 0,
+    races_participated INT DEFAULT 0,
+    average_points FLOAT DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+
+if ($db->query($sql) === TRUE) {
+    echo "<p>✅ Table 'user_totals' created or checks out.</p>";
+    
+    // Populate existing users into user_totals if missing
+    $db->query("INSERT IGNORE INTO user_totals (user_id) SELECT id FROM users");
+} else {
+    echo "<p style='color:red'>❌ Error creating table 'user_totals': " . $db->error . "</p>";
+}
+
 echo "<h3>Database setup complete! 🚀</h3>";
 echo "<p>Next steps:</p>";
 echo "<ol>";
