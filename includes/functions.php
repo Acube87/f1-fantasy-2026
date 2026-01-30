@@ -266,7 +266,7 @@ function getLeaderboard($limit = 50) {
  * Get single next upcoming race
  */
 function getNextRace() {
-     = getUpcomingRaces(1);
+    $races = getUpcomingRaces(1);
     return !empty($races) ? $races[0] : null;
 }
 
