@@ -94,6 +94,7 @@ $sql = "CREATE TABLE IF NOT EXISTS constructor_predictions (
     user_id INT NOT NULL,
     race_id INT NOT NULL,
     constructor_id VARCHAR(50) NOT NULL,
+    constructor_name VARCHAR(100),
     predicted_position INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -182,6 +183,13 @@ if ($checkColResult && $checkColResult->num_rows == 0) {
     $db->query("ALTER TABLE race_results ADD COLUMN fastest_lap BOOLEAN DEFAULT FALSE");
     $db->query("ALTER TABLE race_results ADD COLUMN status VARCHAR(50)");
     echo "<p>🔄 Altered 'race_results' table with new columns.</p>";
+}
+
+// Check if constructor_predictions needs constructor_name
+$checkColCP = $db->query("SHOW COLUMNS FROM constructor_predictions LIKE 'constructor_name'");
+if ($checkColCP && $checkColCP->num_rows == 0) {
+    $db->query("ALTER TABLE constructor_predictions ADD COLUMN constructor_name VARCHAR(100)");
+    echo "<p>🔄 Altered 'constructor_predictions' table with new columns.</p>";
 }
 
 echo "<h3>🎉 Database setup fully complete!</h3>";
