@@ -215,6 +215,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
         .badge-audi { background: linear-gradient(135deg, #000000 0%, #FF1721 100%); color: white; }
         .badge-cadillac { background: linear-gradient(135deg, #0C1C8C 0%, #C41E3A 100%); color: white; }
         
+        /* Team Color Left Borders */
+        .team-ferrari { border-left: 3px solid #DC0000; }
+        .team-mercedes { border-left: 3px solid #00D2BE; }
+        .team-red-bull { border-left: 3px solid #3671C6; }
+        .team-mclaren { border-left: 3px solid #FF8000; }
+        .team-aston-martin { border-left: 3px solid #00665F; }
+        .team-alpine { border-left: 3px solid #0090FF; }
+        .team-williams { border-left: 3px solid #005AFF; }
+        .team-haas { border-left: 3px solid #B6BABD; }
+        .team-rb, .team-racing-bulls { border-left: 3px solid #6692FF; }
+        .team-sauber, .team-kick-sauber { border-left: 3px solid #00E701; }
+        .team-audi { border-left: 3px solid #FF1721; }
+        .team-cadillac { border-left: 3px solid #C41E3A; }
+        
         .driver-name-text {
             font-size: 0.9rem;
             font-weight: 600;
@@ -226,6 +240,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             text-transform: uppercase;
             letter-spacing: 0.3px;
             font-weight: 500;
+        }
+        
+        /* Success Modal */
+        #successModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        #successModal.show {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .success-content {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 2rem;
+            border-radius: 24px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: scaleIn 0.3s ease;
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -318,7 +372,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                             $teamSlug = strtolower(str_replace(' ', '-', $driver['team']));
                             $abbr = $teamAbbr[$driver['team']] ?? strtoupper(substr($driver['team'], 0, 3));
                         ?>
-                        <div class="prediction-item group" 
+                        <div class="prediction-item group team-<?php echo $teamSlug; ?>" 
                              data-driver-id="<?php echo $driver['id']; ?>" 
                              data-team="<?php echo htmlspecialchars($driver['team']); ?>" 
                              data-driver-name="<?php echo htmlspecialchars($driver['driver_name']); ?>">
@@ -365,6 +419,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
         </div>
 
     </main>
+    
+    <!-- Success Modal with Lottie Animation -->
+    <div id="successModal">
+        <div class="success-content">
+            <dotlottie-player 
+                src="Success Lottie Icons.lottie" 
+                background="transparent" 
+                speed="1" 
+                style="width: 200px; height: 200px; margin: 0 auto;"
+                autoplay>
+            </dotlottie-player>
+            <h2 class="text-2xl font-black text-white mt-4 mb-2">PREDICTIONS LOCKED IN!</h2>
+            <p class="text-gray-400 text-sm">Your lineup has been saved successfully</p>
+        </div>
+    </div>
+    
+    <!-- Lottie Player Script -->
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
     
     <!-- Scripts -->
     <script>
@@ -490,8 +562,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    alert('✓ Saved!');
-                    window.location.href = 'dashboard.php';
+                    // Show success modal
+                    const modal = document.getElementById('successModal');
+                    modal.classList.add('show');
+                    
+                    // Redirect after animation
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.php';
+                    }, 2000);
                 } else {
                     alert('Error: ' + data.message);
                 }
