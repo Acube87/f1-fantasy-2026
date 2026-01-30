@@ -508,16 +508,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                         <div class="mb-4">
                             <p class="font-semibold text-xs text-white mb-2">🏎️ Driver Scoring</p>
                             <div class="text-xs text-gray-300 space-y-1 pl-2">
-                                <p class="text-blue-400 font-bold"><strong>F1 System Points:</strong> (ALL drivers)</p>
-                                <p class="pl-2 text-[10px]">P1: 25 | P2: 18 | P3: 15 | P4: 12 | P5: 10</p>
-                                <p class="pl-2 text-[10px]">P6: 8 | P7: 6 | P8: 4 | P9: 2 | P10: 1</p>
-                                <p class="pl-2 text-[10px]">P11-P20: 0 pts</p>
+                                <p class="text-blue-400 font-bold"><strong><?php echo $race['is_sprint'] ? 'Sprint' : 'F1 System'; ?> Points:</strong> (ALL drivers)</p>
+                                <?php if ($race['is_sprint']): ?>
+                                    <p class="pl-2 text-[10px]">P1: 8 | P2: 7 | P3: 6 | P4: 5</p>
+                                    <p class="pl-2 text-[10px]">P5: 4 | P6: 3 | P7: 2 | P8: 1</p>
+                                    <p class="pl-2 text-[10px]">P9+: 0 pts</p>
+                                <?php else: ?>
+                                    <p class="pl-2 text-[10px]">P1: 25 | P2: 18 | P3: 15 | P4: 12 | P5: 10</p>
+                                    <p class="pl-2 text-[10px]">P6: 8 | P7: 6 | P8: 4 | P9: 2 | P10: 1</p>
+                                    <p class="pl-2 text-[10px]">P11+: 0 pts</p>
+                                <?php endif; ?>
                                 <p class="text-green-400 mt-2"><strong>Correct Guess Bonus:</strong> +3 pts</p>
                                 <p class="text-gray-400 text-[10px] mt-1">(+3 awarded for ANY correct position guess)</p>
                             </div>
                         </div>
-                        
-                        <!-- Constructor Points -->
+
+                         <!-- Constructor Points -->
                         <div class="mb-4">
                             <p class="font-semibold text-xs text-white mb-2">🏆 Constructor Scoring</p>
                             <div class="text-xs text-gray-300 space-y-1 pl-2">
@@ -648,8 +654,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             const list = document.getElementById('predictionList');
             const items = list.querySelectorAll('.prediction-item');
             
-            // F1 points system for display
-            const positionPoints = {
+            // F1 points system for display (Dynamically set based on race type)
+            const isSprint = <?php echo ($race['is_sprint'] ?? 0) ? 'true' : 'false'; ?>;
+            
+            const pointsSystem = isSprint ? {
+                // Sprint Points (Top 8)
+                1: 8, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1
+            } : {
+                // Grand Prix Points (Top 10) - No Fastest Lap
                 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 
                 6: 8, 7: 6, 8: 4, 9: 2, 10: 1
             };
@@ -661,7 +673,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             items.forEach((item, index) => {
                 const position = index + 1;
                 const team = item.getAttribute('data-team');
-                const points = positionPoints[position] || 0;
+                const points = pointsSystem[position] || 0;
                 
                 if (!teamPoints[team]) {
                     teamPoints[team] = 0;
