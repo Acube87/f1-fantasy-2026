@@ -498,6 +498,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                         <!-- Populated by JS -->
                     </div>
                 </div>
+                
+                <!-- Points System Explained -->
+                <div class="g-card p-4 border-t-2 border-t-blue-500">
+                    <h3 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-blue-500"></i> Points System
+                    </h3>
+                    
+                    <?php 
+                    $isDoublePoints = in_array($race['country'], ['China', 'UK', 'Singapore']);
+                    $isSprint = !empty($race['is_sprint']);
+                    ?>
+                    
+                    <?php if ($isDoublePoints): ?>
+                        <div class="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 mb-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-star text-orange-400"></i>
+                                <span class="text-orange-400 font-bold text-xs uppercase">Double Points Event!</span>
+                            </div>
+                            <p class="text-[10px] text-gray-300">All points are <strong>DOUBLED</strong> for this race!</p>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <div class="space-y-3 text-[11px] text-gray-400">
+                        <!-- Standard/Sprint Points -->
+                        <div>
+                            <div class="font-bold text-white mb-1.5 flex items-center gap-1">
+                                <i class="fas fa-trophy text-yellow-500 text-xs"></i>
+                                <?php echo $isSprint ? 'Sprint Race Points' : 'Race Points'; ?>
+                            </div>
+                            <div class="bg-black/20 rounded p-2 space-y-0.5 font-mono text-[10px]">
+                                <?php if ($isSprint): ?>
+                                    <div class="flex justify-between"><span>1st:</span> <strong class="text-green-400">8 pts<?php echo $isDoublePoints ? ' x2 = 16' : ''; ?></strong></div>
+                                    <div class="flex justify-between"><span>2nd:</span> <strong>7 pts<?php echo $isDoublePoints ? ' x2 = 14' : ''; ?></strong></div>
+                                    <div class="flex justify-between"><span>3rd:</span> <strong>6 pts<?php echo $isDoublePoints ? ' x2 = 12' : ''; ?></strong></div>
+                                    <div class="text-gray-600 text-[9px] mt-1">Points down to 8th (1pt)</div>
+                                <?php else: ?>
+                                    <div class="flex justify-between"><span>1st:</span> <strong class="text-green-400">25 pts<?php echo $isDoublePoints ? ' x2 = 50' : ''; ?></strong></div>
+                                    <div class="flex justify-between"><span>2nd:</span> <strong>18 pts<?php echo $isDoublePoints ? ' x2 = 36' : ''; ?></strong></div>
+                                    <div class="flex justify-between"><span>3rd:</span> <strong>15 pts<?php echo $isDoublePoints ? ' x2 = 30' : ''; ?></strong></div>
+                                    <div class="text-gray-600 text-[9px] mt-1">Points down to 10th (1pt)</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <!-- Constructor Standings -->
+                        <div>
+                            <div class="font-bold text-white mb-1.5 flex items-center gap-1">
+                                <i class="fas fa-wrench text-blue-400 text-xs"></i>
+                                Constructor Standings
+                            </div>
+                            <p class="leading-relaxed">
+                                Teams are ranked by <strong class="text-white">total driver points</strong>. 
+                                Top constructor prediction earns <strong class="text-green-400">bonus points</strong>.
+                            </p>
+                        </div>
+                        
+                        <!-- How to Win -->
+                        <div>
+                            <div class="font-bold text-white mb-1.5 flex items-center gap-1">
+                                <i class="fas fa-flag-checkered text-orange-400 text-xs"></i>
+                                How to Win
+                            </div>
+                            <p class="leading-relaxed">
+                                Match the exact finishing order to maximize points. 
+                                Close predictions still earn partial points!
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
