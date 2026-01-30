@@ -152,6 +152,9 @@ $score = $scoreStmt->get_result()->fetch_assoc();
     <footer>
         <div class="container">
             <p>&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+            <p class="text-gray-500 text-sm mt-2">
+                Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-red-400 hover:text-red-300 font-semibold transition">Scanerrific</a>
+            </p>
         </div>
     </footer>
 </body>

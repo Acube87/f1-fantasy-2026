@@ -283,6 +283,9 @@ if ($user) {
     <footer class="mt-16 border-t border-white/10 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
             <p>&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+            <p class="text-gray-500 text-sm mt-2">
+                Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-red-400 hover:text-red-300 font-semibold transition">Scanerrific</a>
+            </p>
         </div>
     </footer>
 </body>

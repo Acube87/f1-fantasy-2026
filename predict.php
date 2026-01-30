@@ -584,6 +584,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             </div>
         </div>
     </main>
+    
+    <footer class="mt-auto border-t border-white/10 py-6 bg-black/20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-400 mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+            <p class="text-gray-500 text-sm">
+                Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-red-400 hover:text-red-300 font-semibold transition">Scanerrific</a>
+            </p>
+        </div>
+    </footer>
 
     <script>
         const driversData = <?php echo json_encode(array_map(fn($d) => ['id' => $d['id'], 'team' => $d['team']], $drivers)); ?>;

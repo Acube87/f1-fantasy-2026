@@ -22,7 +22,7 @@ define('F1_API_BASE', 'http://ergast.com/api/f1/2024'); // Using 2024 as 2026 is
 define('F1_API_TIMEOUT', 30);
 
 // Application settings
-define('SITE_NAME', 'F1 2026 Fantasy');
+define('SITE_NAME', 'Paddock Picks');
 define('SESSION_NAME', 'f1_fantasy_session');
 
 // Scoring configuration
