@@ -1,0 +1,134 @@
+/* Gaming Theme - High Visual Impact Style */
+:root {
+    --bg-dark: #0f172a; /* Deep Blue Slate */
+    --bg-card: rgba(30, 41, 59, 0.7); /* Glassy Blue */
+    --bg-card-hover: rgba(51, 65, 85, 0.8);
+    --accent-orange: #f97316; /* Neon Orange */
+    --accent-blue: #3b82f6; /* Electric Blue */
+    --accent-cyan: #06b6d4; /* Neon Cyan */
+    --text-primary: #f8fafc;
+    --text-sec: #94a3b8;
+    
+    --glow-orange: 0 0 20px rgba(249, 115, 22, 0.3);
+    --glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
+    --border-glass: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.gaming-theme {
+    background-color: #0b1121;
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(249, 115, 22, 0.08) 0%, transparent 25%);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+
+/* Glassy Cards */
+.g-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    overflow: hidden;
+    position: relative;
+}
+
+.g-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Highlight Glow Borders */
+.g-border-glow-blue:hover { border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+.g-border-glow-orange:hover { border-color: rgba(249, 115, 22, 0.5); box-shadow: 0 0 15px rgba(249, 115, 22, 0.2); }
+
+/* Buttons */
+.g-btn {
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.g-btn-orange {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: white;
+    box-shadow: 0 4px 0 #c2410c, 0 5px 10px rgba(0,0,0,0.3);
+}
+
+.g-btn-orange:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #c2410c, 0 3px 5px rgba(0,0,0,0.3);
+}
+
+.g-btn-blue {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 4px 0 #1d4ed8, 0 5px 10px rgba(0,0,0,0.3);
+}
+
+.g-btn-blue:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #1d4ed8, 0 3px 5px rgba(0,0,0,0.3);
+}
+
+/* Stats Pill */
+.g-stat-pill {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 12px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.g-icon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+/* Gradients text */
+.g-text-gradient {
+    background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Navigation Bar specific */
+.g-nav {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a; 
+}
+::-webkit-scrollbar-thumb {
+    background: #334155; 
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569; 
+}

@@ -2,31 +2,43 @@
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 
-requireLogin();
 $user = getCurrentUser();
+if (!$user) {
+    header('Location: index.php');
+    exit;
+}
 
-// Get user stats
 $db = getDB();
-$stmt = $db->prepare("SELECT total_points, races_participated FROM user_totals WHERE user_id = ?");
-$stmt->bind_param("i", $user['id']);
+$userId = $user['id'];
+
+// Get User Stats (Points, Rank)
+$stats = getUserStats($userId);
+$totalPoints = $stats['total_points'] ?? 0;
+$rank = $stats['rank'] ?? '-';
+$rankSuffix = match($rank) {
+    1 => 'st', 2 => 'nd', 3 => 'rd', default => 'th'
+};
+if (!is_numeric($rank)) $rankSuffix = '';
+
+// Get Next Race
+$nextRace = getNextRace();
+
+// Get Leaderboard (Top 5)
+$leaderboard = getLeaderboard(5);
+
+// Get Recent Results (Last 3)
+$recentResults = [];
+$stmt = $db->prepare("
+    SELECT r.race_name, r.country, s.total_score, r.race_date 
+    FROM scores s 
+    JOIN races r ON s.race_id = r.id 
+    WHERE s.user_id = ? 
+    ORDER BY r.race_date DESC 
+    LIMIT 3
+");
+$stmt->bind_param("i", $userId);
 $stmt->execute();
-$stats = $stmt->get_result()->fetch_assoc();
-
-// Get recent scores
-$scoresStmt = $db->prepare("SELECT s.*, r.race_name, r.race_date FROM scores s JOIN races r ON s.race_id = r.id WHERE s.user_id = ? ORDER BY r.race_date DESC LIMIT 10");
-$scoresStmt->bind_param("i", $user['id']);
-$scoresStmt->execute();
-$recentScores = $scoresStmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-// Get upcoming races
-$upcomingRaces = getUpcomingRaces(5);
-
-// Get leaderboard position
-$leaderboardStmt = $db->prepare("SELECT COUNT(*) + 1 as position FROM user_totals WHERE total_points > (SELECT total_points FROM user_totals WHERE user_id = ?)");
-$leaderboardStmt->bind_param("i", $user['id']);
-$leaderboardStmt->execute();
-$positionResult = $leaderboardStmt->get_result()->fetch_assoc();
-$leaderboardPosition = $positionResult['position'] ?? 1;
+$recentResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -35,257 +47,275 @@ $leaderboardPosition = $positionResult['position'] ?? 1;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - <?php echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
-            min-height: 100vh;
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #e10600 0%, #ff4444 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .card-glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .stat-card-premium {
-            background: linear-gradient(135deg, rgba(225, 6, 0, 0.1) 0%, rgba(225, 6, 0, 0.05) 100%);
-            border: 1px solid rgba(225, 6, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .stat-card-premium:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(225, 6, 0, 0.2);
-        }
-        
-        .points-glow {
-            text-shadow: 0 0 20px rgba(225, 6, 0, 0.5);
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .animate-fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        .race-card-premium {
-            transition: all 0.3s ease;
-        }
-        
-        .race-card-premium:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(225, 6, 0, 0.2);
-        }
-    </style>
 </head>
-<body class="text-white">
-    <!-- Navigation -->
-    <nav class="bg-gradient-to-r from-red-900 via-red-800 to-red-900 border-b border-red-700/50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <span class="text-2xl">🏎️</span>
-                    <h1 class="text-xl font-bold"><?php echo SITE_NAME; ?></h1>
+<body class="gaming-theme text-gray-200">
+
+    <!-- Navbar -->
+    <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+                <i class="fas fa-flag-checkered text-white text-lg"></i>
+            </div>
+            <span class="font-bold text-xl tracking-wide text-white">PADDOCK PICKS</span>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <!-- Wallet / Points Pill -->
+            <div class="g-stat-pill hidden md:flex">
+                <div class="g-icon-circle bg-blue-500/20 text-blue-400">
+                    <i class="fas fa-trophy"></i>
                 </div>
-                <div class="flex items-center space-x-6">
-                    <a href="index.php" class="text-white/80 hover:text-white transition">Home</a>
-                    <a href="dashboard.php" class="text-white font-semibold border-b-2 border-white">Dashboard</a>
-                    <a href="leaderboard.php" class="text-white/80 hover:text-white transition">Leaderboard</a>
-                    <a href="predict.php" class="text-white/80 hover:text-white transition">Predict</a>
-                    <a href="logout.php" class="text-white/80 hover:text-white transition"><?php echo htmlspecialchars($user['username']); ?></a>
+                <div class="flex flex-col leading-none">
+                    <span class="text-[10px] text-gray-400 uppercase font-bold">Points</span>
+                    <span class="font-bold text-white"><?php echo number_format($totalPoints); ?></span>
                 </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="flex items-center gap-3 pl-6 border-l border-white/10">
+                <div class="text-right hidden sm:block">
+                    <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($user['username']); ?></div>
+                    <div class="text-[10px] text-green-400 font-bold">LEVEL <?php echo floor($totalPoints / 100) + 1; ?></div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
+                </div>
+                <a href="logout.php" class="text-gray-400 hover:text-white transition ml-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- Welcome Header -->
-        <div class="mb-8 animate-fade-in-up">
-            <h1 class="text-4xl md:text-5xl font-black mb-2 gradient-text">
-                Welcome back, <?php echo htmlspecialchars($user['full_name'] ?: $user['username']); ?>!
-            </h1>
-            <p class="text-gray-400">Track your predictions and compete for the top spot</p>
+    <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
+        
+        <!-- Header / Welcome -->
+        <div class="mb-10 flex flex-col md:flex-row justify-between items-end gap-4">
+            <div>
+                <h1 class="text-3xl md:text-5xl font-black text-white mb-2 uppercase italic">
+                    Ready to <span class="g-text-gradient">Race?</span>
+                </h1>
+                <p class="text-gray-400">Round <?php echo $nextRace ? $nextRace['race_number'] : '-'; ?> is approaching fast.</p>
+            </div>
+            
+            <?php if ($nextRace): ?>
+            <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-orange px-8 py-4 text-lg flex items-center gap-3 animate-pulse">
+                <i class="fas fa-gamepad"></i> Make Prediction
+            </a>
+            <?php endif; ?>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-fade-in-up">
-            <div class="stat-card-premium rounded-xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
-                        <i class="fas fa-trophy text-red-400 text-xl"></i>
-                    </div>
-                </div>
-                <p class="text-gray-400 text-sm mb-1">Total Points</p>
-                <p class="text-3xl font-black text-red-400 points-glow"><?php echo number_format($stats['total_points'] ?? 0); ?></p>
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <div class="stat-card-premium rounded-xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                        <i class="fas fa-flag-checkered text-blue-400 text-xl"></i>
+            <!-- LEFT COLUMN (Main Stats & Next Race) -->
+            <div class="lg:col-span-8 space-y-8">
+                
+                <!-- NEXT RACE CARD (The "Car" Card) -->
+                <div class="g-card p-0 relative group h-96 flex flex-col justify-end overflow-hidden">
+                    <!-- Background Image (Dynamic based on country if possible, or generic) -->
+                    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541336528065-8f1fdc435835?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center transition duration-700 group-hover:scale-110"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/70 to-transparent"></div>
+                    
+                    <div class="relative z-10 p-8">
+                        <?php if ($nextRace): ?>
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                    Next Event
+                                </span>
+                                <span class="text-orange-400 font-mono font-bold">
+                                    <i class="far fa-clock"></i> <?php echo date('M d', strtotime($nextRace['race_date'])); ?>
+                                </span>
+                            </div>
+                            <h2 class="text-4xl md:text-5xl font-black text-white mb-2 uppercase">
+                                <?php echo htmlspecialchars($nextRace['country']); ?>
+                            </h2>
+                            <p class="text-lg text-gray-300 mb-6 font-medium">
+                                <?php echo htmlspecialchars($nextRace['circuit_name']); ?>
+                            </p>
+                            
+                            <!-- Progress/Bet Bar Style -->
+                            <div class="flex items-center gap-4 bg-black/40 backdrop-blur-md p-4 rounded-xl border border-white/5 max-w-lg">
+                                <div class="flex-1">
+                                    <div class="flex justify-between text-xs mb-2 font-bold text-gray-400 uppercase">
+                                        <span>Prediction Status</span>
+                                        <span class="text-green-400">OPEN</span>
+                                    </div>
+                                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-orange-500 to-red-600 w-3/4"></div>
+                                    </div>
+                                </div>
+                                <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-blue px-6 py-2 text-sm">
+                                    ENTER
+                                </a>
+                            </div>
+                        <?php else: ?>
+                            <h2 class="text-3xl font-bold text-white">Season Completed</h2>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <p class="text-gray-400 text-sm mb-1">Races Participated</p>
-                <p class="text-3xl font-black text-blue-400"><?php echo $stats['races_participated'] ?? 0; ?></p>
-            </div>
-            
-            <div class="stat-card-premium rounded-xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                        <i class="fas fa-chart-line text-green-400 text-xl"></i>
-                    </div>
-                </div>
-                <p class="text-gray-400 text-sm mb-1">Average Points</p>
-                <p class="text-3xl font-black text-green-400">
-                    <?php 
-                    $avg = ($stats['races_participated'] ?? 0) > 0 
-                        ? round(($stats['total_points'] ?? 0) / $stats['races_participated'], 1) 
-                        : 0; 
-                    echo $avg;
-                    ?>
-                </p>
-            </div>
-            
-            <div class="stat-card-premium rounded-xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                        <i class="fas fa-medal text-yellow-400 text-xl"></i>
-                    </div>
-                </div>
-                <p class="text-gray-400 text-sm mb-1">Leaderboard Rank</p>
-                <p class="text-3xl font-black text-yellow-400">#<?php echo $leaderboardPosition; ?></p>
-            </div>
-        </div>
 
-        <!-- Upcoming Races -->
-        <div class="mb-8 animate-fade-in-up">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold flex items-center">
-                    <i class="fas fa-calendar-alt text-red-400 mr-3"></i>
-                    Upcoming Races
-                </h2>
-                <a href="predict.php" class="text-red-400 hover:text-red-300 transition flex items-center">
-                    Make Predictions <i class="fas fa-arrow-right ml-2"></i>
-                </a>
-            </div>
-            
-            <?php if (empty($upcomingRaces)): ?>
-                <div class="card-glass rounded-xl p-8 text-center">
-                    <i class="fas fa-calendar-times text-4xl text-gray-600 mb-4"></i>
-                    <p class="text-gray-400">No upcoming races scheduled.</p>
-                </div>
-            <?php else: ?>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <?php foreach ($upcomingRaces as $race): ?>
-                        <div class="race-card-premium card-glass rounded-xl p-6">
-                            <div class="flex items-start justify-between mb-4">
-                                <div>
-                                    <h3 class="text-xl font-bold mb-1"><?php echo htmlspecialchars($race['race_name']); ?></h3>
-                                    <p class="text-gray-400 text-sm"><?php echo htmlspecialchars($race['circuit_name']); ?></p>
-                                </div>
-                                <div class="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
-                                    <i class="fas fa-flag-checkered text-red-400"></i>
-                                </div>
-                            </div>
-                            <div class="flex items-center text-gray-300 mb-4">
-                                <i class="fas fa-calendar mr-2"></i>
-                                <span><?php echo date('F j, Y', strtotime($race['race_date'])); ?></span>
-                            </div>
-                            <a href="predict.php?race_id=<?php echo $race['id']; ?>" class="block w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-center py-2 rounded-lg font-semibold transition">
-                                Make Prediction
-                            </a>
+                <!-- STATS GRID (Coins/Items style) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Rank Card -->
+                    <div class="g-card p-5 g-border-glow-orange flex flex-col items-center justify-center text-center">
+                        <div class="w-12 h-12 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center text-xl mb-3 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+                            <i class="fas fa-crown"></i>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </div>
+                        <div class="text-3xl font-black text-white italic">
+                            #<?php echo $rank; ?>
+                        </div>
+                        <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Global Rank</div>
+                    </div>
 
-        <!-- Recent Scores -->
-        <div class="animate-fade-in-up">
-            <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <i class="fas fa-history text-red-400 mr-3"></i>
-                Recent Race Scores
-            </h2>
-            
-            <?php if (empty($recentScores)): ?>
-                <div class="card-glass rounded-xl p-8 text-center">
-                    <i class="fas fa-trophy text-4xl text-gray-600 mb-4"></i>
-                    <p class="text-gray-400">No scores yet. Make your first prediction!</p>
-                </div>
-            <?php else: ?>
-                <div class="card-glass rounded-xl overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="border-b border-white/10">
-                                    <th class="text-left p-4 text-gray-400 font-semibold uppercase text-sm">Race</th>
-                                    <th class="text-left p-4 text-gray-400 font-semibold uppercase text-sm">Date</th>
-                                    <th class="text-right p-4 text-gray-400 font-semibold uppercase text-sm">Driver</th>
-                                    <th class="text-right p-4 text-gray-400 font-semibold uppercase text-sm">Constructor</th>
-                                    <th class="text-right p-4 text-gray-400 font-semibold uppercase text-sm">Bonus</th>
-                                    <th class="text-right p-4 text-gray-400 font-semibold uppercase text-sm">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($recentScores as $score): ?>
-                                    <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                                        <td class="p-4">
-                                            <div class="font-semibold"><?php echo htmlspecialchars($score['race_name']); ?></div>
-                                        </td>
-                                        <td class="p-4 text-gray-400">
-                                            <?php echo date('M j, Y', strtotime($score['race_date'])); ?>
-                                        </td>
-                                        <td class="p-4 text-right">
-                                            <span class="text-blue-400 font-semibold"><?php echo $score['driver_points']; ?></span>
-                                        </td>
-                                        <td class="p-4 text-right">
-                                            <span class="text-green-400 font-semibold"><?php echo $score['constructor_points']; ?></span>
-                                        </td>
-                                        <td class="p-4 text-right">
-                                            <span class="text-yellow-400 font-semibold"><?php echo $score['top3_bonus'] + $score['constructor_top3_bonus']; ?></span>
-                                        </td>
-                                        <td class="p-4 text-right">
-                                            <span class="text-xl font-black text-red-400 points-glow"><?php echo $score['total_points']; ?></span>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                    <!-- Points Card -->
+                    <div class="g-card p-5 g-border-glow-blue flex flex-col items-center justify-center text-center">
+                        <div class="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl mb-3 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="text-3xl font-black text-white italic">
+                            <?php echo $totalPoints; ?>
+                        </div>
+                        <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Total Points</div>
+                    </div>
+
+                    <!-- Avg Points (Mockup) -->
+                    <div class="g-card p-5 flex flex-col items-center justify-center text-center opacity-75">
+                        <div class="w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-3">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="text-3xl font-black text-white italic">--</div>
+                        <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Avg Score</div>
+                    </div>
+
+                    <!-- Win Rate (Mockup) -->
+                    <div class="g-card p-5 flex flex-col items-center justify-center text-center opacity-75">
+                        <div class="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center text-xl mb-3">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="text-3xl font-black text-white italic">--%</div>
+                        <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Accuracy</div>
                     </div>
                 </div>
-            <?php endif; ?>
+
+                <!-- RECENT DROPS (History) -->
+                <div>
+                    <h3 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                        <i class="fas fa-history text-gray-500"></i> Recent Results
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <?php if (empty($recentResults)): ?>
+                            <div class="col-span-3 text-center py-8 text-gray-500 g-card">
+                                No race history yet. Start predicting!
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($recentResults as $res): ?>
+                            <div class="g-card p-4 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400">
+                                        <i class="fas fa-flag"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($res['country']); ?></div>
+                                        <div class="text-[10px] text-gray-500"><?php echo date('M d', strtotime($res['race_date'])); ?></div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-green-400">+<?php echo $res['total_score']; ?></div>
+                                    <div class="text-[10px] text-gray-500 font-bold uppercase">Points</div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- RIGHT COLUMN (Leaderboard / "Daily Race") -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <div class="g-card p-6 h-full border-t-4 border-t-orange-500">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                            <i class="fas fa-trophy text-orange-500"></i> TOP RACERS
+                        </h3>
+                        <span class="bg-orange-500/10 text-orange-500 text-[10px] px-2 py-1 rounded font-bold uppercase">Global</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <?php foreach ($leaderboard as $idx => $player): 
+                            $isMe = ($player['username'] === $user['username']);
+                            $rowClass = $isMe ? 'bg-orange-500/10 border-orange-500/30' : 'bg-white/5 border-transparent hover:bg-white/10';
+                            $rankColor = match($idx + 1) {
+                                1 => 'text-yellow-400',
+                                2 => 'text-gray-300',
+                                3 => 'text-amber-600',
+                                default => 'text-gray-500'
+                            };
+                        ?>
+                        <div class="flex items-center gap-3 p-3 rounded-xl border <?php echo $rowClass; ?> transition-all group cursor-pointer">
+                            <div class="font-black text-lg w-6 text-center <?php echo $rankColor; ?>">
+                                <?php echo $idx + 1; ?>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-slate-700 overflow-hidden">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?php echo $player['username']; ?>" alt="Avatar">
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-bold text-white group-hover:text-orange-400 transition">
+                                    <?php echo htmlspecialchars($player['username']); ?>
+                                </div>
+                                <div class="text-[10px] text-gray-500">Level <?php echo floor($player['total_points'] / 100) + 1; ?></div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-mono font-bold text-blue-400"><?php echo $player['total_points']; ?></div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-white/5 text-center">
+                        <a href="leaderboard.php" class="g-btn g-btn-blue w-full py-3 block text-center text-sm">
+                            View Full Standings
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mini Chat / Updates (Visual Mockup) -->
+                <div class="g-card p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl text-white">
+                        <i class="fas fa-comment-alt"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-md mb-4">Paddock Chat</h3>
+                    <div class="space-y-4">
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-pink-500 flex-shrink-0"></div>
+                            <div class="bg-white/5 p-3 rounded-r-xl rounded-bl-xl text-xs text-gray-300">
+                                <span class="font-bold text-pink-400 block mb-1">System</span>
+                                Welcome to the 2026 Season! Don't forget to lock in your predictions for Melbourne.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" placeholder="Type a message..." class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-orange-500 outline-none transition">
+                    </div>
+                </div>
+
+            </div>
+        
         </div>
+        
+        <!-- Footer info matches others -->
+        <footer class="mt-12 border-t border-white/10 py-6 text-center">
+            <p class="text-gray-500 text-sm mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+            <p class="text-gray-600 text-xs">
+                Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-orange-400 font-semibold transition">Scanerrific</a>
+            </p>
+        </footer>
+
     </main>
 
-    <!-- Footer -->
-    <footer class="mt-16 border-t border-white/10 py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
-            <p>&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
-            <p class="text-gray-500 text-sm mt-2">
-                Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-red-400 hover:text-red-300 font-semibold transition">Scanerrific</a>
-            </p>
-        </div>
-    </footer>
 </body>
 </html>
