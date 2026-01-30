@@ -59,23 +59,6 @@ $stmt = $db->prepare("SELECT DISTINCT team FROM drivers ORDER BY team");
 $stmt->execute();
 $constructors = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// Get previous race predictions (to offer as template)
-$previousPredictions = [];
-$stmt = $db->prepare("
-    SELECT rp.driver_id, rp.predicted_position 
-    FROM predictions rp
-    JOIN races r ON rp.race_id = r.id
-    WHERE rp.user_id = ? AND r.race_date < ? 
-    ORDER BY r.race_date DESC 
-    LIMIT 1
-");
-$stmt->bind_param("is", $userId, $race['race_date']);
-$stmt->execute();
-$result = $stmt->get_result();
-while ($row = $result->fetch_assoc()) {
-    $previousPredictions[$row['driver_id']] = $row['predicted_position'];
-}
-
 // Handle POST requests for saving predictions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) {
     
@@ -158,32 +141,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SortableJS for smooth Drag & Drop -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
-        /* Drag and Drop specifics that CSS file might not cover yet */
+        /* Compact List Item */
         .prediction-item {
-            cursor: move; /* Fallback */
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s, transform 0.2s;
             cursor: grab;
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            position: relative;
         }
-        .prediction-item:active { cursor: grabbing; }
-        .prediction-item.dragging { opacity: 0.5; background: rgba(59, 130, 246, 0.2); transform: scale(0.98); }
-        .prediction-item.drag-over { border-top: 2px solid #f97316; }
 
-        .team-badge {
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 12px;
+        .prediction-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            z-index: 5;
+        }
+
+        /* Sortable Ghost (Placeholder) */
+        .sortable-ghost {
+            background: rgba(59, 130, 246, 0.1) !important;
+            border: 1px dashed rgba(59, 130, 246, 0.5);
+            opacity: 0.5;
+        }
+
+        /* Sortable Drag (Active Item) */
+        .sortable-drag {
+            background: rgba(30, 58, 138, 0.9);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            cursor: grabbing;
+            transform: scale(1.02);
+            z-index: 100 !important;
+        }
+
+        .position-num {
+            font-variant-numeric: tabular-nums;
+            width: 24px;
+            text-align: center;
+            font-weight: 800;
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .team-badge-small {
+            font-size: 0.65rem;
+            padding: 1px 6px;
+            border-radius: 4px;
             font-weight: 700;
             text-transform: uppercase;
+            opacity: 0.8;
         }
-        /* Simple team colors */
-        .team-ferrari { background: rgba(220, 0, 0, 0.2); color: #ff2800; border: 1px solid rgba(220,0,0,0.3); }
-        .team-mercedes { background: rgba(0, 210, 190, 0.2); color: #00d2be; border: 1px solid rgba(0,210,190,0.3); }
-        .team-red-bull { background: rgba(6, 0, 239, 0.2); color: #3671C6; border: 1px solid rgba(6,0,239,0.3); }
-        .team-mclaren { background: rgba(255, 128, 0, 0.2); color: #ff8000; border: 1px solid rgba(255,128,0,0.3); }
-        .team-aston-martin { background: rgba(0, 111, 98, 0.2); color: #006f62; border: 1px solid rgba(0,111,98,0.3); }
-        /* Defaults for others */
-        .team-badge:not([class*="-"]) { background: rgba(255,255,255,0.1); color: #ccc; }
+        
+        .driver-name-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .team-ferrari { border-left: 2px solid #ff2800; }
+        .team-mercedes { border-left: 2px solid #00d2be; }
+        .team-red-bull { border-left: 2px solid #3671C6; }
+        .team-mclaren { border-left: 2px solid #ff8000; }
+        .team-aston-martin { border-left: 2px solid #006f62; }
     </style>
 </head>
 <body class="gaming-theme text-gray-200">
@@ -212,51 +234,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
     <!-- Main Content -->
     <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
         
-        <!-- Header -->
-        <div class="mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
-            <div>
-                <span class="text-orange-500 font-bold uppercase tracking-wider text-xs mb-2 block">Make your Prediction</span>
-                <h1 class="text-3xl md:text-5xl font-black text-white italic uppercase">
-                    <?php echo htmlspecialchars($race['country']); ?>
-                </h1>
-                <p class="text-gray-400 flex items-center gap-2 mt-2">
-                    <i class="fas fa-map-marker-alt text-red-500"></i> <?php echo htmlspecialchars($race['circuit_name']); ?>
-                </p>
+        <!-- Compact Header -->
+        <div class="mb-6 flex justify-between items-center bg-slate-900/50 p-4 rounded-xl border border-white/5 backdrop-blur-md sticky top-20 z-40 shadow-xl">
+            <div class="flex items-center gap-4">
+                <div class="text-3xl">🇦🇺</div>
+                <div>
+                    <h1 class="text-xl font-bold text-white uppercase tracking-wider"><?php echo htmlspecialchars($race['country']); ?></h1>
+                    <div class="text-xs text-gray-400"><?php echo htmlspecialchars($race['circuit_name']); ?></div>
+                </div>
             </div>
-            <div class="flex gap-3">
-                 <button class="g-btn g-btn-blue px-6 py-3 flex items-center gap-2 shadow-lg hover:shadow-blue-500/20" onclick="savePredictions()">
-                    <i class="fas fa-save"></i> SAVE <span class="hidden sm:inline">PREDICTIONS</span>
+            <div class="flex gap-2">
+                <button onclick="copyFromPreviousRace()" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded text-gray-300 transition">
+                    <i class="fas fa-history mr-1"></i> Copy Prev
+                </button>
+                 <button class="g-btn g-btn-blue px-6 py-2 text-sm shadow-lg hover:shadow-blue-500/20" onclick="savePredictions()">
+                    SAVE <i class="fas fa-check ml-1"></i>
                 </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            <!-- Main Drag List -->
-            <div class="lg:col-span-3">
-                <div class="g-card p-6 border-t-4 border-t-blue-500">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="font-bold text-white text-lg flex items-center gap-2">
-                            <i class="fas fa-list-ol text-blue-500"></i> Driver Order
-                        </h2>
-                        
-                        <?php if (!empty($previousPredictions)): ?>
-                        <button onclick="copyFromPreviousRace()" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded transition text-gray-300">
-                            <i class="fas fa-copy mr-1"></i> Copy Previous
-                        </button>
-                        <?php endif; ?>
-                    </div>
-                    
-                     <div class="mb-4">
-                        <input type="text" id="searchDrivers" placeholder="🔍  Search driver..." 
-                               class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+            <!-- Main Drag List (Compact) -->
+            <div class="lg:col-span-8">
+                <div class="g-card overflow-hidden">
+                    <!-- Search -->
+                     <div class="p-2 border-b border-white/10 bg-black/10">
+                        <input type="text" id="searchDrivers" placeholder="🔍 Filter drivers..." 
+                               class="w-full bg-transparent border-none text-sm text-white focus:ring-0 placeholder-gray-600 px-2 py-1">
                     </div>
 
-                    <p class="text-xs text-gray-500 mb-4 bg-blue-500/10 p-2 rounded border border-blue-500/20">
-                        <i class="fas fa-info-circle mr-1"></i> Drag and drop to reorder the drivers.
-                    </p>
-
-                    <div id="predictionList" class="space-y-2">
+                    <div id="predictionList" class="bg-black/20 min-h-[500px]">
                         <?php 
                         $orderedDrivers = $drivers;
                         // Sort by current prediction (if any)
@@ -268,27 +276,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                         
                         foreach ($orderedDrivers as $idx => $driver): 
                             $position = $predictions[$driver['id']] ?? ($idx + 1);
-                            $teamClass = 'team-' . strtolower(str_replace(' ', '-', $driver['team']));
+                            $teamSlug = strtolower(str_replace(' ', '-', $driver['team']));
                         ?>
-                        <div class="prediction-item g-card p-3 flex items-center gap-4 border-0 bg-white/5 hover:bg-white/10" 
-                             draggable="true" 
+                        <div class="prediction-item group team-<?php echo $teamSlug; ?>" 
                              data-driver-id="<?php echo $driver['id']; ?>" 
                              data-team="<?php echo htmlspecialchars($driver['team']); ?>" 
                              data-driver-name="<?php echo htmlspecialchars($driver['driver_name']); ?>">
                             
-                            <div class="text-gray-500 cursor-grab hover:text-white px-2"><i class="fas fa-grip-vertical"></i></div>
-                            
-                            <div class="position-num w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 font-bold flex items-center justify-center border border-blue-500/20">
-                                <?php echo $position; ?>
+                            <!-- Grip Handle -->
+                            <div class="text-gray-600 group-hover:text-gray-400 cursor-grab px-2">
+                                <i class="fas fa-grip-lines"></i>
                             </div>
                             
-                            <div class="flex-1">
-                                <div class="font-bold text-white"><?php echo htmlspecialchars($driver['driver_name']); ?></div>
-                                <div class="text-xs text-gray-500"><?php echo htmlspecialchars($driver['team']); ?></div>
-                            </div>
+                            <!-- Position (Fixed) -->
+                            <div class="position-num"><?php echo $position; ?></div>
                             
-                            <div>
-                                <span class="team-badge <?php echo $teamClass; ?>"><?php echo htmlspecialchars($driver['team']); ?></span>
+                            <!-- Driver Info -->
+                            <div class="flex-1 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="driver-name-text text-white"><?php echo htmlspecialchars($driver['driver_name']); ?></span>
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-wider"><?php echo htmlspecialchars($driver['team']); ?></span>
+                                </div>
                             </div>
                         </div>
                         <?php endforeach; ?>
@@ -297,35 +305,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             </div>
 
             <!-- Sidebar (Points & Info) -->
-            <div class="lg:col-span-1 space-y-6">
+            <div class="lg:col-span-4 space-y-4 sticky top-40">
                 <!-- Live Points -->
-                <div class="g-card p-6 border-t-4 border-t-green-500 sticky top-24">
-                    <h3 class="font-bold text-white text-md mb-4 flex items-center gap-2">
+                <div class="g-card p-4 border-t-2 border-t-green-500">
+                    <h3 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
                         <i class="fas fa-chart-pie text-green-500"></i> Projected Points
                     </h3>
-                    <div id="constructorPoints" class="space-y-3 text-sm">
+                    <div id="constructorPoints" class="space-y-1">
                         <!-- Populated by JS -->
-                        <div class="text-gray-500 text-xs text-center py-4">Reordering...</div>
-                    </div>
-                </div>
-
-                <!-- Rules -->
-                <div class="g-card p-4">
-                    <h4 class="font-bold text-white text-xs uppercase mb-3 text-gray-400">Rules</h4>
-                    <div class="space-y-2 text-xs text-gray-400">
-                        <div class="flex justify-between">
-                            <span>Ex. Pos.</span>
-                            <span class="text-green-400 font-bold">+10 pts</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Top 3 All Correct</span>
-                            <span class="text-orange-400 font-bold">+3 pts</span>
-                        </div>
-                         <?php if (in_array($race['country'], ['China', 'UK', 'Singapore'])): ?>
-                        <div class="bg-yellow-500/20 text-yellow-400 p-2 rounded text-center font-bold mt-2 border border-yellow-500/30">
-                            DOUBLE POINTS RACE!
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -334,69 +321,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
 
     </main>
     
-    <footer class="mt-12 border-t border-white/10 py-6 text-center">
-        <p class="text-gray-500 text-sm mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
-        <p class="text-gray-600 text-xs">
-            Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-orange-400 font-semibold transition">Scanerrific</a>
-        </p>
-    </footer>
-
     <!-- Scripts -->
     <script>
-        // Keep Drag & Drop Logic exactly as it was, just referencing new classes if needed
-        // (The logic relies on IDs and classes which I preserved: prediction-item, etc.)
-        
-        let draggedElement = null;
-        let predictionList = document.getElementById('predictionList');
-
-        // Drag Start
-        document.addEventListener('dragstart', function(e) {
-            if (e.target.closest('.prediction-item')) {
-                draggedElement = e.target.closest('.prediction-item');
-                draggedElement.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                // Firefox requires setting data
-                e.dataTransfer.setData('text/plain', '');
-            }
-        });
-
-        // Drag End
-        document.addEventListener('dragend', function(e) {
-            if (draggedElement) {
-                draggedElement.classList.remove('dragging');
-                draggedElement = null;
-                updatePositionNumbers();
-                updateConstructorPoints();
-            }
-        });
-
-        // Drag Over
-        predictionList.addEventListener('dragover', function(e) {
-            e.preventDefault(); // Necessary to allow dropping
-            const afterElement = getDragAfterElement(predictionList, e.clientY);
-            if (draggedElement) {
-                if (afterElement == null) {
-                    predictionList.appendChild(draggedElement);
-                } else {
-                    predictionList.insertBefore(draggedElement, afterElement);
+        // --- Initializes SortableJS ---
+        document.addEventListener('DOMContentLoaded', function() {
+            var el = document.getElementById('predictionList');
+            var sortable = Sortable.create(el, {
+                animation: 150,  // Smooth animation (ms)
+                ghostClass: 'sortable-ghost', // Class for the placeholder
+                dragClass: 'sortable-drag',   // Class for the dragging item
+                handle: '.prediction-item',   // Draggable by entire row (or use .fa-grip-lines for handle only)
+                onEnd: function (evt) {
+                    updatePositionNumbers();
+                    updateConstructorPoints();
                 }
-            }
+            });
+            
+            // Initial calculation
+            updateConstructorPoints();
         });
-        
-        // Helper to find position
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.prediction-item:not(.dragging)')];
-
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
-        }
 
         function updatePositionNumbers() {
             const list = document.getElementById('predictionList');
@@ -411,7 +354,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             });
         }
         
-        // --- Constructor Logic ---
+        // --- Constructor Logic (Same as before) ---
          function calculateTeamRankings() {
             const list = document.getElementById('predictionList');
             const items = list.querySelectorAll('.prediction-item');
@@ -457,10 +400,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             
             teamRankings.forEach(ranking => {
                 const item = document.createElement('div');
-                item.className = 'flex justify-between items-center p-2 bg-white/5 rounded hover:bg-white/10 transition';
+                item.className = 'flex justify-between items-center p-1.5 hover:bg-white/5 rounded transition border-b border-white/5 last:border-0';
                 item.innerHTML = `
-                    <div class="font-medium text-gray-300 text-xs">${ranking.team}</div>
-                    <div class="font-bold text-green-400 text-sm">${ranking.totalPoints} pts</div>
+                    <div class="flex items-center gap-2">
+                         <span class="text-xs text-gray-400 w-4 text-center">${ranking.constructorRank}</span>
+                         <span class="font-bold text-gray-200 text-xs">${ranking.team}</span>
+                    </div>
+                    <div class="font-bold text-green-400 text-xs">${ranking.totalPoints} pts</div>
                 `;
                 container.appendChild(item);
             });
@@ -499,8 +445,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Custom toast or alert styled could go here
-                    alert('Predictions Locked In! 🏎️💨');
+                    alert('✓ Saved!');
                     window.location.href = 'dashboard.php';
                 } else {
                     alert('Error: ' + data.message);
@@ -508,22 +453,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             })
             .catch(err => alert('Network error'));
         }
-
-        // Search Filter
+        
+        // Basic filter
         document.getElementById('searchDrivers').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             document.querySelectorAll('.prediction-item').forEach(item => {
-                const name = item.getAttribute('data-driver-name').toLowerCase();
-                if (name.includes(term)) {
+                const text = item.innerText.toLowerCase();
+                 if (text.includes(term)) {
                     item.style.display = 'flex';
                 } else {
                     item.style.display = 'none';
                 }
             });
         });
-        
-        // Initial init
-        document.addEventListener('DOMContentLoaded', updateConstructorPoints);
 
     </script>
 
