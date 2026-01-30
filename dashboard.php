@@ -41,6 +41,55 @@ $stmt = $db->prepare("
 $stmt->bind_param("i", $userId);
 $stmt->execute();
 $recentResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Get Upcoming Races (Next 5)
+$upcomingRaces = [];
+$stmt = $db->prepare("
+    SELECT id, race_name, country, circuit_name, race_date 
+    FROM races 
+    WHERE race_date >= CURDATE() 
+    ORDER BY race_date ASC 
+    LIMIT 5
+");
+$stmt->execute();
+$racesData = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Calculate unlock status for each race
+$now = new DateTime('now', new DateTimeZone('UTC'));
+foreach ($racesData as $race) {
+    $raceDate = new DateTime($race['race_date'], new DateTimeZone('UTC'));
+    
+    // Find previous race
+    $prevRaceStmt = $db->prepare("SELECT race_date FROM races WHERE race_date < ? ORDER BY race_date DESC LIMIT 1");
+    $prevRaceStmt->bind_param("s", $race['race_date']);
+    $prevRaceStmt->execute();
+    $prevRaceResult = $prevRaceStmt->get_result()->fetch_assoc();
+    
+    // Unlock on Monday 00:00 after previous Sunday race
+    if ($prevRaceResult) {
+        $prevRaceDate = new DateTime($prevRaceResult['race_date'], new DateTimeZone('UTC'));
+        // Find the Monday after the previous race
+        $unlockDate = clone $prevRaceDate;
+        $dayOfWeek = (int)$unlockDate->format('N'); // 1=Monday, 7=Sunday
+        if ($dayOfWeek == 7) {
+            // Race is Sunday, unlock next day (Monday)
+            $unlockDate->modify('+1 day')->setTime(0, 0, 0);
+        } else {
+            // Race on other day, find next Monday
+            $daysUntilMonday = (8 - $dayOfWeek) % 7;
+            if ($daysUntilMonday == 0) $daysUntilMonday = 7;
+            $unlockDate->modify("+{$daysUntilMonday} days")->setTime(0, 0, 0);
+        }
+        $race['unlocked'] = $now >= $unlockDate;
+        $race['unlock_date'] = $unlockDate->format('M d');
+    } else {
+        // First race of season, always unlocked
+        $race['unlocked'] = true;
+        $race['unlock_date'] = null;
+    }
+    
+    $upcomingRaces[] = $race;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -234,6 +283,79 @@ $recentResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </div>
 
+                <!-- Upcoming Races -->
+                <div class="g-card p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                            <i class="fas fa-calendar-alt text-blue-500"></i> Upcoming Races
+                        </h3>
+                    </div>
+
+                    <div class="space-y-2">
+                        <?php if (empty($upcomingRaces)): ?>
+                            <div class="text-center py-8 text-gray-500">
+                                No upcoming races scheduled
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($upcomingRaces as $idx => $uRace): 
+                                $flag = match($uRace['country']) {
+                                    'Australia' => '🇦🇺',
+                                    'China' => '🇨🇳',
+                                    'Japan' => '🇯🇵',
+                                    'Bahrain' => '🇧🇭',
+                                    'Saudi Arabia' => '🇸🇦',
+                                    'Miami' => '🇺🇸',
+                                    'Italy' => '🇮🇹',
+                                    'Monaco' => '🇲🇨',
+                                    'Canada' => '🇨🇦',
+                                    'Spain' => '🇪🇸',
+                                    'Austria' => '🇦🇹',
+                                    'UK' => '🇬🇧',
+                                    'Hungary' => '🇭🇺',
+                                    'Belgium' => '🇧🇪',
+                                    'Netherlands' => '🇳🇱',
+                                    'Azerbaijan' => '🇦🇿',
+                                    'Singapore' => '🇸🇬',
+                                    'USA' => '🇺🇸',
+                                    'Mexico' => '🇲🇽',
+                                    'Brazil' => '🇧🇷',
+                                    'Las Vegas' => '🇺🇸',
+                                    'Qatar' => '🇶🇦',
+                                    'Abu Dhabi' => '🇦🇪',
+                                    default => '🏁'
+                                };
+                            ?>
+                            <a href="<?php echo $uRace['unlocked'] ? 'predict.php?race_id=' . $uRace['id'] : '#'; ?>" 
+                               class="block g-card p-4 border-l-4 <?php echo $uRace['unlocked'] ? 'border-l-green-500 hover:bg-white/10' : 'border-l-gray-600 opacity-60'; ?> transition group <?php echo !$uRace['unlocked'] ? 'cursor-not-allowed' : ''; ?>">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-3xl"><?php echo $flag; ?></div>
+                                        <div>
+                                            <div class="text-sm font-bold text-white flex items-center gap-2">
+                                                <?php echo htmlspecialchars($uRace['country']); ?>
+                                                <?php if (!$uRace['unlocked']): ?>
+                                                    <span class="text-[9px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded font-bold">🔒 LOCKED</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="text-[10px] text-gray-400"><?php echo date('M d, Y', strtotime($uRace['race_date'])); ?></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <?php if ($uRace['unlocked']): ?>
+                                            <div class="text-green-400 text-xs font-bold">OPEN</div>
+                                            <div class="text-[9px] text-gray-500">Click to predict</div>
+                                        <?php else: ?>
+                                            <div class="text-red-400 text-xs font-bold">LOCKED</div>
+                                            <div class="text-[9px] text-gray-500">Opens <?php echo $uRace['unlock_date']; ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </a>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
             </div>
             
             <!-- RIGHT COLUMN (Leaderboard / "Daily Race") -->
@@ -269,7 +391,7 @@ $recentResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                 <div class="text-sm font-bold text-white group-hover:text-orange-400 transition">
                                     <?php echo htmlspecialchars($player['username']); ?>
                                 </div>
-                                <div class="text-[10px] text-gray-500">Level <?php echo floor($player['total_points'] / 100) + 1; ?></div>
+                                <div class="text-[10px] text-gray-500">Level <?php echo $player['races_participated'] ?? 0; ?></div>
                             </div>
                             <div class="text-right">
                                 <div class="font-mono font-bold text-blue-400"><?php echo $player['total_points']; ?></div>
