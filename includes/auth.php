@@ -24,7 +24,7 @@ function getCurrentUser() {
     }
     
     $db = getDB();
-    $stmt = $db->prepare("SELECT id, username, email, full_name FROM users WHERE id = ? AND is_active = TRUE");
+    $stmt = $db->prepare("SELECT id, username, email, full_name FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -36,7 +36,7 @@ function getCurrentUser() {
  */
 function requireLogin() {
     if (!isLoggedIn()) {
-        header('Location: /login.php');
+        header('Location: login.php');
         exit;
     }
 }
@@ -46,20 +46,19 @@ function requireLogin() {
  */
 function loginUser($username, $password) {
     $db = getDB();
-    $stmt = $db->prepare("SELECT id, username, email, password_hash, full_name FROM users WHERE (username = ? OR email = ?) AND is_active = TRUE");
+    // Adjusted column name from password_hash to password to match database setup
+    // Removed is_active check as it's not in the setup script
+    $stmt = $db->prepare("SELECT id, username, email, password, full_name FROM users WHERE (username = ? OR email = ?)");
     $stmt->bind_param("ss", $username, $username);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
     
-    if ($user && password_verify($password, $user['password_hash'])) {
+    if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         
-        // Update last login
-        $updateStmt = $db->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
-        $updateStmt->bind_param("i", $user['id']);
-        $updateStmt->execute();
+        // Removed last_login update as the column doesn't exist in setup script
         
         return true;
     }
@@ -85,20 +84,20 @@ function registerUser($username, $email, $password, $fullName = '') {
     
     // Create user
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $db->prepare("INSERT INTO users (username, email, password_hash, full_name) VALUES (?, ?, ?, ?)");
+    
+    // Adjusted column name from password_hash to password
+    $stmt = $db->prepare("INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("ssss", $username, $email, $passwordHash, $fullName);
     
     if ($stmt->execute()) {
-        // Initialize user totals
         $userId = $db->insert_id;
-        $totalsStmt = $db->prepare("INSERT INTO user_totals (user_id) VALUES (?)");
-        $totalsStmt->bind_param("i", $userId);
-        $totalsStmt->execute();
+        
+        // Removed user_totals insert as table doesn't exist in setup script
         
         return ['success' => true, 'user_id' => $userId];
     }
     
-    return ['success' => false, 'message' => 'Registration failed'];
+    return ['success' => false, 'message' => 'Registration failed: ' . $db->error];
 }
 
 /**
@@ -106,7 +105,6 @@ function registerUser($username, $email, $password, $fullName = '') {
  */
 function logoutUser() {
     session_destroy();
-    header('Location: /login.php');
+    header('Location: login.php');
     exit;
 }
-
