@@ -1,0 +1,25 @@
+FORCE REBUILD MARKER
+====================
+
+Timestamp: 2026-01-30 10:51:00 UTC
+Purpose: Force Railway to rebuild with latest code
+
+This file exists to trigger a rebuild on Railway.
+Railway should detect this change and rebuild the application.
+
+The config.php file has been updated to:
+- Use environment variables for database connection
+- Force TCP for remote connections (prevents socket errors)
+- Provide better error messages
+
+If you're seeing this file, Railway should rebuild automatically.
+If not, manually trigger a redeploy in Railway dashboard.
+
+Expected Environment Variables on Railway:
+- RAILWAY_TCP_PROXY_DOMAIN (database host)
+- RAILWAY_TCP_PROXY_PORT (database port)  
+- MYSQLUSER (database user)
+- MYSQL_ROOT_PASSWORD (database password)
+- MYSQL_DATABASE (database name)
+
+Check Railway dashboard under "Variables" to ensure these are set.
