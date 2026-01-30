@@ -31,35 +31,21 @@ session_start();
 
 // Database connection
 function getDB() {
-    static $conn = null;
-    if ($conn === null) {
-        try {
-            // Use environment variables for Railway/cloud deployment
-            // Priority order for Railway: RAILWAY_TCP_PROXY_DOMAIN > MYSQLHOST > localhost
-            $host = getenv('RAILWAY_TCP_PROXY_DOMAIN') ?: getenv('MYSQLHOST') ?: getenv('DB_HOST') ?: 'localhost';
-            $port = getenv('RAILWAY_TCP_PROXY_PORT') ?: getenv('MYSQLPORT') ?: getenv('DB_PORT') ?: 3306;
-            $user = getenv('MYSQLUSER') ?: getenv('DB_USER') ?: 'root';
-            $pass = getenv('MYSQL_ROOT_PASSWORD') ?: getenv('MYSQLPASSWORD') ?: getenv('DB_PASS') ?: '';
-            $dbname = getenv('MYSQL_DATABASE') ?: getenv('MYSQLDATABASE') ?: getenv('DB_NAME') ?: 'f1_fantasy';
-            
-            // For Railway or remote connections, force TCP by using host:port format
-            // This prevents "No such file or directory" socket errors
-            if ($host !== 'localhost' && $host !== '127.0.0.1') {
-                // Remote connection - use TCP with explicit port
-                $conn = new mysqli($host, $user, $pass, $dbname, $port);
-            } else {
-                // Local connection - let MySQL decide socket vs TCP
-                $conn = new mysqli($host, $user, $pass, $dbname);
-            }
-            
-            if ($conn->connect_error) {
-                throw new Exception("Connection failed: " . $conn->connect_error . " (Host: $host, Port: $port, User: $user, DB: $dbname)");
-            }
-            $conn->set_charset("utf8mb4");
-        } catch (Exception $e) {
-            throw new Exception("Database connection error: " . $e->getMessage());
-        }
+    static $pdo = null;
+    if ($pdo !== null) return $pdo;
+
+    $databaseUrl = getenv('DATABASE_URL');
+
+    if (!$databaseUrl) {
+        throw new Exception("DATABASE_URL not set");
     }
-    return $conn;
+
+    $pdo = new PDO($databaseUrl, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
+
+    return $pdo;
 }
+
 
