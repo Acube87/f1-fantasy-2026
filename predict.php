@@ -187,25 +187,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             font-size: 0.8rem;
         }
 
-        .team-badge-small {
-            font-size: 0.65rem;
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-weight: 700;
-            text-transform: uppercase;
-            opacity: 0.8;
+        /* Team Badge Styles - Official F1 2026 Colors */
+        .team-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
+
+        .badge-ferrari { background: linear-gradient(135deg, #DC0000 0%, #E8002D 100%); color: white; }
+        .badge-mercedes { background: linear-gradient(135deg, #00D2BE 0%, #27F4D2 100%); color: #000; }
+        .badge-red-bull { background: linear-gradient(135deg, #3671C6 0%, #1E41FF 100%); color: white; }
+        .badge-mclaren { background: linear-gradient(135deg, #FF8000 0%, #FFA04D 100%); color: white; }
+        .badge-aston-martin { background: linear-gradient(135deg, #00665F 0%, #229971 100%); color: white; }
+        .badge-alpine { background: linear-gradient(135deg, #0090FF 0%, #2E9AFF 100%); color: white; }
+        .badge-williams { background: linear-gradient(135deg, #005AFF 0%, #4280FF 100%); color: white; }
+        .badge-haas { background: linear-gradient(135deg, #FFFFFF 0%, #B6BABD 100%); color: #000; border: 1px solid rgba(255,255,255,0.2); }
+        .badge-rb, .badge-racing-bulls { background: linear-gradient(135deg, #6692FF 0%, #1E41FF 100%); color: white; }
+        .badge-sauber, .badge-kick-sauber { background: linear-gradient(135deg, #00E701 0%, #52B256 100%); color: #000; }
+        .badge-audi { background: linear-gradient(135deg, #000000 0%, #FF1721 100%); color: white; }
+        .badge-cadillac { background: linear-gradient(135deg, #0C1C8C 0%, #C41E3A 100%); color: white; }
         
         .driver-name-text {
             font-size: 0.9rem;
             font-weight: 600;
         }
         
-        .team-ferrari { border-left: 2px solid #ff2800; }
-        .team-mercedes { border-left: 2px solid #00d2be; }
-        .team-red-bull { border-left: 2px solid #3671C6; }
-        .team-mclaren { border-left: 2px solid #ff8000; }
-        .team-aston-martin { border-left: 2px solid #006f62; }
+        .team-name-small {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body class="gaming-theme text-gray-200">
@@ -274,28 +295,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                             return $posA - $posB;
                         });
                         
+                        // Team abbreviations mapping
+                        $teamAbbr = [
+                            'Ferrari' => 'FER',
+                            'Mercedes' => 'MER',
+                            'Red Bull' => 'RBR',
+                            'McLaren' => 'MCL',
+                            'Aston Martin' => 'AMR',
+                            'Alpine' => 'ALP',
+                            'Williams' => 'WIL',
+                            'Haas' => 'HAA',
+                            'RB' => 'RB',
+                            'Racing Bulls' => 'RB',
+                            'Sauber' => 'SAU',
+                            'Kick Sauber' => 'SAU',
+                            'Audi' => 'AUD',
+                            'Cadillac' => 'CAD'
+                        ];
+                        
                         foreach ($orderedDrivers as $idx => $driver): 
                             $position = $predictions[$driver['id']] ?? ($idx + 1);
                             $teamSlug = strtolower(str_replace(' ', '-', $driver['team']));
+                            $abbr = $teamAbbr[$driver['team']] ?? strtoupper(substr($driver['team'], 0, 3));
                         ?>
-                        <div class="prediction-item group team-<?php echo $teamSlug; ?>" 
+                        <div class="prediction-item group" 
                              data-driver-id="<?php echo $driver['id']; ?>" 
                              data-team="<?php echo htmlspecialchars($driver['team']); ?>" 
                              data-driver-name="<?php echo htmlspecialchars($driver['driver_name']); ?>">
                             
                             <!-- Grip Handle -->
-                            <div class="text-gray-600 group-hover:text-gray-400 cursor-grab px-2">
+                            <div class="text-gray-600 group-hover:text-gray-400 cursor-grab px-1">
                                 <i class="fas fa-grip-lines"></i>
                             </div>
                             
-                            <!-- Position (Fixed) -->
+                            <!-- Position -->
                             <div class="position-num"><?php echo $position; ?></div>
+                            
+                            <!-- Team Badge -->
+                            <div class="team-badge badge-<?php echo $teamSlug; ?>">
+                                <?php echo $abbr; ?>
+                            </div>
                             
                             <!-- Driver Info -->
                             <div class="flex-1 flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <span class="driver-name-text text-white"><?php echo htmlspecialchars($driver['driver_name']); ?></span>
-                                    <span class="text-[10px] text-gray-500 uppercase tracking-wider"><?php echo htmlspecialchars($driver['team']); ?></span>
+                                <div>
+                                    <div class="driver-name-text text-white"><?php echo htmlspecialchars($driver['driver_name']); ?></div>
+                                    <div class="team-name-small"><?php echo htmlspecialchars($driver['team']); ?></div>
                                 </div>
                             </div>
                         </div>
