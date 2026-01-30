@@ -5,13 +5,14 @@
 define('DB_HOST', getenv('RAILWAY_TCP_PROXY_DOMAIN') ?: getenv('MYSQLHOST') ?: getenv('DB_HOST') ?: 'localhost');
 define('DB_USER', getenv('MYSQLUSER') ?: getenv('DB_USER') ?: 'root');
 define('DB_PASS', getenv('MYSQL_ROOT_PASSWORD') ?: getenv('MYSQLPASSWORD') ?: getenv('DB_PASS') ?: '');
-define('DB_NAME', getenv('MYSQL_DATABASE') ?: getenv('MYSQLDATABASE') ?: getenv('DB_NAME') ?: 'railway');
+define('DB_NAME', getenv('MYSQL_DATABASE') ?: getenv('MYSQLDATABASE') ?: getenv('DB_NAME') ?: 'f1_fantasy');
 define('DB_PORT', getenv('RAILWAY_TCP_PROXY_PORT') ?: getenv('MYSQLPORT') ?: '3306');
 
 // F1 API configuration
 // Using Ergast F1 API (free, no auth required)
 // Alternative: Official F1 API (requires authentication)
-define('F1_API_BASE', 'http://ergast.com/api/f1/2026');
+// Using 2025 season (2026 data not available until season starts)
+define('F1_API_BASE', 'http://ergast.com/api/f1/2025');
 define('F1_API_TIMEOUT', 30);
 
 // Application settings
@@ -34,19 +35,30 @@ function getDB() {
     static $conn = null;
     if ($conn === null) {
         try {
-            // For Railway: use the known public proxy connection
-            $host = 'metro.proxy.rlwy.net';
-            $port = 40739;
-            $user = 'root';
-            $pass = 'ryKCglHSFcskNaRRpCooVWkxRqyKIyHt';
-            $dbname = 'f1_fantasy';  // The database that has our schema
+            // Use environment variables (Railway sets these automatically)
+            // Falls back to localhost for local development
+            $host = DB_HOST;
+            $port = DB_PORT;
+            $user = DB_USER;
+            $pass = DB_PASS;
+            $dbname = DB_NAME;
             
+            // Create connection with port
             $conn = @new mysqli($host, $user, $pass, $dbname, $port);
+            
             if ($conn->connect_error) {
-                throw new Exception("Connection failed: " . $conn->connect_error);
+                // Provide detailed error for debugging
+                $error_msg = "Connection failed: " . $conn->connect_error;
+                $error_msg .= "\nHost: " . $host . ":" . $port;
+                $error_msg .= "\nUser: " . $user;
+                $error_msg .= "\nDatabase: " . $dbname;
+                throw new Exception($error_msg);
             }
+            
             $conn->set_charset("utf8mb4");
         } catch (Exception $e) {
+            // Log error and throw with details
+            error_log("Database connection error: " . $e->getMessage());
             throw new Exception("Database connection error: " . $e->getMessage());
         }
     }
