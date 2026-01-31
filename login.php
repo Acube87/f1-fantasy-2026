@@ -1,20 +1,40 @@
 <?php
 require_once 'includes/auth.php';
+require_once 'includes/csrf.php';
+require_once 'includes/ratelimit.php';
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    
-    if (empty($username) || empty($password)) {
-        $error = 'Please fill in all fields';
+    // Verify CSRF token
+    if (!validateCSRF()) {
+        $error = 'Security validation failed. Please try again.';
     } else {
-        if (loginUser($username, $password)) {
-            header('Location: dashboard.php');
-            exit;
+        // Check rate limit
+        $rateLimit = checkRateLimit('login', 5, 15);
+        
+        if (!$rateLimit['allowed']) {
+            $retryMsg = getRetryAfterMessage($rateLimit['retry_after']);
+            $error = "Too many failed attempts. Please try again in {$retryMsg}.";
         } else {
-            $error = 'Invalid username or password';
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+            
+            if (empty($username) || empty($password)) {
+                $error = 'Please fill in all fields';
+            } else {
+                if (loginUser($username, $password)) {
+                    // Reset rate limit on successful login
+                    resetRateLimit('login');
+                    header('Location: dashboard.php');
+                    exit;
+                } else {
+                    // Record failed attempt
+                    recordFailedAttempt('login');
+                    $attemptsLeft = $rateLimit['attempts_remaining'] - 1;
+                    $error = "Invalid username or password. ({$attemptsLeft} attempts remaining)";
+                }
+            }
         }
     }
 }
@@ -69,13 +89,18 @@ if (isLoggedIn()) {
             <?php endif; ?>
 
             <form method="POST" action="login.php" class="space-y-5">
+                <?php csrfField(); ?>
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Username</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
                             <i class="fas fa-user"></i>
                         </div>
-                        <input type="text" name="username" class="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition" placeholder="Enter username" required autofocus>
+                        <input type="text" 
+                               name="username" 
+                               class="w-full bg-black/30 border border-white/10 rounded-xl px-10 py-3 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+                               placeholder="Enter username"
+                               required>
                     </div>
                 </div>
 
@@ -85,11 +110,15 @@ if (isLoggedIn()) {
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
                             <i class="fas fa-lock"></i>
                         </div>
-                        <input type="password" name="password" class="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition" placeholder="••••••••" required>
+                        <input type="password" 
+                               name="password" 
+                               class="w-full bg-black/30 border border-white/10 rounded-xl px-10 py-3 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+                               placeholder="Enter password"
+                               required>
                     </div>
                 </div>
 
-                <button type="submit" class="g-btn g-btn-blue w-full py-4 text-lg shadow-lg shadow-blue-500/20 mt-4">
+                <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 rounded-xl transition-all font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-orange-500/50 mt-4">
                     LOGIN <i class="fas fa-arrow-right ml-2 opacity-70"></i>
                 </button>
             </form>

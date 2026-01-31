@@ -1,39 +1,50 @@
 <?php
 require_once 'includes/auth.php';
+require_once 'includes/csrf.php';
 
 $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // HONEYPOT
-    if (!empty($_POST['website'])) {
-        die('Bot detected.');
-    }
-
-    $username = trim($_POST['username'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirm_password'] ?? '';
-    $fullName = trim($_POST['full_name'] ?? '');
-    
-    if (empty($username) || empty($email) || empty($password)) {
-        $error = 'Please fill in all required fields';
-    } elseif ($password !== $confirmPassword) {
-        $error = 'Passwords do not match';
-    } elseif (strlen($password) < 6) {
-        $error = 'Password must be at least 6 characters';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Invalid email address';
+    // Verify CSRF token
+    if (!validateCSRF()) {
+        $error = 'Security validation failed. Please try again.';
     } else {
-        $result = registerUser($username, $email, $password, $fullName);
-        if ($result['success']) {
-            $success = 'Account created successfully! Redirecting...';
-            echo '<script>setTimeout(function(){ window.location.href="login.php"; }, 2000);</script>';
+        // HONEYPOT
+        if (!empty($_POST['website'])) {
+            die('Bot detected.');
+        }
+
+        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        $fullName = trim($_POST['full_name'] ?? '');
+        
+        if (empty($username) || empty($email) || empty($password)) {
+            $error = 'Please fill in all required fields';
+        } elseif ($password !== $confirmPassword) {
+            $error = 'Passwords do not match';
+        } elseif (strlen($password) < 8) {
+            $error = 'Password must be at least 8 characters';
+        } elseif (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
+            $error = 'Password must contain uppercase, lowercase, and numbers';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Invalid email address';
+        } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+            $error = 'Username can only contain letters, numbers, and underscores';
         } else {
-            $error = $result['message'];
+            $result = registerUser($username, $email, $password, $fullName);
+            if ($result['success']) {
+                $success = 'Account created successfully! Redirecting...';
+                echo '<script>setTimeout(function(){ window.location.href="login.php"; }, 2000);</script>';
+            } else {
+                $error = $result['message'];
+            }
         }
     }
 }
+
 
 // Redirect if already logged in
 if (isLoggedIn()) {
@@ -92,6 +103,7 @@ if (isLoggedIn()) {
             <?php else: ?>
 
             <form method="POST" action="signup.php" class="space-y-4">
+                <?php csrfField(); ?>
                 <!-- HONEYPOT -->
                 <div class="honey">
                     <label for="website">Website</label>

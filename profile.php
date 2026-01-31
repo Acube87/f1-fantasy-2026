@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
+require_once 'includes/csrf.php';
 
 $user = getCurrentUser();
 if (!$user) {
@@ -26,7 +27,10 @@ $errorMessage = '';
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+    // Validate CSRF token
+    if (!validateCSRF()) {
+        $errorMessage = 'Security validation failed. Please try again.';
+    } else {
     // Avatar update
     if (isset($_POST['avatar_style'])) {
         $avatarStyle = $_POST['avatar_style'];
@@ -130,7 +134,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $successMessage = 'Password updated successfully!';
         }
     }
-}
+    }  // Close CSRF validation else block
+}  // Close POST check
+
 
 // Get current avatar style directly from database to verify
 $checkStmt = $db->prepare("SELECT avatar_style FROM users WHERE id = ?");
@@ -311,6 +317,7 @@ $avatarStyles = [
                     </h3>
                     
                     <form method="POST" action="profile.php">
+                        <?php csrfField(); ?>
                         <div class="grid grid-cols-3 gap-2 mb-4 max-h-96 overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #3b82f6 #1a1a1a;">
                             <?php foreach ($avatarStyles as $style => $label): ?>
                                 <label class="cursor-pointer">
@@ -351,6 +358,7 @@ $avatarStyles = [
                         <div>
                             <h3 class="font-bold text-white text-sm mb-3">Full Name</h3>
                             <form method="POST" action="profile.php">
+                                <?php csrfField(); ?>
                                 <input type="text" 
                                        name="full_name" 
                                        value="<?php echo htmlspecialchars($user['full_name'] ?? ''); ?>"
@@ -366,6 +374,7 @@ $avatarStyles = [
                         <div>
                             <h3 class="font-bold text-white text-sm mb-3">Change Username</h3>
                             <form method="POST" action="profile.php">
+                                <?php csrfField(); ?>
                                 <input type="text" 
                                        name="new_username" 
                                        value="<?php echo htmlspecialchars($user['username']); ?>"
@@ -382,6 +391,7 @@ $avatarStyles = [
                         <div>
                             <h3 class="font-bold text-white text-sm mb-3">Change Password</h3>
                             <form method="POST" action="profile.php">
+                                <?php csrfField(); ?>
                                 <input type="password" 
                                        name="current_password" 
                                        placeholder="Current password"
