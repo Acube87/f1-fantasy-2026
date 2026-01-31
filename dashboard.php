@@ -11,6 +11,16 @@ if (!$user) {
 $db = getDB();
 $userId = $user['id'];
 
+// AUTO-FIX: Ensure avatar_style column exists
+try {
+    $checkCol = $db->query("SHOW COLUMNS FROM users LIKE 'avatar_style'");
+    if ($checkCol->num_rows == 0) {
+        $db->query("ALTER TABLE users ADD COLUMN avatar_style VARCHAR(100) DEFAULT 'avataaars' AFTER email");
+    }
+} catch (Exception $e) {
+    // Continue if error
+}
+
 // Get User Stats (Points, Rank)
 $stats = getUserStats($userId);
 $totalPoints = $stats['total_points'] ?? 0;
