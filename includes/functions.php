@@ -255,7 +255,7 @@ function getUserPredictions($userId, $raceId) {
  */
 function getLeaderboard($limit = 50) {
     $db = getDB();
-    $stmt = $db->prepare("SELECT u.id, u.username, u.full_name, ut.total_points, ut.races_participated FROM users u LEFT JOIN user_totals ut ON u.id = ut.user_id ORDER BY ut.total_points DESC, ut.races_participated DESC LIMIT ?");
+    $stmt = $db->prepare("SELECT u.id, u.username, u.full_name, u.avatar_style, ut.total_points, ut.races_participated FROM users u LEFT JOIN user_totals ut ON u.id = ut.user_id ORDER BY ut.total_points DESC, ut.races_participated DESC LIMIT ?");
     $stmt->bind_param("i", $limit);
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);

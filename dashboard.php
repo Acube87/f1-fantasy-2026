@@ -385,7 +385,7 @@ foreach ($racesData as $race) {
                                 <?php echo $idx + 1; ?>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-slate-700 overflow-hidden">
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?php echo $player['username']; ?>" alt="Avatar">
+                                <img src="https://api.dicebear.com/7.x/<?php echo $player['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $player['username']; ?>" alt="Avatar">
                             </div>
                             <div class="flex-1">
                                 <div class="text-sm font-bold text-white group-hover:text-orange-400 transition">

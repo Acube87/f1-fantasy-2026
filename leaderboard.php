@@ -35,7 +35,7 @@ $currentUser = $user;     // Alias for existing logic
                 <div class="flex items-center gap-3 pl-6 border-l border-white/10">
                     <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm mr-4">Dashboard</a>
                     <div class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
+                        <img src="https://api.dicebear.com/7.x/<?php echo $user['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
                     </div>
                 </div>
             </div>
@@ -151,7 +151,7 @@ $currentUser = $user;     // Alias for existing logic
                                 <?php endif; ?>
                             </td>
                             <td class="p-4 flex items-center gap-3">
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?php echo $entry['username']; ?>" class="w-8 h-8 rounded-full bg-slate-700">
+                                <img src="https://api.dicebear.com/7.x/<?php echo $entry['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $entry['username']; ?>" class="w-8 h-8 rounded-full bg-slate-700">
                                 <div>
                                     <div class="font-bold text-white <?php echo $isMe ? 'text-orange-400' : ''; ?>">
                                         <?php echo htmlspecialchars($entry['username']); ?>

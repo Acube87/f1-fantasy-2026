@@ -400,7 +400,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             <div class="flex items-center gap-3 pl-6 border-l border-white/10">
                 <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm mr-4">Dashboard</a>
                 <div class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
+                    <img src="https://api.dicebear.com/7.x/<?php echo $user['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
                 </div>
             </div>
         </div>
