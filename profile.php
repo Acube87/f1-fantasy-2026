@@ -61,6 +61,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
+    // Full Name update
+    if (isset($_POST['full_name'])) {
+        $newFullName = trim($_POST['full_name']);
+        
+        // Full name is optional, so allow empty
+        $stmt = $db->prepare("UPDATE users SET full_name = ? WHERE id = ?");
+        $stmt->bind_param("si", $newFullName, $userId);
+        $stmt->execute();
+        
+        $user['full_name'] = $newFullName;
+        
+        $successMessage = 'Full name updated successfully!';
+    }
+    
     // Username update
     if (isset($_POST['new_username'])) {
         $newUsername = trim($_POST['new_username']);
@@ -318,7 +332,22 @@ $avatarStyles = [
                         <i class="fas fa-cog text-purple-500"></i> Account Settings
                     </h2>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Change Full Name -->
+                        <div>
+                            <h3 class="font-bold text-white text-sm mb-3">Full Name</h3>
+                            <form method="POST" action="profile.php">
+                                <input type="text" 
+                                       name="full_name" 
+                                       value="<?php echo htmlspecialchars($user['full_name'] ?? ''); ?>"
+                                       placeholder="Your full name (optional)"
+                                       class="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 outline-none transition mb-3">
+                                <button type="submit" class="w-full bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-400 py-2.5 rounded-lg transition font-bold text-sm">
+                                    <i class="fas fa-id-card mr-2"></i> Update Full Name
+                                </button>
+                            </form>
+                        </div>
+                        
                         <!-- Change Username -->
                         <div>
                             <h3 class="font-bold text-white text-sm mb-3">Change Username</h3>
