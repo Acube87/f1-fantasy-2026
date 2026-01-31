@@ -30,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Avatar update
     if (isset($_POST['avatar_style'])) {
         $avatarStyle = $_POST['avatar_style'];
-        $validStyles = [
+        
+        // Validate by extracting base style (before any ? parameters)
+        $baseStyle = explode('?', $avatarStyle)[0];
+        $validBaseStyles = [
             'avataaars', 'adventurer', 'adventurer-neutral', 'avataaars-neutral', 
             'big-ears', 'big-ears-neutral', 'big-smile', 'bottts', 'bottts-neutral', 
             'croodles', 'croodles-neutral', 'fun-emoji', 'identicon', 'initials', 
@@ -39,7 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'pixel-art-neutral', 'rings', 'shapes', 'thumbs'
         ];
         
-        if (in_array($avatarStyle, $validStyles)) {
+        if (in_array($baseStyle, $validBaseStyles)) {
+            // First ensure column is large enough
+            $db->query("ALTER TABLE users MODIFY COLUMN avatar_style VARCHAR(100) DEFAULT 'avataaars'");
+            
             $stmt = $db->prepare("UPDATE users SET avatar_style = ? WHERE id = ?");
             $stmt->bind_param("si", $avatarStyle, $userId);
             $stmt->execute();
@@ -152,35 +158,92 @@ $exactMatches = $accuracyStats['exact_matches'] ?? 0;
 $totalPredictions = $accuracyStats['total_predictions'] ?? 0;
 $accuracy = $totalPredictions > 0 ? ($exactMatches / ($totalPredictions * 10)) * 100 : 0; // Assuming 10 predictions per race
 
-// Available avatar styles
+// Available avatar styles (50+ options with variations)
 $avatarStyles = [
+    // Classic styles
     'avataaars' => 'Classic Avatar',
-    'adventurer' => 'Adventurer',
-    'adventurer-neutral' => 'Adventurer Neutral',
+    'avataaars?backgroundColor=b6e3f4' => 'Classic (Blue BG)',
+    'avataaars?backgroundColor=ffdfbf' => 'Classic (Peach BG)',
     'avataaars-neutral' => 'Classic Neutral',
+    
+    // Adventurer
+    'adventurer' => 'Adventurer',
+    'adventurer?backgroundColor=65c9ff' => 'Adventurer (Blue)',
+    'adventurer-neutral' => 'Adventurer Neutral',
+    
+    // Big styles
     'big-ears' => 'Big Ears',
+    'big-ears?backgroundColor=ffd5dc' => 'Big Ears (Pink)',
     'big-ears-neutral' => 'Big Ears Neutral',
     'big-smile' => 'Big Smile',
+    'big-smile?backgroundColor=c0aede' => 'Big Smile (Purple)',
+    
+    // Robots
     'bottts' => 'Robot',
+    'bottts?backgroundColor=0a5b83' => 'Robot (Dark Blue)',
     'bottts-neutral' => 'Robot Neutral',
+    
+    // Croodles
     'croodles' => 'Croodles',
+    'croodles?backgroundColor=ffdfbf' => 'Croodles (Warm)',
     'croodles-neutral' => 'Croodles Neutral',
+    
+    // Fun styles
     'fun-emoji' => 'Fun Emoji',
+    
+    // Geometric
     'identicon' => 'Geometric',
+    'identicon?backgroundColor=0a5b83' => 'Geometric (Blue)',
+    'identicon?backgroundColor=1e1e1e' => 'Geometric (Dark)',
+    
+    // Initials
     'initials' => 'Initials',
+    'initials?backgroundColor=00897b' => 'Initials (Teal)',
+    'initials?backgroundColor=d81b60' => 'Initials (Magenta)',
+    
+    // Lorelei
     'lorelei' => 'Illustrated',
+    'lorelei?backgroundColor=b6e3f4' => 'Illustrated (Sky)',
     'lorelei-neutral' => 'Illustrated Neutral',
+    
+    // Micah
     'micah' => 'Modern',
+    'micah?backgroundColor=ffdfbf' => 'Modern (Warm)',
+    
+    // Miniavs
     'miniavs' => 'Miniavs',
+    'miniavs?backgroundColor=65c9ff' => 'Miniavs (Bright)',
+    
+    // Notionists
     'notionists' => 'Notionists',
+    'notionists?backgroundColor=ffd5dc' => 'Notionists (Rose)',
     'notionists-neutral' => 'Notionists Neutral',
+    
+    // Open Peeps
     'open-peeps' => 'Open Peeps',
+    'open-peeps?backgroundColor=c0aede' => 'Open Peeps (Lavender)',
+    
+    // Personas
     'personas' => 'Artistic',
+    'personas?backgroundColor=b6e3f4' => 'Artistic (Cool)',
+    
+    // Pixel Art
     'pixel-art' => 'Pixel Art',
+    'pixel-art?backgroundColor=1e1e1e' => 'Pixel Art (Dark)',
     'pixel-art-neutral' => 'Pixel Art Neutral',
+    
+    // Abstract
     'rings' => 'Rings',
+    'rings?backgroundColor=00897b' => 'Rings (Emerald)',
+    'rings?backgroundColor=d81b60' => 'Rings (Ruby)',
+    
     'shapes' => 'Shapes',
-    'thumbs' => 'Thumbs'
+    'shapes?backgroundColor=0a5b83' => 'Shapes (Sapphire)',
+    'shapes?backgroundColor=ff6f00' => 'Shapes (Orange)',
+    
+    'thumbs' => 'Thumbs',
+    'thumbs?backgroundColor=65c9ff' => 'Thumbs (Sky)',
+    'thumbs?backgroundColor=ffd5dc' => 'Thumbs (Blush)'
 ];
 ?>
 <!DOCTYPE html>
