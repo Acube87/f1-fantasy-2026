@@ -401,6 +401,9 @@ foreach ($racesData as $race) {
                                 <div class="text-sm font-bold text-white group-hover:text-orange-400 transition">
                                     <?php echo htmlspecialchars($player['username']); ?>
                                 </div>
+                                <?php if (!empty($player['full_name'])): ?>
+                                    <div class="text-[9px] text-gray-500"><?php echo htmlspecialchars($player['full_name']); ?></div>
+                                <?php endif; ?>
                                 <div class="text-[10px] text-gray-500">Level <?php echo $player['races_participated'] ?? 0; ?></div>
                             </div>
                             <div class="text-right">
