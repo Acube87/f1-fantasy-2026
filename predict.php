@@ -572,49 +572,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     <?php endif; ?>
                     
                     <div class="space-y-3 text-[11px] text-gray-400">
-                        <!-- Standard/Sprint Points -->
+                        <!-- Driver Position Points -->
                         <div>
                             <div class="font-bold text-white mb-1.5 flex items-center gap-1">
                                 <i class="fas fa-trophy text-yellow-500 text-xs"></i>
-                                <?php echo $isSprint ? 'Sprint Race Points' : 'Race Points'; ?>
+                                Driver Position (Exact Match)
                             </div>
+                            <p class="leading-relaxed mb-2">
+                                Get the position <strong class="text-white">exactly right</strong> (1-10), earn <strong class="text-green-400">F1 points + 3 precision bonus</strong>
+                            </p>
                             <div class="bg-black/20 rounded p-2 space-y-0.5 font-mono text-[10px]">
-                                <?php if ($isSprint): ?>
-                                    <div class="flex justify-between"><span>1st:</span> <strong class="text-green-400">8 pts<?php echo $isDoublePoints ? ' x2 = 16' : ''; ?></strong></div>
-                                    <div class="flex justify-between"><span>2nd:</span> <strong>7 pts<?php echo $isDoublePoints ? ' x2 = 14' : ''; ?></strong></div>
-                                    <div class="flex justify-between"><span>3rd:</span> <strong>6 pts<?php echo $isDoublePoints ? ' x2 = 12' : ''; ?></strong></div>
-                                    <div class="text-gray-600 text-[9px] mt-1">Points down to 8th (1pt)</div>
-                                <?php else: ?>
-                                    <div class="flex justify-between"><span>1st:</span> <strong class="text-green-400">25 pts<?php echo $isDoublePoints ? ' x2 = 50' : ''; ?></strong></div>
-                                    <div class="flex justify-between"><span>2nd:</span> <strong>18 pts<?php echo $isDoublePoints ? ' x2 = 36' : ''; ?></strong></div>
-                                    <div class="flex justify-between"><span>3rd:</span> <strong>15 pts<?php echo $isDoublePoints ? ' x2 = 30' : ''; ?></strong></div>
-                                    <div class="text-gray-600 text-[9px] mt-1">Points down to 10th (1pt)</div>
-                                <?php endif; ?>
+                                <div class="flex justify-between"><span>1st:</span> <strong class="text-green-400">25+3 = 28 pts</strong></div>
+                                <div class="flex justify-between"><span>2nd:</span> <strong>18+3 = 21 pts</strong></div>
+                                <div class="flex justify-between"><span>3rd:</span> <strong>15+3 = 18 pts</strong></div>
+                                <div class="flex justify-between"><span>4th:</span> <strong>12+3 = 15 pts</strong></div>
+                                <div class="flex justify-between"><span>5th:</span> <strong>10+3 = 13 pts</strong></div>
+                                <div class="text-gray-600 text-[9px] mt-1">Points down to 10th (1+3=4pts)</div>
                             </div>
                         </div>
                         
-                        <!-- Constructor Standings -->
+                        <!-- Podium Sweep Bonus -->
+                        <div>
+                            <div class="font-bold text-white mb-1.5 flex items-center gap-1">
+                                <i class="fas fa-medal text-orange-500 text-xs"></i>
+                                Podium Sweep Bonus
+                            </div>
+                            <p class="leading-relaxed">
+                                Get <strong class="text-white">P1, P2, AND P3</strong> all correct in exact order: 
+                                <strong class="text-orange-400">+10 bonus points</strong>
+                            </p>
+                        </div>
+                        
+                        <!-- Constructor Bonus -->
                         <div>
                             <div class="font-bold text-white mb-1.5 flex items-center gap-1">
                                 <i class="fas fa-wrench text-blue-400 text-xs"></i>
-                                Constructor Standings
+                                Top Constructor Bonus
                             </div>
                             <p class="leading-relaxed">
-                                Teams are ranked by <strong class="text-white">total driver points</strong>. 
-                                Top constructor prediction earns <strong class="text-green-400">bonus points</strong>.
+                                Predict which <strong class="text-white">Constructor scores the most</strong> points in the race: 
+                                <strong class="text-blue-400">+5 bonus points</strong>
                             </p>
                         </div>
                         
-                        <!-- How to Win -->
-                        <div>
-                            <div class="font-bold text-white mb-1.5 flex items-center gap-1">
-                                <i class="fas fa-flag-checkered text-orange-400 text-xs"></i>
-                                How to Win
+                        <!-- Example -->
+                        <div class="border-t border-white/10 pt-3 mt-3">
+                            <div class="font-bold text-white mb-2 text-xs">💡 Example:</div>
+                            <div class="bg-green-500/5 border border-green-500/20 rounded p-2 text-[10px]">
+                                <div class="text-white font-bold mb-1">You predict: Leclerc (P1), Hamilton (P2), Norris (P3)</div>
+                                <div class="text-white font-bold mb-2">Result: Leclerc (P1), Hamilton (P2), Norris (P3), Ferrari wins</div>
+                                <div class="space-y-0.5">
+                                    <div>Leclerc (25+3) = <strong class="text-green-400">28 pts</strong></div>
+                                    <div>Hamilton (18+3) = <strong class="text-green-400">21 pts</strong></div>
+                                    <div>Norris (15+3) = <strong class="text-green-400">18 pts</strong></div>
+                                    <div>Podium Sweep = <strong class="text-orange-400">+10 pts</strong></div>
+                                    <div>Constructor (Ferrari) = <strong class="text-blue-400">+5 pts</strong></div>
+                                    <div class="border-t border-white/10 mt-2 pt-2 text-white font-bold">
+                                        Total = <strong class="text-green-400">82 points!</strong>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="leading-relaxed">
-                                Match the exact finishing order to maximize points. 
-                                Close predictions still earn partial points!
-                            </p>
                         </div>
                     </div>
                 </div>

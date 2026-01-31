@@ -73,121 +73,142 @@ function fetchRaceResults($raceId) {
 }
 
 /**
- * Calculate scores for a race
+ * Get F1 standard points for positions 1-10
+ */
+function getF1Points() {
+    return [
+        1 => 25, 2 => 18, 3 => 15, 4 => 12, 5 => 10,
+        6 => 8, 7 => 6, 8 => 4, 9 => 2, 10 => 1
+    ];
+}
+
+/**
+ * Calculate constructor standings for a race based on driver results
+ * Returns constructor_id => total_points (sorted descending)
+ */
+function calculateConstructorStandingsForRace($raceResults) {
+    $F1_POINTS = getF1Points();
+    $constructorPoints = [];
+    
+    foreach ($raceResults as $result) {
+        $position = $result['position'];
+        $constructorId = $result['constructor_id'];
+        
+        // Only positions 1-10 score F1 points
+        if ($position <= 10 && isset($F1_POINTS[$position])) {
+            if (!isset($constructorPoints[$constructorId])) {
+                $constructorPoints[$constructorId] = 0;
+            }
+            $constructorPoints[$constructorId] += $F1_POINTS[$position];
+        }
+    }
+    
+    arsort($constructorPoints);  // Sort by points descending
+    return $constructorPoints;
+}
+
+/**
+ * Calculate scores for a race - F1 Based System
+ * 
+ * Scoring Rules:
+ * 1. Exact driver position (1-10): F1 points + 3 precision bonus
+ * 2. Podium Sweep (P1, P2, P3 all correct): +10 bonus
+ * 3. Top Constructor prediction: +5 bonus
  */
 function calculateRaceScores($raceId) {
     $db = getDB();
+    $F1_POINTS = getF1Points();
     
-    // Get all users who made predictions for this race
+    // Get all users who made predictions
     $stmt = $db->prepare("SELECT DISTINCT user_id FROM predictions WHERE race_id = ?");
     $stmt->bind_param("i", $raceId);
     $stmt->execute();
     $users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     
-    // Get actual results
-    $resultsStmt = $db->prepare("SELECT driver_id, driver_name, position, constructor_id, constructor_name FROM race_results WHERE race_id = ? ORDER BY position");
+    // Get actual race results
+    $resultsStmt = $db->prepare("SELECT driver_id, position, constructor_id FROM race_results WHERE race_id = ? ORDER BY position");
     $resultsStmt->bind_param("i", $raceId);
     $resultsStmt->execute();
     $actualResults = $resultsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
     
-    // Organize results by driver and constructor
-    $driverResults = [];
-    $constructorResults = [];
+    // Build driver position map
+    $driverPositions = [];
     foreach ($actualResults as $result) {
-        $driverResults[$result['driver_id']] = $result['position'];
-        $constructorResults[$result['constructor_id']] = $result['position'];
+        $driverPositions[$result['driver_id']] = $result['position'];
     }
     
+    // Calculate constructor standings for this race
+    $constructorStandings = calculateConstructorStandingsForRace($actualResults);
+    $topConstructor = array_key_first($constructorStandings);  // Constructor with most points
+    
+    // Score each user
     foreach ($users as $user) {
         $userId = $user['user_id'];
         $totalPoints = 0;
         $driverPoints = 0;
-        $constructorPoints = 0;
-        $top3Bonus = 0;
-        $constructorTop3Bonus = 0;
+        $podiumBonus = 0;
+        $constructorBonus = 0;
         
-        // Calculate driver points
+        // Get user's driver predictions
         $predStmt = $db->prepare("SELECT driver_id, predicted_position FROM predictions WHERE user_id = ? AND race_id = ?");
         $predStmt->bind_param("ii", $userId, $raceId);
         $predStmt->execute();
         $predictions = $predStmt->get_result()->fetch_all(MYSQLI_ASSOC);
         
-        // Track top 3 predictions and results
-        $top3Predictions = [];
-        $top3Results = [];
+        // Track top 3 for podium sweep
+        $predictedTop3 = [];  // position => driver_id
+        $actualTop3 = [];     // position => driver_id
         
+        // Score each driver prediction
         foreach ($predictions as $pred) {
             $driverId = $pred['driver_id'];
             $predictedPos = $pred['predicted_position'];
-            $actualPos = $driverResults[$driverId] ?? null;
+            $actualPos = $driverPositions[$driverId] ?? null;
             
-            if ($actualPos !== null) {
-                $diff = abs($predictedPos - $actualPos);
-                if ($diff == 0) {
-                    $driverPoints += POINTS_EXACT_POSITION;
-                    // Track top 3 for bonus check
-                    if ($predictedPos <= 3) {
-                        $top3Predictions[$predictedPos] = $driverId;
-                        $top3Results[$actualPos] = $driverId;
-                    }
-                } elseif ($diff == 1) {
-                    $driverPoints += POINTS_OFF_BY_ONE;
+            // Only award points for exact matches in positions 1-10
+            if ($actualPos !== null && $predictedPos == $actualPos && $actualPos <= 10) {
+                // Award F1 base points + precision bonus
+                $basePoints = $F1_POINTS[$actualPos];
+                $driverPoints += $basePoints + POINTS_PRECISION_BONUS;
+                
+                // Track for podium sweep
+                if ($predictedPos <= 3) {
+                    $predictedTop3[$predictedPos] = $driverId;
+                    $actualTop3[$actualPos] = $driverId;
                 }
             }
         }
         
-        // Top 3 bonus - check if positions 1, 2, 3 are all correct
-        $top3Bonus = 0;
-        if (isset($top3Predictions[1]) && isset($top3Predictions[2]) && isset($top3Predictions[3])) {
-            if ($top3Predictions[1] === $top3Results[1] && 
-                $top3Predictions[2] === $top3Results[2] && 
-                $top3Predictions[3] === $top3Results[3]) {
-                $top3Bonus = POINTS_TOP3_BONUS; // Triple points bonus
+        // Check for Podium Sweep Bonus (+10 pts)
+        if (count($predictedTop3) == 3 && count($actualTop3) == 3) {
+            if ($predictedTop3[1] === $actualTop3[1] && 
+                $predictedTop3[2] === $actualTop3[2] && 
+                $predictedTop3[3] === $actualTop3[3]) {
+                $podiumBonus = POINTS_PODIUM_SWEEP;
             }
         }
         
-        // Calculate constructor points
-        $constPredStmt = $db->prepare("SELECT constructor_id, predicted_position FROM constructor_predictions WHERE user_id = ? AND race_id = ?");
-        $constPredStmt->bind_param("ii", $userId, $raceId);
-        $constPredStmt->execute();
-        $constPredictions = $constPredStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        // Check for Constructor Bonus (+5 pts)
+        // Get user's predicted top constructor (position 1)
+        $constStmt = $db->prepare("SELECT constructor_id FROM constructor_predictions WHERE user_id = ? AND race_id = ? AND predicted_position = 1");
+        $constStmt->bind_param("ii", $userId, $raceId);
+        $constStmt->execute();
+        $constResult = $constStmt->get_result()->fetch_assoc();
         
-        // Track constructor top 3 for bonus check
-        $constructorTop3Preds = [];
-        $constructorTop3Results = [];
-        
-        foreach ($constPredictions as $pred) {
-            $constructorId = $pred['constructor_id'];
-            $predictedPos = $pred['predicted_position'];
-            $actualPos = $constructorResults[$constructorId] ?? null;
-            
-            if ($actualPos !== null) {
-                $diff = abs($predictedPos - $actualPos);
-                if ($diff == 0) {
-                    $constructorPoints += POINTS_CONSTRUCTOR_EXACT;
-                    // Track top 3 for bonus check
-                    if ($predictedPos <= 3) {
-                        $constructorTop3Preds[$predictedPos] = $constructorId;
-                        $constructorTop3Results[$actualPos] = $constructorId;
-                    }
-                }
-            }
+        if ($constResult && $constResult['constructor_id'] == $topConstructor) {
+            $constructorBonus = POINTS_CONSTRUCTOR_BONUS;
         }
         
-        // Constructor top 3 bonus - check if positions 1, 2, 3 are all correct
-        $constructorTop3Bonus = 0;
-        if (isset($constructorTop3Preds[1]) && isset($constructorTop3Preds[2]) && isset($constructorTop3Preds[3])) {
-            if ($constructorTop3Preds[1] === $constructorTop3Results[1] && 
-                $constructorTop3Preds[2] === $constructorTop3Results[2] && 
-                $constructorTop3Preds[3] === $constructorTop3Results[3]) {
-                $constructorTop3Bonus = POINTS_CONSTRUCTOR_TOP3; // Triple points bonus
-            }
-        }
-        
-        $totalPoints = $driverPoints + $constructorPoints + $top3Bonus + $constructorTop3Bonus;
+        $totalPoints = $driverPoints + $podiumBonus + $constructorBonus;
         
         // Save score
         $scoreStmt = $db->prepare("INSERT INTO scores (user_id, race_id, driver_points, constructor_points, top3_bonus, constructor_top3_bonus, total_points) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE driver_points = ?, constructor_points = ?, top3_bonus = ?, constructor_top3_bonus = ?, total_points = ?, calculated_at = NOW()");
+        
+        // Map to old column names for compatibility
+        $constructorPoints = $constructorBonus;  // Store constructor bonus in constructor_points
+        $top3Bonus = $podiumBonus;               // Store podium bonus in top3_bonus
+        $constructorTop3Bonus = 0;               // Not used in new system
+        
         $scoreStmt->bind_param("iiiiiiiiiiii", $userId, $raceId, $driverPoints, $constructorPoints, $top3Bonus, $constructorTop3Bonus, $totalPoints, $driverPoints, $constructorPoints, $top3Bonus, $constructorTop3Bonus, $totalPoints);
         $scoreStmt->execute();
         
@@ -195,7 +216,7 @@ function calculateRaceScores($raceId) {
         updateUserTotals($userId);
     }
     
-    return ['success' => true];
+    return ['success' => true, 'message' => 'Scores calculated using F1-based system'];
 }
 
 /**

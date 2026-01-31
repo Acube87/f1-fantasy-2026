@@ -25,12 +25,18 @@ define('F1_API_TIMEOUT', 30);
 define('SITE_NAME', 'Paddock Picks');
 define('SESSION_NAME', 'f1_fantasy_session');
 
-// Scoring configuration
-define('POINTS_EXACT_POSITION', 10);
-define('POINTS_OFF_BY_ONE', 1);
-define('POINTS_TOP3_BONUS', 3); 
-define('POINTS_CONSTRUCTOR_EXACT', 10);
-define('POINTS_CONSTRUCTOR_TOP3', 30);
+// Scoring configuration (F1-based system)
+define('POINTS_PRECISION_BONUS', 3);      // +3 pts for exact position match
+define('POINTS_PODIUM_SWEEP', 10);        // +10 pts for all top 3 correct in exact order
+define('POINTS_CONSTRUCTOR_BONUS', 5);    // +5 pts for predicting top constructor
+
+// F1 Standard Points (used as base when position is correctly predicted)
+// Position => Points
+global $F1_POINTS;
+$F1_POINTS = [
+    1 => 25, 2 => 18, 3 => 15, 4 => 12, 5 => 10,
+    6 => 8, 7 => 6, 8 => 4, 9 => 2, 10 => 1
+];
 
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
