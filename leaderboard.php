@@ -65,14 +65,14 @@ $currentUser = $user;     // Alias for existing logic
             <div class="order-2 md:order-1 g-card p-6 md:p-8 text-center border-t-4 border-t-gray-400">
                 <div class="w-16 h-16 rounded-full bg-gray-400/20 mx-auto mb-4 flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(156,163,175,0.3)]">🥈</div>
                 <h3 class="font-bold text-xl text-white mb-1"><?php echo htmlspecialchars($leaderboard[1]['username']); ?></h3>
-                <div class="text-3xl font-black text-gray-300"><?php echo number_format($leaderboard[1]['total_points']); ?> pts</div>
+                <div class="text-3xl font-black text-gray-300"><?php echo number_format($leaderboard[1]['total_points'] ?? 0); ?> pts</div>
             </div>
 
             <!-- 1st Place -->
             <div class="order-1 md:order-2 g-card p-8 md:p-10 text-center border-t-4 border-t-yellow-400 transform scale-105 z-10 shadow-2xl">
                 <div class="w-20 h-20 rounded-full bg-yellow-400/20 mx-auto mb-4 flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(250,204,21,0.4)]">👑</div>
                 <h3 class="font-black text-2xl text-white mb-1"><?php echo htmlspecialchars($leaderboard[0]['username']); ?></h3>
-                <div class="text-4xl font-black text-yellow-400"><?php echo number_format($leaderboard[0]['total_points']); ?> pts</div>
+                <div class="text-4xl font-black text-yellow-400"><?php echo number_format($leaderboard[0]['total_points'] ?? 0); ?> pts</div>
                 <div class="mt-2 text-xs font-bold bg-yellow-400/20 text-yellow-400 py-1 px-3 rounded-full inline-block">SEASON LEADER</div>
             </div>
 
@@ -80,7 +80,7 @@ $currentUser = $user;     // Alias for existing logic
             <div class="order-3 md:order-3 g-card p-6 md:p-8 text-center border-t-4 border-t-orange-700">
                 <div class="w-16 h-16 rounded-full bg-orange-700/20 mx-auto mb-4 flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(194,65,12,0.3)]">🥉</div>
                 <h3 class="font-bold text-xl text-white mb-1"><?php echo htmlspecialchars($leaderboard[2]['username']); ?></h3>
-                <div class="text-3xl font-black text-orange-600"><?php echo number_format($leaderboard[2]['total_points']); ?> pts</div>
+                <div class="text-3xl font-black text-orange-600"><?php echo number_format($leaderboard[2]['total_points'] ?? 0); ?> pts</div>
             </div>
         </div>
         <?php endif; ?>
@@ -161,10 +161,10 @@ $currentUser = $user;     // Alias for existing logic
                                 </div>
                             </td>
                             <td class="p-4 text-right font-mono font-bold text-white text-lg">
-                                <?php echo number_format($entry['total_points']); ?>
+                                <?php echo number_format($entry['total_points'] ?? 0); ?>
                             </td>
                             <td class="p-4 text-right text-gray-400">
-                                <?php echo $entry['races_participated']; ?>
+                                <?php echo $entry['races_participated'] ?? 0; ?>
                             </td>
                             <td class="p-4 text-right text-gray-500">
                                 <?php echo $avgPoints; ?>
