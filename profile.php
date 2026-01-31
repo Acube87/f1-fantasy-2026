@@ -41,14 +41,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
         
         if (in_array($avatarStyle, $validStyles)) {
-            $stmt = $db->prepare("UPDATE users SET avatar_style = ? WHERE id = ?");
-            $stmt->bind_param("si", $avatarStyle, $userId);
-            $stmt->execute();
-            
-            $_SESSION['user']['avatar_style'] = $avatarStyle;
-            $user['avatar_style'] = $avatarStyle;
-            
-            $successMessage = 'Avatar updated successfully!';
+            try {
+                $stmt = $db->prepare("UPDATE users SET avatar_style = ? WHERE id = ?");
+                $stmt->bind_param("si", $avatarStyle, $userId);
+                $success = $stmt->execute();
+                
+                if ($success && $stmt->affected_rows > 0) {
+                    $_SESSION['user']['avatar_style'] = $avatarStyle;
+                    $user['avatar_style'] = $avatarStyle;
+                    $successMessage = "Avatar updated to: {$avatarStyle}";
+                } else {
+                    $errorMessage = "Database update failed. Column might not exist. Rows affected: {$stmt->affected_rows}";
+                }
+            } catch (Exception $e) {
+                $errorMessage = "Error saving avatar: " . $e->getMessage();
+            }
+        } else {
+            $errorMessage = "Invalid avatar style selected: {$avatarStyle}";
         }
     }
     
@@ -109,8 +118,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Get current avatar style directly from database to verify
+$checkStmt = $db->prepare("SELECT avatar_style FROM users WHERE id = ?");
+$checkStmt->bind_param("i", $userId);
+$checkStmt->execute();
+$checkResult = $checkStmt->get_result()->fetch_assoc();
+$dbAvatarStyle = $checkResult['avatar_style'] ?? null;
+
 // Get current avatar style
-$currentAvatarStyle = $user['avatar_style'] ?? 'avataaars';
+$currentAvatarStyle = $dbAvatarStyle ?? $user['avatar_style'] ?? 'avataaars';
 
 // Get User Statistics
 $stats = getUserStats($userId);
@@ -226,6 +242,14 @@ $avatarStyles = [
                 <i class="fas fa-exclamation-circle mr-2"></i> <?php echo $errorMessage; ?>
             </div>
         <?php endif; ?>
+
+        <!-- DEBUG INFO -->
+        <div class="mb-6 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-blue-300 text-sm">
+            <strong>🔍 Debug Info:</strong><br>
+            Current Avatar in DB: <code class="bg-black/30 px-2 py-1 rounded"><?php echo $dbAvatarStyle ?? 'NULL (column might not exist)'; ?></code><br>
+            Session Avatar: <code class="bg-black/30 px-2 py-1 rounded"><?php echo $user['avatar_style'] ?? 'NULL'; ?></code><br>
+            Using: <code class="bg-black/30 px-2 py-1 rounded"><?php echo $currentAvatarStyle; ?></code>
+        </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
