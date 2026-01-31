@@ -105,12 +105,12 @@ $accuracyStats = [];
 $stmt = $db->prepare("
     SELECT 
         COUNT(DISTINCT p.race_id) as total_predictions,
-        AVG(ABS(p.predicted_position - r.final_position)) as avg_position_error,
-        SUM(CASE WHEN p.predicted_position = r.final_position THEN 1 ELSE 0 END) as exact_matches,
-        MIN(ABS(p.predicted_position - r.final_position)) as best_prediction_error
+        AVG(ABS(p.predicted_position - r.position)) as avg_position_error,
+        SUM(CASE WHEN p.predicted_position = r.position THEN 1 ELSE 0 END) as exact_matches,
+        MIN(ABS(p.predicted_position - r.position)) as best_prediction_error
     FROM predictions p
     LEFT JOIN race_results r ON p.race_id = r.race_id AND p.driver_id = r.driver_id
-    WHERE p.user_id = ? AND r.final_position IS NOT NULL
+    WHERE p.user_id = ? AND r.position IS NOT NULL
 ");
 $stmt->bind_param("i", $userId);
 $stmt->execute();
