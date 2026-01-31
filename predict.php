@@ -576,18 +576,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                         <div>
                             <div class="font-bold text-white mb-1.5 flex items-center gap-1">
                                 <i class="fas fa-trophy text-yellow-500 text-xs"></i>
-                                Driver Position (Exact Match)
+                                Exact Position Match
                             </div>
                             <p class="leading-relaxed mb-2">
-                                Get the position <strong class="text-white">exactly right</strong> (1-10), earn <strong class="text-green-400">F1 points + 3 precision bonus</strong>
+                                Predict <strong class="text-white">ANY driver's exact position</strong>: 
+                                <strong class="text-green-400">+3 precision bonus</strong><br>
+                                <span class="text-[10px]">Plus F1 base points if in top 10</span>
                             </p>
                             <div class="bg-black/20 rounded p-2 space-y-0.5 font-mono text-[10px]">
                                 <div class="flex justify-between"><span>1st:</span> <strong class="text-green-400">25+3 = 28 pts</strong></div>
                                 <div class="flex justify-between"><span>2nd:</span> <strong>18+3 = 21 pts</strong></div>
                                 <div class="flex justify-between"><span>3rd:</span> <strong>15+3 = 18 pts</strong></div>
-                                <div class="flex justify-between"><span>4th:</span> <strong>12+3 = 15 pts</strong></div>
-                                <div class="flex justify-between"><span>5th:</span> <strong>10+3 = 13 pts</strong></div>
-                                <div class="text-gray-600 text-[9px] mt-1">Points down to 10th (1+3=4pts)</div>
+                                <div class="flex justify-between"><span>4th-10th:</span> <strong>12-1 pts + 3</strong></div>
+                                <div class="flex justify-between text-yellow-400"><span>11th-20th:</span> <strong>+3 pts only</strong></div>
                             </div>
                         </div>
                         

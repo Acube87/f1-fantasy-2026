@@ -165,13 +165,17 @@ function calculateRaceScores($raceId) {
             $predictedPos = $pred['predicted_position'];
             $actualPos = $driverPositions[$driverId] ?? null;
             
-            // Only award points for exact matches in positions 1-10
-            if ($actualPos !== null && $predictedPos == $actualPos && $actualPos <= 10) {
-                // Award F1 base points + precision bonus
-                $basePoints = $F1_POINTS[$actualPos];
-                $driverPoints += $basePoints + POINTS_PRECISION_BONUS;
+            // Award points for exact position matches
+            if ($actualPos !== null && $predictedPos == $actualPos) {
+                // Always award +3 precision bonus for exact match (any position)
+                $driverPoints += POINTS_PRECISION_BONUS;
                 
-                // Track for podium sweep
+                // Award F1 base points ONLY for positions 1-10
+                if ($actualPos <= 10 && isset($F1_POINTS[$actualPos])) {
+                    $driverPoints += $F1_POINTS[$actualPos];
+                }
+                
+                // Track for podium sweep (only top 3)
                 if ($predictedPos <= 3) {
                     $predictedTop3[$predictedPos] = $driverId;
                     $actualTop3[$actualPos] = $driverId;
