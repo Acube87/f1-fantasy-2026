@@ -32,6 +32,22 @@ $rankSuffix = match($rank) {
 };
 if (!is_numeric($rank)) $rankSuffix = '';
 
+// Calculate Prediction Accuracy
+$accuracyStmt = $db->prepare("
+    SELECT 
+        COUNT(*) as total_predictions,
+        SUM(CASE WHEN p.predicted_position = r.position THEN 1 ELSE 0 END) as exact_matches
+    FROM predictions p
+    LEFT JOIN race_results r ON p.race_id = r.race_id AND p.driver_id = r.driver_id
+    WHERE p.user_id = ? AND r.position IS NOT NULL
+");
+$accuracyStmt->bind_param("i", $userId);
+$accuracyStmt->execute();
+$accuracyResult = $accuracyStmt->get_result()->fetch_assoc();
+$totalPredictionsMade = $accuracyResult['total_predictions'] ?? 0;
+$exactMatches = $accuracyResult['exact_matches'] ?? 0;
+$accuracy = $totalPredictionsMade > 0 ? ($exactMatches / $totalPredictionsMade) * 100 : 0;
+
 // Get Next Race
 $nextRace = getNextRace();
 
@@ -251,12 +267,12 @@ foreach ($racesData as $race) {
                         <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Avg Score</div>
                     </div>
 
-                    <!-- Win Rate (Mockup) -->
-                    <div class="g-card p-5 flex flex-col items-center justify-center text-center opacity-75">
+                    <!-- Accuracy -->
+                    <div class="g-card p-5 flex flex-col items-center justify-center text-center">
                         <div class="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center text-xl mb-3">
                             <i class="fas fa-bullseye"></i>
                         </div>
-                        <div class="text-3xl font-black text-white italic">--%</div>
+                        <div class="text-3xl font-black text-white italic"><?php echo number_format($accuracy, 1); ?>%</div>
                         <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Accuracy</div>
                     </div>
                 </div>

@@ -181,7 +181,21 @@ $bestRace = $stmt->get_result()->fetch_assoc();
 $avgError = $accuracyStats['avg_position_error'] ?? 0;
 $exactMatches = $accuracyStats['exact_matches'] ?? 0;
 $totalPredictions = $accuracyStats['total_predictions'] ?? 0;
-$accuracy = $totalPredictions > 0 ? ($exactMatches / ($totalPredictions * 10)) * 100 : 0; // Assuming 10 predictions per race
+
+// Get actual count of individual driver predictions made
+$countStmt = $db->prepare("
+    SELECT COUNT(*) as total_driver_predictions
+    FROM predictions p
+    LEFT JOIN race_results r ON p.race_id = r.race_id AND p.driver_id = r.driver_id
+    WHERE p.user_id = ? AND r.position IS NOT NULL
+");
+$countStmt->bind_param("i", $userId);
+$countStmt->execute();
+$countResult = $countStmt->get_result()->fetch_assoc();
+$totalDriverPredictions = $countResult['total_driver_predictions'] ?? 0;
+
+// Calculate accuracy: % of exact position matches
+$accuracy = $totalDriverPredictions > 0 ? ($exactMatches / $totalDriverPredictions) * 100 : 0;
 
 // Available avatar styles (27 solid working options)
 $avatarStyles = [
