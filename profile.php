@@ -30,7 +30,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Avatar update
     if (isset($_POST['avatar_style'])) {
         $avatarStyle = $_POST['avatar_style'];
-        $validStyles = ['avataaars', 'bottts', 'identicon', 'lorelei', 'micah', 'personas', 'pixel-art'];
+        $validStyles = [
+            'avataaars', 'adventurer', 'adventurer-neutral', 'avataaars-neutral', 
+            'big-ears', 'big-ears-neutral', 'big-smile', 'bottts', 'bottts-neutral', 
+            'croodles', 'croodles-neutral', 'fun-emoji', 'identicon', 'initials', 
+            'lorelei', 'lorelei-neutral', 'micah', 'miniavs', 'notionists', 
+            'notionists-neutral', 'open-peeps', 'personas', 'pixel-art', 
+            'pixel-art-neutral', 'rings', 'shapes', 'thumbs'
+        ];
         
         if (in_array($avatarStyle, $validStyles)) {
             $stmt = $db->prepare("UPDATE users SET avatar_style = ? WHERE id = ?");
@@ -148,12 +155,32 @@ $accuracy = $totalPredictions > 0 ? ($exactMatches / ($totalPredictions * 10)) *
 // Available avatar styles
 $avatarStyles = [
     'avataaars' => 'Classic Avatar',
+    'adventurer' => 'Adventurer',
+    'adventurer-neutral' => 'Adventurer Neutral',
+    'avataaars-neutral' => 'Classic Neutral',
+    'big-ears' => 'Big Ears',
+    'big-ears-neutral' => 'Big Ears Neutral',
+    'big-smile' => 'Big Smile',
     'bottts' => 'Robot',
+    'bottts-neutral' => 'Robot Neutral',
+    'croodles' => 'Croodles',
+    'croodles-neutral' => 'Croodles Neutral',
+    'fun-emoji' => 'Fun Emoji',
     'identicon' => 'Geometric',
+    'initials' => 'Initials',
     'lorelei' => 'Illustrated',
+    'lorelei-neutral' => 'Illustrated Neutral',
     'micah' => 'Modern',
+    'miniavs' => 'Miniavs',
+    'notionists' => 'Notionists',
+    'notionists-neutral' => 'Notionists Neutral',
+    'open-peeps' => 'Open Peeps',
     'personas' => 'Artistic',
-    'pixel-art' => 'Pixel Art'
+    'pixel-art' => 'Pixel Art',
+    'pixel-art-neutral' => 'Pixel Art Neutral',
+    'rings' => 'Rings',
+    'shapes' => 'Shapes',
+    'thumbs' => 'Thumbs'
 ];
 ?>
 <!DOCTYPE html>
@@ -239,7 +266,7 @@ $avatarStyles = [
                     </h3>
                     
                     <form method="POST" action="profile.php">
-                        <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="grid grid-cols-3 gap-2 mb-4 max-h-96 overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #3b82f6 #1a1a1a;">
                             <?php foreach ($avatarStyles as $style => $label): ?>
                                 <label class="cursor-pointer">
                                     <input type="radio" name="avatar_style" value="<?php echo $style; ?>" 
