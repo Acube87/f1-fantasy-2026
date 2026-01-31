@@ -243,14 +243,6 @@ $avatarStyles = [
             </div>
         <?php endif; ?>
 
-        <!-- DEBUG INFO -->
-        <div class="mb-6 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-blue-300 text-sm">
-            <strong>🔍 Debug Info:</strong><br>
-            Current Avatar in DB: <code class="bg-black/30 px-2 py-1 rounded"><?php echo $dbAvatarStyle ?? 'NULL (column might not exist)'; ?></code><br>
-            Session Avatar: <code class="bg-black/30 px-2 py-1 rounded"><?php echo $user['avatar_style'] ?? 'NULL'; ?></code><br>
-            Using: <code class="bg-black/30 px-2 py-1 rounded"><?php echo $currentAvatarStyle; ?></code>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <!-- Left Column: Avatar & Info -->
