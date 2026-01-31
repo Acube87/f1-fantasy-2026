@@ -254,6 +254,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
         .team-audi { border-left: 3px solid #FF1721; }
         .team-cadillac { border-left: 3px solid #C41E3A; }
         
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            gap: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-controls {
+                display: flex;
+            }
+            
+            .prediction-item {
+                padding: 10px 12px; /* More touch space */
+            }
+        }
+        
+        .mobile-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 6px;
+            color: #60a5fa;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .mobile-btn:active {
+            background: rgba(59, 130, 246, 0.4);
+            transform: scale(0.95);
+        }
+        
+        .mobile-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
         .driver-name-text {
             font-size: 0.9rem;
             font-weight: 600;
@@ -481,6 +522,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                                     <div class="team-name-small"><?php echo htmlspecialchars($driver['team']); ?></div>
                                 </div>
                             </div>
+                            
+                            <!-- Mobile Up/Down Controls -->
+                            <div class="mobile-controls">
+                                <button class="mobile-btn move-up" onclick="moveItem(this, -1)" type="button">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <button class="mobile-btn move-down" onclick="moveItem(this, 1)" type="button">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
                         </div>
                         <?php endforeach; ?>
                     </div>
@@ -668,6 +719,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     positionNum.textContent = position;
                 }
             });
+        }
+        
+        // Mobile Up/Down Controls
+        function moveItem(button, direction) {
+            const item = button.closest('.prediction-item');
+            const list = document.getElementById('predictionList');
+            const items = Array.from(list.querySelectorAll('.prediction-item'));
+            const currentIndex = items.indexOf(item);
+            const newIndex = currentIndex + direction;
+            
+            // Check bounds
+            if (newIndex < 0 || newIndex >= items.length) return;
+            
+            // Swap items
+            if (direction === -1) {
+                // Move up
+                list.insertBefore(item, items[newIndex]);
+            } else {
+                // Move down
+                list.insertBefore(items[newIndex], item);
+            }
+            
+            // Update UI
+            updatePositionNumbers();
+            updateConstructorPoints();
         }
         
         // --- Constructor Logic (Same as before) ---
