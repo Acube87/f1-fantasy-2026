@@ -130,9 +130,9 @@ foreach ($racesData as $race) {
                     <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($user['username']); ?></div>
                     <div class="text-[10px] text-green-400 font-bold">LEVEL <?php echo $level; ?></div>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
-                </div>
+                <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-blue-500 transition cursor-pointer">
+                    <img src="https://api.dicebear.com/7.x/<?php echo $user['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
+                </a>
                 <a href="logout.php" class="text-gray-400 hover:text-white transition ml-2">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
