@@ -24,7 +24,7 @@ function getCurrentUser() {
     }
     
     $db = getDB();
-    $stmt = $db->prepare("SELECT id, username, email, full_name FROM users WHERE id = ?");
+    $stmt = $db->prepare("SELECT id, username, email, full_name, avatar_style FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
     $result = $stmt->get_result();
