@@ -11,6 +11,16 @@ if (!$user) {
 $db = getDB();
 $userId = $user['id'];
 
+// Auto-migrate: Add avatar_style column if it doesn't exist
+try {
+    $checkColumn = $db->query("SHOW COLUMNS FROM users LIKE 'avatar_style'");
+    if ($checkColumn->num_rows == 0) {
+        $db->query("ALTER TABLE users ADD COLUMN avatar_style VARCHAR(50) DEFAULT 'avataaars' AFTER email");
+    }
+} catch (Exception $e) {
+    // Column might already exist, continue
+}
+
 $successMessage = '';
 $errorMessage = '';
 
