@@ -221,13 +221,38 @@ foreach ($racesData as $race) {
                                         <span class="text-green-400">OPEN</span>
                                     </div>
                                     <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                                        <div class="h-full bg-gradient-to-r from-orange-500 to-red-600 w-3/4"></div>
+                                        <div id="race-countdown-bar" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: 0%"></div>
                                     </div>
                                 </div>
                                 <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-blue px-6 py-2 text-sm">
                                     ENTER
                                 </a>
                             </div>
+                            
+                            <script>
+                                // Calculate progress until race starts
+                                const raceDate = new Date('<?php echo $nextRace['race_date']; ?>').getTime();
+                                const seasonStart = new Date('<?php echo date('Y'); ?>-01-01').getTime();
+                                const now = Date.now();
+                                
+                                function updateProgressBar() {
+                                    const currentTime = Date.now();
+                                    const totalTime = raceDate - seasonStart;
+                                    const elapsed = currentTime - seasonStart;
+                                    const progress = Math.min(Math.max((elapsed / totalTime) * 100, 0), 100);
+                                    
+                                    const bar = document.getElementById('race-countdown-bar');
+                                    if (bar) {
+                                        bar.style.width = progress.toFixed(2) + '%';
+                                    }
+                                }
+                                
+                                // Update immediately
+                                updateProgressBar();
+                                
+                                // Update every second for smooth animation
+                                setInterval(updateProgressBar, 1000);
+                            </script>
                         <?php else: ?>
                             <h2 class="text-3xl font-bold text-white">Season Completed</h2>
                         <?php endif; ?>

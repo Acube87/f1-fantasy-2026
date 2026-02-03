@@ -71,8 +71,8 @@ $nextRace = getNextRace();
                     <a href="signup.php" class="g-btn g-btn-orange px-8 py-4 text-lg flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20">
                         START PLAYING <i class="fas fa-arrow-right"></i>
                     </a>
-                    <a href="login.php" class="g-btn px-8 py-4 text-lg border border-white/10 hover:bg-white/5 text-white flex items-center justify-center gap-2">
-                        LOGIN
+                    <a href="signup.php" class="g-btn px-8 py-4 text-lg border border-white/10 hover:bg-white/5 text-white flex items-center justify-center gap-2">
+                        REGISTER
                     </a>
                 </div>
 
@@ -136,10 +136,42 @@ $nextRace = getNextRace();
                                             <div class="text-green-400 font-bold uppercase">OPEN</div>
                                         </div>
                                     </div>
+                                    
+                                    <!-- Progress Bar -->
+                                    <div class="mb-4">
+                                        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                            <div id="race-countdown-bar-landing" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    
                                     <a href="login.php" class="g-btn g-btn-blue w-full py-3 text-center block">
                                         LOG IN TO PLAY
                                     </a>
                                 </div>
+                                
+                                <script>
+                                    // Calculate progress until race starts
+                                    const raceDateLanding = new Date('<?php echo $nextRace['race_date']; ?>').getTime();
+                                    const seasonStartLanding = new Date('<?php echo date('Y'); ?>-01-01').getTime();
+                                    
+                                    function updateProgressBarLanding() {
+                                        const currentTime = Date.now();
+                                        const totalTime = raceDateLanding - seasonStartLanding;
+                                        const elapsed = currentTime - seasonStartLanding;
+                                        const progress = Math.min(Math.max((elapsed / totalTime) * 100, 0), 100);
+                                        
+                                        const bar = document.getElementById('race-countdown-bar-landing');
+                                        if (bar) {
+                                            bar.style.width = progress.toFixed(2) + '%';
+                                        }
+                                    }
+                                    
+                                    // Update immediately
+                                    updateProgressBarLanding();
+                                    
+                                    // Update every second for smooth animation
+                                    setInterval(updateProgressBarLanding, 1000);
+                                </script>
                             <?php else: ?>
                                 <h2 class="text-4xl font-black text-white mb-4">SEASON PREVIEW</h2>
                                 <p class="text-gray-300">Get ready for 2026.</p>
