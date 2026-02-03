@@ -15,6 +15,15 @@ $currentUser = $user;     // Alias for existing logic
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        .f1-number {
+            font-family: 'Titillium Web', sans-serif;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -0.02em;
+        }
+    </style>
 </head>
 <body class="gaming-theme text-gray-200">
 
@@ -92,7 +101,8 @@ $currentUser = $user;     // Alias for existing logic
                     <thead>
                         <tr class="border-b border-white/10 bg-white/5">
                             <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Rank</th>
-                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Racer</th>
+                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">#</th>
+                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Strategist</th>
                             <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Points</th>
                             <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Races</th>
                             <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Avg</th>
@@ -149,6 +159,9 @@ $currentUser = $user;     // Alias for existing logic
                                         <img src="https://img.icons8.com/ios-filled/50/CCCCCC/motorbike-helmet.png" alt="helmet" class="w-full h-full">
                                     </div>
                                 <?php endif; ?>
+                            </td>
+                            <td class="p-4 text-center">
+                                <span class="f1-number text-3xl <?php echo $isMe ? 'text-orange-400' : 'text-white'; ?>"><?php echo $rank; ?></span>
                             </td>
                             <td class="p-4 flex items-center gap-3">
                                 <img src="https://api.dicebear.com/7.x/<?php echo $entry['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $entry['username']; ?>" class="w-8 h-8 rounded-full bg-slate-700">
