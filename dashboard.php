@@ -415,7 +415,7 @@ foreach ($racesData as $race) {
                 <div class="g-card p-6 h-full border-t-4 border-t-orange-500">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="font-bold text-white text-lg flex items-center gap-2">
-                            <i class="fas fa-trophy text-orange-500"></i> TOP RACERS
+                            <i class="fas fa-trophy text-orange-500"></i> TOP STRATEGY ENGINEERS
                         </h3>
                         <span class="bg-orange-500/10 text-orange-500 text-[10px] px-2 py-1 rounded font-bold uppercase">Global</span>
                     </div>
