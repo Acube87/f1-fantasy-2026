@@ -57,7 +57,7 @@ $leaderboard = getLeaderboard(5);
 // Get Recent Results (Last 3)
 $recentResults = [];
 $stmt = $db->prepare("
-    SELECT r.race_name, r.country, s.total_points, r.race_date 
+    SELECT r.id as race_id, r.race_name, r.country, s.total_points, r.race_date 
     FROM scores s 
     JOIN races r ON s.race_id = r.id 
     WHERE s.user_id = ? 
@@ -314,21 +314,22 @@ foreach ($racesData as $race) {
                             </div>
                         <?php else: ?>
                             <?php foreach ($recentResults as $res): ?>
-                            <div class="g-card p-4 flex items-center justify-between">
+                            <a href="race-results.php?race_id=<?php echo $res['race_id']; ?>" class="g-card p-4 flex items-center justify-between hover:bg-white/10 transition cursor-pointer group">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400">
+                                    <div class="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-orange-400 group-hover:bg-orange-500/20 transition">
                                         <i class="fas fa-flag"></i>
                                     </div>
                                     <div>
-                                        <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($res['country']); ?></div>
+                                        <div class="text-sm font-bold text-white group-hover:text-orange-400 transition"><?php echo htmlspecialchars($res['country']); ?></div>
                                         <div class="text-[10px] text-gray-500"><?php echo date('M d', strtotime($res['race_date'])); ?></div>
                                     </div>
                                 </div>
                                 <div class="text-right">
                                     <div class="text-lg font-bold text-green-400">+<?php echo $res['total_points']; ?></div>
                                     <div class="text-[10px] text-gray-500 font-bold uppercase">Points</div>
+                                    <div class="text-[9px] text-blue-400 opacity-0 group-hover:opacity-100 transition">View Details →</div>
                                 </div>
-                            </div>
+                            </a>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
