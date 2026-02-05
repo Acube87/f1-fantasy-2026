@@ -1,7 +1,7 @@
 <?php
 /**
  * Avatar Configuration
- * All avatars use DiceBear API - 50+ unique styles!
+ * All avatars use DiceBear API - 60+ unique styles!
  */
 
 // All DiceBear avatar styles - Massive selection of 60+ avatars!
@@ -81,14 +81,14 @@ define('AVATAR_STYLES', [
  * @return string - Full URL to avatar image
  */
 function getAvatarUrl($avatarStyle, $seed) {
-    // Handle variants - extract base style
-    $baseStyle = preg_replace('/-variant\d+$/', '', $avatarStyle);
+    // Handle variants like bottts-v1, avataaars-v2, etc.
+    $baseStyle = $avatarStyle;
     
-    // Add variant as additional randomization to seed
-    if (strpos($avatarStyle, '-variant') !== false) {
-        preg_match('/-variant(\d+)$/', $avatarStyle, $matches);
-        $variantNum = $matches[1] ?? 1;
-        $seed = $seed . $variantNum;
+    // Check if this is a variant (ends with -v followed by digit)
+    if (preg_match('/^(.+)-v(\d+)$/', $avatarStyle, $matches)) {
+        $baseStyle = $matches[1];  // Extract base style (e.g., "bottts" from "bottts-v1")
+        $variantNum = $matches[2]; // Extract variant number (e.g., "1" from "bottts-v1")
+        $seed = $seed . '_v' . $variantNum; // Modify seed for variation
     }
     
     // All avatars use DiceBear API
