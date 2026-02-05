@@ -4,26 +4,20 @@
  * Defines all available avatar options for the app
  */
 
-// Custom pixel art avatars (stored locally in assets/avatars/)
-define('PIXEL_AVATARS', [
-    'pixel-char-1' => 'Pixel Warrior 1',
-    'pixel-char-2' => 'Pixel Warrior 2',
-    'pixel-char-3' => 'Pixel Mage',
-    'pixel-char-4' => 'Pixel Knight',
-    'pixel-char-5' => 'Pixel Archer',
-    'pixel-char-6' => 'Pixel Rogue',
-    'pixel-char-7' => 'Pixel Wizard',
-    'pixel-char-8' => 'Pixel Paladin',
-    'pixel-char-9' => 'Pixel Ranger',
-    'pixel-char-10' => 'Pixel Samurai',
-    'pixel-char-11' => 'Pixel Ninja',
-    'pixel-char-12' => 'Pixel Monk',
-    'pixel-char-13' => 'Pixel Cleric',
-    'pixel-char-14' => 'Pixel Barbarian',
-    'pixel-char-15' => 'Pixel Druid',
-    'pixel-char-16' => 'Pixel Sorcerer',
-    'pixel-char-17' => 'Pixel Bard',
-    'pixel-char-18' => 'Pixel Assassin',
+// Custom emoji avatars (SVG files stored locally in assets/avatars/)
+define('EMOJI_AVATARS', [
+    'emoji-boy' => '👦 Boy',
+    'emoji-girl' => '👧 Girl',
+    'emoji-man' => '👨 Man',
+    'emoji-woman' => '👩 Woman',
+    'emoji-cool' => '😎 Cool',
+    'emoji-nerd' => '🤓 Nerd',
+    'emoji-happy' => '😊 Happy',
+    'emoji-laugh' => '😄 Laugh',
+    'emoji-wink' => '😉 Wink',
+    'emoji-smile' => '😃 Smile',
+    'emoji-love' => '😍 Love',
+    'emoji-star' => '⭐ Star',
 ]);
 
 // DiceBear avatar styles (API-based)
@@ -44,10 +38,10 @@ define('DICEBEAR_STYLES', [
  * @return string - Full URL to avatar image
  */
 function getAvatarUrl($avatarStyle, $seed) {
-    // Check if it's a pixel avatar (local file)
-    if (strpos($avatarStyle, 'pixel-char-') === 0) {
-        // Return absolute path to local pixel avatar (with leading slash for web root)
-        return '/assets/avatars/' . $avatarStyle . '.png';
+    // Check if it's an emoji avatar (local SVG file)
+    if (strpos($avatarStyle, 'emoji-') === 0) {
+        // Return absolute path to local emoji avatar (with leading slash for web root)
+        return '/assets/avatars/' . $avatarStyle . '.svg';
     }
     
     // Otherwise, use DiceBear API
@@ -60,9 +54,9 @@ function getAvatarUrl($avatarStyle, $seed) {
  */
 function getAllAvatars() {
     return [
-        'pixel' => [
-            'label' => '🎮 Pixel Characters',
-            'avatars' => PIXEL_AVATARS
+        'emoji' => [
+            'label' => '😊 Emoji Avatars',
+            'avatars' => EMOJI_AVATARS
         ],
         'dicebear' => [
             'label' => '🎨 Generated Styles',
@@ -77,8 +71,8 @@ function getAllAvatars() {
  * @return string
  */
 function getAvatarName($avatarStyle) {
-    if (isset(PIXEL_AVATARS[$avatarStyle])) {
-        return PIXEL_AVATARS[$avatarStyle];
+    if (isset(EMOJI_AVATARS[$avatarStyle])) {
+        return EMOJI_AVATARS[$avatarStyle];
     }
     
     if (isset(DICEBEAR_STYLES[$avatarStyle])) {
