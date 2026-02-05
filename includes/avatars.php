@@ -46,8 +46,8 @@ define('DICEBEAR_STYLES', [
 function getAvatarUrl($avatarStyle, $seed) {
     // Check if it's a pixel avatar (local file)
     if (strpos($avatarStyle, 'pixel-char-') === 0) {
-        // Return relative path to local pixel avatar
-        return 'assets/avatars/' . $avatarStyle . '.png';
+        // Return absolute path to local pixel avatar (with leading slash for web root)
+        return '/assets/avatars/' . $avatarStyle . '.png';
     }
     
     // Otherwise, use DiceBear API
