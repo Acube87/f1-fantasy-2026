@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
+require_once 'includes/avatars.php';
 
 $user = getCurrentUser();
 if (!$user) {
@@ -157,7 +158,7 @@ foreach ($racesData as $race) {
                     <div class="text-[10px] text-green-400 font-bold">LEVEL <?php echo $level; ?></div>
                 </div>
                 <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-blue-500 transition cursor-pointer">
-                    <img src="https://api.dicebear.com/7.x/<?php echo $user['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
+                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover"> 
                 </a>
                 <a href="logout.php" class="text-gray-400 hover:text-white transition ml-2">
                     <i class="fas fa-sign-out-alt"></i>
@@ -437,7 +438,7 @@ foreach ($racesData as $race) {
                                 <?php echo $idx + 1; ?>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-slate-700 overflow-hidden">
-                                <img src="https://api.dicebear.com/7.x/<?php echo $player['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $player['username']; ?>" alt="Avatar">
+                                <img src="<?php echo getAvatarUrl($player['avatar_style'] ?? 'avataaars', $player['username']); ?>" alt="Avatar" class="w-full h-full object-cover">
                             </div>
                             <div class="flex-1">
                                 <div class="text-sm font-bold text-white group-hover:text-orange-400 transition">

@@ -2,6 +2,7 @@
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 require_once 'includes/csrf.php';
+require_once 'includes/avatars.php';
 
 $user = getCurrentUser();
 if (!$user) {
@@ -35,14 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['avatar_style'])) {
         $avatarStyle = $_POST['avatar_style'];
         
-        $validStyles = [
-            'avataaars', 'adventurer', 'adventurer-neutral', 'avataaars-neutral', 
-            'big-ears', 'big-ears-neutral', 'big-smile', 'bottts', 'bottts-neutral', 
-            'croodles', 'croodles-neutral', 'fun-emoji', 'identicon', 'initials', 
-            'lorelei', 'lorelei-neutral', 'micah', 'miniavs', 'notionists', 
-            'notionists-neutral', 'open-peeps', 'personas', 'pixel-art', 
-            'pixel-art-neutral', 'rings', 'shapes', 'thumbs'
-        ];
+        // Get all valid avatar styles (pixel + dicebear)
+        $validStyles = array_merge(
+            array_keys(PIXEL_AVATARS),
+            array_keys(DICEBEAR_STYLES)
+        );
         
         if (in_array($avatarStyle, $validStyles)) {
             try {
@@ -53,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($success && $stmt->affected_rows > 0) {
                     $_SESSION['user']['avatar_style'] = $avatarStyle;
                     $user['avatar_style'] = $avatarStyle;
-                    $successMessage = "Avatar updated to: {$avatarStyle}";
+                    $successMessage = "Avatar updated to: " . getAvatarName($avatarStyle);
                 } else {
                     $errorMessage = "Database update failed. Column might not exist. Rows affected: {$stmt->affected_rows}";
                 }
@@ -203,36 +201,8 @@ $totalDriverPredictions = $countResult['total_driver_predictions'] ?? 0;
 // Calculate accuracy: % of exact position matches
 $accuracy = $totalDriverPredictions > 0 ? ($exactMatches / $totalDriverPredictions) * 100 : 0;
 
-// Available avatar styles (27 solid working options)
-$avatarStyles = [
-    'avataaars' => 'Classic Avatar',
-    'adventurer' => 'Adventurer',
-    'adventurer-neutral' => 'Adventurer Neutral',
-    'avataaars-neutral' => 'Classic Neutral',
-    'big-ears' => 'Big Ears',
-    'big-ears-neutral' => 'Big Ears Neutral',
-    'big-smile' => 'Big Smile',
-    'bottts' => 'Robot',
-    'bottts-neutral' => 'Robot Neutral',
-    'croodles' => 'Croodles',
-    'croodles-neutral' => 'Croodles Neutral',
-    'fun-emoji' => 'Fun Emoji',
-    'identicon' => 'Geometric',
-    'initials' => 'Initials',
-    'lorelei' => 'Illustrated',
-    'lorelei-neutral' => 'Illustrated Neutral',
-    'micah' => 'Modern',
-    'miniavs' => 'Miniavs',
-    'notionists' => 'Notionists',
-    'notionists-neutral' => 'Notionists Neutral',
-    'open-peeps' => 'Open Peeps',
-    'personas' => 'Artistic',
-    'pixel-art' => 'Pixel Art',
-    'pixel-art-neutral' => 'Pixel Art Neutral',
-    'rings' => 'Rings',
-    'shapes' => 'Shapes',
-    'thumbs' => 'Thumbs'
-];
+// Get all available avatars (grouped by type)
+$allAvatars = getAllAvatars();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -285,9 +255,9 @@ $avatarStyles = [
                 <!-- Profile Card -->
                 <div class="g-card p-6 text-center">
                     <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-slate-700 border-4 border-white/10 overflow-hidden">
-                        <img src="https://api.dicebear.com/7.x/<?php echo $currentAvatarStyle; ?>/svg?seed=<?php echo $user['username']; ?>" 
+                        <img src="<?php echo getAvatarUrl($currentAvatarStyle, $user['username']); ?>" 
                              alt="Avatar" 
-                             class="w-full h-full">
+                             class="w-full h-full object-cover">
                     </div>
                     <h1 class="text-2xl font-black text-white mb-1"><?php echo htmlspecialchars($user['username']); ?></h1>
                     <div class="text-sm text-gray-400 mb-4"><?php echo htmlspecialchars($user['email']); ?></div>
@@ -318,25 +288,37 @@ $avatarStyles = [
                     
                     <form method="POST" action="profile.php">
                         <?php csrfField(); ?>
-                        <div class="grid grid-cols-3 gap-2 mb-4 max-h-96 overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #3b82f6 #1a1a1a;">
-                            <?php foreach ($avatarStyles as $style => $label): ?>
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="avatar_style" value="<?php echo $style; ?>" 
-                                           <?php echo $style === $currentAvatarStyle ? 'checked' : ''; ?>
-                                           class="hidden peer">
-                                    <div class="g-card p-3 hover:bg-white/10 peer-checked:ring-2 peer-checked:ring-blue-500 transition">
-                                        <div class="w-16 h-16 rounded-full mx-auto mb-2 bg-slate-700 overflow-hidden">
-                                            <img src="https://api.dicebear.com/7.x/<?php echo $style; ?>/svg?seed=<?php echo $user['username']; ?>" 
-                                                 alt="<?php echo $label; ?>"
-                                                 class="w-full h-full">
-                                        </div>
-                                        <div class="text-xs text-center text-gray-400"><?php echo $label; ?></div>
+                        
+                        <div class="max-h-[500px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #3b82f6 #1a1a1a;">
+                            <?php foreach ($allAvatars as $groupKey => $group): ?>
+                                <div class="mb-6">
+                                    <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                        <?php echo $group['label']; ?>
+                                        <span class="text-xs text-gray-600">(<?php echo count($group['avatars']); ?>)</span>
+                                    </h4>
+                                    
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <?php foreach ($group['avatars'] as $style => $label): ?>
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="avatar_style" value="<?php echo $style; ?>" 
+                                                       <?php echo $style === $currentAvatarStyle ? 'checked' : ''; ?>
+                                                       class="hidden peer">
+                                                <div class="g-card p-3 hover:bg-white/10 peer-checked:ring-2 peer-checked:ring-blue-500 peer-checked:bg-blue-500/10 transition">
+                                                    <div class="w-16 h-16 rounded-full mx-auto mb-2 bg-slate-700 overflow-hidden">
+                                                        <img src="<?php echo getAvatarUrl($style, $user['username']); ?>" 
+                                                             alt="<?php echo $label; ?>"
+                                                             class="w-full h-full object-cover">
+                                                    </div>
+                                                    <div class="text-xs text-center text-gray-400 leading-tight"><?php echo $label; ?></div>
+                                                </div>
+                                            </label>
+                                        <?php endforeach; ?>
                                     </div>
-                                </label>
+                                </div>
                             <?php endforeach; ?>
                         </div>
                         
-                        <button type="submit" class="g-btn g-btn-blue w-full py-3">
+                        <button type="submit" class="g-btn g-btn-blue w-full py-3 mt-4">
                             <i class="fas fa-save mr-2"></i> Save Avatar
                         </button>
                     </form>
