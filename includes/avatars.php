@@ -30,7 +30,6 @@ define('PIXEL_AVATARS', [
 define('DICEBEAR_STYLES', [
     'avataaars' => 'Avataaars',
     'bottts' => 'Bottts (Robot)',
-    'pixel-art' => 'Pixel Art',
     'lorelei' => 'Lorelei',
     'adventurer' => 'Adventurer',
     'big-smile' => 'Big Smile',
