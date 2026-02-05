@@ -52,7 +52,49 @@ $accuracy = $totalPredictionsMade > 0 ? ($exactMatches / $totalPredictionsMade) 
 // Get Next Race
 $nextRace = getNextRace();
 
-// Get Leaderboard (Top 5)
+// Check if predictions are open for next race
+$predictionsOpen = false;
+$predictionStatus = 'CLOSED';
+$predictionStatusColor = 'text-red-400';
+$countdownText = '';
+$progressBarWidth = 100;
+
+if ($nextRace) {
+    $raceDateTime = new DateTime($nextRace['race_date'] . ' ' . ($nextRace['race_time'] ?? '14:00:00'));
+    $now = new DateTime('now', new DateTimeZone('UTC'));
+    
+    // Predictions are open if race hasn't started yet
+    if ($now < $raceDateTime) {
+        $predictionsOpen = true;
+        $predictionStatus = 'OPEN';
+        $predictionStatusColor = 'text-green-400';
+        
+        // Calculate time remaining
+        $interval = $now->diff($raceDateTime);
+        $totalDays = $interval->days;
+        $hours = $interval->h;
+        $minutes = $interval->i;
+        
+        // Format countdown text
+        if ($totalDays > 0) {
+            $countdownText = $totalDays . ' day' . ($totalDays > 1 ? 's' : '') . ' left';
+        } elseif ($hours > 0) {
+            $countdownText = $hours . ' hour' . ($hours > 1 ? 's' : '') . ' left';
+        } else {
+            $countdownText = $minutes . ' min left';
+        }
+        
+        // Calculate progress bar (assumes 30 days before race = 0%, race day = 100%)
+        $maxDaysBeforeRace = 30;
+        $daysRemaining = $totalDays + ($hours / 24);
+        $progressPercentage = max(0, min(100, (($maxDaysBeforeRace - $daysRemaining) / $maxDaysBeforeRace) * 100));
+        $progressBarWidth = round($progressPercentage, 2);
+    } else {
+        $countdownText = 'Race Started';
+        $progressBarWidth = 100;
+    }
+}
+
 $leaderboard = getLeaderboard(5);
 
 // Get Recent Results (Last 3)
@@ -219,10 +261,13 @@ foreach ($racesData as $race) {
                                 <div class="flex-1">
                                     <div class="flex justify-between text-xs mb-2 font-bold text-gray-400 uppercase">
                                         <span>Prediction Status</span>
-                                        <span class="text-green-400">OPEN</span>
+                                        <span class="<?php echo $predictionStatusColor; ?>"><?php echo $predictionStatus; ?></span>
                                     </div>
+                                    <?php if ($countdownText): ?>
+                                    <div class="text-[10px] text-gray-500 mb-1 text-center"><?php echo $countdownText; ?></div>
+                                    <?php endif; ?>
                                     <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                                        <div id="race-countdown-bar" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: 0%"></div>
+                                        <div id="race-countdown-bar" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: <?php echo $progressBarWidth; ?>%"></div>
                                     </div>
                                 </div>
                                 <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-blue px-6 py-2 text-sm">
