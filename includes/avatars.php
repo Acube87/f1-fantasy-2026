@@ -4,7 +4,7 @@
  * All avatars use DiceBear API - 50+ unique styles!
  */
 
-// All DiceBear avatar styles - Massive selection!
+// All DiceBear avatar styles - Massive selection of 60+ avatars!
 define('AVATAR_STYLES', [
     // Classic Cartoon Styles
     'avataaars' => 'Classic Avatar',
@@ -53,18 +53,25 @@ define('AVATAR_STYLES', [
     'ring' => 'Ring',
     'sunset' => 'Sunset',
     
-    // Creature & Character Styles
-    'bottts-neutral-variant1' => 'Robot V1',
-    'bottts-neutral-variant2' => 'Robot V2',
-    'bottts-neutral-variant3' => 'Robot V3',
-    'avataaars-variant1' => 'Classic V1',
-    'avataaars-variant2' => 'Classic V2',
-    'adventurer-variant1' => 'Adventurer V1',
-    'adventurer-variant2' => 'Adventurer V2',
-    'lorelei-variant1' => 'Lorelei V1',
-    'lorelei-variant2' => 'Lorelei V2',
-    'micah-variant1' => 'Micah V1',
-    'micah-variant2' => 'Micah V2',
+    // Character Variants (Different Random Seeds)
+    'bottts-v1' => 'Robot Style 1',
+    'bottts-v2' => 'Robot Style 2',
+    'bottts-v3' => 'Robot Style 3',
+    'avataaars-v1' => 'Classic Style 1',
+    'avataaars-v2' => 'Classic Style 2',
+    'avataaars-v3' => 'Classic Style 3',
+    'adventurer-v1' => 'Adventurer Style 1',
+    'adventurer-v2' => 'Adventurer Style 2',
+    'adventurer-v3' => 'Adventurer Style 3',
+    'lorelei-v1' => 'Lorelei Style 1',
+    'lorelei-v2' => 'Lorelei Style 2',
+    'lorelei-v3' => 'Lorelei Style 3',
+    'micah-v1' => 'Micah Style 1',
+    'micah-v2' => 'Micah Style 2',
+    'micah-v3' => 'Micah Style 3',
+    'open-peeps-v1' => 'Open Peeps Style 1',
+    'open-peeps-v2' => 'Open Peeps Style 2',
+    'open-peeps-v3' => 'Open Peeps Style 3',
 ]);
 
 /**
