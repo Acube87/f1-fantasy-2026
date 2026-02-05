@@ -36,11 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['avatar_style'])) {
         $avatarStyle = $_POST['avatar_style'];
         
-        // Get all valid avatar styles (emoji + dicebear)
-        $validStyles = array_merge(
-            array_keys(EMOJI_AVATARS),
-            array_keys(DICEBEAR_STYLES)
-        );
+        // Get all valid avatar styles
+        $validStyles = array_keys(AVATAR_STYLES);
         
         if (in_array($avatarStyle, $validStyles)) {
             try {
