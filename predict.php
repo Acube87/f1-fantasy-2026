@@ -64,6 +64,37 @@ $deadlineTimestamp = $deadline->getTimestamp();
 $nowTimestamp = $now->getTimestamp();
 $raceDateTimestamp = $raceDate->getTimestamp();
 
+// Calculate countdown text and progress bar (same logic as dashboard)
+$countdownText = '';
+$progressBarWidth = 100;
+
+if ($isPredictionOpen) {
+    // Calculate time remaining until DEADLINE (not race)
+    $interval = $now->diff($deadline);
+    $totalDays = $interval->days;
+    $hours = $interval->h;
+    $minutes = $interval->i;
+    
+    // Format countdown text
+    if ($totalDays > 0) {
+        $countdownText = $totalDays . ' day' . ($totalDays > 1 ? 's' : '') . ' left';
+    } elseif ($hours > 0) {
+        $countdownText = $hours . ' hour' . ($hours > 1 ? 's' : '') . ' left';
+    } else {
+        $countdownText = $minutes . ' min left';
+    }
+    
+    // Calculate progress bar (assumes 30 days before deadline = 0%, deadline = 100%)
+    $maxDaysBeforeDeadline = 30;
+    $daysRemaining = $totalDays + ($hours / 24);
+    $progressPercentage = max(0, min(100, (($maxDaysBeforeDeadline - $daysRemaining) / $maxDaysBeforeDeadline) * 100));
+    $progressBarWidth = round($progressPercentage, 2);
+} else {
+    $countdownText = 'Closed';
+    $progressBarWidth = 100;
+}
+
+
 // Get all drivers
 $stmt = $db->prepare("SELECT id, driver_name, team FROM drivers ORDER BY team, driver_name");
 $stmt->execute();
@@ -445,10 +476,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     </div>
                 </div>
                 <div class="progress-bar-bg">
-                    <div id="progressBar" class="progress-bar-fill" style="width: 0%"></div>
+                    <div id="progressBar" class="progress-bar-fill <?php echo !$isPredictionOpen ? 'closed' : ''; ?>" style="width: <?php echo $progressBarWidth; ?>%"></div>
                 </div>
                 <div id="timeRemaining" class="text-[10px] text-gray-500 mt-1.5 text-center font-mono">
-                    Calculating...
+                    <?php echo $countdownText; ?>
                 </div>
             </div>
         </div>
