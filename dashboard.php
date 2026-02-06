@@ -261,11 +261,11 @@ foreach ($racesData as $race) {
                                 <div class="flex-1">
                                     <div class="flex justify-between text-xs mb-2 font-bold text-gray-400 uppercase">
                                         <span>Prediction Status</span>
-                                        <span class="<?php echo $predictionStatusColor; ?>"><?php echo $predictionStatus; ?></span>
+                                        <span class="status-label <?php echo $predictionStatusColor; ?>"><?php echo $predictionStatus; ?></span>
                                     </div>
-                                    <?php if ($countdownText): ?>
-                                    <div class="text-[10px] text-gray-500 mb-1 text-center"><?php echo $countdownText; ?></div>
-                                    <?php endif; ?>
+                                    <div class="countdown-text text-[10px] text-gray-300 mb-1 text-center font-mono font-bold">
+                                        <?php echo $countdownText; ?>
+                                    </div>
                                     <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
                                         <div id="race-countdown-bar" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: <?php echo $progressBarWidth; ?>%"></div>
                                     </div>
@@ -276,28 +276,71 @@ foreach ($racesData as $race) {
                             </div>
                             
                             <script>
-                                // Calculate progress until race starts
-                                const raceDate = new Date('<?php echo $nextRace['race_date']; ?>').getTime();
-                                const seasonStart = new Date('<?php echo date('Y'); ?>-01-01').getTime();
-                                const now = Date.now();
+                                // LIVE COUNTDOWN TO RACE
+                                const raceDateTime = new Date('<?php echo $nextRace['race_date']; ?>T<?php echo $nextRace['race_time'] ?? '14:00:00'; ?>').getTime();
+                                const maxDaysBeforeRace = 30;
                                 
-                                function updateProgressBar() {
-                                    const currentTime = Date.now();
-                                    const totalTime = raceDate - seasonStart;
-                                    const elapsed = currentTime - seasonStart;
-                                    const progress = Math.min(Math.max((elapsed / totalTime) * 100, 0), 100);
+                                function updateLiveCountdown() {
+                                    const now = Date.now();
+                                    const timeRemaining = raceDateTime - now;
                                     
                                     const bar = document.getElementById('race-countdown-bar');
+                                    const countdownEl = document.querySelector('.countdown-text');
+                                    const statusEl = document.querySelector('.status-label');
+                                    
+                                    if (timeRemaining <= 0) {
+                                        // Race has started
+                                        if (bar) bar.style.width = '100%';
+                                        if (countdownEl) countdownEl.textContent = 'Race Started!';
+                                        if (statusEl) {
+                                            statusEl.className = 'status-label text-red-400';
+                                            statusEl.textContent = 'CLOSED';
+                                        }
+                                        return;
+                                    }
+                                    
+                                    // Calculate time components
+                                    const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                                    const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                    const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                                    const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                                    
+                                    // Update countdown text with live timer
+                                    if (countdownEl) {
+                                        if (days > 0) {
+                                            countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                                        } else if (hours > 0) {
+                                            countdownEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
+                                        } else if (minutes > 0) {
+                                            countdownEl.textContent = `${minutes}m ${seconds}s`;
+                                        } else {
+                                            countdownEl.textContent = `${seconds}s`;
+                                        }
+                                    }
+                                    
+                                    // Calculate progress bar (0% at 30 days, 100% at race time)
+                                    const maxTime = maxDaysBeforeRace * 24 * 60 * 60 * 1000;
+                                    const elapsed = maxTime - timeRemaining;
+                                    const progress = Math.min(Math.max((elapsed / maxTime) * 100, 0), 100);
+                                    
                                     if (bar) {
                                         bar.style.width = progress.toFixed(2) + '%';
+                                    }
+                                    
+                                    // Update status based on time
+                                    if (statusEl) {
+                                        if (timeRemaining > 0) {
+                                            statusEl.className = 'status-label text-green-400';
+                                            statusEl.textContent = 'OPEN';
+                                        }
                                     }
                                 }
                                 
                                 // Update immediately
-                                updateProgressBar();
+                                updateLiveCountdown();
                                 
-                                // Update every second for smooth animation
-                                setInterval(updateProgressBar, 1000);
+                                // Update every second for LIVE countdown
+                                setInterval(updateLiveCountdown, 1000);
                             </script>
                         <?php else: ?>
                             <h2 class="text-3xl font-bold text-white">Season Completed</h2>
