@@ -194,23 +194,17 @@ foreach ($racesData as $race) {
             </div>
 
             <!-- User Menu -->
-            <div class="flex items-center gap-6">
-                <a href="achievements.php" class="text-gray-300 hover:text-white font-bold text-sm flex items-center gap-2">
-                    <i class="fas fa-trophy"></i>
-                    <span class="hidden md:inline">Achievements</span>
-                </a>
-                <div class="flex items-center gap-3 pl-6 border-l border-white/10">
-                    <div class="text-right hidden sm:block">
-                        <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($user['username']); ?></div>
-                        <div class="text-[10px] text-green-400 font-bold">LEVEL <?php echo $level; ?></div>
-                    </div>
-                    <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-blue-500 transition cursor-pointer">
-                        <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover"> 
-                    </a>
-                    <a href="logout.php" class="text-gray-400 hover:text-white transition ml-2">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
+            <div class="flex items-center gap-3 pl-6 border-l border-white/10">
+                <div class="text-right hidden sm:block">
+                    <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($user['username']); ?></div>
+                    <div class="text-[10px] text-green-400 font-bold">LEVEL <?php echo $level; ?></div>
                 </div>
+                <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-blue-500 transition cursor-pointer">
+                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover"> 
+                </a>
+                <a href="logout.php" class="text-gray-400 hover:text-white transition ml-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
             </div>
         </div>
     </nav>
