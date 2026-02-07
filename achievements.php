@@ -117,7 +117,7 @@ $pageTitle = "Achievements";
             </div>
             <div class="g-card p-6 text-center">
                 <div class="text-4xl font-black text-orange-400 mb-2">
-                    <?php echo $stats['displayed'] ? htmlspecialchars($stats['displayed']['name']) : '-'; ?>
+                    <?php echo isset($stats['displayed']) && is_array($stats['displayed']) ? count($stats['displayed']) : 0; ?>
                 </div>
                 <div class="text-xs text-gray-400 uppercase font-bold">Displayed</div>
             </div>
@@ -214,11 +214,15 @@ $pageTitle = "Achievements";
                 </span>
             </div>
             
+            
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <?php foreach ($tierData['items'] as $achievement): 
+                <?php 
+                $displayedIds = isset($stats['displayed']) && is_array($stats['displayed']) ? array_column($stats['displayed'], 'id') : [];
+                
+                foreach ($tierData['items'] as $achievement): 
                     $isLocked = !in_array($achievement['id'], $unlockedIds);
                     $cardClass = $isLocked ? 'achievement-card achievement-locked' : 'achievement-card';
-                    $isDisplayed = isset($stats['displayed']) && $stats['displayed'] && $stats['displayed']['id'] === $achievement['id'];
+                    $isDisplayed = in_array($achievement['id'], $displayedIds);
                 ?>
                 <div class="g-card p-6 <?php echo $cardClass; ?> border-l-4 border-l-<?php echo $color; ?>-500 relative">
                     <div class="flex items-start justify-between mb-4">
@@ -250,12 +254,12 @@ $pageTitle = "Achievements";
                     <?php if (!$isLocked): ?>
                     <div class="mt-4">
                         <?php if ($isDisplayed): ?>
-                            <button class="w-full g-btn bg-green-600/20 text-green-400 border border-green-500/50 py-2 text-xs cursor-default">
-                                <i class="fas fa-check mr-1"></i> Displayed Badge
+                            <button onclick="toggleDisplayBadge('<?php echo $achievement['id']; ?>', 'hide')" class="w-full g-btn bg-red-600/20 text-red-400 border border-red-500/50 py-2 text-xs hover:bg-red-600/30 transition">
+                                <i class="fas fa-eye-slash mr-1"></i> Hide Badge
                             </button>
                         <?php else: ?>
-                            <button onclick="setDisplayBadge('<?php echo $achievement['id']; ?>')" class="w-full g-btn g-btn-blue py-2 text-xs hover:scale-105 transition">
-                                <i class="fas fa-star mr-1"></i> Display Badge
+                            <button onclick="toggleDisplayBadge('<?php echo $achievement['id']; ?>', 'show')" class="w-full g-btn g-btn-blue py-2 text-xs hover:scale-105 transition">
+                                <i class="fas fa-eye mr-1"></i> Show on Profile
                             </button>
                         <?php endif; ?>
                     </div>
@@ -275,12 +279,9 @@ $pageTitle = "Achievements";
             </h3>
             <div class="space-y-3 text-sm text-gray-300">
                 <p>🏆 <strong>Unlock achievements</strong> by completing various challenges and milestones throughout the season.</p>
-                <p>⭐ <strong>Display your favorite badge</strong> on the leaderboard to show off your accomplishments.</p>
+                <p>⭐ <strong>Display your favorite badges</strong> on the leaderboard to show off your accomplishments.</p>
                 <p>🎯 <strong>Achievement tiers</strong> range from Common (easiest) to Legendary (extremely rare).</p>
                 <p>📊 <strong>Track your progress</strong> and see how close you are to unlocking new badges.</p>
-                <p class="pt-3 border-t border-white/10 text-xs text-gray-500">
-                    <strong>Coming Soon:</strong> Achievement progress tracking, bonus points for unlocks, and more special limited-time achievements!
-                </p>
             </div>
         </div>
 
@@ -295,8 +296,8 @@ $pageTitle = "Achievements";
     </footer>
 
     <script>
-        function setDisplayBadge(achievementId) {
-            if (!confirm('Set this badge as your displayed badge?')) return;
+        function toggleDisplayBadge(achievementId, action) {
+            // No confirmation needed for simple toggle
             
             fetch('api/set-badge.php', {
                 method: 'POST',
@@ -315,7 +316,7 @@ $pageTitle = "Achievements";
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while setting the badge');
+                alert('An error occurred while updating badge');
             });
         }
     </script>

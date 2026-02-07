@@ -134,43 +134,46 @@ function getAchievementStats($userId, $db = null) {
     $unlockedStmt->execute();
     $unlocked = $unlockedStmt->get_result()->fetch_assoc()['unlocked'];
     
-    // Get displayed badge
+    // Get displayed badges (multiple)
     $displayedStmt = $db->prepare("
         SELECT a.* 
         FROM user_achievements ua
         JOIN achievements a ON ua.achievement_id = a.id
         WHERE ua.user_id = ? AND ua.is_displayed = 1
-        LIMIT 1
     ");
     $displayedStmt->bind_param("i", $userId);
     $displayedStmt->execute();
-    $displayed = $displayedStmt->get_result()->fetch_assoc();
+    $displayed = $displayedStmt->get_result()->fetch_all(MYSQLI_ASSOC);
     
     return [
         'total' => $total,
         'unlocked' => $unlocked,
         'completion' => $total > 0 ? round(($unlocked / $total) * 100) : 0,
-        'displayed' => $displayed
+        'displayed' => $displayed // Now an array
     ];
 }
 
 /**
- * Set displayed badge
+ * Toggle displayed badge status (allow multiple)
  */
-function setDisplayedBadge($userId, $achievementId, $db = null) {
+function toggleDisplayedBadge($userId, $achievementId, $db = null) {
     if (!$db) {
         $db = getDB();
     }
     
-    // Reset all displayed badges for user
-    $stmt = $db->prepare("UPDATE user_achievements SET is_displayed = 0 WHERE user_id = ?");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    
-    // Set new displayed badge
-    $stmt = $db->prepare("UPDATE user_achievements SET is_displayed = 1 WHERE user_id = ? AND achievement_id = ?");
+    // Check current status
+    $stmt = $db->prepare("SELECT is_displayed FROM user_achievements WHERE user_id = ? AND achievement_id = ?");
     $stmt->bind_param("is", $userId, $achievementId);
-    return $stmt->execute();
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc();
+    
+    if (!$result) return false; // Not unlocked
+    
+    $newStatus = $result['is_displayed'] ? 0 : 1;
+    
+    $updateStmt = $db->prepare("UPDATE user_achievements SET is_displayed = ? WHERE user_id = ? AND achievement_id = ?");
+    $updateStmt->bind_param("iis", $newStatus, $userId, $achievementId);
+    return $updateStmt->execute();
 }
 
 // ============================================================================

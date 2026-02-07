@@ -32,7 +32,7 @@ if ($stmt->get_result()->num_rows === 0) {
     exit;
 }
 
-if (setDisplayedBadge($user['id'], $achievementId, $db)) {
+if (toggleDisplayedBadge($user['id'], $achievementId, $db)) {
     echo json_encode(['success' => true]);
 } else {
     http_response_code(500);

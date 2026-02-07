@@ -290,13 +290,12 @@ function getLeaderboard($limit = 50) {
             SELECT 
                 u.id, u.username, u.full_name, u.avatar_style, 
                 ut.total_points, ut.races_participated,
-                a.icon as badge_icon,
-                a.tier as badge_tier,
-                a.name as badge_name
+                GROUP_CONCAT(CONCAT(a.icon, ':', a.tier, ':', a.name) SEPARATOR '|') as badges_data
             FROM users u 
             LEFT JOIN user_totals ut ON u.id = ut.user_id 
             LEFT JOIN user_achievements ua ON u.id = ua.user_id AND ua.is_displayed = 1
             LEFT JOIN achievements a ON ua.achievement_id = a.id
+            GROUP BY u.id
             ORDER BY ut.total_points DESC, ut.races_participated DESC 
             LIMIT ?
         ";
