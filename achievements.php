@@ -27,6 +27,9 @@ $stats = [
 ];
 
 if ($hasBackend) {
+    // Check for new unlocks on page load
+    checkAndUnlockAchievements($userId, $db);
+    
     $userAchievements = getUserAchievements($userId, $db);
     $unlockedIds = array_column($userAchievements, 'id');
     $stats = getAchievementStats($userId, $db);
