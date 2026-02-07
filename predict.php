@@ -2,6 +2,7 @@
 ob_start();
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
+require_once 'includes/avatars.php';
 
 // Check if user is logged in
 $user = getCurrentUser();
@@ -417,23 +418,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
 <body class="gaming-theme text-gray-200">
 
     <!-- Navbar -->
-    <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <a href="index.php" class="flex items-center gap-4 hover:opacity-80 transition">
-                <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+    <!-- Navbar -->
+    <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center bg-[#0f172a]/95 backdrop-blur-md border-b border-white/5">
+        <div class="flex items-center gap-8">
+            <a href="index.php" class="flex items-center gap-4 hover:opacity-80 transition group">
+                <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
                     <i class="fas fa-flag-checkered text-white text-lg"></i>
                 </div>
-                <span class="font-bold text-xl tracking-wide text-white">PADDOCK PICKS</span>
+                <!-- Hide text on very small screens -->
+                <span class="font-bold text-xl tracking-wide text-white hidden sm:block group-hover:text-orange-400 transition-colors">PADDOCK PICKS</span>
             </a>
+            
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.php" class="px-4 py-2 rounded-lg bg-white/5 text-white font-bold text-sm uppercase tracking-wide border border-white/10 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                    <i class="fas fa-home mr-2 text-orange-500"></i> Dashboard
+                </a>
+                <a href="leaderboard.php" class="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 font-bold text-sm uppercase tracking-wide transition-all border border-transparent hover:border-white/10">
+                    <i class="fas fa-trophy mr-2 text-yellow-500/70 group-hover:text-yellow-500"></i> Leaderboard
+                </a>
+                <a href="achievements.php" class="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 font-bold text-sm uppercase tracking-wide transition-all border border-transparent hover:border-white/10">
+                    <i class="fas fa-medal mr-2 text-purple-500/70 group-hover:text-purple-500"></i> Achievements
+                </a>
+            </div>
         </div>
         
         <div class="flex items-center gap-6">
             <div class="flex items-center gap-3 pl-6 border-l border-white/10">
-                <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm mr-4">Dashboard</a>
-                <div class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/<?php echo $user['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full"> 
+                <div class="text-right hidden sm:block">
+                    <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Driver</div>
+                    <div class="text-sm font-bold text-white leading-none"><?php echo htmlspecialchars($user['username']); ?></div>
                 </div>
+                <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition cursor-pointer relative group shadow-lg shadow-black/50">
+                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                </a>
             </div>
+            <a href="logout.php" class="text-gray-400 hover:text-white transition hover:rotate-90 duration-300" title="Sign Out">
+                <i class="fas fa-sign-out-alt text-lg"></i>
+            </a>
         </div>
     </nav>
 
