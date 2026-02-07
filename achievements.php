@@ -87,7 +87,7 @@ $pageTitle = "Achievements";
                 <div class="text-xs text-gray-400 uppercase font-bold">Unlocked</div>
             </div>
             <div class="g-card p-6 text-center">
-                <div class="text-4xl font-black text-blue-400 mb-2">22</div>
+                <div class="text-4xl font-black text-blue-400 mb-2">28</div>
                 <div class="text-xs text-gray-400 uppercase font-bold">Total</div>
             </div>
             <div class="g-card p-6 text-center">
@@ -101,7 +101,7 @@ $pageTitle = "Achievements";
         </div>
 
         <?php
-        // Define all achievements with tier colors - CLEANED & REVISED LIST
+        // Define all achievements with tier colors
         $achievements = [
             'common' => [
                 'color' => 'green',
@@ -109,10 +109,10 @@ $pageTitle = "Achievements";
                 'icon' => '🟢',
                 'items' => [
                     ['id' => 'first_prediction', 'name' => 'Rookie Driver', 'desc' => 'Make your first prediction', 'icon' => 'fa-flag', 'unlock' => 'Submit 1 prediction'],
-                    ['id' => 'welcome_aboard', 'name' => 'Welcome to the Paddock', 'desc' => 'Complete your profile setup', 'icon' => 'fa-user-check', 'unlock' => 'Add full name & avatar'],
+                    ['id' => 'welcome_aboard', 'name' => 'Welcome to the Paddock', 'desc' => 'Complete your profile setup', 'icon' => 'fa-user-check', 'unlock' => 'Fill profile details'],
+                    ['id' => 'participation_1', 'name' => 'Racing Regular', 'desc' => 'Participate in 5 races', 'icon' => 'fa-calendar-check', 'unlock' => 'Complete 5 race predictions'],
                     ['id' => 'first_points', 'name' => 'On the Board', 'desc' => 'Score your first points', 'icon' => 'fa-star', 'unlock' => 'Earn any points'],
-                    ['id' => 'participation_5', 'name' => 'Racing Regular', 'desc' => 'Participate in 5 races', 'icon' => 'fa-calendar-check', 'unlock' => 'Complete 5 predictions'],
-                    ['id' => 'streak_3', 'name' => 'Consistency Counts', 'desc' => 'Score points 3 races in a row', 'icon' => 'fa-fire', 'unlock' => 'Points in 3 consecutive races'],
+                    ['id' => 'streak_3', 'name' => 'Consistency Counts', 'desc' => 'Predict 3 races in a row', 'icon' => 'fa-fire', 'unlock' => '3-race streak'],
                 ]
             ],
             'rare' => [
@@ -120,12 +120,12 @@ $pageTitle = "Achievements";
                 'label' => 'RARE',
                 'icon' => '🔵',
                 'items' => [
-                    ['id' => 'participation_10', 'name' => 'Season Veteran', 'desc' => 'Participate in 10 races', 'icon' => 'fa-medal', 'unlock' => 'Complete 10 predictions'],
-                    ['id' => 'podium_sweep_1', 'name' => 'Podium Prophet', 'desc' => 'Get your first podium sweep', 'icon' => 'fa-trophy', 'unlock' => 'All 3 podium correct once'],
+                    ['id' => 'participation_10', 'name' => 'Season Veteran', 'desc' => 'Participate in 10 races', 'icon' => 'fa-medal', 'unlock' => 'Complete 10 race predictions'],
+                    ['id' => 'streak_5', 'name' => 'Dedicated Strategist', 'desc' => 'Predict 5 races in a row', 'icon' => 'fa-fire', 'unlock' => '5-race streak'],
+                    ['id' => 'podium_sweep_1', 'name' => 'Podium Prophet', 'desc' => 'Get a podium sweep bonus', 'icon' => 'fa-trophy', 'unlock' => 'All 3 podium correct once'],
+                    ['id' => 'top_10_finish', 'name' => 'Points Scorer', 'desc' => 'Finish in top 10 overall', 'icon' => 'fa-ranking-star', 'unlock' => 'Rank #1-10'],
+                    ['id' => 'constructor_correct_5', 'name' => 'Team Tactician', 'desc' => 'Predict winning constructor 5 times', 'icon' => 'fa-wrench', 'unlock' => '5 correct constructor predictions'],
                     ['id' => 'total_500', 'name' => 'Point Collector', 'desc' => 'Score 500 total points', 'icon' => 'fa-coins', 'unlock' => '500 total points'],
-                    ['id' => 'constructor_correct_5', 'name' => 'Team Tactician', 'desc' => 'Predict winning constructor 5 times', 'icon' => 'fa-wrench', 'unlock' => '5 correct constructors'],
-                    ['id' => 'perfectionist', 'name' => 'Perfectionist', 'desc' => 'Get 5+ exact predictions in one race', 'icon' => 'fa-bullseye', 'unlock' => '5+ exact matches in single race'],
-                    ['id' => 'accuracy_20', 'name' => 'Sharp Shooter', 'desc' => 'Achieve 20% prediction accuracy', 'icon' => 'fa-crosshairs', 'unlock' => '20% exact match rate'],
                 ]
             ],
             'epic' => [
@@ -133,13 +133,13 @@ $pageTitle = "Achievements";
                 'label' => 'EPIC',
                 'icon' => '🟣',
                 'items' => [
-                    ['id' => 'big_score', 'name' => 'Big Score', 'desc' => 'Score 150+ points in one race', 'icon' => 'fa-bolt', 'unlock' => '150+ in single race'],
-                    ['id' => 'podium_sweep_3', 'name' => 'Crystal Ball', 'desc' => 'Get 3 podium sweeps', 'icon' => 'fa-eye', 'unlock' => '3 podium sweeps total'],
+                    ['id' => 'perfect_race', 'name' => 'Flawless Forecast', 'desc' => 'Score 100+ points in a single race', 'icon' => 'fa-bolt', 'unlock' => '100+ points in one race'],
+                    ['id' => 'podium_sweep_3', 'name' => 'Crystal Ball', 'desc' => 'Get 3 podium sweeps in a season', 'icon' => 'fa-eye', 'unlock' => '3 podium sweeps'],
                     ['id' => 'streak_10', 'name' => 'Unbreakable Focus', 'desc' => 'Predict 10 races in a row', 'icon' => 'fa-fire-flame-curved', 'unlock' => '10-race streak'],
-                    ['id' => 'double_points_master', 'name' => 'Double Trouble', 'desc' => 'Score 200+ in a 2x points race', 'icon' => 'fa-gem', 'unlock' => '200+ in China/UK/Singapore'],
-                    ['id' => 'accuracy_30', 'name' => 'Precision Engineer', 'desc' => 'Achieve 30% prediction accuracy', 'icon' => 'fa-bullseye', 'unlock' => '30% exact match rate'],
+                    ['id' => 'top_5_finish', 'name' => 'Elite Strategist', 'desc' => 'Finish in top 5 overall', 'icon' => 'fa-crown', 'unlock' => 'Rank #1-5'],
+                    ['id' => 'double_points_master', 'name' => 'Double or Nothing', 'desc' => 'Score 150+ in a 2x points race', 'icon' => 'fa-gem', 'unlock' => '150+ in China/UK/Singapore'],
+                    ['id' => 'accuracy_king', 'name' => 'Precision Engineer', 'desc' => 'Achieve 30% prediction accuracy', 'icon' => 'fa-bullseye', 'unlock' => '30% exact matches'],
                     ['id' => 'total_1000', 'name' => 'Points Millionaire', 'desc' => 'Score 1000 total points', 'icon' => 'fa-sack-dollar', 'unlock' => '1000 total points'],
-                    ['id' => 'race_winner_3', 'name' => 'Hat Trick Hero', 'desc' => 'Win 3 individual races', 'icon' => 'fa-crown', 'unlock' => 'Rank #1 in 3 different races'],
                 ]
             ],
             'legendary' => [
@@ -147,9 +147,10 @@ $pageTitle = "Achievements";
                 'label' => 'LEGENDARY',
                 'icon' => '🔴',
                 'items' => [
-                    ['id' => 'legendary_performance', 'name' => 'Legendary Performance', 'desc' => 'Score 200+ points in single race', 'icon' => 'fa-trophy', 'unlock' => '200+ in regular race'],
-                    ['id' => 'podium_sweep_5', 'name' => 'Oracle of the Grid', 'desc' => 'Get 5 podium sweeps', 'icon' => 'fa-crystal-ball', 'unlock' => '5 podium sweeps total'],
-                    ['id' => 'accuracy_40', 'name' => 'The Nostradamus', 'desc' => 'Achieve 40% prediction accuracy', 'icon' => 'fa-hat-wizard', 'unlock' => '40% exact match rate'],
+                    ['id' => 'champion', 'name' => 'World Champion', 'desc' => 'Win the season championship', 'icon' => 'fa-trophy', 'unlock' => 'Rank #1 overall at season end'],
+                    ['id' => 'podium_sweep_5', 'name' => 'Oracle of the Grid', 'desc' => 'Get 5 podium sweeps in a season', 'icon' => 'fa-crystal-ball', 'unlock' => '5 podium sweeps'],
+                    ['id' => 'perfect_season', 'name' => 'Perfect Season', 'desc' => 'Predict ALL races in a season', 'icon' => 'fa-check-double', 'unlock' => 'Never miss a race'],
+                    ['id' => 'accuracy_legend', 'name' => 'The Nostradamus', 'desc' => 'Achieve 40% prediction accuracy', 'icon' => 'fa-hat-wizard', 'unlock' => '40% exact matches'],
                     ['id' => 'total_2500', 'name' => 'Point Legend', 'desc' => 'Score 2500 total points', 'icon' => 'fa-infinity', 'unlock' => '2500 total points'],
                 ]
             ],
@@ -158,10 +159,10 @@ $pageTitle = "Achievements";
                 'label' => 'SPECIAL',
                 'icon' => '🟡',
                 'items' => [
-                    ['id' => 'first_race_winner', 'name' => 'Early Bird', 'desc' => 'Win the opening race', 'icon' => 'fa-sunrise', 'unlock' => 'Rank #1 in first race'],
-                    ['id' => 'constructor_sweep', 'name' => 'Team Whisperer', 'desc' => 'Predict constructor correctly 10 times', 'icon' => 'fa-handshake', 'unlock' => '10 correct constructor picks'],
-                    ['id' => 'perfect_weekend', 'name' => 'Perfect Weekend', 'desc' => 'Score 100+ points in 3 consecutive races', 'icon' => 'fa-check-double', 'unlock' => '100+ in 3 races in a row'],
-                    ['id' => 'mega_race', 'name' => 'Mega Race', 'desc' => 'Score 250+ points in a 2x event', 'icon' => 'fa-rocket', 'unlock' => '250+ in double points race'],
+                    ['id' => 'first_race_winner', 'name' => 'Early Bird', 'desc' => 'Win the first race of season', 'icon' => 'fa-sunrise', 'unlock' => 'Rank #1 in Race 1'],
+                    ['id' => 'comeback_king', 'name' => 'Phoenix Rising', 'desc' => 'Climb 10+ positions in standings in one race', 'icon' => 'fa-arrow-trend-up', 'unlock' => 'Jump 10 ranks'],
+                    ['id' => 'underdog_victory', 'name' => 'Giant Slayer', 'desc' => 'Win a race while ranked outside top 10', 'icon' => 'fa-dragon', 'unlock' => 'Win from low rank'],
+                    ['id' => 'constructor_sweep', 'name' => 'Team Whisperer', 'desc' => 'Predict correct constructor 10 times', 'icon' => 'fa-handshake', 'unlock' => '10 correct constructor picks'],
                 ]
             ],
         ];
