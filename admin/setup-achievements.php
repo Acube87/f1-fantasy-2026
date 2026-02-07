@@ -111,12 +111,12 @@ try {
 
         // LEGENDARY (4)
         ['legendary_performance', 'Legendary Performance', 'Score 200+ points in single race', 'legendary', 'fa-trophy', '200+ in regular race', 100],
-        ['podium_sweep_5', 'Oracle of the Grid', 'Get 5 podium sweeps', 'legendary', 'fa-brain', '5 podium sweeps total', 100],
+        ['podium_sweep_5', 'Oracle of the Grid', 'Get 5 podium sweeps', 'legendary', 'fa-globe', '5 podium sweeps total', 100],
         ['accuracy_40', 'The Nostradamus', 'Achieve 40% prediction accuracy', 'legendary', 'fa-magic', '40% exact match rate', 100],
         ['total_2500', 'Point Legend', 'Score 2500 total points', 'legendary', 'fa-infinity', '2500 total points', 100],
 
         // SPECIAL (4)
-        ['first_race_winner', 'Early Bird', 'Win the opening race', 'special', 'fa-clock', 'Rank #1 in first race', 50],
+        ['first_race_winner', 'Early Bird', 'Win the opening race', 'special', 'fa-sun', 'Rank #1 in first race', 50],
         ['constructor_sweep', 'Team Whisperer', 'Predict constructor correctly 10 times', 'special', 'fa-handshake', '10 correct constructor picks', 50],
         ['perfect_weekend', 'Perfect Weekend', 'Score 100+ points in 3 consecutive races', 'special', 'fa-check', '100+ in 3 races in a row', 75],
         ['mega_race', 'Mega Race', 'Score 250+ points in a 2x event', 'special', 'fa-rocket', '250+ in double points race', 100]
