@@ -666,6 +666,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="mt-4">
+                        <a href="points-system.php" class="block text-center text-xs text-blue-400 hover:text-blue-300 transition py-2 px-4 bg-blue-500/10 rounded border border-blue-500/30 hover:bg-blue-500/20">
+                            <i class="fas fa-external-link-alt mr-1"></i> View Full Points System
+                        </a>
+                    </div>
                 </div>
             </div>
 

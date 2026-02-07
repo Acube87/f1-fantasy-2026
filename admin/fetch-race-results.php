@@ -192,28 +192,94 @@ foreach ($racesToFetch as $race) {
             $actualPositions[$res['driver_id']] = $res['position'];
         }
         
-        // Calculate points
-        $driverPoints = 0;
-        $top3Bonus = 0;
+        // F1 Standard Points System (for positions 1-10)
+        $f1Points = [
+            1 => 25, 2 => 18, 3 => 15, 4 => 12, 5 => 10,
+            6 => 8, 7 => 6, 8 => 4, 9 => 2, 10 => 1
+        ];
         
+        // Check if this is a double points race
+        $isDoublePoints = in_array($race['country'], ['China', 'UK', 'Singapore']);
+        
+        // Calculate points
+        $basePoints = 0;
+        $strategyBonus = 0;
+        $podiumBonus = 0;
+        $constructorBonus = 0;
+        
+        // Track podium predictions (P1, P2, P3)
+        $podiumCorrect = [1 => false, 2 => false, 3 => false];
+        
+        // Calculate driver position points
         foreach ($predictions as $pred) {
             if (isset($actualPositions[$pred['driver_id']])) {
                 $actualPos = $actualPositions[$pred['driver_id']];
                 $predictedPos = $pred['predicted_position'];
                 
-                // Exact match: +10 points
+                // Exact match
                 if ($actualPos == $predictedPos) {
-                    $driverPoints += 10;
+                    // Add F1 base points (positions 1-10 only)
+                    if (isset($f1Points[$actualPos])) {
+                        $basePoints += $f1Points[$actualPos];
+                    }
                     
-                    // Top 3 bonus: +3 points
-                    if ($actualPos <= 3) {
-                        $top3Bonus += 3;
+                    // Add +3 strategy bonus for ANY exact position match (P1-P22)
+                    $strategyBonus += 3;
+                    
+                    // Track if podium position is correct
+                    if ($actualPos >= 1 && $actualPos <= 3) {
+                        $podiumCorrect[$actualPos] = true;
                     }
                 }
             }
         }
         
-        $totalPoints = $driverPoints + $top3Bonus;
+        // Check for Podium Sweep Bonus (+10 if ALL three podium positions correct)
+        if ($podiumCorrect[1] && $podiumCorrect[2] && $podiumCorrect[3]) {
+            $podiumBonus = 10;
+        }
+        
+        // Check for Constructor Bonus (+5 if correct)
+        // Get user's constructor prediction
+        $constructorPredStmt = $db->prepare("
+            SELECT constructor_name, predicted_position 
+            FROM constructor_predictions 
+            WHERE user_id = ? AND race_id = ? 
+            ORDER BY predicted_position ASC 
+            LIMIT 1
+        ");
+        $constructorPredStmt->bind_param("ii", $userId, $race['id']);
+        $constructorPredStmt->execute();
+        $userConstructorPred = $constructorPredStmt->get_result()->fetch_assoc();
+        
+        if ($userConstructorPred) {
+            // Calculate actual constructor standings for this race
+            $constructorStmt = $db->prepare("
+                SELECT constructor_name, SUM(points) as total_points 
+                FROM race_results 
+                WHERE race_id = ? 
+                GROUP BY constructor_name 
+                ORDER BY total_points DESC 
+                LIMIT 1
+            ");
+            $constructorStmt->bind_param("i", $race['id']);
+            $constructorStmt->execute();
+            $winningConstructor = $constructorStmt->get_result()->fetch_assoc();
+            
+            if ($winningConstructor && $winningConstructor['constructor_name'] == $userConstructorPred['constructor_name']) {
+                $constructorBonus = 5;
+            }
+        }
+        
+        // Calculate total BEFORE multiplier
+        $subtotal = $basePoints + $strategyBonus + $podiumBonus + $constructorBonus;
+        
+        // Apply 2x multiplier for double points races
+        if ($isDoublePoints) {
+            $totalPoints = $subtotal * 2;
+        } else {
+            $totalPoints = $subtotal;
+        }
         
         // Insert or update score
         $scoreStmt = $db->prepare("
@@ -226,7 +292,8 @@ foreach ($racesToFetch as $race) {
                 calculated_at = NOW()
         ");
         
-        $scoreStmt->bind_param("iiiii", $userId, $race['id'], $driverPoints, $top3Bonus, $totalPoints);
+        // Store base+strategy in driver_points, podium+constructor in top3_bonus for backward compatibility
+        $scoreStmt->bind_param("iiiii", $userId, $race['id'], $basePoints + $strategyBonus, $podiumBonus + $constructorBonus, $totalPoints);
         
         if ($scoreStmt->execute()) {
             $scoresCalculated++;
