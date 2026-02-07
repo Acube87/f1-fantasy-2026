@@ -158,7 +158,7 @@ $pageTitle = "Achievements";
                 'items' => [
                     ['id' => 'big_score', 'name' => 'Big Score', 'desc' => 'Score 150+ points in one race', 'icon' => 'fa-bolt', 'unlock' => '150+ in single race'],
                     ['id' => 'podium_sweep_3', 'name' => 'Crystal Ball', 'desc' => 'Get 3 podium sweeps', 'icon' => 'fa-eye', 'unlock' => '3 podium sweeps total'],
-                    ['id' => 'streak_10', 'name' => 'Unbreakable Focus', 'desc' => 'Predict 10 races in a row', 'icon' => 'fa-fire-flame-curved', 'unlock' => '10-race streak'],
+                    ['id' => 'streak_10', 'name' => 'Unbreakable Focus', 'desc' => 'Predict 10 races in a row', 'icon' => 'fa-fire', 'unlock' => '10-race streak'],
                     ['id' => 'double_points_master', 'name' => 'Double Trouble', 'desc' => 'Score 200+ in a 2x points race', 'icon' => 'fa-gem', 'unlock' => '200+ in China/UK/Singapore'],
                     ['id' => 'accuracy_30', 'name' => 'Precision Engineer', 'desc' => 'Achieve 30% prediction accuracy', 'icon' => 'fa-bullseye', 'unlock' => '30% exact match rate'],
                     ['id' => 'total_1000', 'name' => 'Points Millionaire', 'desc' => 'Score 1000 total points', 'icon' => 'fa-sack-dollar', 'unlock' => '1000 total points'],
@@ -171,8 +171,8 @@ $pageTitle = "Achievements";
                 'icon' => '🔴',
                 'items' => [
                     ['id' => 'legendary_performance', 'name' => 'Legendary Performance', 'desc' => 'Score 200+ points in single race', 'icon' => 'fa-trophy', 'unlock' => '200+ in regular race'],
-                    ['id' => 'podium_sweep_5', 'name' => 'Oracle of the Grid', 'desc' => 'Get 5 podium sweeps', 'icon' => 'fa-crystal-ball', 'unlock' => '5 podium sweeps total'],
-                    ['id' => 'accuracy_40', 'name' => 'The Nostradamus', 'desc' => 'Achieve 40% prediction accuracy', 'icon' => 'fa-hat-wizard', 'unlock' => '40% exact match rate'],
+                    ['id' => 'podium_sweep_5', 'name' => 'Oracle of the Grid', 'desc' => 'Get 5 podium sweeps', 'icon' => 'fa-eye', 'unlock' => '5 podium sweeps total'],
+                    ['id' => 'accuracy_40', 'name' => 'The Nostradamus', 'desc' => 'Achieve 40% prediction accuracy', 'icon' => 'fa-magic', 'unlock' => '40% exact match rate'],
                     ['id' => 'total_2500', 'name' => 'Point Legend', 'desc' => 'Score 2500 total points', 'icon' => 'fa-infinity', 'unlock' => '2500 total points'],
                 ]
             ],
@@ -181,7 +181,7 @@ $pageTitle = "Achievements";
                 'label' => 'SPECIAL',
                 'icon' => '🟡',
                 'items' => [
-                    ['id' => 'first_race_winner', 'name' => 'Early Bird', 'desc' => 'Win the opening race', 'icon' => 'fa-sunrise', 'unlock' => 'Rank #1 in first race'],
+                    ['id' => 'first_race_winner', 'name' => 'Early Bird', 'desc' => 'Win the opening race', 'icon' => 'fa-bolt', 'unlock' => 'Rank #1 in first race'],
                     ['id' => 'constructor_sweep', 'name' => 'Team Whisperer', 'desc' => 'Predict constructor correctly 10 times', 'icon' => 'fa-handshake', 'unlock' => '10 correct constructor picks'],
                     ['id' => 'perfect_weekend', 'name' => 'Perfect Weekend', 'desc' => 'Score 100+ points in 3 consecutive races', 'icon' => 'fa-check-double', 'unlock' => '100+ in 3 races in a row'],
                     ['id' => 'mega_race', 'name' => 'Mega Race', 'desc' => 'Score 250+ points in a 2x event', 'icon' => 'fa-rocket', 'unlock' => '250+ in double points race'],
