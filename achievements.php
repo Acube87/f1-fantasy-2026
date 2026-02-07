@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/auth.php';
+require_once 'includes/avatars.php';
 // We will include achievements.php once it exists, but for now let's handle the case where it doesn't
 if (file_exists('includes/achievements.php')) {
     require_once 'includes/achievements.php';
@@ -72,20 +73,39 @@ $pageTitle = "Achievements";
 
     <!-- Navbar -->
     <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-4">
+        <!-- LEFT: Logo + Nav Links -->
+        <div class="flex items-center gap-8">
             <a href="index.php" class="flex items-center gap-4 hover:opacity-80 transition">
                 <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
                     <i class="fas fa-flag-checkered text-white text-lg"></i>
                 </div>
-                <span class="font-bold text-xl tracking-wide text-white">PADDOCK PICKS</span>
+                <span class="font-bold text-xl tracking-wide text-white hidden sm:block">PADDOCK PICKS</span>
             </a>
+            
+            <!-- Navigation Links (Desktop) -->
+            <div class="hidden md:flex items-center gap-6">
+                <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition">
+                    Dashboard
+                </a>
+                <a href="leaderboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition">
+                    Leaderboard
+                </a>
+            </div>
         </div>
         
+        <!-- RIGHT: User Profile + Logout -->
         <div class="flex items-center gap-6">
-            <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm">Dashboard</a>
-            <a href="leaderboard.php" class="text-gray-300 hover:text-white font-bold text-sm">Leaderboard</a>
-            <a href="logout.php" class="text-gray-400 hover:text-white transition">
-                <i class="fas fa-sign-out-alt"></i>
+            <div class="flex items-center gap-3 pl-6 border-l border-white/10">
+                <div class="text-right hidden sm:block">
+                    <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Driver</div>
+                    <div class="text-sm font-bold text-white leading-none"><?php echo htmlspecialchars($user['username']); ?></div>
+                </div>
+                <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition cursor-pointer relative group">
+                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover">
+                </a>
+            </div>
+            <a href="logout.php" class="text-gray-400 hover:text-white transition" title="Sign Out">
+                <i class="fas fa-sign-out-alt text-lg"></i>
             </a>
         </div>
     </nav>
