@@ -202,6 +202,11 @@ foreach ($racesData as $race) {
                 <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-blue-500 transition cursor-pointer">
                     <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover"> 
                 </a>
+                <a href="leaderboard.php" class="text-gray-300 hover:text-white font-bold text-sm">Leaderboard</a>
+                <a href="achievements.php" class="text-orange-400 hover:text-orange-300 font-bold text-sm flex items-center gap-2">
+                    <i class="fas fa-trophy"></i>
+                    <span class="hidden md:inline">Achievements</span>
+                </a>
                 <a href="logout.php" class="text-gray-400 hover:text-white transition ml-2">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>

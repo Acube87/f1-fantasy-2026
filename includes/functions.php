@@ -280,7 +280,37 @@ function getUserPredictions($userId, $raceId) {
  */
 function getLeaderboard($limit = 50) {
     $db = getDB();
-    $stmt = $db->prepare("SELECT u.id, u.username, u.full_name, u.avatar_style, ut.total_points, ut.races_participated FROM users u LEFT JOIN user_totals ut ON u.id = ut.user_id ORDER BY ut.total_points DESC, ut.races_participated DESC LIMIT ?");
+    
+    // Check if achievements table exists to avoid errors before migration
+    $check = $db->query("SHOW TABLES LIKE 'achievements'");
+    $hasAchievements = $check && $check->num_rows > 0;
+    
+    if ($hasAchievements) {
+        $sql = "
+            SELECT 
+                u.id, u.username, u.full_name, u.avatar_style, 
+                ut.total_points, ut.races_participated,
+                a.icon as badge_icon,
+                a.tier as badge_tier,
+                a.name as badge_name
+            FROM users u 
+            LEFT JOIN user_totals ut ON u.id = ut.user_id 
+            LEFT JOIN user_achievements ua ON u.id = ua.user_id AND ua.is_displayed = 1
+            LEFT JOIN achievements a ON ua.achievement_id = a.id
+            ORDER BY ut.total_points DESC, ut.races_participated DESC 
+            LIMIT ?
+        ";
+    } else {
+        $sql = "
+            SELECT u.id, u.username, u.full_name, u.avatar_style, ut.total_points, ut.races_participated 
+            FROM users u 
+            LEFT JOIN user_totals ut ON u.id = ut.user_id 
+            ORDER BY ut.total_points DESC, ut.races_participated DESC 
+            LIMIT ?
+        ";
+    }
+    
+    $stmt = $db->prepare($sql);
     $stmt->bind_param("i", $limit);
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);

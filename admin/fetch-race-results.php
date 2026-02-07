@@ -6,6 +6,7 @@
  */
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/achievements.php';
 
 // Allow running from command line or web
 $isCliMode = php_sapi_name() === 'cli';
@@ -301,6 +302,12 @@ foreach ($racesToFetch as $race) {
         
         // Update user totals
         updateUserTotals($userId, $db);
+        
+        // Check and unlock achievements
+        $newAchievements = checkAndUnlockAchievements($userId, $db);
+        if (!empty($newAchievements)) {
+            logMessage("  🏆 Unlocked " . count($newAchievements) . " achievement(s) for user #$userId", 'success');
+        }
     }
     
     logMessage("Calculated scores for $scoresCalculated users", 'success');

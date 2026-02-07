@@ -166,9 +166,24 @@ $currentUser = $user;     // Alias for existing logic
                             <td class="p-4 flex items-center gap-3">
                                 <img src="https://api.dicebear.com/7.x/<?php echo $entry['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $entry['username']; ?>" class="w-8 h-8 rounded-full bg-slate-700">
                                 <div>
-                                    <div class="font-bold text-white <?php echo $isMe ? 'text-orange-400' : ''; ?>">
+                                    <div class="font-bold text-white <?php echo $isMe ? 'text-orange-400' : ''; ?> flex items-center gap-2">
                                         <?php echo htmlspecialchars($entry['username']); ?>
-                                        <?php if($isMe) echo '<span class="bg-orange-500 text-white text-[10px] px-1 rounded ml-2">YOU</span>'; ?>
+                                        <?php 
+                                        if (isset($entry['badge_icon']) && $entry['badge_icon']) {
+                                            $tierColors = [
+                                                'common' => 'green',
+                                                'rare' => 'blue',
+                                                'epic' => 'purple',
+                                                'legendary' => 'red',
+                                                'special' => 'yellow'
+                                            ];
+                                            $badgeColor = $tierColors[$entry['badge_tier'] ?? 'common'] ?? 'gray';
+                                            echo '<span class="inline-flex items-center justify-center w-5 h-5 rounded bg-' . $badgeColor . '-500/20 text-' . $badgeColor . '-400 text-xs" title="' . htmlspecialchars($entry['badge_name']) . '">';
+                                            echo '<i class="fas ' . htmlspecialchars($entry['badge_icon']) . '"></i>';
+                                            echo '</span>';
+                                        }
+                                        ?>
+                                        <?php if($isMe) echo '<span class="bg-orange-500 text-white text-[10px] px-1 rounded ml-1">YOU</span>'; ?>
                                     </div>
                                     <?php if (!empty($entry['full_name'])): ?>
                                         <div class="text-[10px] text-gray-500"><?php echo htmlspecialchars($entry['full_name']); ?></div>
