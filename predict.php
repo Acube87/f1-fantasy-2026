@@ -748,7 +748,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 progressBar.classList.add('warning');
                 const hours = Math.floor(remaining / (60 * 60 * 1000));
                 const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-                timeRemainingEl.textContent = `⚠️ ${hours}h ${minutes}m until lockdown`;                deadlineEl.innerHTML = '<span class="text-orange-400">⏰ CLOSING SOON</span>';
+                timeRemainingEl.textContent = `⚠️ ${hours}h ${minutes}m until lockdown`;
+                deadlineEl.innerHTML = '<span class="text-orange-400">⏰ CLOSING SOON</span>';
             } else {
                 const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
                 const hours = Math.floor((remaining % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
