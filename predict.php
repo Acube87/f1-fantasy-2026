@@ -110,6 +110,7 @@ $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
     $predictions[$row['driver_id']] = $row['predicted_position'];
 }
+$hasPrediction = !empty($predictions);
 
 // Get unique constructors for sidebar
 $stmt = $db->prepare("SELECT DISTINCT team FROM drivers ORDER BY team");
@@ -413,6 +414,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             background: #64748b;
             box-shadow: none;
         }
+
+        /* Locked State */
+        .prediction-lock {
+            pointer-events: none;
+            opacity: 0.7;
+            filter: grayscale(0.5);
+            transition: all 0.5s ease;
+        }
     </style>
 </head>
 <body class="gaming-theme text-gray-200">
@@ -475,7 +484,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     <button onclick="copyFromPreviousRace()" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded text-gray-300 transition">
                         <i class="fas fa-history mr-1"></i> Copy Prev
                     </button>
-                     <button id="saveButton" class="g-btn g-btn-blue px-6 py-2 text-sm shadow-lg hover:shadow-blue-500/20" onclick="savePredictions()" <?php if (!$isPredictionOpen) echo 'disabled style="opacity:0.5; cursor:not-allowed;"'; ?>>
+                     <button id="saveButton" class="g-btn g-btn-blue px-6 py-2 text-sm shadow-lg hover:shadow-blue-500/20" onclick="savePredictions()" <?php if (!$isPredictionOpen || $hasPrediction) echo 'disabled style="opacity:0.5; cursor:not-allowed;"'; ?>>
                         SAVE <i class="fas fa-check ml-1"></i>
                     </button>
                 </div>
@@ -504,6 +513,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             </div>
         </div>
 
+        <!-- UX: Prediction Status Banner -->
+        <?php if ($isPredictionOpen): ?>
+            <?php if ($hasPrediction): ?>
+                <!-- Prediction Already Submitted -->
+                <div id="lockedBanner" class="mt-6 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-xl p-4 shadow-lg transition-all duration-500">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-green-500/30 flex items-center justify-center">
+                                <i class="fas fa-check-circle text-green-400 text-2xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-black text-green-400 uppercase tracking-tighter">Prediction Locked!</div>
+                                <div class="text-sm text-gray-300">Your lineup is safe. Good Luck! 🏁</div>
+                            </div>
+                        </div>
+                        <button id="editButton" onclick="enableEditing()" class="bg-blue-500/20 hover:bg-blue-500/30 border-2 border-blue-500/50 text-blue-400 px-6 py-2.5 rounded-lg transition font-bold text-sm shadow-lg hover:shadow-blue-500/20">
+                            <i class="fas fa-edit mr-2"></i> EDIT PREDICTION
+                        </button>
+                    </div>
+                </div>
+            <?php else: ?>
+                <!-- No Prediction Yet -->
+                <div class="mt-6 bg-gradient-to-r from-orange-500/20 to-red-500/20 border-2 border-orange-500/50 rounded-xl p-4 shadow-lg animate-pulse">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-orange-500/30 flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-orange-400 text-2xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-black text-orange-400">MAKE YOUR PREDICTION!</div>
+                                <div class="text-sm text-gray-300">
+                                    Deadline: <span id="bannerCountdown" class="font-bold text-white"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">Time Remaining</div>
+                            <div id="bannerTimer" class="text-2xl font-black text-orange-400 font-mono"></div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        <?php else: ?>
+            <!-- Predictions Closed -->
+            <div class="mt-6 bg-gradient-to-r from-red-500/20 to-gray-500/20 border-2 border-red-500/50 rounded-xl p-4 shadow-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-red-500/30 flex items-center justify-center">
+                        <i class="fas fa-lock text-red-400 text-2xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black text-red-400">PREDICTIONS CLOSED</div>
+                        <div class="text-sm text-gray-300">The deadline has passed. Check back after the race for results!</div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             <!-- Main Drag List (Compact) -->
@@ -515,7 +581,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                                class="w-full bg-transparent border-none text-sm text-white focus:ring-0 placeholder-gray-600 px-2 py-1">
                     </div>
 
-                    <div id="predictionList" class="bg-black/20 min-h-[500px]">
+                    <div id="predictionList" class="bg-black/20 min-h-[500px] <?php echo ($hasPrediction && $isPredictionOpen) ? 'prediction-lock' : ''; ?>">
                         <?php 
                         $orderedDrivers = $drivers;
                         // Sort by current prediction (if any)
@@ -740,6 +806,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             updateDeadlineProgress();
             setInterval(updateDeadlineProgress, 1000); // Update every second
         });
+
+        function enableEditing() {
+            const list = document.getElementById('predictionList');
+            const saveBtn = document.getElementById('saveButton');
+            const lockedBanner = document.getElementById('lockedBanner');
+            
+            list.classList.remove('prediction-lock');
+            saveBtn.disabled = false;
+            saveBtn.style.opacity = '1';
+            saveBtn.style.cursor = 'pointer';
+            
+            if (lockedBanner) {
+                lockedBanner.classList.add('opacity-50');
+                lockedBanner.querySelector('button').innerHTML = '<i class="fas fa-check mr-2"></i> EDITING MODE';
+                lockedBanner.querySelector('button').classList.remove('bg-blue-500/20');
+                lockedBanner.querySelector('button').classList.add('bg-green-500/20');
+            }
+            
+            // Scroll to list
+            list.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         
         function updateDeadlineProgress() {
             const deadlineEl = document.getElementById('deadlineText');
@@ -781,6 +868,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 const hours = Math.floor((remaining % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
                 timeRemainingEl.textContent = `${days}d ${hours}h remaining • Locks Saturday 00:00 UTC`;
                 deadlineEl.innerHTML = '<span class="text-green-400">⚡ OPEN</span>';
+            }
+
+            // Update Banner Timer if exists
+            const bannerTimer = document.getElementById('bannerTimer');
+            const bannerCountdown = document.getElementById('bannerCountdown');
+            if (bannerTimer && remaining > 0) {
+                const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
+                const hours = Math.floor((remaining % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+                const mins = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+                const secs = Math.floor((remaining % (60 * 1000)) / 1000);
+                
+                bannerTimer.textContent = `${days}d ${hours}h ${mins}m ${secs}s`;
+                if (bannerCountdown) {
+                    bannerCountdown.textContent = new Date(deadlineTimestamp).toLocaleString();
+                }
+            } else if (bannerTimer) {
+                bannerTimer.textContent = 'LOCKED';
             }
         }
 
