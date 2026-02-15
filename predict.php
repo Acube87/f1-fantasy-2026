@@ -381,35 +381,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             to { transform: scale(1); opacity: 1; }
         }
         
-        /* Prediction Deadline Progress Bar */
-        .deadline-container {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .progress-bar-bg {
-            background: rgba(255, 255, 255, 0.1);
-            height: 8px;
-            border-radius: 999px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #10b981 0%, #22c55e 50%, #facc15 100%);
-            border-radius: 999px;
-            transition: width 1s ease;
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
-        }
-        
-        .progress-bar-fill.warning {
-            background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-        }
-        
         .progress-bar-fill.closed {
             background: #64748b;
             box-shadow: none;
@@ -467,10 +438,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
     </nav>
 
     <!-- Main Content -->
-    <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
+    <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-6 md:gap-8">
         
-        <!-- Compact Header -->
-        <div class="mb-6 space-y-3">
+        <!-- Compact Header Section -->
+        <div class="space-y-4">
             <!-- Race Info & Actions -->
             <div class="flex justify-between items-center bg-slate-900/50 p-4 rounded-xl border border-white/5 backdrop-blur-md sticky top-20 z-40 shadow-xl">
                 <div class="flex items-center gap-4">
@@ -498,16 +469,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     </div>
                     <div id="deadlineText" class="text-xs font-bold" data-deadline="<?php echo $deadlineTimestamp; ?>" data-now="<?php echo $nowTimestamp; ?>" data-racedate="<?php echo $raceDateTimestamp; ?>">
                         <?php if ($isPredictionOpen): ?>
-                            <span class="text-green-400">⚡ OPEN</span>
+                            <span class="text-green-400 font-black">⚡ OPEN</span>
                         <?php else: ?>
-                            <span class="text-red-400">🔒 CLOSED</span>
+                            <span class="text-red-400 font-black">🔒 CLOSED</span>
                         <?php endif; ?>
                     </div>
                 </div>
                 <div class="progress-bar-bg">
                     <div id="progressBar" class="progress-bar-fill <?php echo !$isPredictionOpen ? 'closed' : ''; ?>" style="width: <?php echo $progressBarWidth; ?>%"></div>
                 </div>
-                <div id="timeRemaining" class="text-[10px] text-gray-500 mt-1.5 text-center font-mono">
+                <div id="timeRemaining" class="text-[10px] text-gray-500 mt-2 text-center font-mono uppercase tracking-widest">
                     <?php echo $countdownText; ?>
                 </div>
             </div>
@@ -517,7 +488,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
         <?php if ($isPredictionOpen): ?>
             <?php if ($hasPrediction): ?>
                 <!-- Prediction Already Submitted -->
-                <div id="lockedBanner" class="mt-6 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-xl p-4 shadow-lg transition-all duration-500">
+                <div id="lockedBanner" class="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-xl p-4 shadow-lg transition-all duration-500">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-full bg-green-500/30 flex items-center justify-center">
@@ -535,7 +506,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                 </div>
             <?php else: ?>
                 <!-- No Prediction Yet -->
-                <div class="mt-6 bg-gradient-to-r from-orange-500/20 to-red-500/20 border-2 border-orange-500/50 rounded-xl p-4 shadow-lg animate-pulse">
+                <div class="bg-gradient-to-r from-orange-500/20 to-red-500/20 border-2 border-orange-500/50 rounded-xl p-4 shadow-lg animate-pulse">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-full bg-orange-500/30 flex items-center justify-center">
@@ -557,7 +528,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             <?php endif; ?>
         <?php else: ?>
             <!-- Predictions Closed -->
-            <div class="mt-6 bg-gradient-to-r from-red-500/20 to-gray-500/20 border-2 border-red-500/50 rounded-xl p-4 shadow-lg">
+            <div class="bg-gradient-to-r from-red-500/20 to-gray-500/20 border-2 border-red-500/50 rounded-xl p-4 shadow-lg">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-full bg-red-500/30 flex items-center justify-center">
                         <i class="fas fa-lock text-red-400 text-2xl"></i>
@@ -570,7 +541,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             </div>
         <?php endif; ?>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Main Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
             <!-- Main Drag List (Compact) -->
             <div class="lg:col-span-8">

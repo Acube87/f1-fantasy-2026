@@ -213,10 +213,10 @@ foreach ($racesData as $race) {
     </nav>
 
     <!-- Main Content -->
-    <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
+    <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-6 md:gap-8">
         
         <!-- Header / Welcome -->
-        <div class="mb-10 flex flex-col md:flex-row justify-between items-end gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-end gap-6 bg-slate-900/40 p-6 rounded-2xl border border-white/5 backdrop-blur-md">
             <div>
                 <h1 class="text-3xl md:text-5xl font-black text-white mb-2 uppercase italic">
                     Ready to <span class="g-text-gradient">Race?</span>
@@ -240,10 +240,10 @@ foreach ($racesData as $race) {
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <!-- LEFT COLUMN (Main Stats & Next Race) -->
-            <div class="lg:col-span-8 space-y-8">
+            <div class="lg:col-span-8 flex flex-col gap-8">
                 
                 <!-- NEXT RACE CARD (The "Car" Card) -->
-                <div class="g-card p-0 relative group h-96 flex flex-col justify-end overflow-hidden">
+                <div class="g-card p-0 relative group h-[400px] flex flex-col justify-end overflow-hidden">
                     <!-- Background Image (Dynamic based on country if possible, or generic) -->
                     <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541336528065-8f1fdc435835?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center transition duration-700 group-hover:scale-110"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/70 to-transparent"></div>
@@ -266,22 +266,22 @@ foreach ($racesData as $race) {
                             </p>
                             
                             <!-- Progress/Bet Bar Style -->
-                            <div class="flex items-center gap-4 bg-black/40 backdrop-blur-md p-4 rounded-xl border border-white/5 max-w-lg">
-                                <div class="flex-1">
-                                    <div class="flex justify-between text-xs mb-2 font-bold text-gray-400 uppercase">
-                                        <span>Prediction Status</span>
-                                        <span class="status-label <?php echo $predictionStatusColor; ?>"><?php echo $predictionStatus; ?></span>
-                                    </div>
-                                    <div class="countdown-text text-[10px] text-gray-300 mb-1 text-center font-mono font-bold">
+                            <div class="deadline-container max-w-lg">
+                                <div class="flex justify-between text-xs mb-3 font-bold text-gray-400 uppercase tracking-widest">
+                                    <span>Prediction Status</span>
+                                    <span class="status-label <?php echo $predictionStatusColor; ?>"><?php echo $predictionStatus; ?></span>
+                                </div>
+                                <div class="progress-bar-bg mb-2">
+                                    <div id="race-countdown-bar" class="progress-bar-fill" style="width: <?php echo $progressBarWidth; ?>%"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="countdown-text text-[10px] text-gray-500 font-mono font-bold uppercase tracking-widest">
                                         <?php echo $countdownText; ?>
                                     </div>
-                                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                                        <div id="race-countdown-bar" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: <?php echo $progressBarWidth; ?>%"></div>
-                                    </div>
+                                    <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="text-[10px] font-black text-blue-400 hover:text-white transition uppercase tracking-tighter flex items-center gap-1">
+                                        Enter Event <i class="fas fa-arrow-right"></i>
+                                    </a>
                                 </div>
-                                <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-blue px-6 py-2 text-sm">
-                                    ENTER
-                                </a>
                             </div>
                             
                             <script>
