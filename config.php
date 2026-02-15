@@ -44,10 +44,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Database connection
+// Database connection with auto-reconnect
 function getDB() {
     static $conn = null;
-    if ($conn === null) {
+    
+    // Helper function to create fresh connection
+    $createConnection = function() {
         $host = DB_HOST;
         $port = DB_PORT;
         $user = DB_USER;
@@ -55,8 +57,6 @@ function getDB() {
         $dbname = DB_NAME;
 
         // DEBUG: Check if we are incorrectly falling back to localhost on production
-        // If we are on Railway (detected by RAILWAY_ENVIRONMENT or just assumption if not local), 
-        // and host is localhost, we have a problem.
         if ($host === 'localhost' && getenv('RAILWAY_ENVIRONMENT')) {
             die("<div style='font-family:sans-serif; padding:20px; background:#ffebeb; border:1px solid #ff0000; color:#c00;'>
                 <h2>🚨 Configuration Error</h2>
@@ -72,15 +72,12 @@ function getDB() {
         }
         
         try {
-            // port must be integer
             $port = (int)$port;
             
-            $conn = @new mysqli($host, $user, $pass, $dbname, $port);
+            $newConn = @new mysqli($host, $user, $pass, $dbname, $port);
             
-            if ($conn->connect_error) {
-                // If the error is "No such file or directory", it means it's trying to use a socket (localhost default)
-                // but failed. This confirms the host is wrong or network is unreachable.
-                $isSocketError = strpos($conn->connect_error, 'No such file or directory') !== false;
+            if ($newConn->connect_error) {
+                $isSocketError = strpos($newConn->connect_error, 'No such file or directory') !== false;
                 
                 $errorDetails = "";
                 if ($isSocketError && $host !== 'localhost') {
@@ -89,18 +86,42 @@ function getDB() {
                      $errorDetails = " (System tried to connect to Localhost Socket and failed. This usually means Env Vars are missing.)";
                 }
 
-                throw new Exception("Connection failed: " . $conn->connect_error . $errorDetails . " (Host: $host)");
+                throw new Exception("Connection failed: " . $newConn->connect_error . $errorDetails . " (Host: $host)");
             }
             
-            $conn->set_charset("utf8mb4");
-        } catch (Exception $e) {
-            // Log error
-            error_log("Database connection error: " . $e->getMessage());
+            $newConn->set_charset("utf8mb4");
+            return $newConn;
             
-            // In production, don't show password, but show host for debugging
+        } catch (Exception $e) {
+            error_log("Database connection error: " . $e->getMessage());
             $clean_message = str_replace($pass, '********', $e->getMessage());
             throw new Exception("Database connection error: " . $clean_message);
         }
+    };
+    
+    // Create connection if null
+    if ($conn === null) {
+        $conn = $createConnection();
+    } else {
+        // Validate existing connection is still alive
+        try {
+            // ping() returns TRUE if connection is alive
+            if (!$conn->ping()) {
+                error_log("Database connection lost - reconnecting...");
+                $conn->close();
+                $conn = $createConnection();
+            }
+        } catch (Exception $e) {
+            // Connection is dead, recreate it
+            error_log("Database connection validation failed - reconnecting: " . $e->getMessage());
+            try {
+                $conn->close();
+            } catch (Exception $closeError) {
+                // Ignore close errors
+            }
+            $conn = $createConnection();
+        }
     }
+    
     return $conn;
 }
