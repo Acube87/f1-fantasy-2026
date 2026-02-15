@@ -95,14 +95,14 @@ try {
         // RARE (6)
         ['participation_10', 'Season Veteran', 'Participate in 10 races', 'rare', 'fa-medal', 'Complete 10 predictions', 25],
         ['podium_sweep_1', 'Podium Prophet', 'Get your first podium sweep', 'rare', 'fa-trophy', 'All 3 podium correct once', 30],
-        ['total_500', 'Point Collector', 'Score 500 total points', 'rare', 'fa-coins', '500 total points', 25],
+        ['total_500', 'Point Collector', 'Score 100 total points', 'rare', 'fa-coins', '100 total points', 25],
         ['constructor_correct_5', 'Team Tactician', 'Predict winning constructor 5 times', 'rare', 'fa-wrench', '5 correct constructors', 25],
         ['perfectionist', 'Perfectionist', 'Get 5+ exact predictions in one race', 'rare', 'fa-bullseye', '5+ exact matches in single race', 30],
-        ['accuracy_20', 'Sharp Shooter', 'Achieve 20% prediction accuracy', 'rare', 'fa-crosshairs', '20% exact match rate', 25],
+        ['accuracy_20', 'Sharp Shooter', 'Achieve 45% prediction accuracy', 'rare', 'fa-crosshairs', '45% exact match rate', 25],
 
         // EPIC (7)
         ['big_score', 'Big Score', 'Score 150+ points in one race', 'epic', 'fa-bolt', '150+ in single race', 50],
-        ['podium_sweep_3', 'Crystal Ball', 'Get 3 podium sweeps', 'epic', 'fa-eye', '3 podium sweeps total', 50],
+        ['podium_sweep_3', 'Crystal Ball', 'Get 5 podium sweeps', 'epic', 'fa-eye', '5 podium sweeps total', 50],
         ['streak_10', 'Unbreakable Focus', 'Predict 10 races in a row', 'epic', 'fa-fire', '10-race streak', 50],
         ['double_points_master', 'Double Trouble', 'Score 200+ in a 2x points race', 'epic', 'fa-gem', '200+ in China/UK/Singapore', 75],
         ['accuracy_30', 'Precision Engineer', 'Achieve 30% prediction accuracy', 'epic', 'fa-bullseye', '30% exact match rate', 50],
@@ -110,16 +110,16 @@ try {
         ['race_winner_3', 'Hat Trick Hero', 'Win 3 individual races', 'epic', 'fa-crown', 'Rank #1 in 3 different races', 75],
 
         // LEGENDARY (4)
-        ['legendary_performance', 'Legendary Performance', 'Score 200+ points in single race', 'legendary', 'fa-trophy', '200+ in regular race', 100],
-        ['podium_sweep_5', 'Oracle of the Grid', 'Get 5 podium sweeps', 'legendary', 'fa-eye', '5 podium sweeps total', 100],
-        ['accuracy_40', 'The Nostradamus', 'Achieve 40% prediction accuracy', 'legendary', 'fa-magic', '40% exact match rate', 100],
-        ['total_2500', 'Point Legend', 'Score 2500 total points', 'legendary', 'fa-infinity', '2500 total points', 100],
+        ['legendary_performance', 'Legendary Performance', 'Score 150+ points in single race', 'legendary', 'fa-trophy', '150+ in regular race', 100],
+        ['podium_sweep_5', 'Oracle of the Grid', 'Get 10 podium sweeps', 'legendary', 'fa-eye', '10 podium sweeps total', 100],
+        ['accuracy_40', 'The Nostradamus', 'Achieve 66% prediction accuracy', 'legendary', 'fa-magic', '66% exact match rate', 100],
+        ['total_2500', 'Point Legend', 'Score 2000 total points', 'legendary', 'fa-infinity', '2000 total points', 100],
 
         // SPECIAL (4)
         ['first_race_winner', 'Early Bird', 'Win the opening race', 'special', 'fa-bolt', 'Rank #1 in first race', 50],
-        ['constructor_sweep', 'Team Whisperer', 'Predict constructor correctly 10 times', 'special', 'fa-handshake', '10 correct constructor picks', 50],
+        ['constructor_sweep', 'Team Whisperer', 'Predict constructor correctly 7 times', 'special', 'fa-handshake', '7 correct constructor picks', 50],
         ['perfect_weekend', 'Perfect Weekend', 'Score 100+ points in 3 consecutive races', 'special', 'fa-check', '100+ in 3 races in a row', 75],
-        ['mega_race', 'Mega Race', 'Score 250+ points in a 2x event', 'special', 'fa-rocket', '250+ in double points race', 100]
+        ['mega_race', 'Mega Race', 'Score 200+ points in a 2x event', 'special', 'fa-rocket', '200+ in double points race', 100]
     ];
     
     $stmt = $db->prepare("INSERT INTO achievements (id, name, description, tier, icon, unlock_criteria, points_reward) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=VALUES(name), description=VALUES(description), tier=VALUES(tier), icon=VALUES(icon), unlock_criteria=VALUES(unlock_criteria), points_reward=VALUES(points_reward)");
