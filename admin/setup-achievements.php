@@ -115,11 +115,14 @@ try {
         ['accuracy_40', 'The Nostradamus', 'Achieve 66% prediction accuracy', 'legendary', 'fa-magic', '66% exact match rate', 100],
         ['total_2500', 'Point Legend', 'Score 2000 total points', 'legendary', 'fa-infinity', '2000 total points', 100],
 
-        // SPECIAL (4)
+        // SPECIAL (7)
         ['first_race_winner', 'Early Bird', 'Win the opening race', 'special', 'fa-bolt', 'Rank #1 in first race', 50],
         ['constructor_sweep', 'Team Whisperer', 'Predict constructor correctly 7 times', 'special', 'fa-handshake', '7 correct constructor picks', 50],
         ['perfect_weekend', 'Perfect Weekend', 'Score 100+ points in 3 consecutive races', 'special', 'fa-check', '100+ in 3 races in a row', 75],
-        ['mega_race', 'Mega Race', 'Score 200+ points in a 2x event', 'special', 'fa-rocket', '200+ in double points race', 100]
+        ['mega_race', 'Mega Race', 'Score 200+ points in a 2x event', 'special', 'fa-rocket', '200+ in double points race', 100],
+        ['silver_arrows', 'Silver Arrows', 'Predict Mercedes 1-2 finish correctly', 'special', 'fa-star', 'Correct Mercedes 1st & 2nd prediction', 75],
+        ['columbus', 'Columbus', 'Win in all continents', 'special', 'fa-globe-americas', 'Rank #1 in race from each continent', 100],
+        ['f1_hero', 'F1 Hero', 'Compete in all races', 'special', 'fa-flag-checkered', 'Participate in every season race', 50]
     ];
     
     $stmt = $db->prepare("INSERT INTO achievements (id, name, description, tier, icon, unlock_criteria, points_reward) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=VALUES(name), description=VALUES(description), tier=VALUES(tier), icon=VALUES(icon), unlock_criteria=VALUES(unlock_criteria), points_reward=VALUES(points_reward)");

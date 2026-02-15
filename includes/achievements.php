@@ -57,14 +57,14 @@ function checkAchievementCriteria($userId, $achievementId, $db) {
         // RARE
         case 'participation_10': return checkParticipation($userId, 10, $db);
         case 'podium_sweep_1': return checkPodiumSweeps($userId, 1, $db);
-        case 'total_500': return checkTotalPoints($userId, 500, $db);
+        case 'total_500': return checkTotalPoints($userId, 100, $db);
         case 'constructor_correct_5': return false; // Constructor tracking not implemented yet
         case 'perfectionist': return checkExactMatchesInRace($userId, 5, $db);
-        case 'accuracy_20': return checkAccuracy($userId, 20, $db);
+        case 'accuracy_20': return checkAccuracy($userId, 45, $db);
         
         // EPIC
         case 'big_score': return checkSingleRaceScore($userId, 150, false, $db);
-        case 'podium_sweep_3': return checkPodiumSweeps($userId, 3, $db);
+        case 'podium_sweep_3': return checkPodiumSweeps($userId, 5, $db);
         case 'streak_10': return checkParticipationStreak($userId, 10, $db);
         case 'double_points_master': return checkDoublePointsScore($userId, 200, $db);
         case 'accuracy_30': return checkAccuracy($userId, 30, $db);
@@ -72,16 +72,19 @@ function checkAchievementCriteria($userId, $achievementId, $db) {
         case 'race_winner_3': return false; // Race win tracking not implemented yet
         
         // LEGENDARY
-        case 'legendary_performance': return checkSingleRaceScore($userId, 200, false, $db);
-        case 'podium_sweep_5': return checkPodiumSweeps($userId, 5, $db);
-        case 'accuracy_40': return checkAccuracy($userId, 40, $db);
-        case 'total_2500': return checkTotalPoints($userId, 2500, $db);
+        case 'legendary_performance': return checkSingleRaceScore($userId, 150, false, $db);
+        case 'podium_sweep_5': return checkPodiumSweeps($userId, 10, $db);
+        case 'accuracy_40': return checkAccuracy($userId, 66, $db);
+        case 'total_2500': return checkTotalPoints($userId, 2000, $db);
         
         // SPECIAL
         case 'first_race_winner': return false; // Race win tracking not implemented yet
         case 'constructor_sweep': return false; // Constructor tracking not implemented yet
         case 'perfect_weekend': return checkConsecutiveHighScores($userId, 3, 100, $db);
-        case 'mega_race': return checkDoublePointsScore($userId, 250, $db);
+        case 'mega_race': return checkDoublePointsScore($userId, 200, $db);
+        case 'silver_arrows': return checkMercedes12($userId, $db);
+        case 'columbus': return checkWinAllContinents($userId, $db);
+        case 'f1_hero': return checkAllRacesParticipation($userId, $db);
         
         default: return false;
     }
@@ -362,5 +365,97 @@ function checkConsecutiveHighScores($userId, $consecutive, $minScore, $db) {
         }
     }
     return false;
+}
+
+/**
+ * Check if user correctly predicted Mercedes 1-2 finish
+ */
+function checkMercedes12($userId, $db) {
+    // Check if user has any race where they predicted:
+    // Position 1 = Mercedes driver AND Position 2 = Mercedes driver
+    // AND both were correct
+    $stmt = $db->prepare("
+        SELECT COUNT(*) as count
+        FROM predictions p1
+        JOIN predictions p2 ON p1.user_id = p2.user_id AND p1.race_id = p2.race_id
+        JOIN race_results rr1 ON p1.race_id = rr1.race_id AND p1.driver_id = rr1.driver_id
+        JOIN race_results rr2 ON p2.race_id = rr2.race_id AND p2.driver_id = rr2.driver_id
+        WHERE p1.user_id = ?
+        AND p1.predicted_position = 1 AND p2.predicted_position = 2
+        AND rr1.position = 1 AND rr2.position = 2
+        AND rr1.constructor_name = 'Mercedes' AND rr2.constructor_name = 'Mercedes'
+    ");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc()['count'] > 0;
+}
+
+/**
+ * Check if user won at least one race in each continent
+ * Continents based on typical F1 calendar: Europe, Asia, Americas, Middle East, Oceania
+ */
+function checkWinAllContinents($userId, $db) {
+    // Map countries to continents
+    $continentMap = [
+        'Europe' => ['UK', 'Italy', 'Spain', 'Monaco', 'Belgium', 'Netherlands', 'Austria', 'Hungary', 'France'],
+        'Asia' => ['China', 'Japan', 'Singapore', 'Malaysia', 'Thailand'],
+        'Americas' => ['USA', 'Mexico', 'Brazil', 'Canada', 'Argentina'],
+        'Middle East' => ['Bahrain', 'Saudi Arabia', 'UAE', 'Qatar'],
+        'Oceania' => ['Australia']
+    ];
+    
+    $continentsWon = [];
+    
+    foreach ($continentMap as $continent => $countries) {
+        $placeholders = implode(',', array_fill(0, count($countries), '?'));
+        
+        $sql = "
+            SELECT COUNT(*) as count
+            FROM scores s
+            JOIN races r ON s.race_id = r.id
+            WHERE s.user_id = ?
+            AND r.country IN ($placeholders)
+            AND s.total_points = (
+                SELECT MAX(total_points) 
+                FROM scores 
+                WHERE race_id = s.race_id
+            )
+        ";
+        
+        $stmt = $db->prepare($sql);
+        $params = array_merge([$userId], $countries);
+        $types = str_repeat('s', count($countries)) . 'i';
+        $types = 'i' . str_repeat('s', count($countries)); // userId first, then countries
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        
+        if ($result['count'] > 0) {
+            $continentsWon[] = $continent;
+        }
+    }
+    
+    // Need to win in all 5 continents
+    return count($continentsWon) >= 5;
+}
+
+/**
+ * Check if user participated in all races in the current season
+ */
+function checkAllRacesParticipation($userId, $db) {
+    // Get total races
+    $totalStmt = $db->query("SELECT COUNT(*) as total FROM races");
+    $total = $totalStmt->fetch_assoc()['total'];
+    
+    if ($total == 0) return false;
+    
+    // Get user's participation count
+    $stmt = $db->prepare("SELECT COUNT(DISTINCT race_id) as count FROM predictions WHERE user_id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $userCount = $stmt->get_result()->fetch_assoc()['count'];
+    
+    // User must have participated in ALL races
+    return $userCount >= $total;
 }
 ?>
