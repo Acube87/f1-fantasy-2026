@@ -22,7 +22,7 @@ $userId = $user['id'];
 $unlockedIds = [];
 $stats = [
     'unlocked' => 0,
-    'total' => 22,
+    'total' => 26,
     'completion' => 0,
     'displayed' => null
 ];
@@ -166,10 +166,10 @@ $pageTitle = "Achievements";
                 'items' => [
                     ['id' => 'participation_10', 'name' => 'Season Veteran', 'desc' => 'Participate in 10 races', 'icon' => 'fa-medal', 'unlock' => 'Complete 10 predictions'],
                     ['id' => 'podium_sweep_1', 'name' => 'Podium Prophet', 'desc' => 'Get your first podium sweep', 'icon' => 'fa-trophy', 'unlock' => 'All 3 podium correct once'],
-                    ['id' => 'total_500', 'name' => 'Point Collector', 'desc' => 'Score 500 total points', 'icon' => 'fa-coins', 'unlock' => '500 total points'],
+                    ['id' => 'total_500', 'name' => 'Point Collector', 'desc' => 'Score 100 total points', 'icon' => 'fa-coins', 'unlock' => '100 total points'],
                     ['id' => 'constructor_correct_5', 'name' => 'Team Tactician', 'desc' => 'Predict winning constructor 5 times', 'icon' => 'fa-wrench', 'unlock' => '5 correct constructors'],
                     ['id' => 'perfectionist', 'name' => 'Perfectionist', 'desc' => 'Get 5+ exact predictions in one race', 'icon' => 'fa-bullseye', 'unlock' => '5+ exact matches in single race'],
-                    ['id' => 'accuracy_20', 'name' => 'Sharp Shooter', 'desc' => 'Achieve 20% prediction accuracy', 'icon' => 'fa-crosshairs', 'unlock' => '20% exact match rate'],
+                    ['id' => 'accuracy_20', 'name' => 'Sharp Shooter', 'desc' => 'Achieve 45% prediction accuracy', 'icon' => 'fa-crosshairs', 'unlock' => '45% exact match rate'],
                 ]
             ],
             'epic' => [
@@ -178,7 +178,7 @@ $pageTitle = "Achievements";
                 'icon' => '🟣',
                 'items' => [
                     ['id' => 'big_score', 'name' => 'Big Score', 'desc' => 'Score 150+ points in one race', 'icon' => 'fa-bolt', 'unlock' => '150+ in single race'],
-                    ['id' => 'podium_sweep_3', 'name' => 'Crystal Ball', 'desc' => 'Get 3 podium sweeps', 'icon' => 'fa-eye', 'unlock' => '3 podium sweeps total'],
+                    ['id' => 'podium_sweep_3', 'name' => 'Crystal Ball', 'desc' => 'Get 5 podium sweeps', 'icon' => 'fa-eye', 'unlock' => '5 podium sweeps total'],
                     ['id' => 'streak_10', 'name' => 'Unbreakable Focus', 'desc' => 'Predict 10 races in a row', 'icon' => 'fa-fire', 'unlock' => '10-race streak'],
                     ['id' => 'double_points_master', 'name' => 'Double Trouble', 'desc' => 'Score 200+ in a 2x points race', 'icon' => 'fa-gem', 'unlock' => '200+ in China/UK/Singapore'],
                     ['id' => 'accuracy_30', 'name' => 'Precision Engineer', 'desc' => 'Achieve 30% prediction accuracy', 'icon' => 'fa-bullseye', 'unlock' => '30% exact match rate'],
@@ -191,10 +191,10 @@ $pageTitle = "Achievements";
                 'label' => 'LEGENDARY',
                 'icon' => '🔴',
                 'items' => [
-                    ['id' => 'legendary_performance', 'name' => 'Legendary Performance', 'desc' => 'Score 200+ points in single race', 'icon' => 'fa-trophy', 'unlock' => '200+ in regular race'],
-                    ['id' => 'podium_sweep_5', 'name' => 'Oracle of the Grid', 'desc' => 'Get 5 podium sweeps', 'icon' => 'fa-eye', 'unlock' => '5 podium sweeps total'],
-                    ['id' => 'accuracy_40', 'name' => 'The Nostradamus', 'desc' => 'Achieve 40% prediction accuracy', 'icon' => 'fa-magic', 'unlock' => '40% exact match rate'],
-                    ['id' => 'total_2500', 'name' => 'Point Legend', 'desc' => 'Score 2500 total points', 'icon' => 'fa-infinity', 'unlock' => '2500 total points'],
+                    ['id' => 'legendary_performance', 'name' => 'Legendary Performance', 'desc' => 'Score 150+ points in single race', 'icon' => 'fa-trophy', 'unlock' => '150+ in regular race'],
+                    ['id' => 'podium_sweep_5', 'name' => 'Oracle of the Grid', 'desc' => 'Get 10 podium sweeps', 'icon' => 'fa-eye', 'unlock' => '10 podium sweeps total'],
+                    ['id' => 'accuracy_40', 'name' => 'The Nostradamus', 'desc' => 'Achieve 66% prediction accuracy', 'icon' => 'fa-magic', 'unlock' => '66% exact match rate'],
+                    ['id' => 'total_2500', 'name' => 'Point Legend', 'desc' => 'Score 2000 total points', 'icon' => 'fa-infinity', 'unlock' => '2000 total points'],
                 ]
             ],
             'special' => [
@@ -203,9 +203,12 @@ $pageTitle = "Achievements";
                 'icon' => '🟡',
                 'items' => [
                     ['id' => 'first_race_winner', 'name' => 'Early Bird', 'desc' => 'Win the opening race', 'icon' => 'fa-bolt', 'unlock' => 'Rank #1 in first race'],
-                    ['id' => 'constructor_sweep', 'name' => 'Team Whisperer', 'desc' => 'Predict constructor correctly 10 times', 'icon' => 'fa-handshake', 'unlock' => '10 correct constructor picks'],
+                    ['id' => 'constructor_sweep', 'name' => 'Team Whisperer', 'desc' => 'Predict constructor correctly 7 times', 'icon' => 'fa-handshake', 'unlock' => '7 correct constructor picks'],
                     ['id' => 'perfect_weekend', 'name' => 'Perfect Weekend', 'desc' => 'Score 100+ points in 3 consecutive races', 'icon' => 'fa-check-double', 'unlock' => '100+ in 3 races in a row'],
-                    ['id' => 'mega_race', 'name' => 'Mega Race', 'desc' => 'Score 250+ points in a 2x event', 'icon' => 'fa-rocket', 'unlock' => '250+ in double points race'],
+                    ['id' => 'mega_race', 'name' => 'Mega Race', 'desc' => 'Score 200+ points in a 2x event', 'icon' => 'fa-rocket', 'unlock' => '200+ in double points race'],
+                    ['id' => 'silver_arrows', 'name' => 'Silver Arrows', 'desc' => 'Predict Mercedes 1-2 finish correctly', 'icon' => 'fa-star', 'unlock' => 'Correct Mercedes 1st & 2nd prediction'],
+                    ['id' => 'columbus', 'name' => 'Columbus', 'desc' => 'Win in all continents', 'icon' => 'fa-globe-americas', 'unlock' => 'Rank #1 in race from each continent'],
+                    ['id' => 'f1_hero', 'name' => 'F1 Hero', 'desc' => 'Compete in all races', 'icon' => 'fa-flag-checkered', 'unlock' => 'Participate in every season race'],
                 ]
             ],
         ];
