@@ -91,10 +91,10 @@ function checkAchievementCriteria($userId, $achievementId, $db) {
 }
 
 /**
- * Unlock an achievement for a user
+ * Unlock an achievement for a user (auto-displayed by default)
  */
 function unlockAchievement($userId, $achievementId, $db) {
-    $stmt = $db->prepare("INSERT IGNORE INTO user_achievements (user_id, achievement_id) VALUES (?, ?)");
+    $stmt = $db->prepare("INSERT IGNORE INTO user_achievements (user_id, achievement_id, is_displayed) VALUES (?, ?, 1)");
     $stmt->bind_param("is", $userId, $achievementId);
     return $stmt->execute();
 }

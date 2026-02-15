@@ -394,6 +394,77 @@ $allAvatars = getAllAvatars();
                     </div>
                 </div>
                 
+                <!-- Badge Display Settings -->
+                <?php
+                // Get user's achievements
+                if (file_exists('includes/achievements.php')) {
+                    require_once 'includes/achievements.php';
+                    $userAchievements = getUserAchievements($userId, $db);
+                } else {
+                    $userAchievements = [];
+                }
+                
+                // Handle badge toggle
+                if (isset($_POST['toggle_badge'])) {
+                    $achievementId = $_POST['achievement_id'] ?? '';
+                    if ($achievementId && file_exists('includes/achievements.php')) {
+                        toggleDisplayedBadge($userId, $achievementId, $db);
+                        // Refresh user achievements
+                        $userAchievements = getUserAchievements($userId, $db);
+                        $successMessage = 'Badge display updated!';
+                    }
+                }
+                ?>
+                
+                <?php if (!empty($userAchievements)): ?>
+                <div class="g-card p-6">
+                    <h2 class="font-bold text-white text-xl mb-4 flex items-center gap-2">
+                        <i class="fas fa-award text-yellow-500"></i> Badge Display Settings
+                    </h2>
+                    <p class="text-sm text-gray-400 mb-4">
+                        Control which badges appear on your leaderboard profile. Badges are shown by default.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <?php
+                        $tierColors = [
+                            'common' => 'green',
+                            'rare' => 'blue',
+                            'epic' => 'purple',
+                            'legendary' => 'red',
+                            'special' => 'yellow'
+                        ];
+                        
+                        foreach ($userAchievements as $achievement):
+                            $tier = $achievement['tier'];
+                            $color = $tierColors[$tier] ?? 'gray';
+                            $isDisplayed = $achievement['is_displayed'];
+                        ?>
+                            <div class="flex items-center justify-between p-3 bg-black/20 border border-white/5 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-<?php echo $color; ?>-500/20 border-2 border-<?php echo $color; ?>-500/50 flex items-center justify-center">
+                                        <i class="fas <?php echo $achievement['icon']; ?> text-<?php echo $color; ?>-400"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($achievement['name']); ?></div>
+                                        <div class="text-xs text-<?php echo $color; ?>-400 uppercase"><?php echo $tier; ?></div>
+                                    </div>
+                                </div>
+                                <form method="POST" action="profile.php" class="inline">
+                                    <?php csrfField(); ?>
+                                    <input type="hidden" name="achievement_id" value="<?php echo $achievement['id']; ?>">
+                                    <button type="submit" 
+                                            name="toggle_badge"
+                                            class="px-4 py-2 rounded-lg text-xs font-bold transition <?php echo $isDisplayed ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30 hover:bg-gray-500/30'; ?>">
+                                        <?php echo $isDisplayed ? '<i class="fas fa-eye mr-1"></i> Shown' : '<i class="fas fa-eye-slash mr-1"></i> Hidden'; ?>
+                                    </button>
+                                </form>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
                 <!-- Accuracy Stats -->
                 <div class="g-card p-6">
                     <h2 class="font-bold text-white text-xl mb-6 flex items-center gap-2">
