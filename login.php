@@ -116,6 +116,11 @@ if (isLoggedIn()) {
                                placeholder="Enter password"
                                required>
                     </div>
+                    <div class="text-right mt-2">
+                        <a href="forgot-password.php" class="text-xs text-blue-400 hover:text-blue-300 font-bold transition">
+                            <i class="fas fa-key mr-1"></i> Forgot Password?
+                        </a>
+                    </div>
                 </div>
 
                 <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 rounded-xl transition-all font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-orange-500/50 mt-4">
