@@ -220,12 +220,12 @@ if ($nextRace) {
 
                         <div>
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-[10px] font-black text-red-500 tracking-tighter italic uppercase">Missing Data</span>
+                                <span class="text-[10px] font-black text-red-500 tracking-tighter italic uppercase animate-pulse">Missing Data • BEHIND SCHEDULE!</span>
                                 <span class="text-[10px] text-gray-600 font-bold uppercase"><?php echo count($missing); ?> Users</span>
                             </div>
                             <div class="flex flex-wrap gap-1.5">
                                 <?php foreach ($missing as $m): ?>
-                                    <span class="bg-white/5 text-gray-500 text-[10px] font-black px-2 py-0.5 rounded border border-white/5 uppercase italic line-through opacity-40">@<?php echo htmlspecialchars($m['username']); ?></span>
+                                    <span class="bg-red-500/5 text-red-500/40 text-[10px] font-black px-2 py-0.5 rounded border border-red-500/10 uppercase italic line-through">@<?php echo htmlspecialchars($m['username']); ?></span>
                                 <?php endforeach; ?>
                             </div>
                         </div>
