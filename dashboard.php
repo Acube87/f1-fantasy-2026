@@ -470,12 +470,20 @@ foreach ($racesData as $race) {
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <?php if ($uRace['unlocked']): ?>
+                                        <?php 
+                                        $rDeadline = getPredictionDeadline($uRace['race_date']);
+                                        $rNow = new DateTime('now', new DateTimeZone('UTC'));
+                                        $rIsOpen = $rNow < $rDeadline;
+                                        
+                                        if ($uRace['unlocked'] && $rIsOpen): ?>
                                             <div class="text-green-400 text-xs font-bold">OPEN</div>
-                                            <div class="text-[9px] text-gray-500">Click to predict</div>
+                                            <div class="text-[9px] text-gray-500 italic">Click to predict</div>
+                                        <?php elseif ($uRace['unlocked'] && !$rIsOpen): ?>
+                                            <div class="text-red-400 text-xs font-bold">CLOSED</div>
+                                            <div class="text-[9px] text-gray-500 italic">Predictions locked</div>
                                         <?php else: ?>
-                                            <div class="text-red-400 text-xs font-bold">LOCKED</div>
-                                            <div class="text-[9px] text-gray-500">Opens <?php echo $uRace['unlock_date']; ?></div>
+                                            <div class="text-gray-500 text-xs font-bold">LOCKED</div>
+                                            <div class="text-[9px] text-gray-500 italic">Opens <?php echo date('M d', strtotime($uRace['race_date'] . ' -7 days')); ?></div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
