@@ -101,8 +101,8 @@ $nextRace = getNextRace();
                     
                     <!-- The Card -->
                     <div class="g-card p-0 relative h-[450px] md:h-[500px] flex flex-col justify-end overflow-hidden shadow-2xl shadow-blue-900/40 rounded-3xl border border-white/10">
-                        <!-- BG Image: Penguin/Australia Theme or Generic Racing -->
-                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541336528065-8f1fdc435835?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
+                        <!-- BG Image (Dynamic based on country) -->
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<?php echo getRaceHeroImage($nextRace['country'] ?? ''); ?>')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/40 to-transparent"></div>
                         
                         <div class="relative z-10 p-8 md:p-10">

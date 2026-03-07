@@ -225,7 +225,11 @@ $allAvatars = getAllAvatars();
         </div>
         
         <div class="flex items-center gap-6">
-            <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm">← Back to Dashboard</a>
+            <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm">Dashboard</a>
+            <a href="updates.php" class="text-orange-500 font-bold text-sm relative">
+                Race Updates
+                <span class="absolute -top-1 -right-2 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
+            </a>
         </div>
     </nav>
 

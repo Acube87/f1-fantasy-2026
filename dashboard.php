@@ -60,22 +60,20 @@ $countdownText = '';
 $progressBarWidth = 100;
 
 if ($nextRace) {
-    $raceDateTime = new DateTime($nextRace['race_date'] . ' ' . ($nextRace['race_time'] ?? '14:00:00'));
+    $deadline = getPredictionDeadline($nextRace['race_date']);
     $now = new DateTime('now', new DateTimeZone('UTC'));
     
-    // Predictions are open if race hasn't started yet
-    if ($now < $raceDateTime) {
+    if ($now < $deadline) {
         $predictionsOpen = true;
         $predictionStatus = 'OPEN';
         $predictionStatusColor = 'text-green-400';
         
         // Calculate time remaining
-        $interval = $now->diff($raceDateTime);
+        $interval = $now->diff($deadline);
         $totalDays = $interval->days;
         $hours = $interval->h;
         $minutes = $interval->i;
         
-        // Format countdown text
         if ($totalDays > 0) {
             $countdownText = $totalDays . ' day' . ($totalDays > 1 ? 's' : '') . ' left';
         } elseif ($hours > 0) {
@@ -84,13 +82,15 @@ if ($nextRace) {
             $countdownText = $minutes . ' min left';
         }
         
-        // Calculate progress bar (assumes 30 days before race = 0%, race day = 100%)
-        $maxDaysBeforeRace = 30;
+        // Progress bar (30 days before deadline = 0%, deadline = 100%)
+        $maxDaysBeforeDeadline = 30;
         $daysRemaining = $totalDays + ($hours / 24);
-        $progressPercentage = max(0, min(100, (($maxDaysBeforeRace - $daysRemaining) / $maxDaysBeforeRace) * 100));
+        $progressPercentage = max(0, min(100, (($maxDaysBeforeDeadline - $daysRemaining) / $maxDaysBeforeDeadline) * 100));
         $progressBarWidth = round($progressPercentage, 2);
     } else {
-        $countdownText = 'Race Started';
+        $predictionStatus = 'CLOSED';
+        $predictionStatusColor = 'text-red-400';
+        $countdownText = 'Predictions Locked';
         $progressBarWidth = 100;
     }
 }
@@ -187,6 +187,10 @@ foreach ($racesData as $race) {
                 <a href="dashboard.php" class="text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 border-b-2 border-orange-500 pb-1">
                     <i class="fas fa-home text-orange-500"></i> Dashboard
                 </a>
+                <a href="updates.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 relative">
+                    <i class="fas fa-broadcast-tower text-orange-400"></i> Race Updates
+                    <span class="absolute -top-1 -right-2 w-2 h-2 bg-orange-500 rounded-full animate-pulse border border-orange-950"></span>
+                </a>
                 <a href="leaderboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
                     <i class="fas fa-trophy text-yellow-500/80"></i> Leaderboard
                 </a>
@@ -244,8 +248,8 @@ foreach ($racesData as $race) {
                 
                 <!-- NEXT RACE CARD (The "Car" Card) -->
                 <div class="g-card p-0 relative group h-[400px] flex flex-col justify-end overflow-hidden">
-                    <!-- Background Image (Dynamic based on country if possible, or generic) -->
-                    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541336528065-8f1fdc435835?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center transition duration-700 group-hover:scale-110"></div>
+                    <!-- Background Image (Dynamic based on country) -->
+                    <div class="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-110" style="background-image: url('<?php echo getRaceHeroImage($nextRace['country'] ?? ''); ?>')"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/70 to-transparent"></div>
                     
                     <div class="relative z-10 p-8">
@@ -285,13 +289,13 @@ foreach ($racesData as $race) {
                             </div>
                             
                             <script>
-                                // LIVE COUNTDOWN TO RACE
-                                const raceDateTime = new Date('<?php echo $nextRace['race_date']; ?>T<?php echo $nextRace['race_time'] ?? '14:00:00'; ?>').getTime();
-                                const maxDaysBeforeRace = 30;
+                                // LIVE COUNTDOWN TO DEADLINE
+                                const deadlineTime = <?php echo $deadline->getTimestamp(); ?> * 1000;
+                                const maxDaysBeforeDeadline = 30;
                                 
                                 function updateLiveCountdown() {
                                     const now = Date.now();
-                                    const timeRemaining = raceDateTime - now;
+                                    const timeRemaining = deadlineTime - now;
                                     
                                     const bar = document.getElementById('race-countdown-bar');
                                     const countdownEl = document.querySelector('.countdown-text');
@@ -300,7 +304,7 @@ foreach ($racesData as $race) {
                                     if (timeRemaining <= 0) {
                                         // Race has started
                                         if (bar) bar.style.width = '100%';
-                                        if (countdownEl) countdownEl.textContent = 'Race Started!';
+                                        if (countdownEl) countdownEl.textContent = 'Predictions Locked';
                                         if (statusEl) {
                                             statusEl.className = 'status-label text-red-400';
                                             statusEl.textContent = 'CLOSED';
@@ -327,8 +331,8 @@ foreach ($racesData as $race) {
                                         }
                                     }
                                     
-                                    // Calculate progress bar (0% at 30 days, 100% at race time)
-                                    const maxTime = maxDaysBeforeRace * 24 * 60 * 60 * 1000;
+                                    // Calculate progress bar (0% at 30 days, 100% at deadline time)
+                                    const maxTime = maxDaysBeforeDeadline * 24 * 60 * 60 * 1000;
                                     const elapsed = maxTime - timeRemaining;
                                     const progress = Math.min(Math.max((elapsed / maxTime) * 100, 0), 100);
                                     
@@ -448,32 +452,7 @@ foreach ($racesData as $race) {
                             </div>
                         <?php else: ?>
                             <?php foreach ($upcomingRaces as $idx => $uRace): 
-                                $flag = match($uRace['country']) {
-                                    'Australia' => '🇦🇺',
-                                    'China' => '🇨🇳',
-                                    'Japan' => '🇯🇵',
-                                    'Bahrain' => '🇧🇭',
-                                    'Saudi Arabia' => '🇸🇦',
-                                    'Miami' => '🇺🇸',
-                                    'Italy' => '🇮🇹',
-                                    'Monaco' => '🇲🇨',
-                                    'Canada' => '🇨🇦',
-                                    'Spain' => '🇪🇸',
-                                    'Austria' => '🇦🇹',
-                                    'UK' => '🇬🇧',
-                                    'Hungary' => '🇭🇺',
-                                    'Belgium' => '🇧🇪',
-                                    'Netherlands' => '🇳🇱',
-                                    'Azerbaijan' => '🇦🇿',
-                                    'Singapore' => '🇸🇬',
-                                    'USA' => '🇺🇸',
-                                    'Mexico' => '🇲🇽',
-                                    'Brazil' => '🇧🇷',
-                                    'Las Vegas' => '🇺🇸',
-                                    'Qatar' => '🇶🇦',
-                                    'Abu Dhabi' => '🇦🇪',
-                                    default => '🏁'
-                                };
+                                $flag = getRaceFlag($uRace['country']);
                             ?>
                             <a href="<?php echo $uRace['unlocked'] ? 'predict.php?race_id=' . $uRace['id'] : '#'; ?>" 
                                class="block g-card p-4 border-l-4 <?php echo $uRace['unlocked'] ? 'border-l-green-500 hover:bg-white/10' : 'border-l-gray-600 opacity-60'; ?> transition group <?php echo !$uRace['unlocked'] ? 'cursor-not-allowed' : ''; ?>">

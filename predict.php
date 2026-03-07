@@ -40,24 +40,8 @@ if (!$race) {
     die("Race not found");
 }
 
-// Calculate Prediction Deadline (Saturday 00:00 before race)
-$raceDate = new DateTime($race['race_date'], new DateTimeZone('UTC'));
-// Get the Saturday before the race (could be same day if race is Sunday)
-$raceDayOfWeek = (int)$raceDate->format('N'); // 1=Monday, 7=Sunday
-if ($raceDayOfWeek == 7) {
-    // Race is on Sunday, deadline is Saturday 00:00 (1 day before)
-    $deadline = clone $raceDate;
-    $deadline->modify('-1 day')->setTime(0, 0, 0);
-} elseif ($raceDayOfWeek == 6) {
-    // Race is on Saturday (Sprint weekend), deadline is Saturday 00:00 (same day)
-    $deadline = clone $raceDate;
-    $deadline->setTime(0, 0, 0);
-} else {
-    // Race on other day, find previous Saturday
-    $daysToSubtract = ($raceDayOfWeek == 0 ? 1 : 8 - $raceDayOfWeek);
-    $deadline = clone $raceDate;
-    $deadline->modify("-{$daysToSubtract} days")->setTime(0, 0, 0);
-}
+// Calculate Prediction Deadline
+$deadline = getPredictionDeadline($race['race_date']);
 
 $now = new DateTime('now', new DateTimeZone('UTC'));
 $isPredictionOpen = $now < $deadline;
@@ -409,8 +393,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             </a>
             
             <div class="hidden md:flex items-center gap-6">
-                <a href="dashboard.php" class="text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 border-b-2 border-orange-500 pb-1">
-                    <i class="fas fa-home text-orange-500"></i> Dashboard
+                <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
+                    <i class="fas fa-home text-orange-500/80"></i> Dashboard
+                </a>
+                <a href="updates.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 relative">
+                    <i class="fas fa-broadcast-tower text-orange-400"></i> Race Updates
+                    <span class="absolute -top-1 -right-2 w-2 h-2 bg-orange-500 rounded-full animate-pulse border border-orange-950"></span>
                 </a>
                 <a href="leaderboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
                     <i class="fas fa-trophy text-yellow-500/80"></i> Leaderboard
@@ -445,7 +433,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             <!-- Race Info & Actions -->
             <div class="flex justify-between items-center bg-slate-900/50 p-4 rounded-xl border border-white/5 backdrop-blur-md sticky top-20 z-40 shadow-xl">
                 <div class="flex items-center gap-4">
-                    <div class="text-3xl">🇦🇺</div>
+                    <div class="text-3xl"><?php echo getRaceFlag($race['country'] ?? ''); ?></div>
                     <div>
                         <h1 class="text-xl font-bold text-white uppercase tracking-wider"><?php echo htmlspecialchars($race['country']); ?></h1>
                         <div class="text-xs text-gray-400"><?php echo htmlspecialchars($race['circuit_name']); ?></div>

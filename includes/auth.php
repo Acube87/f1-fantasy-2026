@@ -24,6 +24,22 @@ function getCurrentUser() {
     }
     
     $db = getDB();
+    
+    // AUTO-MIGRATE: Ensure avatar_style exists before selecting it
+    // This protects the live app from crashing if the migration hasn't run yet
+    static $avatarStyleChecked = false;
+    if (!$avatarStyleChecked) {
+        try {
+            $check = $db->query("SHOW COLUMNS FROM users LIKE 'avatar_style'");
+            if ($check->num_rows == 0) {
+                $db->query("ALTER TABLE users ADD COLUMN avatar_style VARCHAR(50) DEFAULT 'avataaars' AFTER email");
+            }
+            $avatarStyleChecked = true;
+        } catch (Exception $e) {
+            // Silently continue, the query below might still fail if ALTER failed
+        }
+    }
+
     $stmt = $db->prepare("SELECT id, username, email, full_name, avatar_style FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -46,24 +62,37 @@ function requireLogin() {
  */
 function loginUser($username, $password) {
     $db = getDB();
-    // Adjusted column name from password_hash to password to match database setup
-    // Removed is_active check as it's not in the setup script
-    $stmt = $db->prepare("SELECT id, username, email, password, full_name FROM users WHERE (username = ? OR email = ?)");
+    
+    // Check which password column name exists (for live sync)
+    $passCol = 'password_hash';
+    $check = $db->query("SHOW COLUMNS FROM users LIKE 'password'");
+    if ($check && $check->num_rows > 0) {
+        $passCol = 'password';
+        // Attempt to RENAME to password_hash for future consistency (auto-migration)
+        @$db->query("ALTER TABLE users CHANGE COLUMN password password_hash VARCHAR(255) NOT NULL");
+        // If rename succeeded, use the new name
+        $checkAgain = $db->query("SHOW COLUMNS FROM users LIKE 'password_hash'");
+        if ($checkAgain && $checkAgain->num_rows > 0) $passCol = 'password_hash';
+    }
+
+    $stmt = $db->prepare("SELECT id, username, email, $passCol, full_name FROM users WHERE (username = ? OR email = ?)");
     $stmt->bind_param("ss", $username, $username);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
     
-    if ($user && password_verify($password, $user['password'])) {
-        // Regenerate session ID to prevent session fixation
-        session_regenerate_id(true);
+    if ($user) {
+        // Use the dynamic column name for verification
+        $storedHash = $user[$passCol];
         
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        
-        // Removed last_login update as the column doesn't exist in setup script
-        
-        return true;
+        if (password_verify($password, $storedHash)) {
+            // Regenerate session ID to prevent session fixation
+            session_regenerate_id(true);
+            
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            return true;
+        }
     }
     
     return false;
@@ -88,14 +117,14 @@ function registerUser($username, $email, $password, $fullName = '') {
     // Create user
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
     
-    // Adjusted column name from password_hash to password
-    $stmt = $db->prepare("INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?)");
+    $stmt = $db->prepare("INSERT INTO users (username, email, password_hash, full_name) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("ssss", $username, $email, $passwordHash, $fullName);
     
     if ($stmt->execute()) {
         $userId = $db->insert_id;
         
-        // Removed user_totals insert as table doesn't exist in setup script
+        // Ensure user_totals entry exists for the new user
+        $db->query("INSERT IGNORE INTO user_totals (user_id, total_points, races_participated) VALUES ($userId, 0, 0)");
         
         return ['success' => true, 'user_id' => $userId];
     }

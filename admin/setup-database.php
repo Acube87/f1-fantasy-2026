@@ -165,6 +165,23 @@ $sql = "CREATE TABLE IF NOT EXISTS scores (
 if ($db->query($sql) === TRUE) echo "<p>✅ Table 'scores' ready.</p>";
 else echo "<p style='color:red'>❌ Error 'scores': " . $db->error . "</p>";
 
+// 10. Users Table Migration Helpers
+// Check if avatar_style exists
+$checkAvatar = $db->query("SHOW COLUMNS FROM users LIKE 'avatar_style'");
+if ($checkAvatar && $checkAvatar->num_rows == 0) {
+    $db->query("ALTER TABLE users ADD COLUMN avatar_style VARCHAR(50) DEFAULT 'avataaars' AFTER email");
+    echo "<p>🔄 Added 'avatar_style' to 'users' table.</p>";
+}
+
+// Check if password needs to be renamed to password_hash
+$checkPass = $db->query("SHOW COLUMNS FROM users LIKE 'password'");
+$checkPassHash = $db->query("SHOW COLUMNS FROM users LIKE 'password_hash'");
+
+if ($checkPass && $checkPass->num_rows > 0 && ($checkPassHash && $checkPassHash->num_rows == 0)) {
+    $db->query("ALTER TABLE users CHANGE COLUMN password password_hash VARCHAR(255) NOT NULL");
+    echo "<p>🔄 Renamed 'password' to 'password_hash' in 'users' table for consistency.</p>";
+}
+
 // 10. Update table columns if they exist but need changes (Migration helpers)
 // Check if races needs f1_race_id
 $checkCol = $db->query("SHOW COLUMNS FROM races LIKE 'f1_race_id'");

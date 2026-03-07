@@ -350,3 +350,94 @@ function getUserStats($userId) {
         'rank' => $rank
     ];
 }
+
+/**
+ * Get dynamic hero image based on country
+ */
+function getRaceHeroImage($country) {
+    $images = [
+        'Australia' => 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2070&auto=format&fit=crop',
+        'China' => 'https://images.unsplash.com/photo-1548690312-e3b507d17a4d?q=80&w=2070&auto=format&fit=crop',
+        'Japan' => 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop',
+        'Bahrain' => 'https://images.unsplash.com/photo-1517404215738-15263e9f9178?q=80&w=2070&auto=format&fit=crop',
+        'Saudi Arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
+        'Miami' => 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop',
+        'Monaco' => 'https://images.unsplash.com/photo-1555436169-20e93ea9a7ff?q=80&w=2070&auto=format&fit=crop',
+        'Canada' => 'https://images.unsplash.com/photo-1503416997304-7f8bf166c121?q=80&w=2070&auto=format&fit=crop',
+        'Spain' => 'https://images.unsplash.com/photo-1543783232-26037dd78bfc?q=80&w=2070&auto=format&fit=crop',
+        'Austria' => 'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?q=80&w=2070&auto=format&fit=crop',
+        'UK' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
+        'Hungary' => 'https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=2070&auto=format&fit=crop',
+        'Belgium' => 'https://images.unsplash.com/photo-1563821735430-664440af4592?q=80&w=2070&auto=format&fit=crop',
+        'Netherlands' => 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?q=80&w=2070&auto=format&fit=crop',
+        'Italy' => 'https://images.unsplash.com/photo-1529260830199-42c24126f198?q=80&w=2070&auto=format&fit=crop',
+        'Azerbaijan' => 'https://images.unsplash.com/photo-1549420070-5b1b4b2cb82b?q=80&w=2070&auto=format&fit=crop',
+        'Singapore' => 'https://images.unsplash.com/photo-1525625230556-3a56cc544253?q=80&w=2070&auto=format&fit=crop',
+        'USA' => 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?q=80&w=2070&auto=format&fit=crop',
+        'Mexico' => 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?q=80&w=2070&auto=format&fit=crop',
+        'Brazil' => 'https://images.unsplash.com/photo-1483728642387-aa95229753c4?q=80&w=2070&auto=format&fit=crop',
+        'Las Vegas' => 'https://images.unsplash.com/photo-1581351123004-757df051db8e?q=80&w=2070&auto=format&fit=crop',
+        'Qatar' => 'https://images.unsplash.com/photo-1511222409051-bd12c6686146?q=80&w=2070&auto=format&fit=crop',
+        'Abu Dhabi' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=2070&auto=format&fit=crop'
+    ];
+    
+    return $images[$country] ?? 'https://images.unsplash.com/photo-1541336528065-8f1fdc435835?q=80&w=2070&auto=format&fit=crop';
+}
+
+/**
+ * Get country flag emoji
+ */
+function getRaceFlag($country) {
+    $flags = [
+        'Australia' => '🇦🇺',
+        'China' => '🇨🇳',
+        'Japan' => '🇯🇵',
+        'Bahrain' => '🇧🇭',
+        'Saudi Arabia' => '🇸🇦',
+        'Miami' => '🇺🇸',
+        'Italy' => '🇮🇹',
+        'Monaco' => '🇲🇨',
+        'Canada' => '🇨🇦',
+        'Spain' => '🇪🇸',
+        'Austria' => '🇦🇹',
+        'UK' => '🇬🇧',
+        'Hungary' => '🇭🇺',
+        'Belgium' => '🇧🇪',
+        'Netherlands' => '🇳🇱',
+        'Azerbaijan' => '🇦🇿',
+        'Singapore' => '🇸🇬',
+        'USA' => '🇺🇸',
+        'Mexico' => '🇲🇽',
+        'Brazil' => '🇧🇷',
+        'Las Vegas' => '🇺🇸',
+        'Qatar' => '🇶🇦',
+        'Abu Dhabi' => '🇦🇪'
+    ];
+    return $flags[$country] ?? '🏁';
+}
+
+/**
+ * Calculate the prediction deadline for a race.
+ * Standard: Saturday 00:00:00 UTC before the race.
+ */
+function getPredictionDeadline($raceDateStr) {
+    $raceDate = new DateTime($raceDateStr, new DateTimeZone('UTC'));
+    $dayOfWeek = (int)$raceDate->format('N'); // 1=Monday, 7=Sunday
+    
+    $deadline = clone $raceDate;
+    
+    if ($dayOfWeek == 7) {
+        // Race is on Sunday, deadline is Saturday 00:00 (1 day before)
+        $deadline->modify('-1 day')->setTime(0, 0, 0);
+    } elseif ($dayOfWeek == 6) {
+        // Race is on Saturday (Sprint weekend), deadline is Saturday 00:00 (same day)
+        $deadline->setTime(0, 0, 0);
+    } else {
+        // Race on other day, find previous Saturday
+        $daysToSubtract = ($dayOfWeek == 0 ? 1 : 8 - $dayOfWeek);
+        $deadline->modify("-{$daysToSubtract} days")->setTime(0, 0, 0);
+    }
+    
+    return $deadline;
+}
+

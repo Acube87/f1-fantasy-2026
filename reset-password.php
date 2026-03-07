@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $validToken) {
         } else {
             // Update password
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $db->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $stmt = $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
             $stmt->bind_param("si", $passwordHash, $resetData['user_id']);
             
             if ($stmt->execute()) {

@@ -11,7 +11,7 @@ function get_env_var($key, $default = null) {
 }
 
 // Prefer TCP proxy domain for Railway external connections
-define('DB_HOST', get_env_var('RAILWAY_TCP_PROXY_DOMAIN') ?: get_env_var('MYSQLHOST') ?: get_env_var('DB_HOST') ?: 'localhost');
+define('DB_HOST', get_env_var('RAILWAY_TCP_PROXY_DOMAIN') ?: get_env_var('MYSQLHOST') ?: get_env_var('DB_HOST') ?: '127.0.0.1');
 define('DB_USER', get_env_var('MYSQLUSER') ?: get_env_var('DB_USER') ?: 'root');
 define('DB_PASS', get_env_var('MYSQL_ROOT_PASSWORD') ?: get_env_var('MYSQLPASSWORD') ?: get_env_var('DB_PASS') ?: '');
 define('DB_NAME', get_env_var('MYSQL_DATABASE') ?: get_env_var('MYSQLDATABASE') ?: get_env_var('DB_NAME') ?: 'f1_fantasy');

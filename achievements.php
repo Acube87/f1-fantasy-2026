@@ -86,6 +86,10 @@ $pageTitle = "Achievements";
                 <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
                     <i class="fas fa-home text-orange-500/80"></i> Dashboard
                 </a>
+                <a href="updates.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 relative">
+                    <i class="fas fa-broadcast-tower text-orange-400"></i> Race Updates
+                    <span class="absolute -top-1 -right-2 w-2 h-2 bg-orange-500 rounded-full animate-pulse border border-orange-950"></span>
+                </a>
                 <a href="leaderboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
                     <i class="fas fa-trophy text-yellow-500/80"></i> Leaderboard
                 </a>
