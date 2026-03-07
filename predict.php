@@ -45,6 +45,7 @@ $deadline = getPredictionDeadline($race['race_date']);
 
 $now = new DateTime('now', new DateTimeZone('UTC'));
 $isPredictionOpen = $now < $deadline;
+$raceDate = new DateTime($race['race_date'], new DateTimeZone('UTC'));
 $deadlineTimestamp = $deadline->getTimestamp();
 $nowTimestamp = $now->getTimestamp();
 $raceDateTimestamp = $raceDate->getTimestamp();
