@@ -124,6 +124,31 @@ $nextRace = getNextRace();
                                 
                                 <!-- Locked Interaction -->
                                 <div class="bg-black/60 backdrop-blur-md p-6 rounded-2xl border border-white/10">
+                                    <?php
+                                    $isLocked = false;
+                                    $statusText = 'OPEN';
+                                    $statusColor = 'text-green-400';
+                                    $progressPercent = 0;
+                                    
+                                    if ($nextRace) {
+                                        $deadline = getPredictionDeadline($nextRace['race_date']);
+                                        $now = new DateTime('now', new DateTimeZone('UTC'));
+                                        
+                                        if ($now >= $deadline) {
+                                            $isLocked = true;
+                                            $statusText = 'CLOSED';
+                                            $statusColor = 'text-red-400';
+                                            $progressPercent = 100;
+                                        } else {
+                                            $interval = $now->diff($deadline);
+                                            $totalDays = $interval->days;
+                                            $hours = $interval->h;
+                                            $maxDays = 30;
+                                            $daysRem = $totalDays + ($hours / 24);
+                                            $progressPercent = max(0, min(100, (($maxDays - $daysRem) / $maxDays) * 100));
+                                        }
+                                    }
+                                    ?>
                                     <div class="flex justify-between items-center mb-4">
                                         <div>
                                             <div class="text-gray-400 text-xs font-bold uppercase mb-1">Your Prediction</div>
@@ -133,14 +158,14 @@ $nextRace = getNextRace();
                                         </div>
                                         <div class="text-right">
                                             <div class="text-gray-400 text-xs font-bold uppercase mb-1">Status</div>
-                                            <div class="text-green-400 font-bold uppercase">OPEN</div>
+                                            <div class="<?php echo $statusColor; ?> font-bold uppercase"><?php echo $statusText; ?></div>
                                         </div>
                                     </div>
                                     
                                     <!-- Progress Bar -->
                                     <div class="mb-4">
                                         <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                                            <div id="race-countdown-bar-landing" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: 0%"></div>
+                                            <div id="race-countdown-bar-landing" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: <?php echo $progressPercent; ?>%"></div>
                                         </div>
                                     </div>
                                     

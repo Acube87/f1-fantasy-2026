@@ -185,18 +185,31 @@ if ($nextRace) {
                         <i class="fas fa-id-card text-blue-500"></i> Engineer Roll Call
                     </h3>
                     <div class="space-y-4 mb-6">
+                        <?php 
+                        // Featured Engineers with custom comments
+                        $featuredCount = 0;
+                        foreach ($randomEngineers as $eng): 
+                            if ($featuredCount >= 2) break; // Highlight top 2
+                            $featuredCount++;
+                            
+                            $un = strtoupper($eng['username']);
+                            $comment = "A pioneer of the 2026 era. We're watching your telemetry closely.";
+                            
+                            if (str_contains($un, 'ANGRY')) $comment = "Presumably how you feel after seeing Verstappen’s Q1 lap. Deep breaths, Engineer.";
+                            if (str_contains($un, 'TEST')) $comment = "We see you. We hope your predictions are better than your naming creativity!";
+                            if (str_contains($un, 'CUBE')) $comment = "Applying geometric precision to the Albert Park racing line.";
+                            if (str_contains($un, 'ROSSI') || str_contains($un, 'DOCTOR')) $comment = "Switching from two wheels to four for the 2026 regulations?";
+                        ?>
                         <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <div class="text-blue-400 font-black italic text-xs mb-1">@ANGRYCUBE</div>
-                            <div class="text-[10px] text-gray-500 font-bold leading-tight">Presumably how you feel after seeing Verstappen’s Q1 lap.</div>
+                            <div class="text-blue-400 font-black italic text-xs mb-1">@<?php echo $un; ?></div>
+                            <div class="text-[10px] text-gray-500 font-bold leading-tight"><?php echo $comment; ?></div>
                         </div>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <div class="text-blue-400 font-black italic text-xs mb-1">@TESTUSER</div>
-                            <div class="text-[10px] text-gray-500 font-bold leading-tight">We see you. We hope your predictions are better than your naming creativity.</div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                     <div class="flex flex-wrap gap-2 pt-4 border-t border-white/5">
+                        <div class="text-[9px] text-gray-600 font-black uppercase mb-2 w-full">Also Spotted in the Paddock:</div>
                         <?php foreach ($randomEngineers as $eng): ?>
-                            <span class="text-[10px] text-gray-600 font-bold italic">@<?php echo htmlspecialchars($eng['username']); ?></span>
+                            <span class="text-[10px] text-gray-500 font-bold italic">@<?php echo htmlspecialchars($eng['username']); ?></span>
                         <?php endforeach; ?>
                     </div>
                 </div>
