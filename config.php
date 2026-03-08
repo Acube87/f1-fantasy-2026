@@ -27,7 +27,7 @@ define('SESSION_NAME', 'f1_fantasy_session');
 
 // MAINTENANCE MODE — set to true to show maintenance page to all users
 // Set back to false once results are confirmed and leaderboard is live
-define('MAINTENANCE_MODE', true);
+define('MAINTENANCE_MODE', false);
 
 // Scoring configuration (F1-based system)
 define('POINTS_PRECISION_BONUS', 3);      // +3 pts for exact position match
