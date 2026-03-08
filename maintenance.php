@@ -213,6 +213,11 @@
                 <div class="lbl">Next: China</div>
             </div>
         </div>
+
+        <!-- Hidden admin login link -->
+        <a href="login.php" class="absolute bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-600 hover:text-orange-500 uppercase tracking-widest font-bold z-50 transition">
+            Admin Access
+        </a>
     </div>
 </body>
 </html>
