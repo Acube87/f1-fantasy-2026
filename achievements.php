@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
 require_once 'includes/auth.php';
 require_once 'includes/avatars.php';
 // We will include achievements.php once it exists, but for now let's handle the case where it doesn't
@@ -43,7 +44,8 @@ $pageTitle = "Achievements";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $pageTitle; ?> - <?php echo SITE_NAME; ?></title>
+    <title><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $pageTitle; ?> - <?php echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -103,10 +105,12 @@ $pageTitle = "Achievements";
             <div class="flex items-center gap-3 pl-6 border-l border-white/10">
                 <div class="text-right hidden sm:block">
                     <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Driver</div>
-                    <div class="text-sm font-bold text-white leading-none"><?php echo htmlspecialchars($user['username']); ?></div>
+                    <div class="text-sm font-bold text-white leading-none"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($user['username']); ?></div>
                 </div>
                 <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition cursor-pointer relative group shadow-lg shadow-black/50">
-                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <img src="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                 </a>
             </div>
             <a href="logout.php" class="text-gray-400 hover:text-white transition hover:rotate-90 duration-300" title="Sign Out">
@@ -129,26 +133,31 @@ $pageTitle = "Achievements";
         <!-- Stats Overview -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             <div class="g-card p-6 text-center">
-                <div class="text-4xl font-black text-green-400 mb-2"><?php echo $stats['unlocked']; ?></div>
+                <div class="text-4xl font-black text-green-400 mb-2"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $stats['unlocked']; ?></div>
                 <div class="text-xs text-gray-400 uppercase font-bold">Unlocked</div>
             </div>
             <div class="g-card p-6 text-center">
-                <div class="text-4xl font-black text-blue-400 mb-2"><?php echo $stats['total']; ?></div>
+                <div class="text-4xl font-black text-blue-400 mb-2"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $stats['total']; ?></div>
                 <div class="text-xs text-gray-400 uppercase font-bold">Total</div>
             </div>
             <div class="g-card p-6 text-center">
-                <div class="text-4xl font-black text-purple-400 mb-2"><?php echo $stats['completion']; ?>%</div>
+                <div class="text-4xl font-black text-purple-400 mb-2"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $stats['completion']; ?>%</div>
                 <div class="text-xs text-gray-400 uppercase font-bold">Completion</div>
             </div>
             <div class="g-card p-6 text-center">
                 <div class="text-4xl font-black text-orange-400 mb-2">
-                    <?php echo isset($stats['displayed']) && is_array($stats['displayed']) ? count($stats['displayed']) : 0; ?>
+                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo isset($stats['displayed']) && is_array($stats['displayed']) ? count($stats['displayed']) : 0; ?>
                 </div>
                 <div class="text-xs text-gray-400 uppercase font-bold">Displayed</div>
             </div>
         </div>
 
         <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
         // Define all achievements with tier colors - CLEANED & REVISED LIST
         $achievements = [
             'common' => [
@@ -234,17 +243,22 @@ $pageTitle = "Achievements";
         <div class="mb-12">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-black text-white uppercase flex items-center gap-3">
-                    <span class="text-3xl"><?php echo $tierData['icon']; ?></span>
-                    <?php echo $tierData['label']; ?> Achievements
+                    <span class="text-3xl"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $tierData['icon']; ?></span>
+                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $tierData['label']; ?> Achievements
                 </h2>
-                <span class="inline-flex items-center rounded-md bg-<?php echo $color; ?>-400/10 px-3 py-1.5 text-sm font-bold text-<?php echo $color; ?>-400 ring-1 ring-inset ring-<?php echo $color; ?>-400/20">
-                    <?php echo $tierUnlockedCount; ?> / <?php echo $tierTotal; ?>
+                <span class="inline-flex items-center rounded-md bg-<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $color; ?>-400/10 px-3 py-1.5 text-sm font-bold text-<?php echo $color; ?>-400 ring-1 ring-inset ring-<?php echo $color; ?>-400/20">
+                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $tierUnlockedCount; ?> / <?php echo $tierTotal; ?>
                 </span>
             </div>
             
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <?php 
+                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; 
                 $displayedIds = isset($stats['displayed']) && is_array($stats['displayed']) ? array_column($stats['displayed'], 'id') : [];
                 
                 foreach ($tierData['items'] as $achievement): 
@@ -252,52 +266,74 @@ $pageTitle = "Achievements";
                     $cardClass = $isLocked ? 'achievement-card achievement-locked' : 'achievement-card';
                     $isDisplayed = in_array($achievement['id'], $displayedIds);
                 ?>
-                <div class="g-card p-6 <?php echo $cardClass; ?> border-l-4 border-l-<?php echo $color; ?>-500 relative">
+                <div class="g-card p-6 <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $cardClass; ?> border-l-4 border-l-<?php echo $color; ?>-500 relative">
                     <div class="flex items-start justify-between mb-4">
-                        <div class="w-14 h-14 rounded-xl bg-<?php echo $color; ?>-500/20 flex items-center justify-center text-<?php echo $color; ?>-400 text-2xl">
-                            <i class="fas <?php echo $achievement['icon']; ?>"></i>
+                        <div class="w-14 h-14 rounded-xl bg-<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $color; ?>-500/20 flex items-center justify-center text-<?php echo $color; ?>-400 text-2xl">
+                            <i class="fas <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $achievement['icon']; ?>"></i>
                         </div>
-                        <?php if ($isLocked): ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($isLocked): ?>
                             <i class="fas fa-lock text-gray-600 text-xl"></i>
-                        <?php elseif ($isDisplayed): ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; elseif ($isDisplayed): ?>
                             <span class="bg-blue-500 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-full">Active</span>
-                        <?php else: ?>
-                            <i class="fas fa-check-circle text-<?php echo $color; ?>-400 text-xl"></i>
-                        <?php endif; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
+                            <i class="fas fa-check-circle text-<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $color; ?>-400 text-xl"></i>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                     </div>
                     
-                    <h3 class="text-lg font-bold text-white mb-2"><?php echo htmlspecialchars($achievement['name']); ?></h3>
-                    <p class="text-sm text-gray-400 mb-4"><?php echo htmlspecialchars($achievement['desc']); ?></p>
+                    <h3 class="text-lg font-bold text-white mb-2"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($achievement['name']); ?></h3>
+                    <p class="text-sm text-gray-400 mb-4"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($achievement['desc']); ?></p>
                     
                     <div class="pt-4 border-t border-white/10">
                         <div class="flex items-center justify-between text-xs">
                             <span class="text-gray-500 font-bold uppercase">How to Unlock</span>
-                            <span class="inline-flex items-center rounded-md bg-<?php echo $color; ?>-400/10 px-2 py-1 text-xs font-medium text-<?php echo $color; ?>-400 ring-1 ring-inset ring-<?php echo $color; ?>-400/20">
-                                <?php echo $tierData['label']; ?>
+                            <span class="inline-flex items-center rounded-md bg-<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $color; ?>-400/10 px-2 py-1 text-xs font-medium text-<?php echo $color; ?>-400 ring-1 ring-inset ring-<?php echo $color; ?>-400/20">
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $tierData['label']; ?>
                             </span>
                         </div>
-                        <p class="text-xs text-gray-400 mt-2"><?php echo htmlspecialchars($achievement['unlock']); ?></p>
+                        <p class="text-xs text-gray-400 mt-2"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($achievement['unlock']); ?></p>
                     </div>
                     
-                    <?php if (!$isLocked): ?>
+                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if (!$isLocked): ?>
                     <div class="mt-4">
-                        <?php if ($isDisplayed): ?>
-                            <button onclick="toggleDisplayBadge('<?php echo $achievement['id']; ?>', 'hide')" class="w-full g-btn bg-red-600/20 text-red-400 border border-red-500/50 py-2 text-xs hover:bg-red-600/30 transition">
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($isDisplayed): ?>
+                            <button onclick="toggleDisplayBadge('<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $achievement['id']; ?>', 'hide')" class="w-full g-btn bg-red-600/20 text-red-400 border border-red-500/50 py-2 text-xs hover:bg-red-600/30 transition">
                                 <i class="fas fa-eye-slash mr-1"></i> Hide Badge
                             </button>
-                        <?php else: ?>
-                            <button onclick="toggleDisplayBadge('<?php echo $achievement['id']; ?>', 'show')" class="w-full g-btn g-btn-blue py-2 text-xs hover:scale-105 transition">
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
+                            <button onclick="toggleDisplayBadge('<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $achievement['id']; ?>', 'show')" class="w-full g-btn g-btn-blue py-2 text-xs hover:scale-105 transition">
                                 <i class="fas fa-eye mr-1"></i> Show on Profile
                             </button>
-                        <?php endif; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                     </div>
-                    <?php endif; ?>
+                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                 </div>
-                <?php endforeach; ?>
+                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
             </div>
         </div>
         
-        <?php endforeach; ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
 
         <!-- Info Card -->
         <div class="g-card p-8 bg-blue-500/10 border border-blue-500/30">
@@ -317,7 +353,8 @@ $pageTitle = "Achievements";
 
     <!-- Footer -->
     <footer class="mt-12 border-t border-white/10 py-6 text-center">
-        <p class="text-gray-500 text-sm mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+        <p class="text-gray-500 text-sm mb-2">&copy; <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
         <p class="text-gray-600 text-xs mb-3">
             Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-orange-400 font-semibold transition">Scanerrific</a>
         </p>

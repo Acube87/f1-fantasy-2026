@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 require_once 'includes/avatars.php';
@@ -165,7 +166,8 @@ foreach ($racesData as $race) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - <?php echo SITE_NAME; ?></title>
+    <title>Dashboard - <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -207,10 +209,12 @@ foreach ($racesData as $race) {
             <div class="flex items-center gap-3 pl-6 border-l border-white/10">
                 <div class="text-right hidden sm:block">
                     <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Driver</div>
-                    <div class="text-sm font-bold text-white leading-none"><?php echo htmlspecialchars($user['username']); ?></div>
+                    <div class="text-sm font-bold text-white leading-none"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($user['username']); ?></div>
                 </div>
                 <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition cursor-pointer relative group shadow-lg shadow-black/50">
-                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <img src="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                 </a>
             </div>
             <a href="logout.php" class="text-gray-400 hover:text-white transition hover:rotate-90 duration-300" title="Sign Out">
@@ -229,19 +233,24 @@ foreach ($racesData as $race) {
                     Ready to <span class="g-text-gradient">Race?</span>
                 </h1>
                 <div class="flex items-center gap-4 text-gray-400">
-                    <p>Round <?php echo $nextRace ? $nextRace['race_number'] : '-'; ?> is approaching fast.</p>
+                    <p>Round <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $nextRace ? $nextRace['race_number'] : '-'; ?> is approaching fast.</p>
                     <span class="hidden md:inline text-gray-600">|</span>
                     <div class="hidden md:flex items-center gap-2 text-blue-400 font-bold bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-                        <i class="fas fa-trophy text-xs"></i> <?php echo number_format($totalPoints); ?> Points
+                        <i class="fas fa-trophy text-xs"></i> <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($totalPoints); ?> Points
                     </div>
                 </div>
             </div>
             
-            <?php if ($nextRace): ?>
-            <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-orange px-8 py-4 text-lg flex items-center gap-3 animate-pulse">
+            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($nextRace): ?>
+            <a href="predict.php?race_id=<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $nextRace['id']; ?>" class="g-btn g-btn-orange px-8 py-4 text-lg flex items-center gap-3 animate-pulse">
                 <i class="fas fa-gamepad"></i> Make Prediction
             </a>
-            <?php endif; ?>
+            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -252,40 +261,49 @@ foreach ($racesData as $race) {
                 <!-- NEXT RACE CARD (The "Car" Card) -->
                 <div class="g-card p-0 relative group h-[400px] flex flex-col justify-end overflow-hidden">
                     <!-- Background Image (Dynamic based on country) -->
-                    <div class="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-110" style="background-image: url('<?php echo getRaceHeroImage($nextRace['country'] ?? ''); ?>')"></div>
+                    <div class="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-110" style="background-image: url('<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getRaceHeroImage($nextRace['country'] ?? ''); ?>')"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/70 to-transparent"></div>
                     
                     <div class="relative z-10 p-8">
-                        <?php if ($nextRace): ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($nextRace): ?>
                             <div class="flex items-center gap-3 mb-3">
                                 <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                     Next Event
                                 </span>
                                 <span class="text-orange-400 font-mono font-bold">
-                                    <i class="far fa-clock"></i> <?php echo date('M d', strtotime($nextRace['race_date'])); ?>
+                                    <i class="far fa-clock"></i> <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('M d', strtotime($nextRace['race_date'])); ?>
                                 </span>
                             </div>
                             <h2 class="text-4xl md:text-5xl font-black text-white mb-2 uppercase">
-                                <?php echo htmlspecialchars($nextRace['country']); ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($nextRace['country']); ?>
                             </h2>
                             <p class="text-lg text-gray-300 mb-6 font-medium">
-                                <?php echo htmlspecialchars($nextRace['circuit_name']); ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($nextRace['circuit_name']); ?>
                             </p>
                             
                             <!-- Progress/Bet Bar Style -->
                             <div class="deadline-container max-w-lg">
                                 <div class="flex justify-between text-xs mb-3 font-bold text-gray-400 uppercase tracking-widest">
                                     <span>Prediction Status</span>
-                                    <span class="status-label <?php echo $predictionStatusColor; ?>"><?php echo $predictionStatus; ?></span>
+                                    <span class="status-label <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $predictionStatusColor; ?>"><?php echo $predictionStatus; ?></span>
                                 </div>
                                 <div class="progress-bar-bg mb-2">
-                                    <div id="race-countdown-bar" class="progress-bar-fill" style="width: <?php echo $progressBarWidth; ?>%"></div>
+                                    <div id="race-countdown-bar" class="progress-bar-fill" style="width: <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $progressBarWidth; ?>%"></div>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <div class="countdown-text text-[10px] text-gray-500 font-mono font-bold uppercase tracking-widest">
-                                        <?php echo $countdownText; ?>
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $countdownText; ?>
                                     </div>
-                                    <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="text-[10px] font-black text-blue-400 hover:text-white transition uppercase tracking-tighter flex items-center gap-1">
+                                    <a href="predict.php?race_id=<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $nextRace['id']; ?>" class="text-[10px] font-black text-blue-400 hover:text-white transition uppercase tracking-tighter flex items-center gap-1">
                                         Enter Event <i class="fas fa-arrow-right"></i>
                                     </a>
                                 </div>
@@ -293,7 +311,8 @@ foreach ($racesData as $race) {
                             
                             <script>
                                 // LIVE COUNTDOWN TO DEADLINE
-                                const deadlineTime = <?php echo $deadline->getTimestamp(); ?> * 1000;
+                                const deadlineTime = <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $deadline->getTimestamp(); ?> * 1000;
                                 const maxDaysBeforeDeadline = 30;
                                 
                                 function updateLiveCountdown() {
@@ -358,9 +377,11 @@ foreach ($racesData as $race) {
                                 // Update every second for LIVE countdown
                                 setInterval(updateLiveCountdown, 1000);
                             </script>
-                        <?php else: ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
                             <h2 class="text-3xl font-bold text-white">Season Completed</h2>
-                        <?php endif; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                     </div>
                 </div>
 
@@ -372,7 +393,8 @@ foreach ($racesData as $race) {
                             <i class="fas fa-crown"></i>
                         </div>
                         <div class="text-3xl font-black text-white italic">
-                            #<?php echo $rank; ?>
+                            #<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $rank; ?>
                         </div>
                         <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Global Rank</div>
                     </div>
@@ -383,7 +405,8 @@ foreach ($racesData as $race) {
                             <i class="fas fa-coins"></i>
                         </div>
                         <div class="text-3xl font-black text-white italic">
-                            <?php echo $totalPoints; ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $totalPoints; ?>
                         </div>
                         <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Total Points</div>
                     </div>
@@ -402,7 +425,8 @@ foreach ($racesData as $race) {
                         <div class="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center text-xl mb-3">
                             <i class="fas fa-bullseye"></i>
                         </div>
-                        <div class="text-3xl font-black text-white italic"><?php echo number_format($accuracy, 1); ?>%</div>
+                        <div class="text-3xl font-black text-white italic"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($accuracy, 1); ?>%</div>
                         <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Accuracy</div>
                     </div>
                 </div>
@@ -413,30 +437,39 @@ foreach ($racesData as $race) {
                         <i class="fas fa-history text-gray-500"></i> Recent Results
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <?php if (empty($recentResults)): ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if (empty($recentResults)): ?>
                             <div class="col-span-3 text-center py-8 text-gray-500 g-card">
                                 No race history yet. Start predicting!
                             </div>
-                        <?php else: ?>
-                            <?php foreach ($recentResults as $res): ?>
-                            <a href="race-results.php?race_id=<?php echo $res['race_id']; ?>" class="g-card p-4 flex items-center justify-between hover:bg-white/10 transition cursor-pointer group">
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; foreach ($recentResults as $res): ?>
+                            <a href="race-results.php?race_id=<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $res['race_id']; ?>" class="g-card p-4 flex items-center justify-between hover:bg-white/10 transition cursor-pointer group">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-orange-400 group-hover:bg-orange-500/20 transition">
                                         <i class="fas fa-flag"></i>
                                     </div>
                                     <div>
-                                        <div class="text-sm font-bold text-white group-hover:text-orange-400 transition"><?php echo htmlspecialchars($res['country']); ?></div>
-                                        <div class="text-[10px] text-gray-500"><?php echo date('M d', strtotime($res['race_date'])); ?></div>
+                                        <div class="text-sm font-bold text-white group-hover:text-orange-400 transition"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($res['country']); ?></div>
+                                        <div class="text-[10px] text-gray-500"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('M d', strtotime($res['race_date'])); ?></div>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="text-lg font-bold text-green-400">+<?php echo $res['total_points']; ?></div>
+                                    <div class="text-lg font-bold text-green-400">+<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $res['total_points']; ?></div>
                                     <div class="text-[10px] text-gray-500 font-bold uppercase">Points</div>
                                     <div class="text-[9px] text-blue-400 opacity-0 group-hover:opacity-100 transition">View Details →</div>
                                 </div>
                             </a>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                     </div>
                 </div>
 
@@ -449,31 +482,42 @@ foreach ($racesData as $race) {
                     </div>
 
                     <div class="space-y-2">
-                        <?php if (empty($upcomingRaces)): ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if (empty($upcomingRaces)): ?>
                             <div class="text-center py-8 text-gray-500">
                                 No upcoming races scheduled
                             </div>
-                        <?php else: ?>
-                            <?php foreach ($upcomingRaces as $idx => $uRace): 
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; foreach ($upcomingRaces as $idx => $uRace): 
                                 $flag = getRaceFlag($uRace['country']);
                             ?>
-                            <a href="<?php echo $uRace['unlocked'] ? 'predict.php?race_id=' . $uRace['id'] : '#'; ?>" 
-                               class="block g-card p-4 border-l-4 <?php echo $uRace['unlocked'] ? 'border-l-green-500 hover:bg-white/10' : 'border-l-gray-600 opacity-60'; ?> transition group <?php echo !$uRace['unlocked'] ? 'cursor-not-allowed' : ''; ?>">
+                            <a href="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $uRace['unlocked'] ? 'predict.php?race_id=' . $uRace['id'] : '#'; ?>" 
+                               class="block g-card p-4 border-l-4 <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $uRace['unlocked'] ? 'border-l-green-500 hover:bg-white/10' : 'border-l-gray-600 opacity-60'; ?> transition group <?php echo !$uRace['unlocked'] ? 'cursor-not-allowed' : ''; ?>">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
-                                        <div class="text-3xl"><?php echo $flag; ?></div>
+                                        <div class="text-3xl"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $flag; ?></div>
                                         <div>
                                             <div class="text-sm font-bold text-white flex items-center gap-2">
-                                                <?php echo htmlspecialchars($uRace['country']); ?>
-                                                <?php if (!$uRace['unlocked']): ?>
+                                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($uRace['country']); ?>
+                                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if (!$uRace['unlocked']): ?>
                                                     <span class="text-[9px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded font-bold">🔒 LOCKED</span>
-                                                <?php endif; ?>
+                                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                                             </div>
-                                            <div class="text-[10px] text-gray-400"><?php echo date('M d, Y', strtotime($uRace['race_date'])); ?></div>
+                                            <div class="text-[10px] text-gray-400"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('M d, Y', strtotime($uRace['race_date'])); ?></div>
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <?php 
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; 
                                         $rDeadline = getPredictionDeadline($uRace['race_date']);
                                         $rNow = new DateTime('now', new DateTimeZone('UTC'));
                                         $rIsOpen = $rNow < $rDeadline;
@@ -481,18 +525,24 @@ foreach ($racesData as $race) {
                                         if ($uRace['unlocked'] && $rIsOpen): ?>
                                             <div class="text-green-400 text-xs font-bold">OPEN</div>
                                             <div class="text-[9px] text-gray-500 italic">Click to predict</div>
-                                        <?php elseif ($uRace['unlocked'] && !$rIsOpen): ?>
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; elseif ($uRace['unlocked'] && !$rIsOpen): ?>
                                             <div class="text-red-400 text-xs font-bold">CLOSED</div>
                                             <div class="text-[9px] text-gray-500 italic">Predictions locked</div>
-                                        <?php else: ?>
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
                                             <div class="text-gray-500 text-xs font-bold">LOCKED</div>
-                                            <div class="text-[9px] text-gray-500 italic">Opens <?php echo date('M d', strtotime($uRace['race_date'] . ' -7 days')); ?></div>
-                                        <?php endif; ?>
+                                            <div class="text-[9px] text-gray-500 italic">Opens <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('M d', strtotime($uRace['race_date'] . ' -7 days')); ?></div>
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                                     </div>
                                 </div>
                             </a>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                     </div>
                 </div>
 
@@ -510,7 +560,8 @@ foreach ($racesData as $race) {
                     </div>
 
                     <div class="space-y-3">
-                        <?php foreach ($leaderboard as $idx => $player): 
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; foreach ($leaderboard as $idx => $player): 
                             $isMe = ($player['username'] === $user['username']);
                             $rowClass = $isMe ? 'bg-orange-500/10 border-orange-500/30' : 'bg-white/5 border-transparent hover:bg-white/10';
                             $rankColor = match($idx + 1) {
@@ -520,27 +571,38 @@ foreach ($racesData as $race) {
                                 default => 'text-gray-500'
                             };
                         ?>
-                        <div class="flex items-center gap-3 p-3 rounded-xl border <?php echo $rowClass; ?> transition-all group cursor-pointer">
-                            <div class="font-black text-lg w-6 text-center <?php echo $rankColor; ?>">
-                                <?php echo $idx + 1; ?>
+                        <div class="flex items-center gap-3 p-3 rounded-xl border <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $rowClass; ?> transition-all group cursor-pointer">
+                            <div class="font-black text-lg w-6 text-center <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $rankColor; ?>">
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $idx + 1; ?>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-slate-700 overflow-hidden">
-                                <img src="<?php echo getAvatarUrl($player['avatar_style'] ?? 'avataaars', $player['username']); ?>" alt="Avatar" class="w-full h-full object-cover">
+                                <img src="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($player['avatar_style'] ?? 'avataaars', $player['username']); ?>" alt="Avatar" class="w-full h-full object-cover">
                             </div>
                             <div class="flex-1">
                                 <div class="text-sm font-bold text-white group-hover:text-orange-400 transition">
-                                    <?php echo htmlspecialchars($player['username']); ?>
+                                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($player['username']); ?>
                                 </div>
-                                <?php if (!empty($player['full_name'])): ?>
-                                    <div class="text-[9px] text-gray-500"><?php echo htmlspecialchars($player['full_name']); ?></div>
-                                <?php endif; ?>
-                                <div class="text-[10px] text-gray-500">Level <?php echo $player['races_participated'] ?? 0; ?></div>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if (!empty($player['full_name'])): ?>
+                                    <div class="text-[9px] text-gray-500"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($player['full_name']); ?></div>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
+                                <div class="text-[10px] text-gray-500">Level <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $player['races_participated'] ?? 0; ?></div>
                             </div>
                             <div class="text-right">
-                                <div class="font-mono font-bold text-blue-400"><?php echo $player['total_points']; ?></div>
+                                <div class="font-mono font-bold text-blue-400"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $player['total_points']; ?></div>
                             </div>
                         </div>
-                        <?php endforeach; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                     </div>
                     
                     <div class="mt-6 pt-6 border-t border-white/5 text-center">
@@ -556,7 +618,8 @@ foreach ($racesData as $race) {
         
         <!-- Footer info matches others -->
         <footer class="mt-12 border-t border-white/10 py-6 text-center">
-            <p class="text-gray-500 text-sm mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+            <p class="text-gray-500 text-sm mb-2">&copy; <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
             <p class="text-gray-600 text-xs mb-3">
                 Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-orange-400 font-semibold transition">Scanerrific</a>
             </p>

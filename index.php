@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
 // Enable error reporting for debugging (remove in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -28,7 +29,8 @@ if (!$nextRace) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome - <?php echo SITE_NAME; ?></title>
+    <title>Welcome - <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -108,29 +110,35 @@ if (!$nextRace) {
                     <!-- The Card -->
                     <div class="g-card p-0 relative h-[450px] md:h-[500px] flex flex-col justify-end overflow-hidden shadow-2xl shadow-blue-900/40 rounded-3xl border border-white/10">
                         <!-- BG Image (Dynamic based on country) -->
-                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<?php echo getRaceHeroImage($nextRace['country'] ?? ''); ?>')"></div>
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getRaceHeroImage($nextRace['country'] ?? ''); ?>')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/40 to-transparent"></div>
                         
                         <div class="relative z-10 p-8 md:p-10">
-                            <?php if ($nextRace): ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($nextRace): ?>
                                 <div class="flex items-center gap-3 mb-4">
                                     <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                         Next Event
                                     </span>
                                     <span class="text-orange-400 font-mono font-bold flex items-center gap-2">
-                                        <i class="far fa-clock"></i> <?php echo date('M d', strtotime($nextRace['race_date'])); ?>
+                                        <i class="far fa-clock"></i> <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('M d', strtotime($nextRace['race_date'])); ?>
                                     </span>
                                 </div>
                                 <h2 class="text-4xl md:text-6xl font-black text-white mb-2 uppercase drop-shadow-lg">
-                                    <?php echo htmlspecialchars($nextRace['country']); ?>
+                                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($nextRace['country']); ?>
                                 </h2>
                                 <p class="text-xl text-gray-200 mb-8 font-medium drop-shadow-md flex items-center gap-2">
-                                    <i class="fas fa-map-marker-alt text-red-500"></i> <?php echo htmlspecialchars($nextRace['circuit_name']); ?>
+                                    <i class="fas fa-map-marker-alt text-red-500"></i> <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($nextRace['circuit_name']); ?>
                                 </p>
                                 
                                 <!-- Locked Interaction -->
                                 <div class="bg-black/60 backdrop-blur-md p-6 rounded-2xl border border-white/10">
                                     <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
                                     $isLocked = false;
                                     $statusText = 'OPEN';
                                     $statusColor = 'text-green-400';
@@ -164,14 +172,16 @@ if (!$nextRace) {
                                         </div>
                                         <div class="text-right">
                                             <div class="text-gray-400 text-xs font-bold uppercase mb-1">Status</div>
-                                            <div class="<?php echo $statusColor; ?> font-bold uppercase"><?php echo $statusText; ?></div>
+                                            <div class="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $statusColor; ?> font-bold uppercase"><?php echo $statusText; ?></div>
                                         </div>
                                     </div>
                                     
                                     <!-- Progress Bar -->
                                     <div class="mb-4">
                                         <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                                            <div id="race-countdown-bar-landing" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: <?php echo $progressPercent; ?>%"></div>
+                                            <div id="race-countdown-bar-landing" class="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-linear" style="width: <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $progressPercent; ?>%"></div>
                                         </div>
                                     </div>
                                     
@@ -182,8 +192,10 @@ if (!$nextRace) {
                                 
                                 <script>
                                     // Calculate progress until race starts
-                                    const raceDateLanding = new Date('<?php echo $nextRace['race_date']; ?>').getTime();
-                                    const seasonStartLanding = new Date('<?php echo date('Y'); ?>-01-01').getTime();
+                                    const raceDateLanding = new Date('<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $nextRace['race_date']; ?>').getTime();
+                                    const seasonStartLanding = new Date('<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('Y'); ?>-01-01').getTime();
                                     
                                     function updateProgressBarLanding() {
                                         const currentTime = Date.now();
@@ -203,10 +215,12 @@ if (!$nextRace) {
                                     // Update every second for smooth animation
                                     setInterval(updateProgressBarLanding, 1000);
                                 </script>
-                            <?php else: ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
                                 <h2 class="text-4xl font-black text-white mb-4">SEASON PREVIEW</h2>
                                 <p class="text-gray-300">Get ready for 2026.</p>
-                            <?php endif; ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                         </div>
                     </div>
 
@@ -226,7 +240,8 @@ if (!$nextRace) {
             <span class="font-bold text-white">PADDOCK PICKS</span>
         </div>
         <p class="text-gray-600 text-xs">
-            &copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-white font-bold transition">Scanerrific</a>
+            &copy; <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('Y'); ?> <?php echo SITE_NAME; ?>. Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-white font-bold transition">Scanerrific</a>
         </p>
     </footer>
 

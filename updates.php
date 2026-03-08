@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 require_once 'includes/avatars.php';
@@ -43,7 +44,8 @@ if ($nextRace) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Race Updates - <?php echo SITE_NAME; ?></title>
+    <title>Race Updates - <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -99,7 +101,8 @@ if ($nextRace) {
             
             <div class="flex items-center gap-3 pl-6 border-l border-white/10">
                 <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-blue-500 transition">
-                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full">
+                    <img src="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full">
                 </a>
             </div>
         </div>
@@ -185,7 +188,8 @@ if ($nextRace) {
                         <i class="fas fa-id-card text-blue-500"></i> Engineer Roll Call
                     </h3>
                     <div class="space-y-4 mb-6">
-                        <?php 
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; 
                         // Featured Engineers with custom comments
                         $featuredCount = 0;
                         foreach ($randomEngineers as $eng): 
@@ -201,16 +205,22 @@ if ($nextRace) {
                             if (str_contains($un, 'ROSSI') || str_contains($un, 'DOCTOR')) $comment = "Switching from two wheels to four for the 2026 regulations?";
                         ?>
                         <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <div class="text-blue-400 font-black italic text-xs mb-1">@<?php echo $un; ?></div>
-                            <div class="text-[10px] text-gray-500 font-bold leading-tight"><?php echo $comment; ?></div>
+                            <div class="text-blue-400 font-black italic text-xs mb-1">@<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $un; ?></div>
+                            <div class="text-[10px] text-gray-500 font-bold leading-tight"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $comment; ?></div>
                         </div>
-                        <?php endforeach; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                     </div>
                     <div class="flex flex-wrap gap-2 pt-4 border-t border-white/5">
                         <div class="text-[9px] text-gray-600 font-black uppercase mb-2 w-full">Also Spotted in the Paddock:</div>
-                        <?php foreach ($randomEngineers as $eng): ?>
-                            <span class="text-[10px] text-gray-500 font-bold italic">@<?php echo htmlspecialchars($eng['username']); ?></span>
-                        <?php endforeach; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; foreach ($randomEngineers as $eng): ?>
+                            <span class="text-[10px] text-gray-500 font-bold italic">@<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($eng['username']); ?></span>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                     </div>
                 </div>
 
@@ -222,24 +232,32 @@ if ($nextRace) {
                         <div>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-[10px] font-black text-green-500 tracking-tighter italic uppercase">Ready on Grid</span>
-                                <span class="text-[10px] text-gray-600 font-bold uppercase"><?php echo count($submitted); ?> Users</span>
+                                <span class="text-[10px] text-gray-600 font-bold uppercase"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo count($submitted); ?> Users</span>
                             </div>
                             <div class="flex flex-wrap gap-1.5">
-                                <?php foreach ($submitted as $s): ?>
-                                    <span class="bg-green-500/10 text-green-500 text-[10px] font-black px-2 py-0.5 rounded border border-green-500/20 uppercase italic">@<?php echo htmlspecialchars($s['username']); ?></span>
-                                <?php endforeach; ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; foreach ($submitted as $s): ?>
+                                    <span class="bg-green-500/10 text-green-500 text-[10px] font-black px-2 py-0.5 rounded border border-green-500/20 uppercase italic">@<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($s['username']); ?></span>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-[10px] font-black text-red-500 tracking-tighter italic uppercase animate-pulse">Missing Data • BEHIND SCHEDULE!</span>
-                                <span class="text-[10px] text-gray-600 font-bold uppercase"><?php echo count($missing); ?> Users</span>
+                                <span class="text-[10px] text-gray-600 font-bold uppercase"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo count($missing); ?> Users</span>
                             </div>
                             <div class="flex flex-wrap gap-1.5">
-                                <?php foreach ($missing as $m): ?>
-                                    <span class="bg-red-500/5 text-red-500/40 text-[10px] font-black px-2 py-0.5 rounded border border-red-500/10 uppercase italic line-through">@<?php echo htmlspecialchars($m['username']); ?></span>
-                                <?php endforeach; ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; foreach ($missing as $m): ?>
+                                    <span class="bg-red-500/5 text-red-500/40 text-[10px] font-black px-2 py-0.5 rounded border border-red-500/10 uppercase italic line-through">@<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($m['username']); ?></span>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                             </div>
                         </div>
                     </div>
@@ -259,7 +277,8 @@ if ($nextRace) {
 
                 <!-- Call to Action -->
                 <div class="pt-10">
-                    <a href="predict.php?race_id=<?php echo $nextRace['id'] ?? 1; ?>" class="g-btn bg-white text-slate-950 px-12 py-5 font-black text-xl rounded-2xl flex items-center justify-center gap-4 hover:gap-6 transition-all hover:scale-105 shadow-2xl shadow-white/10 group w-full">
+                    <a href="predict.php?race_id=<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $nextRace['id'] ?? 1; ?>" class="g-btn bg-white text-slate-950 px-12 py-5 font-black text-xl rounded-2xl flex items-center justify-center gap-4 hover:gap-6 transition-all hover:scale-105 shadow-2xl shadow-white/10 group w-full">
                         LOCK IN YOUR GRID <i class="fas fa-chevron-right transition-transform group-hover:translate-x-1"></i>
                     </a>
                 </div>

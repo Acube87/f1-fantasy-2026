@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 require_once 'includes/avatars.php';
@@ -12,7 +13,8 @@ $currentUser = $user;     // Alias for existing logic
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard - <?php echo SITE_NAME; ?></title>
+    <title>Leaderboard - <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -39,7 +41,8 @@ $currentUser = $user;     // Alias for existing logic
                 <span class="font-bold text-xl tracking-wide text-white hidden sm:block group-hover:text-orange-400 transition-colors">PADDOCK PICKS</span>
             </a>
             
-            <?php if ($user): ?>
+            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($user): ?>
             <div class="hidden md:flex items-center gap-6">
                 <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
                     <i class="fas fa-home text-orange-500/80"></i> Dashboard
@@ -55,30 +58,36 @@ $currentUser = $user;     // Alias for existing logic
                     <i class="fas fa-medal text-purple-500/80"></i> Achievements
                 </a>
             </div>
-            <?php endif; ?>
+            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
         </div>
         
-        <?php if ($user): ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($user): ?>
         <div class="flex items-center gap-6">
             <div class="flex items-center gap-3 pl-6 border-l border-white/10">
                 <div class="text-right hidden sm:block">
                     <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Driver</div>
-                    <div class="text-sm font-bold text-white leading-none"><?php echo htmlspecialchars($user['username']); ?></div>
+                    <div class="text-sm font-bold text-white leading-none"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($user['username']); ?></div>
                 </div>
                 <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition cursor-pointer relative group shadow-lg shadow-black/50">
-                     <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                     <img src="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                 </a>
             </div>
             <a href="logout.php" class="text-gray-400 hover:text-white transition hover:rotate-90 duration-300" title="Sign Out">
                 <i class="fas fa-sign-out-alt text-lg"></i>
             </a>
         </div>
-        <?php else: ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
         <div class="flex items-center gap-4">
             <a href="login.php" class="text-gray-300 hover:text-white font-medium text-sm uppercase tracking-wide">Log In</a>
             <a href="signup.php" class="g-btn g-btn-orange px-6 py-2 text-sm uppercase tracking-wide font-bold hover:shadow-lg hover:shadow-orange-500/20 transition-all">Sign Up</a>
         </div>
-        <?php endif; ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
     </nav>
 
     <!-- Main Content -->
@@ -92,32 +101,40 @@ $currentUser = $user;     // Alias for existing logic
         </div>
 
         <!-- Top 3 Podium Cards -->
-        <?php if (!empty($leaderboard) && count($leaderboard) >= 3): ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if (!empty($leaderboard) && count($leaderboard) >= 3): ?>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 items-end">
             
             <!-- 2nd Place -->
             <div class="order-2 md:order-1 g-card p-6 md:p-8 text-center border-t-4 border-t-gray-400">
                 <div class="w-16 h-16 rounded-full bg-gray-400/20 mx-auto mb-4 flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(156,163,175,0.3)]">🥈</div>
-                <h3 class="font-bold text-xl text-white mb-1"><?php echo htmlspecialchars($leaderboard[1]['username']); ?></h3>
-                <div class="text-3xl font-black text-gray-300"><?php echo number_format($leaderboard[1]['total_points'] ?? 0); ?> pts</div>
+                <h3 class="font-bold text-xl text-white mb-1"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($leaderboard[1]['username']); ?></h3>
+                <div class="text-3xl font-black text-gray-300"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($leaderboard[1]['total_points'] ?? 0); ?> pts</div>
             </div>
 
             <!-- 1st Place -->
             <div class="order-1 md:order-2 g-card p-8 md:p-10 text-center border-t-4 border-t-yellow-400 transform scale-105 z-10 shadow-2xl">
                 <div class="w-20 h-20 rounded-full bg-yellow-400/20 mx-auto mb-4 flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(250,204,21,0.4)]">👑</div>
-                <h3 class="font-black text-2xl text-white mb-1"><?php echo htmlspecialchars($leaderboard[0]['username']); ?></h3>
-                <div class="text-4xl font-black text-yellow-400"><?php echo number_format($leaderboard[0]['total_points'] ?? 0); ?> pts</div>
+                <h3 class="font-black text-2xl text-white mb-1"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($leaderboard[0]['username']); ?></h3>
+                <div class="text-4xl font-black text-yellow-400"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($leaderboard[0]['total_points'] ?? 0); ?> pts</div>
                 <div class="mt-2 text-xs font-bold bg-yellow-400/20 text-yellow-400 py-1 px-3 rounded-full inline-block">SEASON LEADER</div>
             </div>
 
             <!-- 3rd Place -->
             <div class="order-3 md:order-3 g-card p-6 md:p-8 text-center border-t-4 border-t-orange-700">
                 <div class="w-16 h-16 rounded-full bg-orange-700/20 mx-auto mb-4 flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(194,65,12,0.3)]">🥉</div>
-                <h3 class="font-bold text-xl text-white mb-1"><?php echo htmlspecialchars($leaderboard[2]['username']); ?></h3>
-                <div class="text-3xl font-black text-orange-600"><?php echo number_format($leaderboard[2]['total_points'] ?? 0); ?> pts</div>
+                <h3 class="font-bold text-xl text-white mb-1"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($leaderboard[2]['username']); ?></h3>
+                <div class="text-3xl font-black text-orange-600"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($leaderboard[2]['total_points'] ?? 0); ?> pts</div>
             </div>
         </div>
-        <?php endif; ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
 
         <!-- Full Table -->
         <div class="g-card overflow-hidden">
@@ -134,7 +151,8 @@ $currentUser = $user;     // Alias for existing logic
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
-                        <?php 
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; 
                         $rank = 1;
                         foreach ($leaderboard as $entry): 
                             $avgPoints = $entry['races_participated'] > 0 
@@ -143,9 +161,11 @@ $currentUser = $user;     // Alias for existing logic
                             $isMe = ($user && $user['username'] === $entry['username']);
                             $rowClass = $isMe ? 'bg-orange-500/10' : 'hover:bg-white/5';
                         ?>
-                        <tr class="<?php echo $rowClass; ?> transition">
+                        <tr class="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $rowClass; ?> transition">
                             <td class="p-4">
-                                <?php if ($rank === 1): ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($rank === 1): ?>
                                     <div class="w-10 h-10 inline-block">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                                           <defs>
@@ -157,7 +177,8 @@ $currentUser = $user;     // Alias for existing logic
                                           <path fill="url(#trophy1)" d="M23.24,9H22.114l.706-.711A1,1,0,0,0,22.26,6.6l-3.7-.555L16.9,2.568a1.041,1.041,0,0,0-1.8,0L13.438,6.04,9.74,6.6a1,1,0,0,0-.56,1.694L9.886,9H8.76a2,2,0,0,0-1.28,3.538,11.478,11.478,0,0,1,4.085,7.592l.319,2.882A2,2,0,0,0,10,25v3a2,2,0,0,0,2,2h8a2,2,0,0,0,2-2V25a2,2,0,0,0-1.884-1.988l.319-2.881a11.483,11.483,0,0,1,4.088-7.6A2,2,0,0,0,23.24,9ZM15,19.19V23H13.9l-.342-3.092a13.587,13.587,0,0,0-1.066-3.95.961.961,0,0,0,.211-.079l1.513-.821A11.434,11.434,0,0,1,15,19.19Zm2,0a11.434,11.434,0,0,1,.788-4.132l1.513.821a1.016,1.016,0,0,0,.21.082,13.6,13.6,0,0,0-1.065,3.948L18.1,23H17ZM14.26,7.939a1,1,0,0,0,.754-.557L16,5.318l.986,2.064a1,1,0,0,0,.754.557l2.27.34L18.347,9.953a1,1,0,0,0-.278.869l.386,2.323-1.978-1.074a1,1,0,0,0-.954,0l-1.978,1.074.386-2.323a1,1,0,0,0-.278-.869L11.99,8.279ZM16.025,14.1c-.008.02-.017.039-.025.059-.008-.02-.017-.039-.025-.059L16,14.088ZM8.76,11h3.114l-.487,2.928A13.552,13.552,0,0,0,8.76,11ZM12,28V25h8l0,3Zm8.613-14.072L20.126,11H23.24A13.547,13.547,0,0,0,20.613,13.928Z"></path>
                                         </svg>
                                     </div>
-                                <?php elseif ($rank === 2): ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; elseif ($rank === 2): ?>
                                     <div class="w-10 h-10 inline-block">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
                                           <rect width="22" height="7" x="21" y="54" fill="#C0C0C0" rx="2"></rect>
@@ -169,7 +190,8 @@ $currentUser = $user;     // Alias for existing logic
                                           <path fill="#E8E8E8" d="m38.65 18 .17 6L32 21.57 25.18 24c.06-2.063.152-5.187.2-7.24l-4.42-5.74 6.95-2.05C28.515 8.087 31.469 3.789 32 3l4.09 5.97c1.717.508 5.223 1.542 6.95 2.05l-4.42 5.74Z"></path>
                                         </svg>
                                     </div>
-                                <?php elseif ($rank === 3): ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; elseif ($rank === 3): ?>
                                     <div class="w-10 h-10 inline-block">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
                                           <rect width="22" height="7" x="21" y="54" fill="#CD7F32" rx="2"></rect>
@@ -179,21 +201,28 @@ $currentUser = $user;     // Alias for existing logic
                                           <path fill="#E6A877" d="m38.65 18 .17 6L32 21.57 25.18 24c.06-2.063.152-5.187.2-7.24l-4.42-5.74 6.95-2.05C28.515 8.087 31.469 3.789 32 3l4.09 5.97c1.717.508 5.223 1.542 6.95 2.05l-4.42 5.74Z"></path>
                                         </svg>
                                     </div>
-                                <?php else: ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
                                     <div class="w-8 h-8 inline-block opacity-40">
                                         <img src="https://img.icons8.com/ios-filled/50/CCCCCC/motorbike-helmet.png" alt="helmet" class="w-full h-full">
                                     </div>
-                                <?php endif; ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                             </td>
                             <td class="p-4 text-center">
-                                <span class="f1-number text-3xl <?php echo $isMe ? 'text-orange-400' : 'text-white'; ?>"><?php echo $rank; ?></span>
+                                <span class="f1-number text-3xl <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $isMe ? 'text-orange-400' : 'text-white'; ?>"><?php echo $rank; ?></span>
                             </td>
                             <td class="p-4 flex items-center gap-3">
-                                <img src="<?php echo getAvatarUrl($entry['avatar_style'] ?? 'avataaars', $entry['username']); ?>" class="w-8 h-8 rounded-full bg-slate-700">
+                                <img src="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($entry['avatar_style'] ?? 'avataaars', $entry['username']); ?>" class="w-8 h-8 rounded-full bg-slate-700">
                                 <div>
-                                    <div class="font-bold text-white <?php echo $isMe ? 'text-orange-400' : ''; ?> flex items-center flex-wrap gap-2">
-                                        <?php echo htmlspecialchars($entry['username']); ?>
-                                        <?php 
+                                    <div class="font-bold text-white <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $isMe ? 'text-orange-400' : ''; ?> flex items-center flex-wrap gap-2">
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($entry['username']); ?>
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; 
                                         if (isset($entry['badges_data']) && $entry['badges_data']) {
                                             $badges = explode('|', $entry['badges_data']);
                                             $tierColors = [
@@ -226,25 +255,34 @@ $currentUser = $user;     // Alias for existing logic
                                             }
                                         }
                                         ?>
-                                        <?php if($isMe) echo '<span class="bg-orange-500 text-white text-[10px] px-1 rounded ml-1">YOU</span>'; ?>
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if($isMe) echo '<span class="bg-orange-500 text-white text-[10px] px-1 rounded ml-1">YOU</span>'; ?>
                                     </div>
-                                    <?php if (!empty($entry['full_name'])): ?>
-                                        <div class="text-[10px] text-gray-500"><?php echo htmlspecialchars($entry['full_name']); ?></div>
-                                    <?php endif; ?>
-                                    <div class="text-xs text-gray-500">Level <?php echo $entry['races_participated'] ?? 0; ?></div>
+                                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if (!empty($entry['full_name'])): ?>
+                                        <div class="text-[10px] text-gray-500"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($entry['full_name']); ?></div>
+                                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
+                                    <div class="text-xs text-gray-500">Level <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $entry['races_participated'] ?? 0; ?></div>
                                 </div>
                             </td>
                             <td class="p-4 text-right font-mono font-bold text-white text-lg">
-                                <?php echo number_format($entry['total_points'] ?? 0); ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($entry['total_points'] ?? 0); ?>
                             </td>
                             <td class="p-4 text-right text-gray-400">
-                                <?php echo $entry['races_participated'] ?? 0; ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $entry['races_participated'] ?? 0; ?>
                             </td>
                             <td class="p-4 text-right text-gray-500">
-                                <?php echo $avgPoints; ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $avgPoints; ?>
                             </td>
                         </tr>
-                        <?php $rank++; endforeach; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; $rank++; endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -253,7 +291,8 @@ $currentUser = $user;     // Alias for existing logic
     </main>
     
     <footer class="mt-12 border-t border-white/10 py-6 text-center">
-        <p class="text-gray-500 text-sm mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+        <p class="text-gray-500 text-sm mb-2">&copy; <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
         <p class="text-gray-600 text-xs mb-3">
             Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-orange-400 font-semibold transition">Scanerrific</a>
         </p>

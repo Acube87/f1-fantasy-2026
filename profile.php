@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 require_once 'includes/csrf.php';
@@ -206,7 +207,8 @@ $allAvatars = getAllAvatars();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile & Settings - <?php echo SITE_NAME; ?></title>
+    <title>Profile & Settings - <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -236,17 +238,23 @@ $allAvatars = getAllAvatars();
     <!-- Main Content -->
     <main class="pt-24 pb-12 px-4 md:px-8 max-w-6xl mx-auto">
         
-        <?php if ($successMessage): ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($successMessage): ?>
             <div class="mb-6 bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-green-400">
-                <i class="fas fa-check-circle mr-2"></i> <?php echo $successMessage; ?>
+                <i class="fas fa-check-circle mr-2"></i> <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $successMessage; ?>
             </div>
-        <?php endif; ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
         
-        <?php if ($errorMessage): ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($errorMessage): ?>
             <div class="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-400">
-                <i class="fas fa-exclamation-circle mr-2"></i> <?php echo $errorMessage; ?>
+                <i class="fas fa-exclamation-circle mr-2"></i> <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $errorMessage; ?>
             </div>
-        <?php endif; ?>
+        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
@@ -256,26 +264,32 @@ $allAvatars = getAllAvatars();
                 <!-- Profile Card -->
                 <div class="g-card p-6 text-center">
                     <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-slate-700 border-4 border-white/10 overflow-hidden">
-                        <img src="<?php echo getAvatarUrl($currentAvatarStyle, $user['username']); ?>" 
+                        <img src="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($currentAvatarStyle, $user['username']); ?>" 
                              alt="Avatar" 
                              class="w-full h-full object-cover">
                     </div>
-                    <h1 class="text-2xl font-black text-white mb-1"><?php echo htmlspecialchars($user['username']); ?></h1>
-                    <div class="text-sm text-gray-400 mb-4"><?php echo htmlspecialchars($user['email']); ?></div>
+                    <h1 class="text-2xl font-black text-white mb-1"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($user['username']); ?></h1>
+                    <div class="text-sm text-gray-400 mb-4"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($user['email']); ?></div>
                     
                     <div class="flex justify-center gap-4 mt-6">
                         <div class="text-center">
-                            <div class="text-2xl font-black text-blue-400"><?php echo $racesParticipated; ?></div>
+                            <div class="text-2xl font-black text-blue-400"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $racesParticipated; ?></div>
                             <div class="text-xs text-gray-500 uppercase">Level</div>
                         </div>
                         <div class="border-l border-white/10"></div>
                         <div class="text-center">
-                            <div class="text-2xl font-black text-green-400"><?php echo number_format($totalPoints); ?></div>
+                            <div class="text-2xl font-black text-green-400"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($totalPoints); ?></div>
                             <div class="text-xs text-gray-500 uppercase">Points</div>
                         </div>
                         <div class="border-l border-white/10"></div>
                         <div class="text-center">
-                            <div class="text-2xl font-black text-orange-400">#<?php echo $rank; ?></div>
+                            <div class="text-2xl font-black text-orange-400">#<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $rank; ?></div>
                             <div class="text-xs text-gray-500 uppercase">Rank</div>
                         </div>
                     </div>
@@ -288,35 +302,47 @@ $allAvatars = getAllAvatars();
                     </h3>
                     
                     <form method="POST" action="profile.php">
-                        <?php csrfField(); ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; csrfField(); ?>
                         
                         <div class="max-h-[500px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #3b82f6 #1a1a1a;">
-                            <?php foreach ($allAvatars as $groupKey => $group): ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; foreach ($allAvatars as $groupKey => $group): ?>
                                 <div class="mb-6">
                                     <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                        <?php echo $group['label']; ?>
-                                        <span class="text-xs text-gray-600">(<?php echo count($group['avatars']); ?>)</span>
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $group['label']; ?>
+                                        <span class="text-xs text-gray-600">(<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo count($group['avatars']); ?>)</span>
                                     </h4>
                                     
                                     <div class="grid grid-cols-3 gap-2">
-                                        <?php foreach ($group['avatars'] as $style => $label): ?>
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; foreach ($group['avatars'] as $style => $label): ?>
                                             <label class="cursor-pointer">
-                                                <input type="radio" name="avatar_style" value="<?php echo $style; ?>" 
-                                                       <?php echo $style === $currentAvatarStyle ? 'checked' : ''; ?>
+                                                <input type="radio" name="avatar_style" value="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $style; ?>" 
+                                                       <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $style === $currentAvatarStyle ? 'checked' : ''; ?>
                                                        class="hidden peer">
                                                 <div class="g-card p-3 hover:bg-white/10 peer-checked:ring-2 peer-checked:ring-blue-500 peer-checked:bg-blue-500/10 transition">
                                                     <div class="w-16 h-16 rounded-full mx-auto mb-2 bg-slate-700 overflow-hidden">
-                                                        <img src="<?php echo getAvatarUrl($style, $user['username']); ?>" 
-                                                             alt="<?php echo $label; ?>"
+                                                        <img src="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($style, $user['username']); ?>" 
+                                                             alt="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $label; ?>"
                                                              class="w-full h-full object-cover">
                                                     </div>
-                                                    <div class="text-xs text-center text-gray-400 leading-tight"><?php echo $label; ?></div>
+                                                    <div class="text-xs text-center text-gray-400 leading-tight"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $label; ?></div>
                                                 </div>
                                             </label>
-                                        <?php endforeach; ?>
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                         </div>
                         
                         <button type="submit" class="g-btn g-btn-blue w-full py-3 mt-4">
@@ -341,10 +367,12 @@ $allAvatars = getAllAvatars();
                         <div>
                             <h3 class="font-bold text-white text-sm mb-3">Full Name</h3>
                             <form method="POST" action="profile.php">
-                                <?php csrfField(); ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; csrfField(); ?>
                                 <input type="text" 
                                        name="full_name" 
-                                       value="<?php echo htmlspecialchars($user['full_name'] ?? ''); ?>"
+                                       value="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($user['full_name'] ?? ''); ?>"
                                        placeholder="Your full name (optional)"
                                        class="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 outline-none transition mb-3">
                                 <button type="submit" class="w-full bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-400 py-2.5 rounded-lg transition font-bold text-sm">
@@ -357,10 +385,12 @@ $allAvatars = getAllAvatars();
                         <div>
                             <h3 class="font-bold text-white text-sm mb-3">Change Username</h3>
                             <form method="POST" action="profile.php">
-                                <?php csrfField(); ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; csrfField(); ?>
                                 <input type="text" 
                                        name="new_username" 
-                                       value="<?php echo htmlspecialchars($user['username']); ?>"
+                                       value="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($user['username']); ?>"
                                        placeholder="New username"
                                        class="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-blue-500 outline-none transition mb-3"
                                        required>
@@ -374,7 +404,8 @@ $allAvatars = getAllAvatars();
                         <div>
                             <h3 class="font-bold text-white text-sm mb-3">Change Password</h3>
                             <form method="POST" action="profile.php">
-                                <?php csrfField(); ?>
+                                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; csrfField(); ?>
                                 <input type="password" 
                                        name="current_password" 
                                        placeholder="Current password"
@@ -400,6 +431,7 @@ $allAvatars = getAllAvatars();
                 
                 <!-- Badge Display Settings -->
                 <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
                 // Get user's achievements
                 if (file_exists('includes/achievements.php')) {
                     require_once 'includes/achievements.php';
@@ -420,7 +452,8 @@ $allAvatars = getAllAvatars();
                 }
                 ?>
                 
-                <?php if (!empty($userAchievements)): ?>
+                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if (!empty($userAchievements)): ?>
                 <div class="g-card p-6">
                     <h2 class="font-bold text-white text-xl mb-4 flex items-center gap-2">
                         <i class="fas fa-award text-yellow-500"></i> Badge Display Settings
@@ -431,6 +464,7 @@ $allAvatars = getAllAvatars();
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
                         $tierColors = [
                             'common' => 'green',
                             'rare' => 'blue',
@@ -446,28 +480,38 @@ $allAvatars = getAllAvatars();
                         ?>
                             <div class="flex items-center justify-between p-3 bg-black/20 border border-white/5 rounded-lg">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-<?php echo $color; ?>-500/20 border-2 border-<?php echo $color; ?>-500/50 flex items-center justify-center">
-                                        <i class="fas <?php echo $achievement['icon']; ?> text-<?php echo $color; ?>-400"></i>
+                                    <div class="w-10 h-10 rounded-full bg-<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $color; ?>-500/20 border-2 border-<?php echo $color; ?>-500/50 flex items-center justify-center">
+                                        <i class="fas <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $achievement['icon']; ?> text-<?php echo $color; ?>-400"></i>
                                     </div>
                                     <div>
-                                        <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($achievement['name']); ?></div>
-                                        <div class="text-xs text-<?php echo $color; ?>-400 uppercase"><?php echo $tier; ?></div>
+                                        <div class="text-sm font-bold text-white"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($achievement['name']); ?></div>
+                                        <div class="text-xs text-<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $color; ?>-400 uppercase"><?php echo $tier; ?></div>
                                     </div>
                                 </div>
                                 <form method="POST" action="profile.php" class="inline">
-                                    <?php csrfField(); ?>
-                                    <input type="hidden" name="achievement_id" value="<?php echo $achievement['id']; ?>">
+                                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; csrfField(); ?>
+                                    <input type="hidden" name="achievement_id" value="<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $achievement['id']; ?>">
                                     <button type="submit" 
                                             name="toggle_badge"
-                                            class="px-4 py-2 rounded-lg text-xs font-bold transition <?php echo $isDisplayed ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30 hover:bg-gray-500/30'; ?>">
-                                        <?php echo $isDisplayed ? '<i class="fas fa-eye mr-1"></i> Shown' : '<i class="fas fa-eye-slash mr-1"></i> Hidden'; ?>
+                                            class="px-4 py-2 rounded-lg text-xs font-bold transition <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $isDisplayed ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30 hover:bg-gray-500/30'; ?>">
+                                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $isDisplayed ? '<i class="fas fa-eye mr-1"></i> Shown' : '<i class="fas fa-eye-slash mr-1"></i> Hidden'; ?>
                                     </button>
                                 </form>
                             </div>
-                        <?php endforeach; ?>
+                        <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                     </div>
                 </div>
-                <?php endif; ?>
+                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                 
                 <!-- Accuracy Stats -->
                 <div class="g-card p-6">
@@ -477,17 +521,20 @@ $allAvatars = getAllAvatars();
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div class="bg-black/20 rounded-lg p-4 border border-white/5">
-                            <div class="text-3xl font-black text-green-400 mb-1"><?php echo number_format($accuracy, 1); ?>%</div>
+                            <div class="text-3xl font-black text-green-400 mb-1"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($accuracy, 1); ?>%</div>
                             <div class="text-xs text-gray-500 uppercase">Overall Accuracy</div>
                         </div>
                         
                         <div class="bg-black/20 rounded-lg p-4 border border-white/5">
-                            <div class="text-3xl font-black text-blue-400 mb-1"><?php echo number_format($avgError, 1); ?></div>
+                            <div class="text-3xl font-black text-blue-400 mb-1"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($avgError, 1); ?></div>
                             <div class="text-xs text-gray-500 uppercase">Avg Position Error</div>
                         </div>
                         
                         <div class="bg-black/20 rounded-lg p-4 border border-white/5">
-                            <div class="text-3xl font-black text-orange-400 mb-1"><?php echo $exactMatches; ?></div>
+                            <div class="text-3xl font-black text-orange-400 mb-1"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo $exactMatches; ?></div>
                             <div class="text-xs text-gray-500 uppercase">Exact Matches</div>
                         </div>
                     </div>
@@ -504,7 +551,8 @@ $allAvatars = getAllAvatars();
                 </div>
 
                 <!-- Best Performance -->
-                <?php if ($bestRace): ?>
+                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if ($bestRace): ?>
                 <div class="g-card p-6">
                     <h2 class="font-bold text-white text-xl mb-6 flex items-center gap-2">
                         <i class="fas fa-trophy text-yellow-500"></i> Best Performance
@@ -513,17 +561,21 @@ $allAvatars = getAllAvatars();
                     <div class="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <div class="text-2xl font-black text-white mb-2"><?php echo htmlspecialchars($bestRace['country']); ?></div>
-                                <div class="text-sm text-gray-400"><?php echo date('M d, Y', strtotime($bestRace['race_date'])); ?></div>
+                                <div class="text-2xl font-black text-white mb-2"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($bestRace['country']); ?></div>
+                                <div class="text-sm text-gray-400"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('M d, Y', strtotime($bestRace['race_date'])); ?></div>
                             </div>
                             <div class="text-right">
-                                <div class="text-4xl font-black text-yellow-400"><?php echo number_format($bestRace['total_points']); ?></div>
+                                <div class="text-4xl font-black text-yellow-400"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($bestRace['total_points']); ?></div>
                                 <div class="text-xs text-gray-500 uppercase">Points</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
+                <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
 
                 <!-- Recent Activity -->
                 <div class="g-card p-6">
@@ -532,6 +584,7 @@ $allAvatars = getAllAvatars();
                     </h2>
                     
                     <?php
+require_once __DIR__ . '/includes/maintenance-gate.php';
                     $stmt = $db->prepare("
                         SELECT r.country, r.race_date, s.total_points
                         FROM scores s
@@ -545,24 +598,32 @@ $allAvatars = getAllAvatars();
                     $recentRaces = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     ?>
                     
-                    <?php if (!empty($recentRaces)): ?>
+                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; if (!empty($recentRaces)): ?>
                         <div class="space-y-2">
-                            <?php foreach ($recentRaces as $race): ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; foreach ($recentRaces as $race): ?>
                                 <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg hover:bg-white/5 transition">
                                     <div>
-                                        <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($race['country']); ?></div>
-                                        <div class="text-xs text-gray-500"><?php echo date('M d, Y', strtotime($race['race_date'])); ?></div>
+                                        <div class="text-sm font-bold text-white"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($race['country']); ?></div>
+                                        <div class="text-xs text-gray-500"><?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('M d, Y', strtotime($race['race_date'])); ?></div>
                                     </div>
-                                    <div class="text-lg font-bold text-green-400">+<?php echo number_format($race['total_points']); ?></div>
+                                    <div class="text-lg font-bold text-green-400">+<?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($race['total_points']); ?></div>
                                 </div>
-                            <?php endforeach; ?>
+                            <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                         </div>
-                    <?php else: ?>
+                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
                         <div class="text-center py-8 text-gray-500">
                             <i class="fas fa-inbox text-4xl mb-2 opacity-20"></i>
                             <p>No race history yet. Start predicting!</p>
                         </div>
-                    <?php endif; ?>
+                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                 </div>
 
             </div>
@@ -572,7 +633,8 @@ $allAvatars = getAllAvatars();
     </main>
 
     <footer class="mt-12 border-t border-white/10 py-6 text-center">
-        <p class="text-gray-500 text-sm mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+        <p class="text-gray-500 text-sm mb-2">&copy; <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
         <p class="text-gray-600 text-xs mb-3">
             Powered by <a href="https://scanerrific.com" class="text-orange-400 hover:text-orange-300 transition">Scanerrific</a>
         </p>
