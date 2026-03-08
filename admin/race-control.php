@@ -200,15 +200,19 @@ Example:
                 
                 if (targetPos > driversList.length) return;
 
-                // Strip numbers and common noise (times like 1:30.123 or +5.123)
+                // Strip numbers and common noise, then normalize accents (ü -> u, é -> e)
                 let cleanLine = line.replace(/^\d+/, '').replace(/[+\-]?\d+[:.]\d+[:.]?\d*/g, '').toLowerCase().trim();
+                cleanLine = cleanLine.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 
                 // Fuzzy Matcher: Look for name matches within the cleaned line
                 let bestMatch = null;
                 driversList.forEach(driver => {
-                    const nameParts = driver.driver_name.toLowerCase().split(' ');
-                    // If the whole name or the surname is in the line
-                    if (cleanLine.includes(driver.driver_name.toLowerCase()) || cleanLine.includes(nameParts[nameParts.length - 1])) {
+                    const normalizedDriverName = driver.driver_name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const nameParts = normalizedDriverName.split(' ');
+                    const surname = nameParts[nameParts.length - 1];
+                    const idPart = driver.id.toLowerCase();
+                    
+                    if (cleanLine.includes(normalizedDriverName) || cleanLine.includes(surname) || cleanLine.includes(idPart)) {
                         bestMatch = driver;
                     }
                 });
