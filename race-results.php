@@ -219,7 +219,7 @@ $stats = getUserStats($userId);
                 <div class="g-card p-5 text-center">
                     <div class="text-3xl font-black text-orange-400"><?php echo $scoreRecord['driver_points'] ?? 0; ?></div>
                     <div class="text-[10px] text-gray-400 uppercase font-bold mt-1">Driver Points</div>
-                    <div class="text-[9px] text-orange-400 font-bold mt-1 text-opacity-80">Base + Strategy</div>
+                    <div class="text-[9px] text-orange-400 font-bold mt-1 text-opacity-80">Base Points</div>
                 </div>
                 <div class="g-card p-5 text-center border-l-2 border-blue-500/30">
                     <div class="text-3xl font-black text-blue-400"><?php echo $scoreRecord['top3_bonus'] ?? 0; ?></div>
@@ -312,7 +312,7 @@ $stats = getUserStats($userId);
                                         <?php if ($pred['is_exact']): ?>
                                         <div class="flex flex-col items-center gap-1">
                                             <span class="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full">
-                                                <i class="fas fa-check-circle"></i> BASE + STRAT
+                                                <i class="fas fa-check-circle"></i> BASE
                                             </span>
                                         </div>
                                         <?php elseif ($pred['actual_position']): ?>

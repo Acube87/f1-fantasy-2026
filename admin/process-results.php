@@ -125,7 +125,7 @@ try {
         
         // Constructor Bonus
         $constructorBonus = 0;
-        $cPredStmt = $db->prepare("SELECT constructor_name FROM constructor_predictions WHERE user_id = ? AND race_id = ? LIMIT 1");
+        $cPredStmt = $db->prepare("SELECT constructor_name FROM constructor_predictions WHERE user_id = ? AND race_id = ? AND predicted_position = 1 LIMIT 1");
         $cPredStmt->bind_param("ii", $userId, $raceId);
         $cPredStmt->execute();
         $cPred = $cPredStmt->get_result()->fetch_assoc();
