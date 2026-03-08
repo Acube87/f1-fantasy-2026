@@ -225,8 +225,13 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($entr
                                 <div>
                                     <div class="font-bold text-white <?php
 require_once __DIR__ . '/includes/maintenance-gate.php'; echo $isMe ? 'text-orange-400' : ''; ?> flex items-center flex-wrap gap-2">
-                                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($entry['username']); ?>
+                                        <?php if (!$isMe): ?>
+                                            <a href="user-profile.php?user_id=<?php echo $entry['id']; ?>" class="hover:text-orange-400 transition-colors">
+                                                <?php echo htmlspecialchars($entry['username']); ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <?php echo htmlspecialchars($entry['username']); ?>
+                                        <?php endif; ?>
                                         <?php
 require_once __DIR__ . '/includes/maintenance-gate.php'; 
                                         if (isset($entry['badges_data']) && $entry['badges_data']) {
