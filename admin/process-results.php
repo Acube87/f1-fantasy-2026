@@ -108,8 +108,15 @@ try {
             }
         }
 
-        // Podium Sweep Bonus
-        $podiumBonus = ($podiumCorrect[1] && $podiumCorrect[2] && $podiumCorrect[3]) ? 10 : 0;
+        // Podium Sweep Bonus: User predicts the correct 3 drivers on the podium, regardless of their exact P1/P2/P3 order
+        $actualTop3 = [$results[1] ?? '', $results[2] ?? '', $results[3] ?? ''];
+        $predictedTop3 = [];
+        foreach ($userPreds as $pred) {
+            if ((int)$pred['predicted_position'] <= 3) {
+                $predictedTop3[] = $pred['driver_id'];
+            }
+        }
+        $podiumBonus = (count(array_intersect($actualTop3, $predictedTop3)) === 3) ? 10 : 0;
         
         // Constructor Bonus
         $constructorBonus = 0;

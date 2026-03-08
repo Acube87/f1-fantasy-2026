@@ -83,11 +83,6 @@ foreach ($predictions as &$pred) {
         $basePts = $f1Points[$pred['actual_position']] ?? 0;
         $pred['points_earned'] = $basePts + 3; // +3 strategy bonus
         
-        // Top 3 tracker
-        if ($pred['actual_position'] <= 3) {
-            $pred['is_top3'] = true;
-        }
-        
         $totalPoints += $pred['points_earned'];
     }
 }
@@ -314,11 +309,6 @@ $stats = getUserStats($userId);
                                             <span class="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full">
                                                 <i class="fas fa-check-circle"></i> BASE + STRAT
                                             </span>
-                                            <?php if ($pred['is_top3']): ?>
-                                            <span class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                                +TOP 3 TRACKED
-                                            </span>
-                                            <?php endif; ?>
                                         </div>
                                         <?php elseif ($pred['actual_position']): ?>
                                         <span class="text-gray-500 text-sm">
