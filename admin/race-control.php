@@ -106,7 +106,7 @@ $drivers = $stmt->fetch_all(MYSQLI_ASSOC);
                         <div class="flex gap-4">
                             <button onclick="clearParser()" class="px-6 py-3 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-xl transition text-xs uppercase tracking-widest">Clear Deck</button>
                             <div class="admin-card px-6 py-3 rounded-xl border-blue-500/30">
-                                <span id="classificationCount" class="text-blue-400 font-black">0 / 20 DRIVERS DETECTED</span>
+                                <span id="classificationCount" class="text-blue-400 font-black">0 / <?php echo count($drivers); ?> DRIVERS DETECTED</span>
                             </div>
                         </div>
                     </div>
@@ -131,7 +131,7 @@ Example:
                         <!-- Detection Sync Zone -->
                         <div class="space-y-4">
                             <div id="resultsGrid" class="space-y-2 h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                                <?php for ($i = 1; $i <= 20; $i++): ?>
+                                <?php for ($i = 1; $i <= count($drivers); $i++): ?>
                                     <div id="row-<?php echo $i; ?>" class="driver-slot flex items-center gap-4 p-3 rounded-2xl border border-white/5 bg-white/5 opacity-40">
                                         <span class="w-10 text-center font-black text-white italic text-xl h-10 flex items-center justify-center bg-black/40 rounded-lg">#<?php echo $i; ?></span>
                                         <div class="flex-grow flex items-center gap-3">
@@ -198,7 +198,7 @@ Example:
                 const posMatch = line.match(/^(\d+)/);
                 const targetPos = posMatch ? parseInt(posMatch[1]) : (index + 1);
                 
-                if (targetPos > 20) return;
+                if (targetPos > driversList.length) return;
 
                 // Strip numbers and common noise (times like 1:30.123 or +5.123)
                 let cleanLine = line.replace(/^\d+/, '').replace(/[+\-]?\d+[:.]\d+[:.]?\d*/g, '').toLowerCase().trim();
@@ -232,7 +232,7 @@ Example:
                 }
             });
 
-            document.getElementById('classificationCount').textContent = `${detectedCount} / 20 DRIVERS DETECTED`;
+            document.getElementById('classificationCount').textContent = `${detectedCount} / ${driversList.length} DRIVERS DETECTED`;
         }
 
         async function submitResults() {
