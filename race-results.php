@@ -215,25 +215,30 @@ $stats = getUserStats($userId);
             
             <!-- Score Breakdown -->
             <?php if ($scoreRecord): ?>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="g-card p-5 text-center">
-                    <div class="text-3xl font-black text-green-400"><?php echo $exactMatches; ?></div>
-                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Exact Matches</div>
-                    <div class="text-[10px] text-green-400 font-bold">+3 Pts Strategy Bonus</div>
-                </div>
-                <div class="g-card p-5 text-center">
-                    <div class="text-3xl font-black text-blue-400"><?php echo $scoreRecord['top3_bonus'] ?? 0; ?></div>
-                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Bonus Points</div>
-                    <div class="text-[10px] text-blue-400 font-bold">Podium / Constructor</div>
-                </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
                 <div class="g-card p-5 text-center">
                     <div class="text-3xl font-black text-orange-400"><?php echo $scoreRecord['driver_points'] ?? 0; ?></div>
-                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Driver Points</div>
-                    <div class="text-[10px] text-orange-400 font-bold">Base + Strategy</div>
+                    <div class="text-[10px] text-gray-400 uppercase font-bold mt-1">Driver Points</div>
+                    <div class="text-[9px] text-orange-400 font-bold mt-1 text-opacity-80">Base + Strategy</div>
                 </div>
-                <div class="g-card p-5 text-center g-border-glow-orange">
+                <div class="g-card p-5 text-center border-l-2 border-blue-500/30">
+                    <div class="text-3xl font-black text-blue-400"><?php echo $scoreRecord['top3_bonus'] ?? 0; ?></div>
+                    <div class="text-[10px] text-gray-400 uppercase font-bold mt-1">Podium Bonus</div>
+                    <div class="text-[9px] text-blue-400 font-bold mt-1 text-opacity-80">All 3 Correct = +10</div>
+                </div>
+                <div class="g-card p-5 text-center border-l-2 border-purple-500/30">
+                    <div class="text-3xl font-black text-purple-400"><?php echo $scoreRecord['constructor_points'] ?? 0; ?></div>
+                    <div class="text-[10px] text-gray-400 uppercase font-bold mt-1">Constr. Bonus</div>
+                    <div class="text-[9px] text-purple-400 font-bold mt-1 text-opacity-80">Winner Pick = +5</div>
+                </div>
+                <div class="g-card p-5 text-center border-l-2 border-green-500/30">
+                    <div class="text-3xl font-black text-green-400"><?php echo $exactMatches; ?></div>
+                    <div class="text-[10px] text-gray-400 uppercase font-bold mt-1">Exact Hits</div>
+                    <div class="text-[9px] text-green-400 font-bold mt-1 text-opacity-80">Drivers in exact pos</div>
+                </div>
+                <div class="g-card p-5 text-center border-2 border-orange-500/50 bg-orange-500/5 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
                     <div class="text-3xl font-black text-white"><?php echo $scoreRecord['total_points'] ?? 0; ?></div>
-                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Total Score</div>
+                    <div class="text-xs text-orange-400 uppercase font-black mt-1">Total Score</div>
                 </div>
             </div>
             <?php endif; ?>

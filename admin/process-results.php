@@ -143,17 +143,17 @@ try {
 
         // Save Score
         $scoreStmt = $db->prepare("
-            INSERT INTO scores (user_id, race_id, driver_points, top3_bonus, total_points, calculated_at)
-            VALUES (?, ?, ?, ?, ?, NOW())
+            INSERT INTO scores (user_id, race_id, driver_points, constructor_points, top3_bonus, total_points, calculated_at)
+            VALUES (?, ?, ?, ?, ?, ?, NOW())
             ON DUPLICATE KEY UPDATE 
                 driver_points = VALUES(driver_points),
+                constructor_points = VALUES(constructor_points),
                 top3_bonus = VALUES(top3_bonus),
                 total_points = VALUES(total_points),
                 calculated_at = NOW()
         ");
         $driverPtsField = $basePoints + $strategyBonus;
-        $bonusPtsField = $podiumBonus + $constructorBonus;
-        $scoreStmt->bind_param("iiiii", $userId, $raceId, $driverPtsField, $bonusPtsField, $total);
+        $scoreStmt->bind_param("iiiiii", $userId, $raceId, $driverPtsField, $constructorBonus, $podiumBonus, $total);
         $scoreStmt->execute();
 
         // Update User Totals
