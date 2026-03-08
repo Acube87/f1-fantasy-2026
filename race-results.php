@@ -61,7 +61,9 @@ foreach ($actualResults as $result) {
     $actualPositions[$result['driver_id']] = $result['position'];
 }
 
-// Calculate points for each prediction
+// Use F1 Points System to match process-results.php
+$f1Points = [1 => 25, 2 => 18, 3 => 15, 4 => 12, 5 => 10, 6 => 8, 7 => 6, 8 => 4, 9 => 2, 10 => 1];
+
 $totalPoints = 0;
 $exactMatches = 0;
 $top3Bonus = 0;
@@ -72,26 +74,25 @@ foreach ($predictions as &$pred) {
     $pred['is_exact'] = false;
     $pred['is_top3'] = false;
     
-    if ($pred['actual_position'] !== null) {
-        // Exact match: +10 points
-        if ($pred['predicted_position'] == $pred['actual_position']) {
-            $pred['points_earned'] += 10;
-            $pred['is_exact'] = true;
-            $exactMatches++;
-            
-            // Top 3 bonus: +3 points
-            if ($pred['actual_position'] <= 3) {
-                $pred['points_earned'] += 3;
-                $pred['is_top3'] = true;
-                $top3Bonus += 3;
-            }
+    if ($pred['actual_position'] !== null && $pred['predicted_position'] == $pred['actual_position']) {
+        // Exact match
+        $pred['is_exact'] = true;
+        $exactMatches++;
+        
+        // Base points + strategy bonus
+        $basePts = $f1Points[$pred['actual_position']] ?? 0;
+        $pred['points_earned'] = $basePts + 3; // +3 strategy bonus
+        
+        // Top 3 tracker
+        if ($pred['actual_position'] <= 3) {
+            $pred['is_top3'] = true;
         }
         
         $totalPoints += $pred['points_earned'];
     }
 }
 
-// Get user's total score for this race from scores table
+// Get user's total score for this race from scores table (which includes Constructor & Podium bonuses)
 $stmt = $db->prepare("SELECT * FROM scores WHERE user_id = ? AND race_id = ?");
 $stmt->bind_param("ii", $userId, $raceId);
 $stmt->execute();
@@ -169,7 +170,7 @@ $stats = getUserStats($userId);
                 <div class="g-card p-6 text-center">
                     <div class="text-sm text-gray-400 uppercase font-bold mb-2">Your Score</div>
                     <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">
-                        <?php echo $scoreRecord['total_points']; ?>
+                        <?php echo $scoreRecord['total_points'] ?? 0; ?>
                     </div>
                     <div class="text-xs text-gray-500 mt-2">Points Earned</div>
                 </div>
@@ -223,20 +224,21 @@ $stats = getUserStats($userId);
                 <div class="g-card p-5 text-center">
                     <div class="text-3xl font-black text-green-400"><?php echo $exactMatches; ?></div>
                     <div class="text-xs text-gray-400 uppercase font-bold mt-1">Exact Matches</div>
-                    <div class="text-xs text-green-400 font-bold">+<?php echo $exactMatches * 10; ?> pts</div>
+                    <div class="text-[10px] text-green-400 font-bold">+3 Pts Strategy Bonus</div>
                 </div>
                 <div class="g-card p-5 text-center">
-                    <div class="text-3xl font-black text-blue-400"><?php echo $top3Bonus / 3; ?></div>
-                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Top 3 Bonus</div>
-                    <div class="text-xs text-blue-400 font-bold">+<?php echo $top3Bonus; ?> pts</div>
+                    <div class="text-3xl font-black text-blue-400"><?php echo $scoreRecord['top3_bonus'] ?? 0; ?></div>
+                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Bonus Points</div>
+                    <div class="text-[10px] text-blue-400 font-bold">Podium / Constructor</div>
                 </div>
                 <div class="g-card p-5 text-center">
-                    <div class="text-3xl font-black text-orange-400"><?php echo count($predictions); ?></div>
-                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Predictions Made</div>
+                    <div class="text-3xl font-black text-orange-400"><?php echo $scoreRecord['driver_points'] ?? 0; ?></div>
+                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Driver Points</div>
+                    <div class="text-[10px] text-orange-400 font-bold">Base + Strategy</div>
                 </div>
                 <div class="g-card p-5 text-center g-border-glow-orange">
-                    <div class="text-3xl font-black text-white"><?php echo $scoreRecord['total_points']; ?></div>
-                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Total Points</div>
+                    <div class="text-3xl font-black text-white"><?php echo $scoreRecord['total_points'] ?? 0; ?></div>
+                    <div class="text-xs text-gray-400 uppercase font-bold mt-1">Total Score</div>
                 </div>
             </div>
             <?php endif; ?>
@@ -310,11 +312,11 @@ $stats = getUserStats($userId);
                                         <?php if ($pred['is_exact']): ?>
                                         <div class="flex flex-col items-center gap-1">
                                             <span class="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full">
-                                                <i class="fas fa-check-circle"></i> EXACT!
+                                                <i class="fas fa-check-circle"></i> BASE + STRAT
                                             </span>
                                             <?php if ($pred['is_top3']): ?>
                                             <span class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                                +TOP 3 BONUS
+                                                +TOP 3 TRACKED
                                             </span>
                                             <?php endif; ?>
                                         </div>
