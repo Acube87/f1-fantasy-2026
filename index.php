@@ -16,6 +16,12 @@ if ($user) {
 
 // Get Next Race for the Hero Section
 $nextRace = getNextRace();
+if (!$nextRace) {
+    // Fallback to most recent finished race if no upcoming ones (useful for end of season simulation)
+    $stmt = getDB()->prepare("SELECT * FROM races ORDER BY race_date DESC LIMIT 1");
+    $stmt->execute();
+    $nextRace = $stmt->get_result()->fetch_assoc();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

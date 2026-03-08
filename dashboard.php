@@ -116,7 +116,7 @@ $upcomingRaces = [];
 $stmt = $db->prepare("
     SELECT id, race_name, country, circuit_name, race_date 
     FROM races 
-    WHERE race_date >= CURDATE() 
+    WHERE status = 'upcoming' AND race_date >= CURDATE() 
     ORDER BY race_date ASC 
     LIMIT 5
 ");
@@ -196,6 +196,9 @@ foreach ($racesData as $race) {
                 </a>
                 <a href="achievements.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
                     <i class="fas fa-medal text-purple-500/80"></i> Achievements
+                </a>
+                <a href="admin/race-control.php" class="text-gray-500 hover:text-orange-400 font-bold text-[10px] uppercase tracking-widest transition flex items-center gap-2 border-l border-white/10 pl-6">
+                    <i class="fas fa-tower-broadcast opacity-50"></i> Race Control
                 </a>
             </div>
         </div>
