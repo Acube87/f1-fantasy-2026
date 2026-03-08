@@ -78,110 +78,16 @@ try {
     // 4. Mark Race as Completed
     $db->query("UPDATE races SET status = 'completed', results_fetched = 1 WHERE id = $raceId");
 
-    // 5. Run Scoring Engine for all users
-    $users = $db->query("SELECT id FROM users")->fetch_all(MYSQLI_ASSOC);
-    $isDoublePoints = in_array($race['country'], ['China', 'UK', 'Singapore']);
+    // 5. Run Scoring Engine for all users using the documented point system
+    $scoringResult = calculateRaceScores($raceId);
+    if (!$scoringResult['success']) {
+        throw new Exception("Scoring failed: " . $scoringResult['message']);
+    }
 
+    // 6. Check Achievements for all users who participated
+    $users = $db->query("SELECT DISTINCT user_id FROM predictions WHERE race_id = $raceId")->fetch_all(MYSQLI_ASSOC);
     foreach ($users as $u) {
-        $userId = $u['id'];
-        
-        // Get user predictions
-        $predStmt = $db->prepare("SELECT driver_id, predicted_position FROM predictions WHERE user_id = ? AND race_id = ?");
-        $predStmt->bind_param("ii", $userId, $raceId);
-        $predStmt->execute();
-        $userPreds = $predStmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        
-        if (empty($userPreds)) continue;
-
-        $basePoints = 0;
-        $strategyBonus = 0;
-        $podiumCorrect = [1 => false, 2 => false, 3 => false];
-
-        foreach ($userPreds as $pred) {
-            $actualPos = null;
-            foreach ($results as $pos => $did) {
-                if ($did === $pred['driver_id']) {
-                    $actualPos = (int)$pos;
-                    break;
-                }
-            }
-
-            if ($actualPos && $actualPos === (int)$pred['predicted_position']) {
-                $basePoints += $f1Points[$actualPos] ?? 0;
-                $strategyBonus += 3;
-                if ($actualPos <= 3) $podiumCorrect[$actualPos] = true;
-            }
-        }
-
-        // Podium Sweep Bonus: User predicts the correct 3 drivers on the podium, regardless of their exact P1/P2/P3 order
-        $actualTop3 = [$results[1] ?? '', $results[2] ?? '', $results[3] ?? ''];
-        $predictedTop3 = [];
-        foreach ($userPreds as $pred) {
-            if ((int)$pred['predicted_position'] <= 3) {
-                $predictedTop3[] = $pred['driver_id'];
-            }
-        }
-        $podiumBonus = (count(array_intersect($actualTop3, $predictedTop3)) === 3) ? 10 : 0;
-        
-        // Constructor Bonus
-        $constructorBonus = 0;
-        $cPredStmt = $db->prepare("SELECT constructor_name FROM constructor_predictions WHERE user_id = ? AND race_id = ? AND predicted_position = 1 LIMIT 1");
-        $cPredStmt->bind_param("ii", $userId, $raceId);
-        $cPredStmt->execute();
-        $cPred = $cPredStmt->get_result()->fetch_assoc();
-        
-        if ($cPred) {
-            $winnerId = $results[1] ?? null;
-            if ($winnerId) {
-                $wStmt = $db->prepare("SELECT team FROM drivers WHERE id = ?");
-                $wStmt->bind_param("s", $winnerId);
-                $wStmt->execute();
-                $winnerTeam = $wStmt->get_result()->fetch_assoc();
-                if ($winnerTeam && $winnerTeam['team'] === $cPred['constructor_name']) {
-                    $constructorBonus = 5;
-                }
-            }
-        }
-
-        $subtotal = $basePoints + $strategyBonus + $podiumBonus + $constructorBonus;
-        $total = $isDoublePoints ? ($subtotal * 2) : $subtotal;
-
-        // Save Score
-        $scoreStmt = $db->prepare("
-            INSERT INTO scores (user_id, race_id, driver_points, constructor_points, top3_bonus, total_points, calculated_at)
-            VALUES (?, ?, ?, ?, ?, ?, NOW())
-            ON DUPLICATE KEY UPDATE 
-                driver_points = VALUES(driver_points),
-                constructor_points = VALUES(constructor_points),
-                top3_bonus = VALUES(top3_bonus),
-                total_points = VALUES(total_points),
-                calculated_at = NOW()
-        ");
-        $driverPtsField = $basePoints + $strategyBonus;
-        $scoreStmt->bind_param("iiiiii", $userId, $raceId, $driverPtsField, $constructorBonus, $podiumBonus, $total);
-        $scoreStmt->execute();
-
-        // Update User Totals
-        $totalsStmt = $db->prepare("
-            SELECT COALESCE(SUM(total_points), 0) as grand_total, COUNT(*) as races 
-            FROM scores WHERE user_id = ?
-        ");
-        $totalsStmt->bind_param("i", $userId);
-        $totalsStmt->execute();
-        $totals = $totalsStmt->get_result()->fetch_assoc();
-        
-        $updTotals = $db->prepare("
-            INSERT INTO user_totals (user_id, total_points, races_participated)
-            VALUES (?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                total_points = VALUES(total_points),
-                races_participated = VALUES(races_participated)
-        ");
-        $updTotals->bind_param("iii", $userId, $totals['grand_total'], $totals['races']);
-        $updTotals->execute();
-
-        // Check Achievements
-        checkAndUnlockAchievements($userId, $db);
+        checkAndUnlockAchievements($u['user_id'], $db);
     }
 
     $db->commit();

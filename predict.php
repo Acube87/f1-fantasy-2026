@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/includes/maintenance-gate.php';
 ob_start();
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 require_once 'includes/avatars.php';
+require_once 'includes/csrf.php';
 
 // Check if user is logged in
 $user = getCurrentUser();
@@ -106,6 +106,14 @@ $constructors = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 // Handle POST requests for saving predictions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) {
     
+    // Verify CSRF token
+    if (!isset($input['csrf_token']) || !validateCSRF($input['csrf_token'])) {
+        ob_end_clean();
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Security validation failed.']);
+        exit;
+    }
+    
     // Handle copy from previous race
     if ($input['action'] === 'copy_previous') {
         $stmt = $db->prepare("
@@ -181,8 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predict - <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></title>
+    <title>Predict - <?php echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -416,12 +423,10 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></tit
             <div class="flex items-center gap-3 pl-6 border-l border-white/10">
                 <div class="text-right hidden sm:block">
                     <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Driver</div>
-                    <div class="text-sm font-bold text-white leading-none"><?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($user['username']); ?></div>
+                    <div class="text-sm font-bold text-white leading-none"><?php echo htmlspecialchars($user['username']); ?></div>
                 </div>
                 <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition cursor-pointer relative group shadow-lg shadow-black/50">
-                    <img src="<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                 </a>
             </div>
             <a href="logout.php" class="text-gray-400 hover:text-white transition hover:rotate-90 duration-300" title="Sign Out">
@@ -438,21 +443,17 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($user
             <!-- Race Info & Actions -->
             <div class="flex justify-between items-center bg-slate-900/50 p-4 rounded-xl border border-white/5 backdrop-blur-md sticky top-20 z-40 shadow-xl">
                 <div class="flex items-center gap-4">
-                    <div class="text-3xl"><?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo getRaceFlag($race['country'] ?? ''); ?></div>
+                    <div class="text-3xl"><?php echo getRaceFlag($race['country'] ?? ''); ?></div>
                     <div>
-                        <h1 class="text-xl font-bold text-white uppercase tracking-wider"><?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($race['country']); ?></h1>
-                        <div class="text-xs text-gray-400"><?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($race['circuit_name']); ?></div>
+                        <h1 class="text-xl font-bold text-white uppercase tracking-wider"><?php echo htmlspecialchars($race['country']); ?></h1>
+                        <div class="text-xs text-gray-400"><?php echo htmlspecialchars($race['circuit_name']); ?></div>
                     </div>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="copyFromPreviousRace()" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded text-gray-300 transition">
                         <i class="fas fa-history mr-1"></i> Copy Prev
                     </button>
-                     <button id="saveButton" class="g-btn g-btn-blue px-6 py-2 text-sm shadow-lg hover:shadow-blue-500/20" onclick="savePredictions()" <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; if (!$isPredictionOpen || $hasPrediction) echo 'disabled style="opacity:0.5; cursor:not-allowed;"'; ?>>
+                     <button id="saveButton" class="g-btn g-btn-blue px-6 py-2 text-sm shadow-lg hover:shadow-blue-500/20" onclick="savePredictions()" <?php if (!$isPredictionOpen || $hasPrediction) echo 'disabled style="opacity:0.5; cursor:not-allowed;"'; ?>>
                         SAVE <i class="fas fa-check ml-1"></i>
                     </button>
                 </div>
@@ -464,34 +465,26 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; if (!$isPredictionOpen 
                     <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">
                         <i class="fas fa-clock mr-1"></i> Prediction Status
                     </div>
-                    <div id="deadlineText" class="text-xs font-bold" data-deadline="<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $deadlineTimestamp; ?>" data-now="<?php echo $nowTimestamp; ?>" data-racedate="<?php echo $raceDateTimestamp; ?>">
-                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; if ($isPredictionOpen): ?>
+                    <div id="deadlineText" class="text-xs font-bold" data-deadline="<?php echo $deadlineTimestamp; ?>" data-now="<?php echo $nowTimestamp; ?>" data-racedate="<?php echo $raceDateTimestamp; ?>">
+                        <?php if ($isPredictionOpen): ?>
                             <span class="text-green-400 font-black">⚡ OPEN</span>
-                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
+                        <?php else: ?>
                             <span class="text-red-400 font-black">🔒 CLOSED</span>
-                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="progress-bar-bg">
-                    <div id="progressBar" class="progress-bar-fill <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo !$isPredictionOpen ? 'closed' : ''; ?>" style="width: <?php echo $progressBarWidth; ?>%"></div>
+                    <div id="progressBar" class="progress-bar-fill <?php echo !$isPredictionOpen ? 'closed' : ''; ?>" style="width: <?php echo $progressBarWidth; ?>%"></div>
                 </div>
                 <div id="timeRemaining" class="text-[10px] text-gray-500 mt-2 text-center font-mono uppercase tracking-widest">
-                    <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $countdownText; ?>
+                    <?php echo $countdownText; ?>
                 </div>
             </div>
         </div>
 
         <!-- UX: Prediction Status Banner -->
-        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; if ($isPredictionOpen): ?>
-            <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; if ($hasPrediction): ?>
+        <?php if ($isPredictionOpen): ?>
+            <?php if ($hasPrediction): ?>
                 <!-- Prediction Already Submitted -->
                 <div id="lockedBanner" class="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-xl p-4 shadow-lg transition-all duration-500">
                     <div class="flex items-center justify-between">
@@ -509,8 +502,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; if ($hasPrediction): ?>
                         </button>
                     </div>
                 </div>
-            <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
+            <?php else: ?>
                 <!-- No Prediction Yet -->
                 <div class="bg-gradient-to-r from-orange-500/20 to-red-500/20 border-2 border-orange-500/50 rounded-xl p-4 shadow-lg animate-pulse">
                     <div class="flex items-center justify-between">
@@ -531,10 +523,8 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
                         </div>
                     </div>
                 </div>
-            <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
-        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
+            <?php endif; ?>
+        <?php else: ?>
             <!-- Predictions Closed -->
             <div class="bg-gradient-to-r from-red-500/20 to-gray-500/20 border-2 border-red-500/50 rounded-xl p-4 shadow-lg">
                 <div class="flex items-center gap-3">
@@ -547,8 +537,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
                     </div>
                 </div>
             </div>
-        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
+        <?php endif; ?>
 
         <!-- Main Layout Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -562,10 +551,8 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                                class="w-full bg-transparent border-none text-sm text-white focus:ring-0 placeholder-gray-600 px-2 py-1">
                     </div>
 
-                    <div id="predictionList" class="bg-black/20 min-h-[500px] <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo ($hasPrediction && $isPredictionOpen) ? 'prediction-lock' : ''; ?>">
-                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; 
+                    <div id="predictionList" class="bg-black/20 min-h-[500px] <?php echo ($hasPrediction && $isPredictionOpen) ? 'prediction-lock' : ''; ?>">
+                        <?php 
                         $orderedDrivers = $drivers;
                         // Sort by current prediction (if any)
                         usort($orderedDrivers, function($a, $b) use ($predictions) {
@@ -597,14 +584,10 @@ require_once __DIR__ . '/includes/maintenance-gate.php';
                             $teamSlug = strtolower(str_replace(' ', '-', $driver['team']));
                             $abbr = $teamAbbr[$driver['team']] ?? strtoupper(substr($driver['team'], 0, 3));
                         ?>
-                        <div class="prediction-item group team-<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $teamSlug; ?>" 
-                             data-driver-id="<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $driver['id']; ?>" 
-                             data-team="<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($driver['team']); ?>" 
-                             data-driver-name="<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($driver['driver_name']); ?>">
+                        <div class="prediction-item group team-<?php echo $teamSlug; ?>" 
+                             data-driver-id="<?php echo $driver['id']; ?>" 
+                             data-team="<?php echo htmlspecialchars($driver['team']); ?>" 
+                             data-driver-name="<?php echo htmlspecialchars($driver['driver_name']); ?>">
                             
                             <!-- Grip Handle -->
                             <div class="text-gray-600 group-hover:text-gray-400 cursor-grab px-1">
@@ -612,23 +595,18 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($
                             </div>
                             
                             <!-- Position -->
-                            <div class="position-num"><?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $position; ?></div>
+                            <div class="position-num"><?php echo $position; ?></div>
                             
                             <!-- Team Badge -->
-                            <div class="team-badge badge-<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $teamSlug; ?>">
-                                <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $abbr; ?>
+                            <div class="team-badge badge-<?php echo $teamSlug; ?>">
+                                <?php echo $abbr; ?>
                             </div>
                             
                             <!-- Driver Info -->
                             <div class="flex-1 flex items-center justify-between">
                                 <div>
-                                    <div class="driver-name-text text-white"><?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($driver['driver_name']); ?></div>
-                                    <div class="team-name-small"><?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($driver['team']); ?></div>
+                                    <div class="driver-name-text text-white"><?php echo htmlspecialchars($driver['driver_name']); ?></div>
+                                    <div class="team-name-small"><?php echo htmlspecialchars($driver['team']); ?></div>
                                 </div>
                             </div>
                             
@@ -642,8 +620,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($
                                 </button>
                             </div>
                         </div>
-                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
@@ -666,14 +643,12 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endforeach; ?>
                         <i class="fas fa-info-circle text-blue-500"></i> Points System
                     </h3>
                     
-                    <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; 
+                    <?php 
                     $isDoublePoints = in_array($race['country'], ['China', 'UK', 'Singapore']);
                     $isSprint = !empty($race['is_sprint']);
                     ?>
                     
-                    <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; if ($isDoublePoints): ?>
+                    <?php if ($isDoublePoints): ?>
                         <div class="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 mb-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i class="fas fa-star text-orange-400"></i>
@@ -681,8 +656,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; if ($isDoublePoints): ?
                             </div>
                             <p class="text-[10px] text-gray-300">All points are <strong>DOUBLED</strong> for this race!</p>
                         </div>
-                    <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
+                    <?php endif; ?>
                     
                     <div class="space-y-3 text-[11px] text-gray-400">
                         <!-- Driver Position Points -->
@@ -927,10 +901,8 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
             const list = document.getElementById('predictionList');
             const items = list.querySelectorAll('.prediction-item');
             
-            const isSprint = <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo !empty($race['is_sprint']) ? 'true' : 'false'; ?>;
-            const isDoublePoints = <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo (in_array($race['country'], ['China', 'UK', 'Singapore'])) ? 'true' : 'false'; ?>;
+            const isSprint = <?php echo !empty($race['is_sprint']) ? 'true' : 'false'; ?>;
+            const isDoublePoints = <?php echo (in_array($race['country'], ['China', 'UK', 'Singapore'])) ? 'true' : 'false'; ?>;
             
             let pointsSystem = isSprint ? {
                 1: 8, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1
@@ -1006,11 +978,11 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo (in_array($race['c
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    race_id: <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $raceId; ?>,
+                    race_id: <?php echo $raceId; ?>,
                     predictions: predictions,
                     constructor_predictions: constructorPredictions,
-                    action: 'save_predictions'
+                    action: 'save_predictions',
+                    csrf_token: '<?php echo getCSRFToken(); ?>'
                 })
             })
             .then(res => res.json())
@@ -1047,8 +1019,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo $raceId; ?>,
     </script>
 
     <footer class="mt-12 border-t border-white/10 py-6 text-center">
-        <p class="text-gray-500 text-sm mb-2">&copy; <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+        <p class="text-gray-500 text-sm mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
         <p class="text-gray-600 text-xs mb-3">
             Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-orange-400 font-semibold transition">Scanerrific</a>
         </p>

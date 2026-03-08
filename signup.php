@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/auth.php';
 require_once 'includes/csrf.php';
+require_once 'includes/ratelimit.php';
 
 $error = '';
 $success = '';
@@ -10,6 +11,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!validateCSRF()) {
         $error = 'Security validation failed. Please try again.';
     } else {
+        // Check rate limit (3 attempts per 15 minutes for signup)
+        $rateLimit = checkRateLimit('signup', 3, 15);
+        
+        if (!$rateLimit['allowed']) {
+            $retryMsg = getRetryAfterMessage($rateLimit['retry_after']);
+            $error = "Too many signup attempts. Please try again in {$retryMsg}.";
+        } else {
         // HONEYPOT
         if (!empty($_POST['website'])) {
             die('Bot detected.');
@@ -40,9 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo '<script>setTimeout(function(){ window.location.href="login.php"; }, 2000);</script>';
             } else {
                 $error = $result['message'];
+                // Record failed attempt
+                recordFailedAttempt('signup');
             }
         }
     }
+}
+
 }
 
 
