@@ -49,6 +49,11 @@ try {
         $db->query("ALTER TABLE race_results ADD COLUMN constructor_name VARCHAR(100) AFTER constructor_id");
     }
 
+    $cols4 = $db->query("SHOW COLUMNS FROM scores LIKE 'constructor_points'")->num_rows;
+    if ($cols4 === 0) {
+        $db->query("ALTER TABLE scores ADD COLUMN constructor_points INT DEFAULT 0 AFTER driver_points");
+    }
+
     // 2. Clear Existing Results
     $db->query("DELETE FROM race_results WHERE race_id = $raceId");
 
