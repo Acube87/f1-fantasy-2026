@@ -32,6 +32,14 @@ try {
 
     if (!$race) throw new Exception("Race not found");
 
+    // 1.5 Auto-migrate race_results table if columns are missing (Railway DB compatibility)
+    $cols = $db->query("SHOW COLUMNS FROM race_results LIKE 'driver_name'")->num_rows;
+    if ($cols === 0) {
+        $db->query("ALTER TABLE race_results ADD COLUMN driver_name VARCHAR(100) AFTER driver_id");
+        $db->query("ALTER TABLE race_results ADD COLUMN constructor_id VARCHAR(50) AFTER driver_name");
+        $db->query("ALTER TABLE race_results ADD COLUMN constructor_name VARCHAR(100) AFTER constructor_id");
+    }
+
     // 2. Clear Existing Results
     $db->query("DELETE FROM race_results WHERE race_id = $raceId");
 
@@ -142,15 +150,13 @@ try {
         $totals = $totalsStmt->get_result()->fetch_assoc();
         
         $updTotals = $db->prepare("
-            INSERT INTO user_totals (user_id, total_points, races_participated, average_points)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO user_totals (user_id, total_points, races_participated)
+            VALUES (?, ?, ?)
             ON DUPLICATE KEY UPDATE
                 total_points = VALUES(total_points),
-                races_participated = VALUES(races_participated),
-                average_points = VALUES(average_points)
+                races_participated = VALUES(races_participated)
         ");
-        $avg = $totals['races'] > 0 ? ($totals['grand_total'] / $totals['races']) : 0;
-        $updTotals->bind_param("iiid", $userId, $totals['grand_total'], $totals['races'], $avg);
+        $updTotals->bind_param("iii", $userId, $totals['grand_total'], $totals['races']);
         $updTotals->execute();
 
         // Check Achievements
