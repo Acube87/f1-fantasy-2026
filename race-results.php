@@ -9,7 +9,17 @@ if (!$user) {
 }
 
 $db = getDB();
-$userId = $user['id'];
+$loggedInUserId = $user['id'];
+$userId = isset($_GET['user_id']) ? intval($_GET['user_id']) : $loggedInUserId;
+
+$isMe = ($userId === $loggedInUserId);
+
+// Setup the display name
+$viewUserQuery = $db->prepare("SELECT username FROM users WHERE id = ?");
+$viewUserQuery->bind_param("i", $userId);
+$viewUserQuery->execute();
+$viewUser = $viewUserQuery->get_result()->fetch_assoc();
+$viewUserName = $viewUser ? $viewUser['username'] : 'User';
 
 // Get race_id from URL
 $raceId = isset($_GET['race_id']) ? intval($_GET['race_id']) : 0;
@@ -163,7 +173,7 @@ $stats = getUserStats($userId);
                 
                 <?php if ($hasResults && $scoreRecord): ?>
                 <div class="g-card p-6 text-center">
-                    <div class="text-sm text-gray-400 uppercase font-bold mb-2">Your Score</div>
+                    <div class="text-sm text-gray-400 uppercase font-bold mb-2"><?php echo $isMe ? 'Your' : htmlspecialchars($viewUserName) . "'s"; ?> Score</div>
                     <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">
                         <?php echo $scoreRecord['total_points'] ?? 0; ?>
                     </div>
@@ -186,7 +196,7 @@ $stats = getUserStats($userId);
                 
                 <?php if (!empty($predictions)): ?>
                     <div class="mt-8">
-                        <h3 class="text-white font-bold mb-4">Your Predictions</h3>
+                        <h3 class="text-white font-bold mb-4"><?php echo $isMe ? 'Your' : htmlspecialchars($viewUserName) . "'s"; ?> Predictions</h3>
                         <div class="max-w-2xl mx-auto space-y-2">
                             <?php foreach ($predictions as $pred): ?>
                             <div class="g-card p-4 flex items-center justify-between">
@@ -247,7 +257,7 @@ $stats = getUserStats($userId);
             <div class="g-card p-6 mb-8">
                 <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                     <i class="fas fa-trophy text-orange-500"></i>
-                    Your Predictions vs Actual Results
+                    <?php echo $isMe ? 'Your' : htmlspecialchars($viewUserName) . "'s"; ?> Predictions vs Actual Results
                 </h2>
 
                 <?php if (empty($predictions)): ?>

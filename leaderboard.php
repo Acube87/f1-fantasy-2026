@@ -7,6 +7,12 @@ require_once 'includes/avatars.php';
 $leaderboard = getLeaderboard(100);
 $user = getCurrentUser(); // Standard variable name $user
 $currentUser = $user;     // Alias for existing logic
+
+// Get the latest completed race so we can link to users' latest predictions
+$db = getDB();
+$latestRaceQuery = $db->query("SELECT id FROM races WHERE status = 'completed' ORDER BY race_date DESC LIMIT 1");
+$latestRace = $latestRaceQuery->fetch_assoc();
+$latestRaceId = $latestRace['id'] ?? 1; // Default to 1 (Australia) if none completed
 ?>
 <!DOCTYPE html>
 <html lang="en">
