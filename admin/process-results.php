@@ -33,10 +33,19 @@ try {
     if (!$race) throw new Exception("Race not found");
 
     // 1.5 Auto-migrate race_results table if columns are missing (Railway DB compatibility)
+    // Check and add columns independently to prevent duplicate column crashed
     $cols = $db->query("SHOW COLUMNS FROM race_results LIKE 'driver_name'")->num_rows;
     if ($cols === 0) {
         $db->query("ALTER TABLE race_results ADD COLUMN driver_name VARCHAR(100) AFTER driver_id");
+    }
+    
+    $cols2 = $db->query("SHOW COLUMNS FROM race_results LIKE 'constructor_id'")->num_rows;
+    if ($cols2 === 0) {
         $db->query("ALTER TABLE race_results ADD COLUMN constructor_id VARCHAR(50) AFTER driver_name");
+    }
+
+    $cols3 = $db->query("SHOW COLUMNS FROM race_results LIKE 'constructor_name'")->num_rows;
+    if ($cols3 === 0) {
         $db->query("ALTER TABLE race_results ADD COLUMN constructor_name VARCHAR(100) AFTER constructor_id");
     }
 
