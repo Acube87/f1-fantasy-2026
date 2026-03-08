@@ -44,7 +44,7 @@ $rank = $stats['rank'] ?? '-';
 // Get Recent Results (Last 5 races for profile user)
 $recentResults = [];
 $stmt = $db->prepare("
-    SELECT r.id as race_id, r.race_name, r.country, s.total_points, r.race_date 
+    SELECT r.id as race_id, r.race_name, r.country, r.status, s.total_points, r.race_date 
     FROM scores s 
     JOIN races r ON s.race_id = r.id 
     WHERE s.user_id = ? 
@@ -183,7 +183,13 @@ $accuracy = $totalPredictionsMade > 0 ? ($exactMatches / $totalPredictionsMade) 
                                     <i class="fas fa-flag-checkered text-white"></i>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-white"><?php echo htmlspecialchars($result['race_name']); ?></div>
+                                    <?php if ($result['status'] === 'completed'): ?>
+                                        <a href="race-results.php?user_id=<?php echo $profileUserId; ?>&race_id=<?php echo $result['race_id']; ?>" class="font-bold text-white hover:text-orange-400 transition-colors">
+                                            <?php echo htmlspecialchars($result['race_name']); ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <div class="font-bold text-white"><?php echo htmlspecialchars($result['race_name']); ?></div>
+                                    <?php endif; ?>
                                     <div class="text-sm text-gray-400"><?php echo htmlspecialchars($result['country']); ?> • <?php echo date('M d, Y', strtotime($result['race_date'])); ?></div>
                                 </div>
                             </div>
