@@ -355,9 +355,14 @@ function getUserStats($userId) {
  * Get dynamic hero image based on country
  */
 function getRaceHeroImage($country) {
+    // normalize the country string so keys are matched reliably
+    $key = trim($country);
+    $key = ucfirst(strtolower($key));
+
     $images = [
         'Australia' => 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2070&auto=format&fit=crop',
-        'China' => 'https://images.unsplash.com/photo-1548690312-e3b507d17a4d?q=80&w=2070&auto=format&fit=crop',
+        // China URL updated after original expired
+        'China' => 'https://images.unsplash.com/photo-1618631954937-526e872edb89?q=80&w=2070&auto=format&fit=crop', // updated from user-supplied lantern photo (red & gold)
         'Japan' => 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop',
         'Bahrain' => 'https://images.unsplash.com/photo-1517404215738-15263e9f9178?q=80&w=2070&auto=format&fit=crop',
         'Saudi Arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
@@ -380,8 +385,14 @@ function getRaceHeroImage($country) {
         'Qatar' => 'https://images.unsplash.com/photo-1511222409051-bd12c6686146?q=80&w=2070&auto=format&fit=crop',
         'Abu Dhabi' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=2070&auto=format&fit=crop'
     ];
-    
-    return $images[$country] ?? 'https://images.unsplash.com/photo-1541336528065-8f1fdc435835?q=80&w=2070&auto=format&fit=crop';
+
+    if (isset($images[$key])) {
+        return $images[$key];
+    }
+
+    // if country doesn't have a static image, try a generic unsplash search
+    $search = urlencode($key ?: 'motorsport');
+    return "https://source.unsplash.com/2070x1000/?{$search}";
 }
 
 /**
