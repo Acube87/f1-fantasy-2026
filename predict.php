@@ -954,6 +954,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             });
         }
 
+        function copyFromPreviousRace() {
+            // request previous race predictions for this user
+            fetch('predict.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    race_id: <?php echo $raceId; ?>,
+                    action: 'copy_previous',
+                    csrf_token: '<?php echo getCSRFToken(); ?>'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const list = document.getElementById('predictionList');
+                    // data.predictions is map driver_id -> predicted_position
+                    const preds = data.predictions;
+                    // sort by position
+                    const sorted = Object.entries(preds).sort(([,a],[,b]) => a - b);
+                    sorted.forEach(([driverId]) => {
+                        const item = list.querySelector(`.prediction-item[data-driver-id="${driverId}"]`);
+                        if (item) {
+                            list.appendChild(item); // move to end in order
+                        }
+                    });
+                } else {
+                    alert('Unable to copy previous race predictions');
+                }
+            })
+            .catch(err => alert('Network error'));
+        }
+
         function savePredictions() {
             const list = document.getElementById('predictionList');
             const items = list.querySelectorAll('.prediction-item');
