@@ -213,6 +213,7 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        console.log('News social script loaded');
         function toggleLike(postId) {
             fetch('api/social.php', {
                 method: 'POST',
