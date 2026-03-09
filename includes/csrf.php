@@ -39,14 +39,20 @@ function csrfField() {
 }
 
 /**
- * Validate CSRF token from POST request
+ * Validate CSRF token from POST request or from parameter
  * Returns true if valid, false otherwise
  */
-function validateCSRF() {
+function validateCSRF($token = null) {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         return true; // Only validate POST requests
     }
     
+    // If token is provided as parameter, use it (for JSON/AJAX requests)
+    if ($token !== null) {
+        return verifyCSRFToken($token);
+    }
+    
+    // Otherwise, read from POST data (for form submissions)
     $token = $_POST['csrf_token'] ?? '';
     return verifyCSRFToken($token);
 }
