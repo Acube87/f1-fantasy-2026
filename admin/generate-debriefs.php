@@ -1,10 +1,10 @@
 <?php
-require_once 'includes/auth.php';
-require_once 'includes/functions.php';
+require_once '../includes/auth.php';
+require_once '../includes/functions.php';
 
 $user = getCurrentUser();
 if (!$user) {
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit;
 }
 
@@ -77,7 +77,7 @@ $races = $completedRaces->fetch_all(MYSQLI_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generate Race Debriefs - <?php echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/gaming-style.css">
+    <link rel="stylesheet" href="../css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 text-white font-sans">
@@ -85,7 +85,7 @@ $races = $completedRaces->fetch_all(MYSQLI_ASSOC);
         <!-- Navigation -->
         <nav class="border-b border-white/10 sticky top-0 z-50 bg-slate-950/95 backdrop-blur-sm">
             <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-                <a href="admin/race-control.php" class="flex items-center gap-2 hover:opacity-80 transition">
+                <a href="race-control.php" class="flex items-center gap-2 hover:opacity-80 transition">
                     <i class="fas fa-chevron-left"></i>
                     <span class="font-bold text-orange-500">Back to Race Control</span>
                 </a>
