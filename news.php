@@ -28,12 +28,16 @@ $db->query("CREATE TABLE IF NOT EXISTS posts (
 
 // Get all posts with race info
 $stmt = $db->prepare("
-    SELECT p.id, p.race_id, p.title, p.content, p.created_at, r.race_name, r.country, u.username, p.is_manual
+    SELECT p.id, p.race_id, p.title, p.content, p.created_at, r.race_name, r.country, u.username, p.is_manual,
+           (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) as like_count,
+           (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id) as comment_count,
+           (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id AND user_id = ?) as user_liked
     FROM posts p
     LEFT JOIN races r ON p.race_id = r.id
     LEFT JOIN users u ON p.author_id = u.id
     ORDER BY p.created_at DESC
 ");
+$stmt->bind_param("i", $user['id']);
 $stmt->execute();
 $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
@@ -146,18 +150,37 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             <!-- Post Footer -->
                             <div class="pt-4 border-t border-white/10 flex justify-between items-center">
                                 <div class="flex gap-4 text-sm">
-                                    <button class="text-gray-400 hover:text-orange-400 transition flex items-center gap-1">
+                                    <button onclick="toggleLike(<?php echo $post['id']; ?>)" 
+                                            class="transition flex items-center gap-1 <?php echo $post['user_liked'] ? 'text-red-400' : 'text-gray-400 hover:text-red-400'; ?>" 
+                                            id="like-btn-<?php echo $post['id']; ?>">
                                         <i class="fas fa-heart"></i>
-                                        <span>Like</span>
+                                        <span id="like-count-<?php echo $post['id']; ?>"><?php echo $post['like_count']; ?></span>
                                     </button>
-                                    <button class="text-gray-400 hover:text-orange-400 transition flex items-center gap-1">
+                                    <button onclick="toggleComments(<?php echo $post['id']; ?>)" 
+                                            class="text-gray-400 hover:text-orange-400 transition flex items-center gap-1">
                                         <i class="fas fa-comment"></i>
-                                        <span>Comment</span>
+                                        <span id="comment-count-<?php echo $post['id']; ?>"><?php echo $post['comment_count']; ?></span>
                                     </button>
                                 </div>
                                 <button class="text-gray-400 hover:text-orange-400 transition">
                                     <i class="fas fa-share"></i>
                                 </button>
+                            </div>
+
+                            <!-- Comments Section -->
+                            <div id="comments-<?php echo $post['id']; ?>" class="hidden mt-4 pt-4 border-t border-white/5">
+                                <div class="space-y-3 mb-4" id="comments-list-<?php echo $post['id']; ?>">
+                                    <!-- Comments will be loaded here -->
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="comment-input-<?php echo $post['id']; ?>" 
+                                           placeholder="Write a comment..." 
+                                           class="flex-1 bg-slate-800/50 border border-white/10 rounded px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none">
+                                    <button onclick="addComment(<?php echo $post['id']; ?>)" 
+                                            class="bg-orange-600 hover:bg-orange-500 px-4 py-2 rounded text-sm font-medium transition">
+                                        Post
+                                    </button>
+                                </div>
                             </div>
                         </article>
                     <?php endforeach; ?>
@@ -165,5 +188,109 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             <?php endif; ?>
         </main>
     </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function toggleLike(postId) {
+            fetch('api/social.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'toggle_like',
+                    post_id: postId,
+                    csrf_token: '<?php echo getCSRFToken(); ?>'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const btn = document.getElementById('like-btn-' + postId);
+                    const count = document.getElementById('like-count-' + postId);
+                    
+                    count.textContent = data.like_count;
+                    
+                    if (data.liked) {
+                        btn.classList.remove('text-gray-400', 'hover:text-red-400');
+                        btn.classList.add('text-red-400');
+                    } else {
+                        btn.classList.remove('text-red-400');
+                        btn.classList.add('text-gray-400', 'hover:text-red-400');
+                    }
+                }
+            })
+            .catch(err => console.error('Like error:', err));
+        }
+
+        function toggleComments(postId) {
+            const commentsDiv = document.getElementById('comments-' + postId);
+            const isVisible = !commentsDiv.classList.contains('hidden');
+            
+            if (!isVisible) {
+                // Show comments and load them
+                commentsDiv.classList.remove('hidden');
+                loadComments(postId);
+            } else {
+                // Hide comments
+                commentsDiv.classList.add('hidden');
+            }
+        }
+
+        function loadComments(postId) {
+            fetch('api/social.php?action=get_comments&post_id=' + postId)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const container = document.getElementById('comments-list-' + postId);
+                    container.innerHTML = '';
+                    
+                    data.comments.forEach(comment => {
+                        const commentDiv = document.createElement('div');
+                        commentDiv.className = 'bg-slate-800/30 rounded p-3';
+                        commentDiv.innerHTML = `
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-medium text-orange-400 text-sm">${comment.username}</span>
+                                <span class="text-xs text-gray-500">${comment.created_at}</span>
+                            </div>
+                            <p class="text-gray-300 text-sm">${comment.comment}</p>
+                        `;
+                        container.appendChild(commentDiv);
+                    });
+                }
+            })
+            .catch(err => console.error('Comments error:', err));
+        }
+
+        function addComment(postId) {
+            const input = document.getElementById('comment-input-' + postId);
+            const comment = input.value.trim();
+            
+            if (!comment) return;
+            
+            fetch('api/social.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'add_comment',
+                    post_id: postId,
+                    comment: comment,
+                    csrf_token: '<?php echo getCSRFToken(); ?>'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    loadComments(postId);
+                    // Update comment count
+                    const count = document.getElementById('comment-count-' + postId);
+                    count.textContent = data.comment_count;
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(err => console.error('Comment error:', err));
+        }
+    </script>
 </body>
 </html>
