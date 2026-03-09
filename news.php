@@ -28,7 +28,7 @@ $db->query("CREATE TABLE IF NOT EXISTS posts (
 
 // Get all posts with race info
 $stmt = $db->prepare("
-    SELECT p.id, p.race_id, p.title, p.content, p.created_at, r.race_name, r.country, u.username
+    SELECT p.id, p.race_id, p.title, p.content, p.created_at, r.race_name, r.country, u.username, p.is_manual
     FROM posts p
     LEFT JOIN races r ON p.race_id = r.id
     LEFT JOIN users u ON p.author_id = u.id
