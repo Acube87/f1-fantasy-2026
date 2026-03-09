@@ -506,11 +506,20 @@ function createPostRaceDebrief($raceId, $db = null) {
     
     if (!$race) return false;
 
-    // Get current admin user for author
-    $adminStmt = $db->prepare("SELECT id FROM users WHERE is_admin = 1 LIMIT 1");
-    $adminStmt->execute();
-    $admin = $adminStmt->get_result()->fetch_assoc();
-    $authorId = $admin['id'] ?? 1;
+    // Use Race Control system user as author (ID 3)
+    // If it doesn't exist, use admin user
+    $authorId = 3; // Race Control system account
+    $checkStmt = $db->prepare("SELECT id FROM users WHERE id = ?");
+    $checkStmt->bind_param("i", $authorId);
+    $checkStmt->execute();
+    $check = $checkStmt->get_result()->fetch_assoc();
+    if (!$check) {
+        // Fallback to admin if Race Control doesn't exist
+        $adminStmt = $db->prepare("SELECT id FROM users WHERE is_admin = 1 LIMIT 1");
+        $adminStmt->execute();
+        $admin = $adminStmt->get_result()->fetch_assoc();
+        $authorId = $admin['id'] ?? 1;
+    }
 
     // Get top 3 users by points in this race
     $topStmt = $db->prepare("
