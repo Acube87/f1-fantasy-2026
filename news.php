@@ -99,10 +99,18 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             </div>
 
                             <!-- Post Content -->
-                            <div class="prose prose-invert max-w-none mb-4">
-                                <div class="text-gray-300 whitespace-pre-wrap leading-relaxed">
-                                    <?php 
-                                    // Simple HTML rendering for the debrief content
+                            <div class="mb-4">
+                                <?php 
+                                // Check if this is a debrief post (has race_id and is_manual = 0)
+                                $isDebrief = !empty($post['race_id']) && isset($post['is_manual']) && $post['is_manual'] == 0;
+                                
+                                if ($isDebrief) {
+                                    // Render HTML directly for debrief posts without wrapper styling
+                                    echo $post['content'];
+                                } else {
+                                    // Simple HTML rendering for regular posts
+                                    echo '<div class="prose prose-invert max-w-none">';
+                                    echo '<div class="text-gray-300 leading-relaxed">';
                                     $content = htmlspecialchars($post['content']);
                                     // Convert line breaks
                                     $content = nl2br($content);
@@ -110,8 +118,10 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                     $content = preg_replace('/\*\*(.*?)\*\*/', '<strong class="text-white">$1</strong>', $content);
                                     $content = preg_replace('/__(.*?)__/', '<em class="text-orange-300">$1</em>', $content);
                                     echo $content;
-                                    ?>
-                                </div>
+                                    echo '</div>';
+                                    echo '</div>';
+                                }
+                                ?>
                             </div>
 
                             <!-- Post Footer -->
