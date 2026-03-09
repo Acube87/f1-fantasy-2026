@@ -118,5 +118,13 @@ if ($method === 'POST') {
     }
 }
 
-echo json_encode(['success' => false, 'message' => 'Invalid request']);
+// debug log for invalid requests
+$debug = [
+    'method' => $method,
+    'get' => $_GET,
+    'post_body' => $input,
+    'headers' => getallheaders()
+];
+file_put_contents(__DIR__ . '/../debug_social.log', json_encode($debug, JSON_PRETTY_PRINT) . "\n", FILE_APPEND);
+echo json_encode(['success' => false, 'message' => 'Invalid request', 'debug' => $debug]);
 ?>
