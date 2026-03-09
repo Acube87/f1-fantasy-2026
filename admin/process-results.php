@@ -4,9 +4,9 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/achievements.php';
 
-// Very basic security check - in a real app, you'd check for is_admin
-if (!isLoggedIn()) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+// Check admin access
+if (!isAdmin()) {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized - Admin access required']);
     exit;
 }
 
@@ -89,6 +89,9 @@ try {
     foreach ($users as $u) {
         checkAndUnlockAchievements($u['user_id'], $db);
     }
+
+    // 7. Create post-race debrief post
+    createPostRaceDebrief($raceId, $db);
 
     $db->commit();
     echo json_encode(['success' => true]);

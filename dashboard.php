@@ -189,6 +189,9 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></tit
                 <a href="dashboard.php" class="text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 border-b-2 border-orange-500 pb-1">
                     <i class="fas fa-home text-orange-500"></i> Dashboard
                 </a>
+                <a href="news.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
+                    <i class="fas fa-newspaper text-orange-400"></i> News & Posts
+                </a>
                 <a href="updates.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 relative">
                     <i class="fas fa-broadcast-tower text-orange-400"></i> Race Updates
                     <span class="absolute -top-1 -right-2 w-2 h-2 bg-orange-500 rounded-full animate-pulse border border-orange-950"></span>
@@ -199,9 +202,11 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></tit
                 <a href="achievements.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
                     <i class="fas fa-medal text-purple-500/80"></i> Achievements
                 </a>
-                <a href="admin/race-control.php" class="text-gray-500 hover:text-orange-400 font-bold text-[10px] uppercase tracking-widest transition flex items-center gap-2 border-l border-white/10 pl-6">
-                    <i class="fas fa-tower-broadcast opacity-50"></i> Race Control
+                <?php if (isset($user['is_admin']) && $user['is_admin'] == 1): ?>
+                <a href="admin/race-control.php" class="text-orange-400 hover:text-orange-300 font-bold text-[10px] uppercase tracking-widest transition flex items-center gap-2 border-l border-orange-500/30 pl-6">
+                    <i class="fas fa-tower-broadcast"></i> Race Control
                 </a>
+                <?php endif; ?>
             </div>
         </div>
         

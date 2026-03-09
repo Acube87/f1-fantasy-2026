@@ -9,6 +9,9 @@ if (!$user) {
     exit;
 }
 
+// Require admin access
+requireAdmin();
+
 $db = getDB();
 
 // Fetch ALL races so completed ones can also be re-processed

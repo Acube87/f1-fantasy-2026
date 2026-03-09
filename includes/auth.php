@@ -25,22 +25,26 @@ function getCurrentUser() {
     
     $db = getDB();
     
-    // AUTO-MIGRATE: Ensure avatar_style exists before selecting it
+    // AUTO-MIGRATE: Ensure avatar_style and is_admin exist before selecting them
     // This protects the live app from crashing if the migration hasn't run yet
-    static $avatarStyleChecked = false;
-    if (!$avatarStyleChecked) {
+    static $migrationsChecked = false;
+    if (!$migrationsChecked) {
         try {
             $check = $db->query("SHOW COLUMNS FROM users LIKE 'avatar_style'");
             if ($check->num_rows == 0) {
                 $db->query("ALTER TABLE users ADD COLUMN avatar_style VARCHAR(50) DEFAULT 'avataaars' AFTER email");
             }
-            $avatarStyleChecked = true;
+            $check = $db->query("SHOW COLUMNS FROM users LIKE 'is_admin'");
+            if ($check->num_rows == 0) {
+                $db->query("ALTER TABLE users ADD COLUMN is_admin TINYINT(1) DEFAULT 0");
+            }
+            $migrationsChecked = true;
         } catch (Exception $e) {
             // Silently continue, the query below might still fail if ALTER failed
         }
     }
 
-    $stmt = $db->prepare("SELECT id, username, email, full_name, avatar_style FROM users WHERE id = ?");
+    $stmt = $db->prepare("SELECT id, username, email, full_name, avatar_style, is_admin FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -130,6 +134,24 @@ function registerUser($username, $email, $password, $fullName = '') {
     }
     
     return ['success' => false, 'message' => 'Registration failed: ' . $db->error];
+}
+
+/**
+ * Check if current user is admin
+ */
+function isAdmin() {
+    $user = getCurrentUser();
+    return $user && isset($user['is_admin']) && $user['is_admin'] == 1;
+}
+
+/**
+ * Require admin access - redirect to home if not admin
+ */
+function requireAdmin() {
+    if (!isAdmin()) {
+        header('Location: ../dashboard.php');
+        exit;
+    }
 }
 
 /**
