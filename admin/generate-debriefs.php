@@ -20,8 +20,23 @@ if ($user['username'] === 'Angrycube') {
     requireAdmin();
 }
 
-$message = '';
-$success = false;
+// Handle preview request
+$previewContent = '';
+$previewRace = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['preview_race_id'])) {
+    $previewRaceId = (int)$_POST['preview_race_id'];
+    
+    // Get race details for preview
+    $raceStmt = $db->prepare("SELECT * FROM races WHERE id = ?");
+    $raceStmt->bind_param("i", $previewRaceId);
+    $raceStmt->execute();
+    $previewRace = $raceStmt->get_result()->fetch_assoc();
+    
+    if ($previewRace && $previewRace['status'] === 'completed') {
+        // Generate preview content (same logic as createPostRaceDebrief but return content instead of saving)
+        $previewContent = generateDebriefPreview($previewRaceId, $db);
+    }
+}
 
 // Handle manual debrief generation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['race_id'])) {
@@ -79,6 +94,28 @@ $races = $completedRaces->fetch_all(MYSQLI_ASSOC);
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .post-content {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+        .post-content strong {
+            color: #fbbf24;
+            font-weight: 700;
+        }
+        .post-content em {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        .post-race-debrief {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+    </style>
 </head>
 <body class="bg-slate-950 text-white font-sans">
     <div class="min-h-screen">
@@ -102,6 +139,39 @@ $races = $completedRaces->fetch_all(MYSQLI_ASSOC);
             <?php if ($message): ?>
                 <div class="mb-6 p-4 rounded-lg border <?php echo $success ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-300' : 'bg-red-900/20 border-red-500/30 text-red-300'; ?>">
                     <?php echo $message; ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Preview Section -->
+            <?php if ($previewContent && $previewRace): ?>
+                <div class="mb-8 bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-500/30 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-blue-400 flex items-center gap-2">
+                            <i class="fas fa-eye"></i> Preview: <?php echo htmlspecialchars($previewRace['race_name']); ?> Debrief
+                        </h3>
+                        <form method="POST" class="inline">
+                            <input type="hidden" name="race_id" value="<?php echo $previewRace['id']; ?>">
+                            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold text-sm transition">
+                                <i class="fas fa-check"></i> Publish This Debrief
+                            </button>
+                        </form>
+                    </div>
+                    <div class="bg-slate-800/50 border border-slate-600/30 rounded-lg p-4 max-h-96 overflow-y-auto">
+                        <div class="prose prose-invert max-w-none post-content">
+                            <?php echo $previewContent; ?>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex gap-2">
+                        <form method="POST" class="inline">
+                            <input type="hidden" name="race_id" value="<?php echo $previewRace['id']; ?>">
+                            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold text-sm transition">
+                                <i class="fas fa-paper-plane"></i> Publish Debrief
+                            </button>
+                        </form>
+                        <button onclick="this.closest('.bg-gradient-to-br').remove()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold text-sm transition">
+                            <i class="fas fa-times"></i> Close Preview
+                        </button>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -153,12 +223,20 @@ $races = $completedRaces->fetch_all(MYSQLI_ASSOC);
                                         </span>
                                     </div>
                                 </div>
-                                <form method="POST" class="ml-4">
-                                    <input type="hidden" name="race_id" value="<?php echo $race['id']; ?>">
-                                    <button type="submit" class="px-6 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg font-bold text-sm transition transform hover:scale-105 active:scale-95">
-                                        <?php echo $race['has_debrief'] === 'Yes' ? 'Regenerate' : 'Generate'; ?>
-                                    </button>
-                                </form>
+                                <div class="flex gap-2">
+                                    <form method="POST" class="inline">
+                                        <input type="hidden" name="preview_race_id" value="<?php echo $race['id']; ?>">
+                                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold text-sm transition transform hover:scale-105 active:scale-95">
+                                            <i class="fas fa-eye"></i> Preview
+                                        </button>
+                                    </form>
+                                    <form method="POST" class="inline">
+                                        <input type="hidden" name="race_id" value="<?php echo $race['id']; ?>">
+                                        <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg font-bold text-sm transition transform hover:scale-105 active:scale-95">
+                                            <?php echo $race['has_debrief'] === 'Yes' ? 'Regenerate' : 'Generate'; ?>
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>

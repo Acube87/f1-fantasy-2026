@@ -649,3 +649,135 @@ function createPostRaceDebrief($raceId, $db = null) {
     return $postStmt->execute();
 }
 
+function generateDebriefPreview($raceId, $db = null) {
+    if (!$db) {
+        $db = getDB();
+    }
+
+    // Get race details
+    $raceStmt = $db->prepare("SELECT * FROM races WHERE id = ?");
+    $raceStmt->bind_param("i", $raceId);
+    $raceStmt->execute();
+    $race = $raceStmt->get_result()->fetch_assoc();
+    
+    if (!$race) return false;
+
+    // Get top 3 users by points in this race
+    $topStmt = $db->prepare("
+        SELECT s.user_id, u.username, s.total_points, 
+               s.driver_points, s.constructor_points, s.top3_bonus
+        FROM scores s
+        JOIN users u ON s.user_id = u.id
+        WHERE s.race_id = ?
+        ORDER BY s.total_points DESC
+        LIMIT 3
+    ");
+    $topStmt->bind_param("i", $raceId);
+    $topStmt->execute();
+    $topUsers = $topStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    // Get race winner
+    $winnerStmt = $db->prepare("
+        SELECT driver_name FROM race_results WHERE race_id = ? AND position = 1 LIMIT 1
+    ");
+    $winnerStmt->bind_param("i", $raceId);
+    $winnerStmt->execute();
+    $winner = $winnerStmt->get_result()->fetch_assoc();
+    $winnerName = $winner['driver_name'] ?? 'Unknown Driver';
+
+    // Get constructor winner
+    $constructorStmt = $db->prepare("
+        SELECT constructor_name, SUM(points) as total_points 
+        FROM race_results 
+        WHERE race_id = ? 
+        GROUP BY constructor_name 
+        ORDER BY total_points DESC 
+        LIMIT 1
+    ");
+    $constructorStmt->bind_param("i", $raceId);
+    $constructorStmt->execute();
+    $constructor = $constructorStmt->get_result()->fetch_assoc();
+    $constructorWinner = $constructor['constructor_name'] ?? 'Unknown Team';
+
+    // Get next upcoming race
+    $nextStmt = $db->query("SELECT id, race_name, country, race_date FROM races WHERE status = 'upcoming' ORDER BY race_date ASC LIMIT 1");
+    $nextRace = $nextStmt->fetch_assoc();
+
+    // Count users who submitted predictions
+    $predStmt = $db->prepare("SELECT COUNT(DISTINCT user_id) as count FROM predictions WHERE race_id = ?");
+    $predStmt->bind_param("i", $raceId);
+    $predStmt->execute();
+    $predCount = $predStmt->get_result()->fetch_assoc();
+    $participantCount = $predCount['count'] ?? 0;
+
+    // Get user with most correct predictions
+    $maxStmt = $db->prepare("
+        SELECT u.username, COUNT(DISTINCT p.driver_id) as correct_predictions
+        FROM predictions p
+        JOIN users u ON p.user_id = u.id
+        JOIN race_results rr ON rr.race_id = p.race_id AND rr.driver_id = p.driver_id AND rr.position = p.predicted_position
+        WHERE p.race_id = ?
+        GROUP BY p.user_id
+        ORDER BY correct_predictions DESC
+        LIMIT 1
+    ");
+    $maxStmt->bind_param("i", $raceId);
+    $maxStmt->execute();
+    $mostCorrect = $maxStmt->get_result()->fetch_assoc();
+
+    // Build the debrief content
+    $content = "<div class='post-race-debrief'>\n\n";
+    
+    // Title Section
+    $content .= "🏁 <strong>" . htmlspecialchars($race['race_name']) . " - POST-RACE DEBRIEF 🏁</strong>\n\n";
+    
+    // Race Summary
+    $content .= "📊 <strong>The Verdict From " . htmlspecialchars($race['country']) . ":</strong>\n\n";
+    $content .= "On the track, <strong>$winnerName</strong> absolutely sent it and took the chequered flag! 🏆\n\n";
+    $content .= "<strong>$constructorWinner</strong> brought the constructors' championship energy with some serious points-scoring action. 💪\n\n";
+    
+    // Prediction Stats
+    $content .= "📈 <strong>Your Predictions (The Real Race):</strong>\n";
+    $content .= "$participantCount of you crystal-ball gazing legends made your predictions. Respect! 👀\n\n";
+    
+    // Most Correct
+    if ($mostCorrect) {
+        $content .= "🎯 <strong>" . htmlspecialchars($mostCorrect['username']) . "</strong> had " . (int)$mostCorrect['correct_predictions'] . " drivers spot-on. Tactical mastermind detected! 🧠\n\n";
+    }
+    
+    // Top 3 Rankings
+    $content .= "🥇 <strong>PODIUM FINISHERS (Top 3 Prediction Scorers):</strong>\n\n";
+    
+    $medals = ["🥇", "🥈", "🥉"];
+    foreach ($topUsers as $idx => $topUser) {
+        $medal = $medals[$idx] ?? "•";
+        $userName = htmlspecialchars($topUser['username']);
+        $totalPoints = (int)$topUser['total_points'];
+        $driverPoints = (int)$topUser['driver_points'];
+        $constructorBonusNote = ($topUser['constructor_points'] > 0) ? " ⭐ (incl. constructor bonus!)" : "";
+        $podiumBonusNote = ($topUser['top3_bonus'] > 0) ? " 👑 (podium sweep!)" : "";
+        
+        $content .= "$medal <strong>P" . ($idx + 1) . ": " . $userName . "</strong> - $totalPoints Points$constructorBonusNote$podiumBonusNote\n";
+        $content .= "    └─ Driver Accuracy: $driverPoints pts | Strategy Bonus Activated ✅\n\n";
+    }
+    
+    // Engagement Section
+    $content .= "🔮 <strong>What's Next on the Grid?</strong>\n\n";
+    if ($nextRace) {
+        $nextDate = date('F jS', strtotime($nextRace['race_date']));
+        $nextName = htmlspecialchars($nextRace['race_name']);
+        $nextCountry = htmlspecialchars($nextRace['country']);
+        $content .= "We're heading to <strong>$nextCountry</strong> for the <strong>$nextName</strong> on <strong>$nextDate</strong>! 🌍🏁\n\n";
+        $content .= "⚠️ <strong>Prediction Deadline Reminder:</strong> Get your lineups in before the lights go out! No excuses, no late starts!\n\n";
+    }
+    
+    $content .= "💬 <strong>Community Challenge:</strong>\nThink you can beat the odds next time? The competition's heating up faster than a DRS zone! Show us what you've got! 🚀\n\n";
+    
+    $content .= "---\n";
+    $content .= "<em>Data is beautiful. Predictions are educated guesses. Memes are eternal. See you next race! 🏎️</em>\n\n";
+    
+    $content .= "</div>";
+
+    return $content;
+}
+
