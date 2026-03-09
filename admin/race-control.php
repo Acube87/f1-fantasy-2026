@@ -67,6 +67,9 @@ $drivers = $stmt->fetch_all(MYSQLI_ASSOC);
             </a>
         </div>
         <div class="flex items-center gap-6">
+            <a href="generate-debriefs.php" class="text-orange-400 hover:text-orange-300 transition text-sm font-bold flex items-center gap-2 px-3 py-2 bg-orange-500/10 rounded-lg border border-orange-500/30 hover:border-orange-500 transition">
+                <i class="fas fa-wand-magic-sparkles"></i> Generate Debriefs
+            </a>
             <a href="../dashboard.php" class="text-gray-400 hover:text-white transition text-sm">Return to Paddock</a>
         </div>
     </nav>
