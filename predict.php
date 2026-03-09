@@ -116,20 +116,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
     
     // Handle copy from previous race
     if ($input['action'] === 'copy_previous') {
-        $stmt = $db->prepare("
-            SELECT rp.driver_id, rp.predicted_position 
-            FROM predictions rp
-            JOIN races r ON rp.race_id = r.id
-            WHERE rp.user_id = ? AND r.race_date < (SELECT race_date FROM races WHERE id = ?)
-            ORDER BY r.race_date DESC 
-            LIMIT 1
-        ");
-        $stmt->bind_param("ii", $userId, $raceId);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        // find the most recent completed race before current
+        $raceStmt = $db->prepare("SELECT id FROM races WHERE race_date < (SELECT race_date FROM races WHERE id = ?) ORDER BY race_date DESC LIMIT 1");
+        $raceStmt->bind_param("i", $raceId);
+        $raceStmt->execute();
+        $prevRace = $raceStmt->get_result()->fetch_assoc();
         $prevPreds = [];
-        while ($row = $result->fetch_assoc()) {
-            $prevPreds[$row['driver_id']] = $row['predicted_position'];
+        if ($prevRace) {
+            $prevStmt = $db->prepare("SELECT driver_id, predicted_position FROM predictions WHERE race_id = ? AND user_id = ?");
+            $prevStmt->bind_param("ii", $prevRace['id'], $userId);
+            $prevStmt->execute();
+            $res = $prevStmt->get_result();
+            while ($row = $res->fetch_assoc()) {
+                $prevPreds[$row['driver_id']] = $row['predicted_position'];
+            }
         }
         
         ob_end_clean();
