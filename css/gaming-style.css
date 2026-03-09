@@ -196,3 +196,25 @@ body.gaming-theme {
         /* gap-8 equivalent */
     }
 }
+
+/* Post Race Debrief Styling */
+.post-race-debrief {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #e2e8f0;
+}
+
+.post-race-debrief strong {
+    color: #fbbf24;
+    font-weight: 700;
+}
+
+.post-race-debrief em {
+    color: #94a3b8;
+    font-style: italic;
+}
