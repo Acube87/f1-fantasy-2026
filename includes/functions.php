@@ -621,16 +621,7 @@ function createPostRaceDebrief($raceId, $db = null) {
     }
     
     // Engagement Section
-    $content .= "🔮 <strong>What's Next on the Grid?</strong>\n\n";
-    if ($nextRace) {
-        $nextDate = date('F jS', strtotime($nextRace['race_date']));
-        $nextName = htmlspecialchars($nextRace['race_name']);
-        $nextCountry = htmlspecialchars($nextRace['country']);
-        $content .= "We're heading to <strong>$nextCountry</strong> for the <strong>$nextName</strong> on <strong>$nextDate</strong>! 🌍🏁\n\n";
-        $content .= "⚠️ <strong>Prediction Deadline Reminder:</strong> Get your lineups in before the lights go out! No excuses, no late starts!\n\n";
-    }
-    
-    $content .= "💬 <strong>Community Challenge:</strong>\nThink you can beat the odds next time? The competition's heating up faster than a DRS zone! Show us what you've got! 🚀\n\n";
+    $content .= " <strong>Community Challenge:</strong>\nThink you can beat the odds next time? The competition's heating up faster than a DRS zone! Show us what you've got! 🚀\n\n";
     
     $content .= "---\n";
     $content .= "<em>Data is beautiful. Predictions are educated guesses. Memes are eternal. See you next race! 🏎️</em>\n\n";
@@ -762,15 +753,6 @@ function generateDebriefPreview($raceId, $db = null) {
     }
     
     // Engagement Section
-    $content .= "🔮 <strong>What's Next on the Grid?</strong>\n\n";
-    if ($nextRace) {
-        $nextDate = date('F jS', strtotime($nextRace['race_date']));
-        $nextName = htmlspecialchars($nextRace['race_name']);
-        $nextCountry = htmlspecialchars($nextRace['country']);
-        $content .= "We're heading to <strong>$nextCountry</strong> for the <strong>$nextName</strong> on <strong>$nextDate</strong>! 🌍🏁\n\n";
-        $content .= "⚠️ <strong>Prediction Deadline Reminder:</strong> Get your lineups in before the lights go out! No excuses, no late starts!\n\n";
-    }
-    
     $content .= "💬 <strong>Community Challenge:</strong>\nThink you can beat the odds next time? The competition's heating up faster than a DRS zone! Show us what you've got! 🚀\n\n";
     
     $content .= "---\n";

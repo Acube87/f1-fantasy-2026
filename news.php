@@ -65,6 +65,25 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
         <!-- Main Content -->
         <main class="max-w-4xl mx-auto px-4 py-8">
+            <!-- System Announcement -->
+            <div class="mb-8 bg-gradient-to-r from-emerald-900/30 to-teal-900/30 border border-emerald-500/40 rounded-lg p-6">
+                <div class="flex items-start gap-4">
+                    <div class="text-3xl mt-1">📢</div>
+                    <div>
+                        <h3 class="text-lg font-bold text-emerald-300 mb-2">System Maintenance Resolved ✅</h3>
+                        <p class="text-emerald-100 mb-2">
+                            We sincerely apologize for the technical difficulties you experienced with prediction saving. Our engineering team has identified and resolved the CSRF token validation issue that was preventing predictions from being saved.
+                        </p>
+                        <p class="text-sm text-emerald-200/80">
+                            <i class="fas fa-check-circle"></i> <strong>System Fix Completed:</strong> March 9, 2026 at 08:30 UTC
+                        </p>
+                        <p class="text-sm text-emerald-200/80 mt-2">
+                            The prediction system is now fully operational. Thank you for your patience and continued participation in Paddock Picks!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <?php if (empty($posts)): ?>
                 <div class="text-center py-12">
                     <div class="text-6xl mb-4">📰</div>
