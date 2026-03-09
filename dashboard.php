@@ -202,7 +202,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></tit
                 <a href="achievements.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
                     <i class="fas fa-medal text-purple-500/80"></i> Achievements
                 </a>
-                <?php if (isset($user['is_admin']) && $user['is_admin'] == 1): ?>
+                <?php if ($user['username'] === 'Angrycube' || (isset($user['is_admin']) && $user['is_admin'] == 1)): ?>
                 <a href="admin/race-control.php" class="text-orange-400 hover:text-orange-300 font-bold text-[10px] uppercase tracking-widest transition flex items-center gap-2 border-l border-orange-500/30 pl-6">
                     <i class="fas fa-tower-broadcast"></i> Race Control
                 </a>

