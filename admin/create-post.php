@@ -33,7 +33,7 @@ $races = $db->query("SELECT id, race_name FROM races ORDER BY race_date ASC")->f
 $message = null;
 $messageType = null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && validateCSRFToken($_POST['csrf_token'] ?? '')) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && validateCSRF($_POST['csrf_token'] ?? '')) {
     $title    = trim($_POST['title'] ?? '');
     $content  = trim($_POST['content'] ?? '');
     $raceId   = !empty($_POST['race_id']) ? (int)$_POST['race_id'] : null;
