@@ -55,6 +55,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && validateCSRF($_POST['csrf_token'] ?
     }
 }
 
+// Handle Demelete
+if (isset($_GET['delete']) && is_numeric($_GET['delete']) && isset($_GET['csrf']) && validateCSRF($_GET['csrf'])) {
+    $delId = (int)$_GET['delete'];
+    $stmt = $db->prepare("DELETE FROM posts WHERE id = ?");
+    $stmt->bind_param("i", $delId);
+    if ($stmt->execute()) {
+        $message = "✅ Post deleted successfully.";
+        $messageType = 'success';
+    } else {
+        $message = "❌ Failed to delete post.";
+        $messageType = 'error';
+    }
+}
+
 $csrfToken = getCSRFToken();
 ?>
 <!DOCTYPE html>
@@ -136,13 +150,22 @@ $csrfToken = getCSRFToken();
 
         <!-- Recent Posts -->
         <div class="mt-8 g-card p-6 rounded-[2rem]">
-            <h2 class="text-sm font-black text-white uppercase tracking-widest mb-4"><i class="fas fa-list text-gray-500 mr-2"></i>Recent Posts</h2>
+            <h2 class="text-sm font-black text-white uppercase tracking-widest mb-4"><i class="fas fa-list text-gray-500 mr-2"></i>Manage Posts</h2>
             <?php
-            $recent = $db->query("SELECT id, title, created_at FROM posts ORDER BY created_at DESC LIMIT 5")->fetch_all(MYSQLI_ASSOC);
+            $recent = $db->query("SELECT id, title, created_at FROM posts ORDER BY created_at DESC LIMIT 10")->fetch_all(MYSQLI_ASSOC);
             foreach ($recent as $rp): ?>
-            <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                <div class="text-sm text-gray-300 truncate flex-1"><?php echo htmlspecialchars($rp['title']); ?></div>
-                <div class="text-[10px] text-gray-600 ml-4 flex-shrink-0"><?php echo date('d M H:i', strtotime($rp['created_at'])); ?></div>
+            <div class="flex items-center justify-between py-3 border-b border-white/5 last:border-0 group">
+                <div class="truncate flex-1">
+                    <div class="text-sm text-gray-300 font-bold"><?php echo htmlspecialchars($rp['title']); ?></div>
+                    <div class="text-[10px] text-gray-600"><?php echo date('d M H:i', strtotime($rp['created_at'])); ?></div>
+                </div>
+                <div class="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <a href="?delete=<?php echo $rp['id']; ?>&csrf=<?php echo $csrfToken; ?>" 
+                       onclick="return confirm('Delete this post?');"
+                       class="w-8 h-8 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition">
+                        <i class="fas fa-trash text-xs"></i>
+                    </a>
+                </div>
             </div>
             <?php endforeach; ?>
             <?php if (empty($recent)): ?><p class="text-gray-500 text-sm">No posts yet.</p><?php endif; ?>
