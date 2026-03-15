@@ -90,24 +90,7 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
         <!-- Main Content -->
         <main class="max-w-4xl mx-auto px-4 py-8">
-            <!-- System Announcement -->
-            <div class="mb-8 bg-gradient-to-r from-emerald-900/30 to-teal-900/30 border border-emerald-500/40 rounded-lg p-6">
-                <div class="flex items-start gap-4">
-                    <div class="text-3xl mt-1">📢</div>
-                    <div>
-                        <h3 class="text-lg font-bold text-emerald-300 mb-2">System Maintenance Resolved ✅</h3>
-                        <p class="text-emerald-100 mb-2">
-                            We sincerely apologize for the technical difficulties you experienced with prediction saving. Our engineering team has identified and resolved the CSRF token validation issue that was preventing predictions from being saved.
-                        </p>
-                        <p class="text-sm text-emerald-200/80">
-                            <i class="fas fa-check-circle"></i> <strong>System Fix Completed:</strong> March 9, 2026 at 08:30 UTC
-                        </p>
-                        <p class="text-sm text-emerald-200/80 mt-2">
-                            The prediction system is now fully operational. Thank you for your patience and continued participation in Paddock Picks!
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <!-- No System Announcement -->
 
             <?php if (empty($posts)): ?>
                 <div class="text-center py-12">
@@ -145,24 +128,34 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             <!-- Post Content -->
                             <div class="mb-4">
                                 <?php 
-                                // Trusted content: either auto-debrief or manual admin post
-                                $isTrusted = (isset($post['is_manual']) && $post['is_manual'] == 0) || (isset($post['is_manual']) && $post['is_manual'] == 1);
+                                $rawContent = $post['content'];
                                 
-                                if ($isTrusted) {
-                                    // Render HTML directly for debrief and admin posts
-                                    echo $post['content'];
+                                // Detect if content has block-level or formatting HTML tags
+                                $isRichHtml = preg_match('/<\/?(div|p|h[1-6]|table|ul|ol|strong|em|span|br)[^>]*>/i', $rawContent);
+                                
+                                if ($isRichHtml) {
+                                    // Render HTML directly (Auto-debriefs or rich admin posts)
+                                    echo $rawContent;
                                 } else {
-                                    // Simple HTML rendering for regular posts
-                                    echo '<div class="prose prose-invert max-w-none">';
-                                    echo '<div class="text-gray-300 leading-relaxed">';
-                                    $content = htmlspecialchars($post['content']);
-                                    // Convert line breaks
+                                    // It's a plain text submission — format it nicely to stop bunching
+                                    $content = htmlspecialchars($rawContent);
+                                    
+                                    // Preserve line breaks
                                     $content = nl2br($content);
-                                    // Convert simple markdown-style formatting
+                                    
+                                    // Auto-highlight usernames/rankings (e.g. "1. Username" or "P1: Username" or "@Username")
+                                    // Matches "P1: Name", "🥇 Name", "1. Name", etc.
+                                    $content = preg_replace('/^(\s*(?:🥇|🥈|🥉|\d+\.|P\d+:?)\s*)([a-zA-Z0-9_\s]+?)(\s*-|\s*$)/m', '$1<strong class="text-orange-400">$2</strong>$3', $content);
+                                    
+                                    // Highlight @mentions
+                                    $content = preg_replace('/@([a-zA-Z0-9_]+)/', '<strong class="text-orange-400">@$1</strong>', $content);
+                                    
+                                    // Markdown support for manual highlighting
                                     $content = preg_replace('/\*\*(.*?)\*\*/', '<strong class="text-white">$1</strong>', $content);
                                     $content = preg_replace('/__(.*?)__/', '<em class="text-orange-300">$1</em>', $content);
+                                    
+                                    echo '<div class="prose prose-invert max-w-none text-gray-300 text-sm leading-relaxed">';
                                     echo $content;
-                                    echo '</div>';
                                     echo '</div>';
                                 }
                                 ?>
