@@ -52,6 +52,7 @@ $accuracy = $totalPredictionsMade > 0 ? ($exactMatches / $totalPredictionsMade) 
 
 // Get Next Race
 $nextRace = getNextRace();
+$deadline = null;  // Safety: initialise before the if block
 
 // Check if predictions are open for next race
 $predictionsOpen = false;
@@ -59,10 +60,12 @@ $predictionStatus = 'CLOSED';
 $predictionStatusColor = 'text-red-400';
 $countdownText = '';
 $progressBarWidth = 100;
+$isNextDoublePoints = false;
 
 if ($nextRace) {
     $deadline = getPredictionDeadline($nextRace['race_date']);
     $now = new DateTime('now', new DateTimeZone('UTC'));
+    $isNextDoublePoints = in_array($nextRace['country'], ['China', 'UK', 'Singapore']);
     
     if ($now < $deadline) {
         $predictionsOpen = true;
@@ -166,11 +169,19 @@ foreach ($racesData as $race) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></title>
+    <title>Dashboard - <?php echo SITE_NAME; ?></title>
+    <meta name="description" content="Your Paddock Picks race dashboard — standings, next race countdown, and prediction status.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dp-hero-badge {
+            background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(99,102,241,0.3));
+            border: 1px solid rgba(168,85,247,0.5);
+            color: #e879f9;
+            backdrop-filter: blur(8px);
+        }
+    </style>
 </head>
 <body class="gaming-theme text-gray-200">
 
@@ -214,12 +225,10 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></tit
             <div class="flex items-center gap-3 pl-6 border-l border-white/10">
                 <div class="text-right hidden sm:block">
                     <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Driver</div>
-                    <div class="text-sm font-bold text-white leading-none"><?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($user['username']); ?></div>
+                    <div class="text-sm font-bold text-white leading-none"><?php echo htmlspecialchars($user['username']); ?></div>
                 </div>
                 <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition cursor-pointer relative group shadow-lg shadow-black/50">
-                    <img src="<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                 </a>
             </div>
             <a href="logout.php" class="text-gray-400 hover:text-white transition hover:rotate-90 duration-300" title="Sign Out">
@@ -238,24 +247,19 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo getAvatarUrl($user
                     Ready to <span class="g-text-gradient">Race?</span>
                 </h1>
                 <div class="flex items-center gap-4 text-gray-400">
-                    <p>Round <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $nextRace ? $nextRace['race_number'] : '-'; ?> is approaching fast.</p>
+                    <p>Round <?php echo $nextRace ? $nextRace['race_number'] : '-'; ?> is approaching fast.</p>
                     <span class="hidden md:inline text-gray-600">|</span>
                     <div class="hidden md:flex items-center gap-2 text-blue-400 font-bold bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-                        <i class="fas fa-trophy text-xs"></i> <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($totalPoints); ?> Points
+                        <i class="fas fa-trophy text-xs"></i> <?php echo number_format($totalPoints); ?> Points
                     </div>
                 </div>
             </div>
             
-            <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; if ($nextRace): ?>
-            <a href="predict.php?race_id=<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $nextRace['id']; ?>" class="g-btn g-btn-orange px-8 py-4 text-lg flex items-center gap-3 animate-pulse">
+            <?php if ($nextRace): ?>
+            <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-orange px-8 py-4 text-lg flex items-center gap-3 animate-pulse">
                 <i class="fas fa-gamepad"></i> Make Prediction
             </a>
-            <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
+            <?php endif; ?>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -266,49 +270,46 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                 <!-- NEXT RACE CARD (The "Car" Card) -->
                 <div class="g-card p-0 relative group h-[400px] flex flex-col justify-end overflow-hidden">
                     <!-- Background Image (Dynamic based on country) -->
-                    <div class="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-110" style="background-image: url('<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo getRaceHeroImage($nextRace['country'] ?? ''); ?>')"></div>
+                    <div class="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-110" style="background-image: url('<?php echo getRaceHeroImage($nextRace['country'] ?? ''); ?>')"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/70 to-transparent"></div>
                     
                     <div class="relative z-10 p-8">
-                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; if ($nextRace): ?>
-                            <div class="flex items-center gap-3 mb-3">
+                        <?php if ($nextRace): ?>
+                            <div class="flex items-center gap-3 mb-3 flex-wrap">
                                 <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                     Next Event
                                 </span>
                                 <span class="text-orange-400 font-mono font-bold">
-                                    <i class="far fa-clock"></i> <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('M d', strtotime($nextRace['race_date'])); ?>
+                                    <i class="far fa-clock"></i> <?php echo date('M d', strtotime($nextRace['race_date'])); ?>
                                 </span>
+                                <?php echo getRaceFlag($nextRace['country']); ?>
+                                <?php if ($isNextDoublePoints): ?>
+                                <span class="dp-hero-badge text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                                    ⚡ Double Points
+                                </span>
+                                <?php endif; ?>
                             </div>
                             <h2 class="text-4xl md:text-5xl font-black text-white mb-2 uppercase">
-                                <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($nextRace['country']); ?>
+                                <?php echo htmlspecialchars($nextRace['country']); ?>
                             </h2>
                             <p class="text-lg text-gray-300 mb-6 font-medium">
-                                <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($nextRace['circuit_name']); ?>
+                                <?php echo htmlspecialchars($nextRace['circuit_name']); ?>
                             </p>
                             
                             <!-- Progress/Bet Bar Style -->
                             <div class="deadline-container max-w-lg">
                                 <div class="flex justify-between text-xs mb-3 font-bold text-gray-400 uppercase tracking-widest">
                                     <span>Prediction Status</span>
-                                    <span class="status-label <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $predictionStatusColor; ?>"><?php echo $predictionStatus; ?></span>
+                                    <span class="status-label <?php echo $predictionStatusColor; ?>"><?php echo $predictionStatus; ?></span>
                                 </div>
                                 <div class="progress-bar-bg mb-2">
-                                    <div id="race-countdown-bar" class="progress-bar-fill" style="width: <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $progressBarWidth; ?>%"></div>
+                                    <div id="race-countdown-bar" class="progress-bar-fill" style="width: <?php echo $progressBarWidth; ?>%"></div>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <div class="countdown-text text-[10px] text-gray-500 font-mono font-bold uppercase tracking-widest">
-                                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $countdownText; ?>
+                                        <?php echo $countdownText; ?>
                                     </div>
-                                    <a href="predict.php?race_id=<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $nextRace['id']; ?>" class="text-[10px] font-black text-blue-400 hover:text-white transition uppercase tracking-tighter flex items-center gap-1">
+                                    <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="text-[10px] font-black text-blue-400 hover:text-white transition uppercase tracking-tighter flex items-center gap-1">
                                         Enter Event <i class="fas fa-arrow-right"></i>
                                     </a>
                                 </div>
@@ -316,8 +317,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo $nextRace['id']; ?
                             
                             <script>
                                 // LIVE COUNTDOWN TO DEADLINE
-                                const deadlineTime = <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $deadline->getTimestamp(); ?> * 1000;
+                                const deadlineTime = <?php echo $deadline ? $deadline->getTimestamp() : 0; ?> * 1000;
                                 const maxDaysBeforeDeadline = 30;
                                 
                                 function updateLiveCountdown() {
@@ -382,11 +382,9 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo $deadline->getTime
                                 // Update every second for LIVE countdown
                                 setInterval(updateLiveCountdown, 1000);
                             </script>
-                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; else: ?>
+                        <?php else: ?>
                             <h2 class="text-3xl font-bold text-white">Season Completed</h2>
-                        <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -397,10 +395,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                         <div class="w-12 h-12 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center text-xl mb-3 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
                             <i class="fas fa-crown"></i>
                         </div>
-                        <div class="text-3xl font-black text-white italic">
-                            #<?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $rank; ?>
-                        </div>
+                        <div class="text-3xl font-black text-white italic">#<?php echo $rank; ?></div>
                         <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Global Rank</div>
                     </div>
 
@@ -409,20 +404,17 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo $rank; ?>
                         <div class="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl mb-3 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
                             <i class="fas fa-coins"></i>
                         </div>
-                        <div class="text-3xl font-black text-white italic">
-                            <?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo $totalPoints; ?>
-                        </div>
+                        <div class="text-3xl font-black text-white italic"><?php echo $totalPoints; ?></div>
                         <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Total Points</div>
                     </div>
 
-                    <!-- Avg Points (Mockup) -->
-                    <div class="g-card p-5 flex flex-col items-center justify-center text-center opacity-75">
+                    <!-- Races Participated -->
+                    <div class="g-card p-5 flex flex-col items-center justify-center text-center">
                         <div class="w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-3">
-                            <i class="fas fa-chart-line"></i>
+                            <i class="fas fa-flag-checkered"></i>
                         </div>
-                        <div class="text-3xl font-black text-white italic">--</div>
-                        <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Avg Score</div>
+                        <div class="text-3xl font-black text-white italic"><?php echo $racesParticipated; ?></div>
+                        <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Races Entered</div>
                     </div>
 
                     <!-- Accuracy -->
@@ -430,8 +422,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo $totalPoints; ?>
                         <div class="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center text-xl mb-3">
                             <i class="fas fa-bullseye"></i>
                         </div>
-                        <div class="text-3xl font-black text-white italic"><?php
-require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($accuracy, 1); ?>%</div>
+                        <div class="text-3xl font-black text-white italic"><?php echo number_format($accuracy, 1); ?>%</div>
                         <div class="text-xs text-gray-400 uppercase font-bold tracking-wider mt-1">Accuracy</div>
                     </div>
                 </div>
