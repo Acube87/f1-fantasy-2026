@@ -145,11 +145,11 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             <!-- Post Content -->
                             <div class="mb-4">
                                 <?php 
-                                // Check if this is a debrief post (has race_id and is_manual = 0)
-                                $isDebrief = !empty($post['race_id']) && isset($post['is_manual']) && $post['is_manual'] == 0;
+                                // Trusted content: either auto-debrief or manual admin post
+                                $isTrusted = (isset($post['is_manual']) && $post['is_manual'] == 0) || (isset($post['is_manual']) && $post['is_manual'] == 1);
                                 
-                                if ($isDebrief) {
-                                    // Render HTML directly for debrief posts without wrapper styling
+                                if ($isTrusted) {
+                                    // Render HTML directly for debrief and admin posts
                                     echo $post['content'];
                                 } else {
                                     // Simple HTML rendering for regular posts
