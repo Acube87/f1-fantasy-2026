@@ -86,16 +86,16 @@ if ($nextRace) {
             $countdownText = $minutes . ' min left';
         }
         
-        // Progress bar (30 days before deadline = 0%, deadline = 100%)
+        // Progress bar (countdown style: shrinks as time runs out. 30 days+ = 100%, 0 days = 0%)
         $maxDaysBeforeDeadline = 30;
         $daysRemaining = $totalDays + ($hours / 24);
-        $progressPercentage = max(0, min(100, (($maxDaysBeforeDeadline - $daysRemaining) / $maxDaysBeforeDeadline) * 100));
+        $progressPercentage = min(100, max(0, ($daysRemaining / $maxDaysBeforeDeadline) * 100));
         $progressBarWidth = round($progressPercentage, 2);
     } else {
         $predictionStatus = 'CLOSED';
         $predictionStatusColor = 'text-red-400';
         $countdownText = 'Predictions Locked';
-        $progressBarWidth = 100;
+        $progressBarWidth = 0;
     }
 }
 
@@ -130,35 +130,15 @@ $racesData = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 // Calculate unlock status for each race
 $now = new DateTime('now', new DateTimeZone('UTC'));
 foreach ($racesData as $race) {
-    $raceDate = new DateTime($race['race_date'], new DateTimeZone('UTC'));
-    
-    // Find previous race
-    $prevRaceStmt = $db->prepare("SELECT race_date FROM races WHERE race_date < ? ORDER BY race_date DESC LIMIT 1");
-    $prevRaceStmt->bind_param("s", $race['race_date']);
-    $prevRaceStmt->execute();
-    $prevRaceResult = $prevRaceStmt->get_result()->fetch_assoc();
-    
-    // Unlock on Monday 00:00 after previous Sunday race
-    if ($prevRaceResult) {
-        $prevRaceDate = new DateTime($prevRaceResult['race_date'], new DateTimeZone('UTC'));
-        // Find the Monday after the previous race
-        $unlockDate = clone $prevRaceDate;
-        $dayOfWeek = (int)$unlockDate->format('N'); // 1=Monday, 7=Sunday
-        if ($dayOfWeek == 7) {
-            // Race is Sunday, unlock next day (Monday)
-            $unlockDate->modify('+1 day')->setTime(0, 0, 0);
-        } else {
-            // Race on other day, find next Monday
-            $daysUntilMonday = (8 - $dayOfWeek) % 7;
-            if ($daysUntilMonday == 0) $daysUntilMonday = 7;
-            $unlockDate->modify("+{$daysUntilMonday} days")->setTime(0, 0, 0);
-        }
-        $race['unlocked'] = $now >= $unlockDate;
-        $race['unlock_date'] = $unlockDate->format('M d');
-    } else {
-        // First race of season, always unlocked
+    if ($nextRace && $race['id'] == $nextRace['id']) {
+        // The immediate next race is always unlocked
         $race['unlocked'] = true;
-        $race['unlock_date'] = null;
+    } else {
+        // Future races unlock 7 days before
+        $raceDate = new DateTime($race['race_date'], new DateTimeZone('UTC'));
+        $unlockDate = clone $raceDate;
+        $unlockDate->modify('-7 days')->setTime(0, 0, 0);
+        $race['unlocked'] = $now >= $unlockDate;
     }
     
     $upcomingRaces[] = $race;
@@ -330,7 +310,7 @@ foreach ($racesData as $race) {
                                     
                                     if (timeRemaining <= 0) {
                                         // Race has started
-                                        if (bar) bar.style.width = '100%';
+                                        if (bar) bar.style.width = '0%';
                                         if (countdownEl) countdownEl.textContent = 'Predictions Locked';
                                         if (statusEl) {
                                             statusEl.className = 'status-label text-red-400';
@@ -358,10 +338,9 @@ foreach ($racesData as $race) {
                                         }
                                     }
                                     
-                                    // Calculate progress bar (0% at 30 days, 100% at deadline time)
+                                    // Calculate progress bar (shrinks: 100% when plenty of time, 0% at deadline)
                                     const maxTime = maxDaysBeforeDeadline * 24 * 60 * 60 * 1000;
-                                    const elapsed = maxTime - timeRemaining;
-                                    const progress = Math.min(Math.max((elapsed / maxTime) * 100, 0), 100);
+                                    const progress = Math.min(Math.max((timeRemaining / maxTime) * 100, 0), 100);
                                     
                                     if (bar) {
                                         bar.style.width = progress.toFixed(2) + '%';
