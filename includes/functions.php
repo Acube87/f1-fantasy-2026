@@ -84,7 +84,8 @@ function getF1Points() {
 
 /**
  * Calculate constructor standings for a race based on driver results
- * Returns constructor_id => total_points (sorted descending)
+ * Returns constructor_key => total_points (sorted descending)
+ * Uses constructor_name as fallback when constructor_id is NULL (Race Control manual entries)
  */
 function calculateConstructorStandingsForRace($raceResults) {
     $F1_POINTS = getF1Points();
@@ -92,14 +93,17 @@ function calculateConstructorStandingsForRace($raceResults) {
     
     foreach ($raceResults as $result) {
         $position = $result['position'];
-        $constructorId = $result['constructor_id'];
+        // Use constructor_id if available, fall back to constructor_name
+        $constructorKey = !empty($result['constructor_id']) ? $result['constructor_id'] : ($result['constructor_name'] ?? null);
+        
+        if (!$constructorKey) continue;
         
         // Only positions 1-10 score F1 points
         if ($position <= 10 && isset($F1_POINTS[$position])) {
-            if (!isset($constructorPoints[$constructorId])) {
-                $constructorPoints[$constructorId] = 0;
+            if (!isset($constructorPoints[$constructorKey])) {
+                $constructorPoints[$constructorKey] = 0;
             }
-            $constructorPoints[$constructorId] += $F1_POINTS[$position];
+            $constructorPoints[$constructorKey] += $F1_POINTS[$position];
         }
     }
     
@@ -133,8 +137,8 @@ function calculateRaceScores($raceId) {
     $stmt->execute();
     $users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-    // Get actual race results
-    $resultsStmt = $db->prepare("SELECT driver_id, position, constructor_id FROM race_results WHERE race_id = ? ORDER BY position");
+    // Get actual race results (fetch constructor_name too as fallback for Race Control entries)
+    $resultsStmt = $db->prepare("SELECT driver_id, position, constructor_id, constructor_name FROM race_results WHERE race_id = ? ORDER BY position");
     $resultsStmt->bind_param("i", $raceId);
     $resultsStmt->execute();
     $actualResults = $resultsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -210,10 +214,13 @@ function calculateRaceScores($raceId) {
 
             if ($actualPos !== null && $predictedPos == $actualPos) {
                 // Find which constructor this driver belongs to
+                // Use constructor_id if set, fallback to constructor_name (Race Control manual entries)
                 $driverConstructor = null;
                 foreach ($actualResults as $result) {
                     if ($result['driver_id'] === $driverId) {
-                        $driverConstructor = $result['constructor_id'];
+                        $driverConstructor = !empty($result['constructor_id'])
+                            ? $result['constructor_id']
+                            : ($result['constructor_name'] ?? null);
                         break;
                     }
                 }
