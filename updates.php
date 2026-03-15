@@ -283,6 +283,102 @@ $myStats = getUserStats($userId);
         <!-- ═══════════════════════════════════════════════════════ -->
         <div class="lg:col-span-2 space-y-6">
 
+            <!-- ── PADDOCK DISPATCH: SESSION UPDATE ──────────────── -->
+            <div class="feed-card p-0 overflow-hidden border border-orange-500/20">
+                <!-- Header banner -->
+                <div class="bg-gradient-to-r from-orange-600/20 via-orange-500/10 to-transparent px-8 py-5 border-b border-orange-500/15 flex items-center justify-between gap-4 flex-wrap">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-orange-500/20 border border-orange-500/30 rounded-xl flex items-center justify-center text-orange-400 text-lg flex-shrink-0">
+                            <i class="fas fa-broadcast-tower"></i>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-0.5">Paddock Dispatch — Official Bulletin</div>
+                            <h2 class="text-lg font-black text-white italic uppercase">App Update &amp; Score Corrections</h2>
+                        </div>
+                    </div>
+                    <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex-shrink-0">
+                        <?php echo date('d M Y'); ?> · v2.1
+                    </div>
+                </div>
+
+                <div class="p-8 space-y-6">
+
+                    <!-- Score correction notice -->
+                    <div class="bg-green-500/8 border border-green-500/20 rounded-2xl p-5">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400 flex-shrink-0 mt-0.5">
+                                <i class="fas fa-check-circle text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-white text-sm uppercase italic mb-1">🏆 Scores Retroactively Corrected — Australia &amp; China</h3>
+                                <p class="text-gray-300 text-sm leading-relaxed">
+                                    We identified and fixed a bug where the <strong class="text-green-400">Constructor Bonus (+5 pts)</strong> was not being awarded to anyone. 
+                                    If you picked the correct winning constructor and had the right driver in the exact position, those 5 points were silently missing from your total.
+                                </p>
+                                <p class="text-gray-400 text-sm leading-relaxed mt-2">
+                                    <strong class="text-white">Both the Australian GP and Chinese GP scores have been recalculated.</strong> 
+                                    If you earned the constructor bonus, it's now reflected in your total and on the leaderboard — including the 2× double points multiplier for China. 
+                                    Check your race results to see your updated breakdown. 
+                                </p>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <a href="race-results.php?race_id=1" class="text-[10px] font-black text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1.5 rounded-lg hover:bg-green-500/20 transition">
+                                        <i class="fas fa-flag mr-1"></i>Australia Results →
+                                    </a>
+                                    <a href="race-results.php?race_id=2" class="text-[10px] font-black text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1.5 rounded-lg hover:bg-green-500/20 transition">
+                                        <i class="fas fa-flag mr-1"></i>China Results →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- What else changed -->
+                    <div>
+                        <div class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Also Deployed This Session</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="flex items-start gap-3 p-4 bg-white/3 border border-white/5 rounded-xl">
+                                <div class="w-7 h-7 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 flex-shrink-0"><i class="fas fa-tools text-xs"></i></div>
+                                <div>
+                                    <div class="text-xs font-black text-white mb-0.5">⚡ Double Points Applied</div>
+                                    <div class="text-[10px] text-gray-400 leading-relaxed">China GP 2× multiplier is now correctly calculated and shown on all score cards.</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 p-4 bg-white/3 border border-white/5 rounded-xl">
+                                <div class="w-7 h-7 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 flex-shrink-0"><i class="fas fa-satellite-dish text-xs"></i></div>
+                                <div>
+                                    <div class="text-xs font-black text-white mb-0.5">📡 Race Updates Redesign</div>
+                                    <div class="text-[10px] text-gray-400 leading-relaxed">This page has been completely overhauled with live telemetry, prediction tracker, and season progress — all live from the DB.</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 p-4 bg-white/3 border border-white/5 rounded-xl">
+                                <div class="w-7 h-7 bg-orange-500/20 rounded-lg flex items-center justify-center text-orange-400 flex-shrink-0"><i class="fas fa-tachometer-alt text-xs"></i></div>
+                                <div>
+                                    <div class="text-xs font-black text-white mb-0.5">🏠 Dashboard Updated</div>
+                                    <div class="text-[10px] text-gray-400 leading-relaxed">Dashboard now auto-advances to the next race the moment results are deployed — Japan GP hero image, timer and flag auto-loaded.</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 p-4 bg-white/3 border border-white/5 rounded-xl">
+                                <div class="w-7 h-7 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400 flex-shrink-0"><i class="fas fa-lock text-xs"></i></div>
+                                <div>
+                                    <div class="text-xs font-black text-white mb-0.5">🔒 Maintenance Mode</div>
+                                    <div class="text-[10px] text-gray-400 leading-relaxed">App now locks correctly during post-race score processing so standings aren't seen mid-calculation.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sign-off -->
+                    <div class="flex items-center gap-3 pt-2 border-t border-white/5">
+                        <div class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 flex-shrink-0"><i class="fas fa-user-tie text-xs"></i></div>
+                        <div>
+                            <div class="text-xs text-gray-400 italic">"Scores are live and correct. Japan is next — get your grids locked in. 🏁"</div>
+                            <div class="text-[10px] font-black text-white uppercase mt-0.5">Aurimas <span class="text-orange-500 font-light">— Race Controller</span></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
             <!-- ── POST-RACE DEBRIEF: CHINA GP ───────────────────── -->
             <?php if ($lastRace): ?>
             <div class="feed-card p-0 overflow-hidden">

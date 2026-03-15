@@ -30,8 +30,7 @@ define('SESSION_NAME', 'f1_fantasy_session');
 // Set to TRUE to show the maintenance page to all users.
 // Admin account (Angrycube) and /admin/ pages are always exempt.
 // ============================================================
-define('MAINTENANCE_MODE', true);
-
+define('MAINTENANCE_MODE', false);  // ← SET TO true TO LOCK THE APP FOR POST-RACE PROCESSING
 // Scoring configuration (F1-based system)
 define('POINTS_PRECISION_BONUS', 3);      // +3 pts for exact position match
 define('POINTS_PODIUM_SWEEP', 10);        // +10 pts for all top 3 correct in exact order
