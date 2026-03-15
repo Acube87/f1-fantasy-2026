@@ -185,32 +185,32 @@
         </div>
         
         <h1>POST-RACE<br>DEBRIEF</h1>
-        <div class="subtitle">Australian Grand Prix · Round 01</div>
+        <div class="subtitle">Chinese Grand Prix · Round 02</div>
 
         <div class="spinner-wrap">
             <div class="spinner"></div>
         </div>
 
         <p>
-            Our Race Engineers are currently calculating points, updating the Championship Standings, and preparing for the next round in Shanghai.
+            Our Race Engineers are currently calculating points for the <strong style="color:#a78bfa;">⚡ DOUBLE POINTS</strong> Chinese Grand Prix, updating the Championship Standings, and preparing for the next round in Japan.
             <br><br>
             <strong style="color:white;">Check back in a few minutes — results incoming! 🏆</strong>
         </p>
 
         <div class="race-info">
             <div class="race-stat">
-                <div class="val">01</div>
+                <div class="val">02</div>
                 <div class="lbl">Round</div>
             </div>
             <div class="divider"></div>
             <div class="race-stat">
-                <div class="val">🇦🇺</div>
-                <div class="lbl">Australia</div>
+                <div class="val">🇨🇳</div>
+                <div class="lbl">China ⚡</div>
             </div>
             <div class="divider"></div>
             <div class="race-stat">
-                <div class="val">02</div>
-                <div class="lbl">Next: China</div>
+                <div class="val">03</div>
+                <div class="lbl">Next: Japan</div>
             </div>
         </div>
 

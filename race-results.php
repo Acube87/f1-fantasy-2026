@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/auth.php';
+require_once 'includes/maintenance-gate.php';
 require_once 'includes/functions.php';
 
 $user = getCurrentUser();
