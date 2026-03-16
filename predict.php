@@ -580,8 +580,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                             'Cadillac' => 'CAD'
                         ];
                         
+                        $displayPosition = 1;
                         foreach ($orderedDrivers as $idx => $driver): 
-                            $position = $predictions[$driver['id']] ?? ($idx + 1);
+                            $position = $displayPosition++;
                             $teamSlug = strtolower(str_replace(' ', '-', $driver['team']));
                             $abbr = $teamAbbr[$driver['team']] ?? strtoupper(substr($driver['team'], 0, 3));
                         ?>

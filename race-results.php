@@ -279,7 +279,7 @@ $stats = getUserStats($userId);
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($predictions as $pred): ?>
+                                <?php foreach ($predictions as $pIdx => $pred): ?>
                                 <tr class="border-b border-white/5 hover:bg-white/5 transition">
                                     <!-- Driver Info -->
                                     <td class="p-4">
@@ -303,7 +303,7 @@ $stats = getUserStats($userId);
                                     <!-- Predicted Position -->
                                     <td class="p-4 text-center">
                                         <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 font-bold">
-                                            P<?php echo $pred['predicted_position']; ?>
+                                            P<?php echo ($pIdx + 1); ?>
                                         </div>
                                     </td>
                                     
@@ -366,8 +366,9 @@ $stats = getUserStats($userId);
                 </h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <?php foreach ($actualResults as $result): 
-                        $podiumClass = match($result['position']) {
+                    <?php foreach ($actualResults as $rIdx => $result): 
+                        $displayPos = $rIdx + 1;
+                        $podiumClass = match($displayPos) {
                             1 => 'border-l-yellow-400 bg-yellow-500/5',
                             2 => 'border-l-gray-300 bg-gray-500/5',
                             3 => 'border-l-amber-600 bg-amber-500/5',
@@ -378,7 +379,7 @@ $stats = getUserStats($userId);
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center font-black text-white text-lg">
-                                    <?php echo $result['position']; ?>
+                                    <?php echo $displayPos; ?>
                                 </div>
                                 <div>
                                     <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($result['driver_name']); ?></div>
