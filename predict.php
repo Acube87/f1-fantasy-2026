@@ -555,10 +555,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     <div id="predictionList" class="bg-black/20 min-h-[500px] <?php echo ($hasPrediction && $isPredictionOpen) ? 'prediction-lock' : ''; ?>">
                         <?php 
                         $orderedDrivers = $drivers;
-                        // Sort by current prediction (if any)
+                        // Sort by current prediction (if any), with deterministic secondary sort
                         usort($orderedDrivers, function($a, $b) use ($predictions) {
                             $posA = $predictions[$a['id']] ?? 999;
                             $posB = $predictions[$b['id']] ?? 999;
+
+                            // If positions are the same, sort by driver name for consistency
+                            if ($posA === $posB) {
+                                return strcmp($a['driver_name'], $b['driver_name']);
+                            }
+
                             return $posA - $posB;
                         });
                         
