@@ -521,6 +521,24 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                     </div>
                 </div>
 
+                <?php if (!$predictionsOpen && $nextRace): ?>
+                <!-- Spy on the Paddock — visible only after deadline -->
+                <div class="g-card p-5 border-l-4 border-l-blue-500 flex items-center justify-between gap-4 flex-wrap">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-white">Predictions are locked — spy on the paddock!</div>
+                            <div class="text-xs text-gray-400">The deadline has passed. Check what other drivers predicted for <?php echo htmlspecialchars($nextRace['country']); ?>.</div>
+                        </div>
+                    </div>
+                    <a href="leaderboard.php" class="g-btn g-btn-blue px-4 py-2 text-xs shrink-0 flex items-center gap-2">
+                        <i class="fas fa-eye"></i> Browse Predictions
+                    </a>
+                </div>
+                <?php endif; ?>
+
             </div>
             
             <!-- RIGHT COLUMN (Leaderboard / "Daily Race") -->

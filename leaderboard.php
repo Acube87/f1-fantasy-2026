@@ -229,6 +229,9 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo $isMe ? 'text-oran
                                             <a href="user-profile.php?user_id=<?php echo $entry['id']; ?>" class="hover:text-orange-400 transition-colors">
                                                 <?php echo htmlspecialchars($entry['username']); ?>
                                             </a>
+                                            <a href="view-predictions.php?user_id=<?php echo $entry['id']; ?>&race_id=<?php echo $latestRaceId; ?>" title="View <?php echo htmlspecialchars($entry['username']); ?>'s predictions" class="inline-flex items-center gap-1 text-[10px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded transition-all" style="vertical-align: middle;">
+                                                <i class="fas fa-eye"></i> Peek
+                                            </a>
                                         <?php else: ?>
                                             <?php echo htmlspecialchars($entry['username']); ?>
                                         <?php endif; ?>
