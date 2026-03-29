@@ -8,11 +8,33 @@ $leaderboard = getLeaderboard(100);
 $user = getCurrentUser(); // Standard variable name $user
 $currentUser = $user;     // Alias for existing logic
 
-// Get the latest completed race so we can link to users' latest predictions
+// Get the most recent race where the prediction deadline has already passed.
+// This includes upcoming races (like Japan) whose Saturday deadline has passed,
+// not just completed ones — so users can peek at each other's current predictions.
 $db = getDB();
-$latestRaceQuery = $db->query("SELECT id FROM races WHERE status = 'completed' ORDER BY race_date DESC LIMIT 1");
-$latestRace = $latestRaceQuery->fetch_assoc();
-$latestRaceId = $latestRace['id'] ?? 1; // Default to 1 (Australia) if none completed
+$now = new DateTime('now', new DateTimeZone('UTC'));
+$latestRaceId = 1; // fallback
+
+// Look at all races (completed OR upcoming) ordered by date descending,
+// and find the first one whose deadline has already passed.
+$candidatesQuery = $db->query(
+    "SELECT id, race_date FROM races ORDER BY race_date DESC LIMIT 20"
+);
+$candidates = $candidatesQuery->fetch_all(MYSQLI_ASSOC);
+foreach ($candidates as $candidate) {
+    $candidateDeadline = getPredictionDeadline($candidate['race_date']);
+    if ($now >= $candidateDeadline) {
+        $latestRaceId = $candidate['id'];
+        break;
+    }
+}
+
+// Also fetch race info so we can show which race the peek links to
+$latestRaceForPeek = null;
+$latestRacePeekQuery = $db->prepare("SELECT id, country, race_date FROM races WHERE id = ?");
+$latestRacePeekQuery->bind_param("i", $latestRaceId);
+$latestRacePeekQuery->execute();
+$latestRaceForPeek = $latestRacePeekQuery->get_result()->fetch_assoc();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -229,8 +251,8 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo $isMe ? 'text-oran
                                             <a href="user-profile.php?user_id=<?php echo $entry['id']; ?>" class="hover:text-orange-400 transition-colors">
                                                 <?php echo htmlspecialchars($entry['username']); ?>
                                             </a>
-                                            <a href="view-predictions.php?user_id=<?php echo $entry['id']; ?>&race_id=<?php echo $latestRaceId; ?>" title="View <?php echo htmlspecialchars($entry['username']); ?>'s predictions" class="inline-flex items-center gap-1 text-[10px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded transition-all" style="vertical-align: middle;">
-                                                <i class="fas fa-eye"></i> Peek
+                                            <a href="view-predictions.php?user_id=<?php echo $entry['id']; ?>&race_id=<?php echo $latestRaceId; ?>" title="View <?php echo htmlspecialchars($entry['username']); ?>'s <?php echo $latestRaceForPeek ? htmlspecialchars($latestRaceForPeek['country']) . ' GP' : ''; ?> predictions" class="inline-flex items-center gap-1 text-[10px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded transition-all" style="vertical-align: middle;">
+                                                <i class="fas fa-eye"></i> Peek <?php if ($latestRaceForPeek): ?><span class="opacity-70">(<?php echo htmlspecialchars($latestRaceForPeek['country']); ?>)</span><?php endif; ?>
                                             </a>
                                         <?php else: ?>
                                             <?php echo htmlspecialchars($entry['username']); ?>
