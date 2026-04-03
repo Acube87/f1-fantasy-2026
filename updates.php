@@ -107,9 +107,9 @@ if ($lastRace) {
 
 $isDoublePoints = $lastRace && in_array($lastRace['country'], ['China', 'UK', 'Singapore']);
 
-// Season leaderboard - total races completed
+// Season leaderboard - total races completed (exclude cancelled)
 $completedRacesCount = $db->query("SELECT COUNT(*) as c FROM races WHERE status = 'completed'")->fetch_assoc()['c'] ?? 0;
-$totalRacesCount = $db->query("SELECT COUNT(*) as c FROM races")->fetch_assoc()['c'] ?? 0;
+$totalRacesCount = $db->query("SELECT COUNT(*) as c FROM races WHERE status != 'cancelled'")->fetch_assoc()['c'] ?? 0;
 
 // My rank & points
 $myStats = getUserStats($userId);
@@ -444,14 +444,14 @@ $myStats = getUserStats($userId);
                     <!-- Key facts -->
                     <div class="grid grid-cols-3 gap-3">
                         <div class="bg-white/3 border border-white/5 rounded-xl p-4 text-center">
-                            <div class="text-xl font-black text-white">🏯</div>
-                            <div class="text-[10px] text-gray-400 font-bold mt-2">Suzuka Circuit</div>
-                            <div class="text-[9px] text-gray-600 uppercase mt-0.5">5.807 km</div>
+                            <div class="text-xl font-black text-white"><?php echo getRaceFlag($nextRace['country']); ?></div>
+                            <div class="text-[10px] text-gray-400 font-bold mt-2"><?php echo htmlspecialchars($nextRace['circuit_name'] ?? $nextRace['country']); ?></div>
+                            <div class="text-[9px] text-gray-600 uppercase mt-0.5">Circuit</div>
                         </div>
                         <div class="bg-white/3 border border-white/5 rounded-xl p-4 text-center">
-                            <div class="text-xl font-black text-white">53</div>
-                            <div class="text-[10px] text-gray-400 font-bold mt-2">Race Laps</div>
-                            <div class="text-[9px] text-gray-600 uppercase mt-0.5">Standard Points</div>
+                            <div class="text-xl font-black text-white">Round <?php echo $nextRace['race_number'] ?? $nextRace['id']; ?></div>
+                            <div class="text-[10px] text-gray-400 font-bold mt-2"><?php echo in_array($nextRace['country'], ['China', 'UK', 'Singapore']) ? '⚡ Double Points' : 'Standard Points'; ?></div>
+                            <div class="text-[9px] text-gray-600 uppercase mt-0.5"><?php echo in_array($nextRace['country'], ['China', 'UK', 'Singapore']) ? '2× Multiplier' : 'Normal scoring'; ?></div>
                         </div>
                         <div class="bg-white/3 border border-white/5 rounded-xl p-4 text-center">
                             <div class="text-xl font-black text-white">📅</div>
@@ -464,17 +464,23 @@ $myStats = getUserStats($userId);
                     <div class="bg-orange-500/5 border border-orange-500/15 rounded-xl p-5">
                         <div class="section-label text-orange-400 mb-3"><i class="fas fa-satellite-dish mr-1"></i>Race Intelligence</div>
                         <div class="space-y-3 text-sm text-gray-300 leading-relaxed">
+                            <?php
+                            $nextDeadline = getPredictionDeadline($nextRace['race_date']);
+                            $nowCheck = new DateTime('now', new DateTimeZone('UTC'));
+                            $predOpen = $nowCheck < $nextDeadline;
+                            $deadlineStr = $nextDeadline->format('D d M \a\t H:i \U\T\C');
+                            ?>
                             <div class="flex gap-3">
                                 <div class="tl-dot bg-orange-500 mt-1"></div>
-                                <p>Suzuka is a <strong class="text-white">driver's circuit</strong> — high-speed technical corners that reward mechanical grip and aero efficiency. Expect the <strong class="text-white">aerodynamic package</strong> results from China to be a strong predictor.</p>
+                                <p>The <strong class="text-white"><?php echo htmlspecialchars($nextRace['country']); ?> Grand Prix</strong> is next on the calendar — <?php echo htmlspecialchars($nextRace['circuit_name'] ?? $nextRace['country']); ?>. Study the form from <?php echo $lastRace ? htmlspecialchars($lastRace['country']) : 'the previous race'; ?> for your predictions.</p>
                             </div>
                             <div class="flex gap-3">
                                 <div class="tl-dot bg-blue-400 mt-1"></div>
-                                <p>The famous <strong class="text-white">130R corner</strong> and the notorious Spoon Curve will separate true pace from bravado this weekend.</p>
+                                <p>Race date: <strong class="text-white"><?php echo date('l d F Y', strtotime($nextRace['race_date'])); ?></strong>. Round <?php echo $nextRace['race_number'] ?? $nextRace['id']; ?> of the season<?php echo in_array($nextRace['country'], ['China','UK','Singapore']) ? ' — <strong class="text-white">⚡ Double Points weekend!</strong>' : '.'; ?></p>
                             </div>
                             <div class="flex gap-3">
-                                <div class="tl-dot bg-green-400 mt-1"></div>
-                                <p>Predictions are <strong class="text-white">open now</strong>. Don't get caught off the grid — submit before Saturday qualifying!</p>
+                                <div class="tl-dot <?php echo $predOpen ? 'bg-green-400' : 'bg-red-400'; ?> mt-1"></div>
+                                <p>Predictions are <strong class="text-white"><?php echo $predOpen ? 'OPEN' : 'CLOSED'; ?></strong>. <?php echo $predOpen ? 'Submit before the deadline: <strong class="text-white">' . $deadlineStr . '</strong>' : 'The prediction window has closed for this race.'; ?></p>
                             </div>
                         </div>
                     </div>
@@ -493,7 +499,7 @@ $myStats = getUserStats($userId);
                     <span class="text-xs font-black text-white whitespace-nowrap"><?php echo $completedRacesCount; ?> / <?php echo $totalRacesCount; ?> Rounds</span>
                 </div>
                 <?php
-                $allRaces = $db->query("SELECT id, race_name, country, race_date, status FROM races ORDER BY race_date ASC LIMIT 8")->fetch_all(MYSQLI_ASSOC);
+                $allRaces = $db->query("SELECT id, race_name, country, race_date, status FROM races WHERE status != 'cancelled' ORDER BY race_date ASC LIMIT 8")->fetch_all(MYSQLI_ASSOC);
                 ?>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <?php foreach ($allRaces as $r):
@@ -511,6 +517,16 @@ $myStats = getUserStats($userId);
                         </div>
                     </div>
                     <?php endforeach; ?>
+                    <?php
+                    // Show cancelled badge if any cancelled races exist in first 8 by date
+                    $cancelledCount = $db->query("SELECT COUNT(*) as c FROM races WHERE status = 'cancelled'")->fetch_assoc()['c'] ?? 0;
+                    if ($cancelledCount > 0): ?>
+                    <div class="p-3 rounded-xl border border-red-500/20 bg-red-500/5 text-center col-span-2 sm:col-span-1">
+                        <div class="text-xl mb-1">🚫</div>
+                        <div class="text-[10px] font-black text-red-400 truncate"><?php echo $cancelledCount; ?> Cancelled</div>
+                        <div class="text-[9px] font-bold mt-1 text-red-500">Removed from calendar</div>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -655,7 +671,7 @@ $myStats = getUserStats($userId);
                     <a href="race-results.php?race_id=<?php echo $lastRace['id']; ?>" class="flex items-center gap-3 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-green-500/30 hover:bg-green-500/5 transition group">
                         <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400 group-hover:scale-110 transition"><i class="fas fa-chart-bar text-sm"></i></div>
                         <div>
-                            <div class="text-sm font-bold text-white">My China Results</div>
+                            <div class="text-sm font-bold text-white">My <?php echo htmlspecialchars($lastRace['country']); ?> Results</div>
                             <div class="text-[9px] text-gray-500">View your prediction vs reality</div>
                         </div>
                         <i class="fas fa-chevron-right text-gray-600 text-xs ml-auto"></i>
@@ -682,9 +698,8 @@ $myStats = getUserStats($userId);
         </div>
         <div>
             <p class="text-gray-400 italic leading-relaxed text-sm">
-                "Races are fully underway — <strong class="text-white">Japan is next on the calendar.</strong> 
-                Suzuka separates the tacticians from the gamblers. Get your predictions locked in early, 
-                study the China form guide, and don't sleep on the constructor bonus. See you on the grid. 🏁"
+                "Races are fully underway — <strong class="text-white"><?php echo $nextRace ? htmlspecialchars($nextRace['country']) . ' is next on the calendar.' : 'season is in progress.'; ?></strong>
+                <?php if ($nextRace): ?>Get your predictions locked in before the deadline and don't sleep on the constructor bonus. See you on the grid. 🏁<?php else: ?>Check the leaderboard and stay sharp for the next event. 🏁<?php endif; ?>"
             </p>
             <div class="mt-3 font-black italic text-white uppercase text-sm leading-none">
                 Aurimas <span class="text-orange-500 font-light ml-2">Race Controller</span>
