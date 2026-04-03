@@ -406,38 +406,44 @@ function getRaceHeroImage($country) {
 
     $images = [
         'Australia' => 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2070&auto=format&fit=crop',
-        // China URL updated after original expired
-        'China' => 'https://images.unsplash.com/photo-1618631954937-526e872edb89?q=80&w=2070&auto=format&fit=crop', // updated from user-supplied lantern photo (red & gold)
+        'China' => 'https://images.unsplash.com/photo-1618631954937-526e872edb89?q=80&w=2070&auto=format&fit=crop',
         'Japan' => 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop',
         'Bahrain' => 'https://images.unsplash.com/photo-1517404215738-15263e9f9178?q=80&w=2070&auto=format&fit=crop',
         'Saudi Arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
+        'Saudi arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
+        // Miami GP has country='United States' in DB — normalization → 'United states'
+        'United states' => 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop',
         'Miami' => 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop',
         'Monaco' => 'https://images.unsplash.com/photo-1555436169-20e93ea9a7ff?q=80&w=2070&auto=format&fit=crop',
         'Canada' => 'https://images.unsplash.com/photo-1503416997304-7f8bf166c121?q=80&w=2070&auto=format&fit=crop',
         'Spain' => 'https://images.unsplash.com/photo-1543783232-26037dd78bfc?q=80&w=2070&auto=format&fit=crop',
         'Austria' => 'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?q=80&w=2070&auto=format&fit=crop',
+        'Uk' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
         'UK' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
+        'United kingdom' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
         'Hungary' => 'https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=2070&auto=format&fit=crop',
         'Belgium' => 'https://images.unsplash.com/photo-1563821735430-664440af4592?q=80&w=2070&auto=format&fit=crop',
         'Netherlands' => 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?q=80&w=2070&auto=format&fit=crop',
         'Italy' => 'https://images.unsplash.com/photo-1529260830199-42c24126f198?q=80&w=2070&auto=format&fit=crop',
         'Azerbaijan' => 'https://images.unsplash.com/photo-1549420070-5b1b4b2cb82b?q=80&w=2070&auto=format&fit=crop',
         'Singapore' => 'https://images.unsplash.com/photo-1525625230556-3a56cc544253?q=80&w=2070&auto=format&fit=crop',
+        'Usa' => 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?q=80&w=2070&auto=format&fit=crop',
         'USA' => 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?q=80&w=2070&auto=format&fit=crop',
         'Mexico' => 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?q=80&w=2070&auto=format&fit=crop',
         'Brazil' => 'https://images.unsplash.com/photo-1483728642387-aa95229753c4?q=80&w=2070&auto=format&fit=crop',
         'Las Vegas' => 'https://images.unsplash.com/photo-1581351123004-757df051db8e?q=80&w=2070&auto=format&fit=crop',
+        'Las vegas' => 'https://images.unsplash.com/photo-1581351123004-757df051db8e?q=80&w=2070&auto=format&fit=crop',
         'Qatar' => 'https://images.unsplash.com/photo-1511222409051-bd12c6686146?q=80&w=2070&auto=format&fit=crop',
-        'Abu Dhabi' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=2070&auto=format&fit=crop'
+        'Abu Dhabi' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=2070&auto=format&fit=crop',
+        'Abu dhabi' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=2070&auto=format&fit=crop',
     ];
 
     if (isset($images[$key])) {
         return $images[$key];
     }
 
-    // if country doesn't have a static image, try a generic unsplash search
-    $search = urlencode($key ?: 'motorsport');
-    return "https://source.unsplash.com/2070x1000/?{$search}";
+    // Generic fallback — motorsport image
+    return 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop';
 }
 
 /**
@@ -451,12 +457,15 @@ function getRaceFlag($country) {
         'Bahrain' => '🇧🇭',
         'Saudi Arabia' => '🇸🇦',
         'Miami' => '🇺🇸',
+        // DB stores country as 'United States' for Miami, Las Vegas, COTA
+        'United States' => '🇺🇸',
         'Italy' => '🇮🇹',
         'Monaco' => '🇲🇨',
         'Canada' => '🇨🇦',
         'Spain' => '🇪🇸',
         'Austria' => '🇦🇹',
         'UK' => '🇬🇧',
+        'United Kingdom' => '🇬🇧',
         'Hungary' => '🇭🇺',
         'Belgium' => '🇧🇪',
         'Netherlands' => '🇳🇱',
@@ -467,7 +476,8 @@ function getRaceFlag($country) {
         'Brazil' => '🇧🇷',
         'Las Vegas' => '🇺🇸',
         'Qatar' => '🇶🇦',
-        'Abu Dhabi' => '🇦🇪'
+        'Abu Dhabi' => '🇦🇪',
+        'United Arab Emirates' => '🇦🇪',
     ];
     return $flags[$country] ?? '🏁';
 }
