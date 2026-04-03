@@ -412,8 +412,8 @@ function getRaceHeroImage($country) {
         'Saudi Arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
         'Saudi arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
         // Miami GP has country='United States' in DB — normalization → 'United states'
-        'United states' => 'https://images.pexels.com/photos/9293247/pexels-photo-9293247.jpeg?auto=compress&cs=tinysrgb&w=2070',
-        'Miami' => 'https://images.pexels.com/photos/9293247/pexels-photo-9293247.jpeg?auto=compress&cs=tinysrgb&w=2070',
+        'United states' => 'https://images.unsplash.com/photo-1617170788758-725d9475a32b?q=80&w=2070&auto=format&fit=crop',
+        'Miami' => 'https://images.unsplash.com/photo-1617170788758-725d9475a32b?q=80&w=2070&auto=format&fit=crop',
         'Monaco' => 'https://images.unsplash.com/photo-1555436169-20e93ea9a7ff?q=80&w=2070&auto=format&fit=crop',
         'Canada' => 'https://images.unsplash.com/photo-1503416997304-7f8bf166c121?q=80&w=2070&auto=format&fit=crop',
         'Spain' => 'https://images.unsplash.com/photo-1543783232-26037dd78bfc?q=80&w=2070&auto=format&fit=crop',
