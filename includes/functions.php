@@ -360,6 +360,27 @@ function getLeaderboard($limit = 50) {
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
+/**
+ * Get scores for a specific race
+ */
+function getRaceLeaderboard($raceId, $limit = 50) {
+    $db = getDB();
+    
+    $stmt = $db->prepare("
+        SELECT 
+            u.id, u.username, u.full_name, u.avatar_style,
+            s.driver_points, s.constructor_points, s.top3_bonus, 
+            s.constructor_top3_bonus, s.total_points
+        FROM scores s
+        JOIN users u ON s.user_id = u.id
+        WHERE s.race_id = ?
+        ORDER BY s.total_points DESC, s.driver_points DESC
+        LIMIT ?
+    ");
+    $stmt->bind_param("ii", $raceId, $limit);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+}
 
 /**
  * Get single next upcoming race

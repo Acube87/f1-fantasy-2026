@@ -8,6 +8,31 @@ $leaderboard = getLeaderboard(100);
 $user = getCurrentUser(); // Standard variable name $user
 $currentUser = $user;     // Alias for existing logic
 
+// Check if we're viewing a specific race
+$selectedRaceId = $_GET['race_id'] ?? null;
+
+// Get all races for the dropdown (completed races only)
+$db = getDB();
+$racesQuery = $db->query("SELECT id, country, race_date FROM races ORDER BY race_date DESC");
+$allRaces = $racesQuery->fetch_all(MYSQLI_ASSOC);
+
+// Determine which leaderboard to show
+$showRaceLeaderboard = $selectedRaceId && $selectedRaceId !== 'global';
+
+// Use race-specific leaderboard if a race is selected
+if ($showRaceLeaderboard) {
+    $leaderboard = getRaceLeaderboard((int)$selectedRaceId, 100);
+    
+    // Get selected race info
+    $selectedRaceStmt = $db->prepare("SELECT id, country, race_date FROM races WHERE id = ?");
+    $selectedRaceStmt->bind_param("i", $selectedRaceId);
+    $selectedRaceStmt->execute();
+    $selectedRaceInfo = $selectedRaceStmt->get_result()->fetch_assoc();
+} else {
+    $leaderboard = getLeaderboard(100);
+    $selectedRaceInfo = null;
+}
+
 // Get the most recent race where the prediction deadline has already passed.
 // This includes upcoming races (like Japan) whose Saturday deadline has passed,
 // not just completed ones — so users can peek at each other's current predictions.
@@ -123,9 +148,30 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
         
         <div class="text-center mb-12">
             <h1 class="text-4xl md:text-5xl font-black text-white italic mb-2 uppercase">
-                Global <span class="g-text-gradient">Leaderboard</span>
+                <?php echo $showRaceLeaderboard ? htmlspecialchars($selectedRaceInfo['country'] ?? 'Race') : 'Global'; ?> <span class="g-text-gradient"><?php echo $showRaceLeaderboard ? 'GP' : 'Leaderboard'; ?></span>
             </h1>
-            <p class="text-gray-400">The fastest predictors in the paddock</p>
+            <?php 
+            $pageSubtitle = $showRaceLeaderboard ? 'Results for ' . htmlspecialchars($selectedRaceInfo['country'] ?? '') . ' GP' : 'The fastest predictors in the paddock';
+            ?>
+            <p class="text-gray-400"><?php echo $pageSubtitle; ?></p>
+        </div>
+
+        <!-- Race Selector -->
+        <div class="flex justify-center mb-8">
+            <form method="get" class="inline-flex items-center gap-2">
+                <select name="race_id" onchange="this.form.submit()" class="g-input bg-slate-800 border border-slate-600 text-white px-4 py-2 rounded-lg font-bold">
+                    <option value="global" <?php echo !$showRaceLeaderboard ? 'selected' : ''; ?>>🏆 Overall Standings</option>
+                    <?php foreach ($allRaces as $race): ?>
+                        <?php 
+                        $raceDate = new DateTime($race['race_date'], new DateTimeZone('UTC'));
+                        $formattedDate = $raceDate->format('F j, Y');
+                        ?>
+                        <option value="<?php echo $race['id']; ?>" <?php echo ($selectedRaceId == $race['id']) ? 'selected' : ''; ?>>
+                            🏁 <?php echo htmlspecialchars($race['country']); ?> GP - <?php echo $formattedDate; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
         </div>
 
         <!-- Top 3 Podium Cards -->
@@ -149,7 +195,9 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($lea
 require_once __DIR__ . '/includes/maintenance-gate.php'; echo htmlspecialchars($leaderboard[0]['username']); ?></h3>
                 <div class="text-4xl font-black text-yellow-400"><?php
 require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($leaderboard[0]['total_points'] ?? 0); ?> pts</div>
-                <div class="mt-2 text-xs font-bold bg-yellow-400/20 text-yellow-400 py-1 px-3 rounded-full inline-block">SEASON LEADER</div>
+                <?php if (!$showRaceLeaderboard): ?>
+                    <div class="mt-2 text-xs font-bold bg-yellow-400/20 text-yellow-400 py-1 px-3 rounded-full inline-block">SEASON LEADER</div>
+                <?php endif; ?>
             </div>
 
             <!-- 3rd Place -->
@@ -173,9 +221,16 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
                             <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Rank</th>
                             <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">#</th>
                             <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Strategy Engineer</th>
-                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Points</th>
-                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Races</th>
-                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Avg</th>
+                            <?php if ($showRaceLeaderboard): ?>
+                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Driver</th>
+                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Constructor</th>
+                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wilder text-right">Top 3</th>
+                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Total</th>
+                            <?php else: ?>
+                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Points</th>
+                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Races</th>
+                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Avg</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
@@ -183,8 +238,8 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
 require_once __DIR__ . '/includes/maintenance-gate.php'; 
                         $rank = 1;
                         foreach ($leaderboard as $entry): 
-                            $avgPoints = $entry['races_participated'] > 0 
-                                ? number_format($entry['total_points'] / $entry['races_participated'], 1) 
+                            $avgPoints = ($entry['races_participated'] ?? 0) > 0 
+                                ? number_format(($entry['total_points'] ?? 0) / $entry['races_participated'], 1) 
                                 : '0.0';
                             $isMe = ($user && $user['username'] === $entry['username']);
                             $rowClass = $isMe ? 'bg-orange-500/10' : 'hover:bg-white/5';
@@ -304,18 +359,37 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; endif; ?>
 require_once __DIR__ . '/includes/maintenance-gate.php'; echo $entry['races_participated'] ?? 0; ?></div>
                                 </div>
                             </td>
-                            <td class="p-4 text-right font-mono font-bold text-white text-lg">
-                                <?php
+                            <?php if ($showRaceLeaderboard): ?>
+                                <td class="p-4 text-right font-mono font-bold text-white text-lg">
+                                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($entry['driver_points'] ?? 0); ?>
+                                </td>
+                                <td class="p-4 text-right font-mono text-orange-300">
+                                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($entry['constructor_points'] ?? 0); ?>
+                                </td>
+                                <td class="p-4 text-right font-mono text-yellow-400">
+                                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format(($entry['top3_bonus'] ?? 0) + ($entry['constructor_top3_bonus'] ?? 0)); ?>
+                                </td>
+                                <td class="p-4 text-right font-mono font-bold text-orange-400 text-xl">
+                                    <?php
 require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($entry['total_points'] ?? 0); ?>
-                            </td>
-                            <td class="p-4 text-right text-gray-400">
-                                <?php
+                                </td>
+                            <?php else: ?>
+                                <td class="p-4 text-right font-mono font-bold text-white text-lg">
+                                    <?php
+require_once __DIR__ . '/includes/maintenance-gate.php'; echo number_format($entry['total_points'] ?? 0); ?>
+                                </td>
+                                <td class="p-4 text-right text-gray-400">
+                                    <?php
 require_once __DIR__ . '/includes/maintenance-gate.php'; echo $entry['races_participated'] ?? 0; ?>
-                            </td>
-                            <td class="p-4 text-right text-gray-500">
-                                <?php
+                                </td>
+                                <td class="p-4 text-right text-gray-500">
+                                    <?php
 require_once __DIR__ . '/includes/maintenance-gate.php'; echo $avgPoints; ?>
-                            </td>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                         <?php
 require_once __DIR__ . '/includes/maintenance-gate.php'; $rank++; endforeach; ?>
