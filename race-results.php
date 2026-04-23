@@ -60,8 +60,11 @@ $predictions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $seenPredDrivers = [];
 $uniquePredictions = [];
 foreach ($predictions as $pred) {
-    $driverKey = $pred['driver_id'] ?? $pred['driver_name'] ?? '';
-    if (!in_array($driverKey, $seenPredDrivers)) {
+    $driverKey = (!empty($pred['driver_id']) && $pred['driver_id'] > 0) 
+        ? 'id:'.$pred['driver_id'] 
+        : 'name:'.($pred['driver_name'] ?? '');
+    
+    if (!empty($driverKey) && !in_array($driverKey, $seenPredDrivers)) {
         $seenPredDrivers[] = $driverKey;
         $uniquePredictions[] = $pred;
     }
@@ -82,8 +85,12 @@ $actualResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $seenDrivers = [];
 $uniqueResults = [];
 foreach ($actualResults as $result) {
-    $driverKey = $result['driver_id'] ?? $result['driver_name'] ?? '';
-    if (!in_array($driverKey, $seenDrivers)) {
+    // Use driver_id if exists and not null/empty, otherwise use driver_name
+    $driverKey = (!empty($result['driver_id']) && $result['driver_id'] > 0) 
+        ? 'id:'.$result['driver_id'] 
+        : 'name:'.($result['driver_name'] ?? '');
+    
+    if (!empty($driverKey) && !in_array($driverKey, $seenDrivers)) {
         $seenDrivers[] = $driverKey;
         $uniqueResults[] = $result;
     }
