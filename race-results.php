@@ -310,8 +310,12 @@ $stats = getUserStats($userId);
                                 </tr>
                             </thead>
                             <tbody>
+                                <!-- DEBUG: Show count -->
+                                <?php if (isset($_GET['debug'])): ?>
+                                <tr><td colspan="5" style="background:yellow;color:black">Total predictions shown: <?php echo count($predictions); ?></td></tr>
+                                <?php endif; ?>
                                 <?php foreach ($predictions as $pIdx => $pred): ?>
-                                <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                                <tr class="border-b border-white/5 hover:bg-white/5 transition" data-idx="<?php echo $pIdx; ?>" data-driver="<?php echo htmlspecialchars($pred['driver_name']); ?>">
                                     <!-- Driver Info -->
                                     <td class="p-4">
                                         <div class="flex items-center gap-3">
