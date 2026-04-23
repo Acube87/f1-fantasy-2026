@@ -56,6 +56,18 @@ $stmt->bind_param("ii", $userId, $raceId);
 $stmt->execute();
 $predictions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+// Remove duplicate drivers from predictions
+$seenPredDrivers = [];
+$uniquePredictions = [];
+foreach ($predictions as $pred) {
+    $driverKey = $pred['driver_id'] ?? $pred['driver_name'] ?? '';
+    if (!in_array($driverKey, $seenPredDrivers)) {
+        $seenPredDrivers[] = $driverKey;
+        $uniquePredictions[] = $pred;
+    }
+}
+$predictions = $uniquePredictions;
+
 // Get actual race results
 $stmt = $db->prepare("
     SELECT * FROM race_results 
@@ -70,8 +82,9 @@ $actualResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $seenDrivers = [];
 $uniqueResults = [];
 foreach ($actualResults as $result) {
-    if (!in_array($result['driver_id'], $seenDrivers)) {
-        $seenDrivers[] = $result['driver_id'];
+    $driverKey = $result['driver_id'] ?? $result['driver_name'] ?? '';
+    if (!in_array($driverKey, $seenDrivers)) {
+        $seenDrivers[] = $driverKey;
         $uniqueResults[] = $result;
     }
 }
