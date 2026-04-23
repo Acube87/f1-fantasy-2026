@@ -396,12 +396,13 @@ function getNextRace() {
 function getUserStats($userId) {
     $db = getDB();
     
-    // Get total points
-    $stmt = $db->prepare("SELECT total_points FROM user_totals WHERE user_id = ?");
+    // Get total points and races participated
+    $stmt = $db->prepare("SELECT total_points, races_participated FROM user_totals WHERE user_id = ?");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
     $totalPoints = $result ? (int)$result['total_points'] : 0;
+    $racesParticipated = $result ? (int)$result['races_participated'] : 0;
     
     // Calculate Rank
     // Rank is 1 + count of people with MORE points than me
@@ -413,7 +414,8 @@ function getUserStats($userId) {
     
     return [
         'total_points' => $totalPoints,
-        'rank' => $rank
+        'rank' => $rank,
+        'races_participated' => $racesParticipated
     ];
 }
 

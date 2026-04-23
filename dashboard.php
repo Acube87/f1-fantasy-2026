@@ -27,6 +27,21 @@ try {
 $stats = getUserStats($userId);
 $totalPoints = $stats['total_points'] ?? 0;
 $racesParticipated = $stats['races_participated'] ?? 0;
+
+// Fallback: count predictions for completed races if races_participated is 0
+if ($racesParticipated === 0) {
+    $countStmt = $db->prepare("
+        SELECT COUNT(DISTINCT race_id) as races 
+        FROM predictions p
+        JOIN races r ON p.race_id = r.id
+        WHERE p.user_id = ? AND r.status = 'completed'
+    ");
+    $countStmt->bind_param("i", $userId);
+    $countStmt->execute();
+    $countResult = $countStmt->get_result()->fetch_assoc();
+    $racesParticipated = (int)($countResult['races'] ?? 0);
+}
+
 $level = $racesParticipated; // Level = Number of races participated
 $rank = $stats['rank'] ?? '-';
 $rankSuffix = match($rank) {

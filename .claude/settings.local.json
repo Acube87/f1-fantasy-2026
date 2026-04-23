@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -r \"\nrequire_once ''includes/functions.php'';\n$db = getDB();\n\necho \"\"=== ACTUAL RACE RESULTS ===\\n\"\";\n$results = $db->query(''SELECT position, driver_id, driver_name FROM race_results WHERE race_id = 1 ORDER BY position'');\n\necho \"\"Franco Colapinto actual result:\\n\"\";\nwhile ($result = $results->fetch_assoc()) {\n    $pos = $result[''position''];\n    $driver = $result[''driver_name''];\n    $driverId = $result[''driver_id''];\n    \n    if (stripos($driver, ''colapinto'') !== false) {\n        echo \"\"*** P$pos: $driver ($driverId) ***\\n\"\";\n        break;\n    }\n}\n\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
