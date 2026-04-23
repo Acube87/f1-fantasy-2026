@@ -66,6 +66,17 @@ $stmt->bind_param("i", $raceId);
 $stmt->execute();
 $actualResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+// Remove duplicate drivers from display (keep first occurrence by position)
+$seenDrivers = [];
+$uniqueResults = [];
+foreach ($actualResults as $result) {
+    if (!in_array($result['driver_id'], $seenDrivers)) {
+        $seenDrivers[] = $result['driver_id'];
+        $uniqueResults[] = $result;
+    }
+}
+$actualResults = $uniqueResults;
+
 // Build a lookup map: driver_id => actual_position
 $actualPositions = [];
 foreach ($actualResults as $result) {
