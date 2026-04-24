@@ -139,13 +139,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
         exit;
     }
     
-    if ($input['action'] === 'save_predictions') {
-        ob_clean(); // Clear buffer
-        $predictionsInput = $input['predictions'];
-        $constructorPredictions = $input['constructor_predictions'] ?? [];
-        
-        try {
-            $db->begin_transaction();
+        if ($input['action'] === 'save_predictions') {
+            ob_clean(); // Clear buffer
+            $predictionsInput = $input['predictions'];
+            $constructorPredictions = $input['constructor_predictions'] ?? [];
+            
+            // Validate: check for duplicate driver selections
+            $driverIds = array_column($predictionsInput, 'driver_id');
+            if (count($driverIds) !== count(array_unique($driverIds))) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Duplicate driver selections are not allowed.']);
+                exit;
+            }
+            
+            // Validate: ensure exactly 22 drivers are selected (for 2026 season)
+            if (count($predictionsInput) !== 22) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'You must select exactly 22 drivers.']);
+                exit;
+            }
+            
+            try {
+                $db->begin_transaction();
 
             // Clear existing
             $stmt = $db->prepare("DELETE FROM predictions WHERE race_id = ? AND user_id = ?");
