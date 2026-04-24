@@ -280,7 +280,7 @@ $stats = getUserStats($userId);
                             </thead>
                             <tbody>
                                 <?php foreach ($predictions as $pIdx => $pred): ?>
-                                <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                                <tr class="border-b border-white/5 hover:bg-white/5 transition" id="row-<?php echo $pIdx; ?>">
                                     <!-- Driver Info -->
                                     <td class="p-4">
                                         <div class="flex items-center gap-3">
