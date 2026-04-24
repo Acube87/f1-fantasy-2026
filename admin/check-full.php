@@ -7,7 +7,7 @@ $userId = 1;
 
 // EXACT same query as race-results.php
 $stmt = $db->prepare("
-    SELECT p.*, d.driver_name, d.team, d.image_url
+    SELECT p.*, d.driver_name, d.team
     FROM predictions p
     LEFT JOIN drivers d ON p.driver_id = d.id
     WHERE p.user_id = ? AND p.race_id = ?

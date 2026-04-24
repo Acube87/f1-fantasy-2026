@@ -51,8 +51,7 @@ else echo "<p style='color:red'>❌ Error 'races': " . $db->error . "</p>";
 $sql = "CREATE TABLE IF NOT EXISTS drivers (
     id VARCHAR(50) PRIMARY KEY,
     driver_name VARCHAR(100) NOT NULL,
-    team VARCHAR(100),
-    image_url VARCHAR(255)
+    team VARCHAR(100)
 )";
 
 if ($db->query($sql) === TRUE) echo "<p>✅ Table 'drivers' ready.</p>";

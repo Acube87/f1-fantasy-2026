@@ -46,7 +46,7 @@ $hasResults = $race['status'] === 'completed';
 
 // Get user's predictions for this race
 $stmt = $db->prepare("
-    SELECT p.*, d.driver_name, d.team, d.image_url
+    SELECT p.*, d.driver_name, d.team
     FROM predictions p
     LEFT JOIN drivers d ON p.driver_id = d.id
     WHERE p.user_id = ? AND p.race_id = ?
@@ -284,15 +284,11 @@ $stats = getUserStats($userId);
                                     <!-- Driver Info -->
                                     <td class="p-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-full bg-slate-700 overflow-hidden">
-                                                <?php if ($pred['image_url']): ?>
-                                                <img src="<?php echo htmlspecialchars($pred['image_url']); ?>" alt="<?php echo htmlspecialchars($pred['driver_name']); ?>" class="w-full h-full object-cover">
-                                                <?php else: ?>
-                                                <div class="w-full h-full flex items-center justify-center text-gray-500">
-                                                    <i class="fas fa-user"></i>
-                                                </div>
-                                                <?php endif; ?>
-                                            </div>
+                                     <div class="w-10 h-10 rounded-full bg-slate-700 overflow-hidden">
+                                                 <div class="w-full h-full flex items-center justify-center text-gray-500">
+                                                     <i class="fas fa-user"></i>
+                                                 </div>
+                                             </div>
                                             <div>
                                                 <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($pred['driver_name']); ?></div>
                                                 <div class="text-xs text-gray-500"><?php echo htmlspecialchars($pred['team']); ?></div>
