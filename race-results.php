@@ -56,21 +56,6 @@ $stmt->bind_param("ii", $userId, $raceId);
 $stmt->execute();
 $predictions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// Remove duplicate drivers from predictions
-$seenPredDrivers = [];
-$uniquePredictions = [];
-foreach ($predictions as $pred) {
-    $driverKey = (!empty($pred['driver_id']) && $pred['driver_id'] > 0) 
-        ? 'id:'.$pred['driver_id'] 
-        : 'name:'.($pred['driver_name'] ?? '');
-    
-    if (!empty($driverKey) && !in_array($driverKey, $seenPredDrivers)) {
-        $seenPredDrivers[] = $driverKey;
-        $uniquePredictions[] = $pred;
-    }
-}
-$predictions = $uniquePredictions;
-
 // Get actual race results
 $stmt = $db->prepare("
     SELECT * FROM race_results 
@@ -80,22 +65,6 @@ $stmt = $db->prepare("
 $stmt->bind_param("i", $raceId);
 $stmt->execute();
 $actualResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-// Remove duplicate drivers from display (keep first occurrence by position)
-$seenDrivers = [];
-$uniqueResults = [];
-foreach ($actualResults as $result) {
-    // Use driver_id if exists and not null/empty, otherwise use driver_name
-    $driverKey = (!empty($result['driver_id']) && $result['driver_id'] > 0) 
-        ? 'id:'.$result['driver_id'] 
-        : 'name:'.($result['driver_name'] ?? '');
-    
-    if (!empty($driverKey) && !in_array($driverKey, $seenDrivers)) {
-        $seenDrivers[] = $driverKey;
-        $uniqueResults[] = $result;
-    }
-}
-$actualResults = $uniqueResults;
 
 // Build a lookup map: driver_id => actual_position
 $actualPositions = [];
@@ -310,12 +279,8 @@ $stats = getUserStats($userId);
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- DEBUG: Show count -->
-                                <?php if (isset($_GET['debug'])): ?>
-                                <tr><td colspan="5" style="background:yellow;color:black">Total predictions shown: <?php echo count($predictions); ?></td></tr>
-                                <?php endif; ?>
                                 <?php foreach ($predictions as $pIdx => $pred): ?>
-                                <tr class="border-b border-white/5 hover:bg-white/5 transition" data-idx="<?php echo $pIdx; ?>" data-driver="<?php echo htmlspecialchars($pred['driver_name']); ?>">
+                                <tr class="border-b border-white/5 hover:bg-white/5 transition">
                                     <!-- Driver Info -->
                                     <td class="p-4">
                                         <div class="flex items-center gap-3">
