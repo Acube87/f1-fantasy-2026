@@ -85,19 +85,20 @@ foreach ($predictions as &$pred) {
     $pred['points_earned'] = 0;
     $pred['is_exact'] = false;
     $pred['is_top3'] = false;
-    
+
     if ($pred['actual_position'] !== null && $pred['predicted_position'] == $pred['actual_position']) {
         // Exact match
         $pred['is_exact'] = true;
         $exactMatches++;
-        
+
         // Base points + strategy bonus
         $basePts = $f1Points[$pred['actual_position']] ?? 0;
         $pred['points_earned'] = $basePts + 3; // +3 strategy bonus
-        
+
         $totalPoints += $pred['points_earned'];
     }
 }
+unset($pred); // critical: break reference to last element to prevent foreach corruption below
 
 // Get user's total score for this race from scores table (which includes Constructor & Podium bonuses)
 $stmt = $db->prepare("SELECT * FROM scores WHERE user_id = ? AND race_id = ?");
