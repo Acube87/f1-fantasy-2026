@@ -201,60 +201,28 @@ foreach ($racesData as $race) {
                 </div>
             </div>
             
-            <?php if ($nextRace): ?>
             <div class="flex items-center gap-3">
+                <?php if ($nextRace): ?>
                 <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-orange px-8 py-4 text-lg flex items-center gap-3 animate-pulse">
                     <i class="fas fa-gamepad"></i> Make Prediction
                 </a>
-                <div class="relative group">
-                    <button class="flex items-center gap-2 px-4 py-4 text-sm font-bold text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition">
-                        <i class="fas fa-calendar-plus text-orange-400"></i>
-                        <span class="hidden sm:inline">Race Reminders</span>
-                        <i class="fas fa-chevron-down text-[10px] text-gray-500 hidden sm:inline"></i>
-                    </button>
-                    <!-- Dropdown -->
-                    <div class="absolute right-0 top-full mt-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                        <div class="px-4 py-3 border-b border-white/10">
-                            <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Save to Calendar</div>
-                            <div class="text-xs text-gray-400 mt-0.5">All 24 races + prediction deadlines</div>
-                        </div>
-                        <a href="calendar.php" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition group/item">
-                            <div class="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-calendar text-blue-400 text-xs"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold text-white">iCal / Apple Calendar</div>
-                                <div class="text-[10px] text-gray-500">iPhone, Mac, iPad</div>
-                            </div>
-                        </a>
-                        <a href="calendar.php" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition border-t border-white/5">
-                            <div class="w-7 h-7 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-envelope text-cyan-400 text-xs"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold text-white">Outlook</div>
-                                <div class="text-[10px] text-gray-500">Windows, Web, Android</div>
-                            </div>
-                        </a>
-                        <a href="https://calendar.google.com/calendar/r?cid=<?php echo urlencode('https://f1.scanerrific.com/calendar.php'); ?>" target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition border-t border-white/5">
-                            <div class="w-7 h-7 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fab fa-google text-red-400 text-xs"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold text-white">Google Calendar</div>
-                                <div class="text-[10px] text-gray-500">Subscribe to all races</div>
-                            </div>
-                        </a>
-                        <div class="px-4 py-2.5 border-t border-white/10 bg-black/20">
-                            <div class="text-[10px] text-gray-600 flex items-center gap-1">
-                                <i class="fas fa-bell text-orange-500/60"></i>
-                                Includes deadline reminders for each race
-                            </div>
-                        </div>
-                    </div>
+                <?php endif; ?>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold hidden md:block">Reminders:</span>
+                    <a href="calendar.php" class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-gray-300 hover:text-white bg-white/5 hover:bg-blue-500/20 border border-white/10 hover:border-blue-500/40 rounded-lg transition" title="Add to iCal / Apple Calendar">
+                        <i class="fas fa-calendar text-blue-400"></i>
+                        <span class="hidden sm:inline">iCal</span>
+                    </a>
+                    <a href="calendar.php" class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-gray-300 hover:text-white bg-white/5 hover:bg-cyan-500/20 border border-white/10 hover:border-cyan-500/40 rounded-lg transition" title="Add to Outlook">
+                        <i class="fas fa-envelope text-cyan-400"></i>
+                        <span class="hidden sm:inline">Outlook</span>
+                    </a>
+                    <a href="https://calendar.google.com/calendar/r?cid=<?php echo urlencode('https://f1.scanerrific.com/calendar.php'); ?>" target="_blank" rel="noopener" class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-gray-300 hover:text-white bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 rounded-lg transition" title="Add to Google Calendar">
+                        <i class="fab fa-google text-red-400"></i>
+                        <span class="hidden sm:inline">Google</span>
+                    </a>
                 </div>
             </div>
-            <?php endif; ?>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -637,5 +605,26 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('Y'); ?> <?ph
 
     </main>
 
+<script>
+function toggleCalDropdown() {
+    var d = document.getElementById('calDropdown');
+    var isHidden = d.classList.contains('invisible');
+    if (isHidden) {
+        d.classList.remove('opacity-0', 'invisible');
+        d.classList.add('opacity-100', 'visible');
+    } else {
+        d.classList.add('opacity-0', 'invisible');
+        d.classList.remove('opacity-100', 'visible');
+    }
+}
+// Close when clicking outside
+document.addEventListener('click', function(e) {
+    var wrap = document.getElementById('calDropdownWrap');
+    if (wrap && !wrap.contains(e.target)) {
+        var d = document.getElementById('calDropdown');
+        if (d) { d.classList.add('opacity-0', 'invisible'); d.classList.remove('opacity-100', 'visible'); }
+    }
+});
+</script>
 </body>
 </html>
