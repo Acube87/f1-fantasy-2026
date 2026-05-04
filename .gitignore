@@ -15,3 +15,12 @@ Thumbs.db
 # Keep config.railway.php as example
 !config.railway.php
 
+
+# Dependencies
+node_modules/
+
+# Local dev / backups
+backups/
+f1.db
+serve-local.sh
+main

@@ -101,10 +101,10 @@ if ($nextRace) {
             $countdownText = $minutes . ' min left';
         }
         
-        // Progress bar (countdown style: shrinks as time runs out. 30 days+ = 100%, 0 days = 0%)
-        $maxDaysBeforeDeadline = 30;
+        // Progress bar: fills as deadline approaches (0% = 7+ days away, 100% = at deadline)
+        $maxDaysWindow = 7;
         $daysRemaining = $totalDays + ($hours / 24);
-        $progressPercentage = min(100, max(0, ($daysRemaining / $maxDaysBeforeDeadline) * 100));
+        $progressPercentage = min(100, max(0, (($maxDaysWindow - $daysRemaining) / $maxDaysWindow) * 100));
         $progressBarWidth = round($progressPercentage, 2);
     } else {
         $predictionStatus = 'CLOSED';
@@ -181,56 +181,7 @@ foreach ($racesData as $race) {
 <body class="gaming-theme text-gray-200">
 
     <!-- Navbar -->
-    <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-8">
-            <a href="index.php" class="flex items-center gap-4 hover:opacity-80 transition group">
-                <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
-                    <i class="fas fa-flag-checkered text-white text-lg"></i>
-                </div>
-                <!-- Hide text on very small screens -->
-                <span class="font-bold text-xl tracking-wide text-white hidden sm:block group-hover:text-orange-400 transition-colors">PADDOCK PICKS</span>
-            </a>
-            
-            <div class="hidden md:flex items-center gap-6">
-                <a href="dashboard.php" class="text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 border-b-2 border-orange-500 pb-1">
-                    <i class="fas fa-home text-orange-500"></i> Dashboard
-                </a>
-                <a href="news.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
-                    <i class="fas fa-newspaper text-orange-400"></i> News & Posts
-                </a>
-                <a href="updates.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 relative">
-                    <i class="fas fa-broadcast-tower text-orange-400"></i> Race Updates
-                    <span class="absolute -top-1 -right-2 w-2 h-2 bg-orange-500 rounded-full animate-pulse border border-orange-950"></span>
-                </a>
-                <a href="leaderboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
-                    <i class="fas fa-trophy text-yellow-500/80"></i> Leaderboard
-                </a>
-                <a href="achievements.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
-                    <i class="fas fa-medal text-purple-500/80"></i> Achievements
-                </a>
-                <?php if ($user['username'] === 'Angrycube' || (isset($user['is_admin']) && $user['is_admin'] == 1)): ?>
-                <a href="admin/race-control.php" class="text-orange-400 hover:text-orange-300 font-bold text-[10px] uppercase tracking-widest transition flex items-center gap-2 border-l border-orange-500/30 pl-6">
-                    <i class="fas fa-tower-broadcast"></i> Race Control
-                </a>
-                <?php endif; ?>
-            </div>
-        </div>
-        
-        <div class="flex items-center gap-6">
-            <div class="flex items-center gap-3 pl-6 border-l border-white/10">
-                <div class="text-right hidden sm:block">
-                    <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Driver</div>
-                    <div class="text-sm font-bold text-white leading-none"><?php echo htmlspecialchars($user['username']); ?></div>
-                </div>
-                <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition cursor-pointer relative group shadow-lg shadow-black/50">
-                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                </a>
-            </div>
-            <a href="logout.php" class="text-gray-400 hover:text-white transition hover:rotate-90 duration-300" title="Sign Out">
-                <i class="fas fa-sign-out-alt text-lg"></i>
-            </a>
-        </div>
-    </nav>
+    <?php require_once __DIR__ . '/includes/nav.php'; ?>
 
     <!-- Main Content -->
     <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-6 md:gap-8">
@@ -251,9 +202,58 @@ foreach ($racesData as $race) {
             </div>
             
             <?php if ($nextRace): ?>
-            <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-orange px-8 py-4 text-lg flex items-center gap-3 animate-pulse">
-                <i class="fas fa-gamepad"></i> Make Prediction
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="predict.php?race_id=<?php echo $nextRace['id']; ?>" class="g-btn g-btn-orange px-8 py-4 text-lg flex items-center gap-3 animate-pulse">
+                    <i class="fas fa-gamepad"></i> Make Prediction
+                </a>
+                <div class="relative group">
+                    <button class="flex items-center gap-2 px-4 py-4 text-sm font-bold text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition">
+                        <i class="fas fa-calendar-plus text-orange-400"></i>
+                        <span class="hidden sm:inline">Race Reminders</span>
+                        <i class="fas fa-chevron-down text-[10px] text-gray-500 hidden sm:inline"></i>
+                    </button>
+                    <!-- Dropdown -->
+                    <div class="absolute right-0 top-full mt-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div class="px-4 py-3 border-b border-white/10">
+                            <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Save to Calendar</div>
+                            <div class="text-xs text-gray-400 mt-0.5">All 24 races + prediction deadlines</div>
+                        </div>
+                        <a href="calendar.php" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition group/item">
+                            <div class="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-calendar text-blue-400 text-xs"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-white">iCal / Apple Calendar</div>
+                                <div class="text-[10px] text-gray-500">iPhone, Mac, iPad</div>
+                            </div>
+                        </a>
+                        <a href="calendar.php" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition border-t border-white/5">
+                            <div class="w-7 h-7 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-envelope text-cyan-400 text-xs"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-white">Outlook</div>
+                                <div class="text-[10px] text-gray-500">Windows, Web, Android</div>
+                            </div>
+                        </a>
+                        <a href="https://calendar.google.com/calendar/r?cid=<?php echo urlencode('https://f1.scanerrific.com/calendar.php'); ?>" target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition border-t border-white/5">
+                            <div class="w-7 h-7 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fab fa-google text-red-400 text-xs"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-white">Google Calendar</div>
+                                <div class="text-[10px] text-gray-500">Subscribe to all races</div>
+                            </div>
+                        </a>
+                        <div class="px-4 py-2.5 border-t border-white/10 bg-black/20">
+                            <div class="text-[10px] text-gray-600 flex items-center gap-1">
+                                <i class="fas fa-bell text-orange-500/60"></i>
+                                Includes deadline reminders for each race
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <?php endif; ?>
         </div>
 
@@ -313,19 +313,18 @@ foreach ($racesData as $race) {
                             <script>
                                 // LIVE COUNTDOWN TO DEADLINE
                                 const deadlineTime = <?php echo $deadline ? $deadline->getTimestamp() : 0; ?> * 1000;
-                                const maxDaysBeforeDeadline = 30;
-                                
+                                const maxWindowMs = 7 * 24 * 60 * 60 * 1000; // 7-day window
+
                                 function updateLiveCountdown() {
                                     const now = Date.now();
                                     const timeRemaining = deadlineTime - now;
-                                    
+
                                     const bar = document.getElementById('race-countdown-bar');
                                     const countdownEl = document.querySelector('.countdown-text');
                                     const statusEl = document.querySelector('.status-label');
-                                    
+
                                     if (timeRemaining <= 0) {
-                                        // Race has started
-                                        if (bar) bar.style.width = '0%';
+                                        if (bar) bar.style.width = '100%';
                                         if (countdownEl) countdownEl.textContent = 'Predictions Locked';
                                         if (statusEl) {
                                             statusEl.className = 'status-label text-red-400';
@@ -333,14 +332,14 @@ foreach ($racesData as $race) {
                                         }
                                         return;
                                     }
-                                    
+
                                     // Calculate time components
                                     const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
                                     const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                                     const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
                                     const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-                                    
-                                    // Update countdown text with live timer
+
+                                    // Update countdown text
                                     if (countdownEl) {
                                         if (days > 0) {
                                             countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
@@ -352,21 +351,15 @@ foreach ($racesData as $race) {
                                             countdownEl.textContent = `${seconds}s`;
                                         }
                                     }
-                                    
-                                    // Calculate progress bar (shrinks: 100% when plenty of time, 0% at deadline)
-                                    const maxTime = maxDaysBeforeDeadline * 24 * 60 * 60 * 1000;
-                                    const progress = Math.min(Math.max((timeRemaining / maxTime) * 100, 0), 100);
-                                    
-                                    if (bar) {
-                                        bar.style.width = progress.toFixed(2) + '%';
-                                    }
-                                    
-                                    // Update status based on time
-                                    if (statusEl) {
-                                        if (timeRemaining > 0) {
-                                            statusEl.className = 'status-label text-green-400';
-                                            statusEl.textContent = 'OPEN';
-                                        }
+
+                                    // Progress bar fills as deadline approaches (0% = 7+ days away, 100% = at deadline)
+                                    const progress = Math.min(Math.max(((maxWindowMs - timeRemaining) / maxWindowMs) * 100, 0), 100);
+                                    if (bar) bar.style.width = progress.toFixed(2) + '%';
+
+                                    // Update status label
+                                    if (statusEl && timeRemaining > 0) {
+                                        statusEl.className = 'status-label text-green-400';
+                                        statusEl.textContent = 'OPEN';
                                     }
                                 }
                                 

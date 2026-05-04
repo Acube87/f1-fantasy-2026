@@ -215,33 +215,7 @@ $myStats = getUserStats($userId);
 <body class="gaming-theme text-gray-200" style="font-family: 'Inter', sans-serif;">
 
 <!-- ── NAV ──────────────────────────────────────────────────────────────── -->
-<nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center bg-slate-900/80 backdrop-blur-md border-b border-white/5">
-    <div class="flex items-center gap-6">
-        <a href="dashboard.php" class="flex items-center gap-3 hover:opacity-80 transition group">
-            <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform">
-                <i class="fas fa-flag-checkered text-white text-lg"></i>
-            </div>
-            <span class="font-black text-xl tracking-wide text-white uppercase italic hidden sm:block">PADDOCK PICKS</span>
-        </a>
-        <div class="hidden lg:flex items-center gap-6 text-xs uppercase tracking-[0.15em] font-black">
-            <a href="dashboard.php" class="text-gray-400 hover:text-white transition">Dashboard</a>
-            <a href="updates.php" class="text-orange-500 border-b-2 border-orange-500 pb-0.5">Race Updates</a>
-            <a href="leaderboard.php" class="text-gray-400 hover:text-white transition">Leaderboard</a>
-            <a href="achievements.php" class="text-gray-400 hover:text-white transition">Achievements</a>
-        </div>
-    </div>
-    <div class="flex items-center gap-4">
-        <!-- Live badge -->
-        <div class="hidden md:flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 rounded-full px-3 py-1.5">
-            <div class="live-dot"></div>
-            <span class="text-[10px] font-black text-orange-400 uppercase tracking-widest">Live Telemetry</span>
-        </div>
-        <a href="profile.php" class="w-9 h-9 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition shadow">
-            <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover">
-        </a>
-        <a href="logout.php" class="text-gray-500 hover:text-white transition text-sm" title="Sign Out"><i class="fas fa-sign-out-alt"></i></a>
-    </div>
-</nav>
+<?php require_once __DIR__ . '/includes/nav.php'; ?>
 
 <!-- ── HERO ─────────────────────────────────────────────────────────────── -->
 <div class="pt-24 px-4 md:px-8 max-w-7xl mx-auto">

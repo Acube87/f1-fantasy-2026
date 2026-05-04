@@ -27,8 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $userId = $user['id'];
 
 if (!$raceId) {
+    $nextRace = getNextRace();
     ob_end_flush();
-    header('Location: index.php');
+    if ($nextRace) {
+        header('Location: predict.php?race_id=' . $nextRace['id']);
+    } else {
+        header('Location: dashboard.php');
+    }
     exit;
 }
 
@@ -72,8 +77,8 @@ if ($isPredictionOpen) {
         $countdownText = $minutes . ' min left';
     }
     
-    // Calculate progress bar (assumes 30 days before deadline = 0%, deadline = 100%)
-    $maxDaysBeforeDeadline = 30;
+    // Progress bar uses a 7-day window (matches JS logic — 0% when 7+ days away, 100% at deadline)
+    $maxDaysBeforeDeadline = 7;
     $daysRemaining = $totalDays + ($hours / 24);
     $progressPercentage = max(0, min(100, (($maxDaysBeforeDeadline - $daysRemaining) / $maxDaysBeforeDeadline) * 100));
     $progressBarWidth = round($progressPercentage, 2);
@@ -98,6 +103,22 @@ while ($row = $result->fetch_assoc()) {
     $predictions[$row['driver_id']] = $row['predicted_position'];
 }
 $hasPrediction = !empty($predictions);
+
+// Load previous race's predictions for this user (server-side, no AJAX needed)
+$prevPredictions = [];
+$prevRaceStmt = $db->prepare("SELECT id FROM races WHERE race_date < (SELECT race_date FROM races WHERE id = ?) ORDER BY race_date DESC LIMIT 1");
+$prevRaceStmt->bind_param("i", $raceId);
+$prevRaceStmt->execute();
+$prevRace = $prevRaceStmt->get_result()->fetch_assoc();
+if ($prevRace) {
+    $prevPredStmt = $db->prepare("SELECT driver_id, predicted_position FROM predictions WHERE race_id = ? AND user_id = ? ORDER BY predicted_position ASC");
+    $prevPredStmt->bind_param("ii", $prevRace['id'], $userId);
+    $prevPredStmt->execute();
+    $prevRes = $prevPredStmt->get_result();
+    while ($row = $prevRes->fetch_assoc()) {
+        $prevPredictions[$row['driver_id']] = $row['predicted_position'];
+    }
+}
 
 // Get unique constructors for sidebar
 $stmt = $db->prepare("SELECT DISTINCT team FROM drivers ORDER BY team");
@@ -408,48 +429,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
 <body class="gaming-theme text-gray-200">
 
     <!-- Navbar -->
-    <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-8">
-            <a href="index.php" class="flex items-center gap-4 hover:opacity-80 transition group">
-                <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
-                    <i class="fas fa-flag-checkered text-white text-lg"></i>
-                </div>
-                <!-- Hide text on very small screens -->
-                <span class="font-bold text-xl tracking-wide text-white hidden sm:block group-hover:text-orange-400 transition-colors">PADDOCK PICKS</span>
-            </a>
-            
-            <div class="hidden md:flex items-center gap-6">
-                <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
-                    <i class="fas fa-home text-orange-500/80"></i> Dashboard
-                </a>
-                <a href="updates.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2 relative">
-                    <i class="fas fa-broadcast-tower text-orange-400"></i> Race Updates
-                    <span class="absolute -top-1 -right-2 w-2 h-2 bg-orange-500 rounded-full animate-pulse border border-orange-950"></span>
-                </a>
-                <a href="leaderboard.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
-                    <i class="fas fa-trophy text-yellow-500/80"></i> Leaderboard
-                </a>
-                <a href="achievements.php" class="text-gray-300 hover:text-white font-bold text-sm uppercase tracking-wide transition flex items-center gap-2">
-                    <i class="fas fa-medal text-purple-500/80"></i> Achievements
-                </a>
-            </div>
-        </div>
-        
-        <div class="flex items-center gap-6">
-            <div class="flex items-center gap-3 pl-6 border-l border-white/10">
-                <div class="text-right hidden sm:block">
-                    <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Driver</div>
-                    <div class="text-sm font-bold text-white leading-none"><?php echo htmlspecialchars($user['username']); ?></div>
-                </div>
-                <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-orange-500 transition cursor-pointer relative group shadow-lg shadow-black/50">
-                    <img src="<?php echo getAvatarUrl($user['avatar_style'] ?? 'avataaars', $user['username']); ?>" alt="Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                </a>
-            </div>
-            <a href="logout.php" class="text-gray-400 hover:text-white transition hover:rotate-90 duration-300" title="Sign Out">
-                <i class="fas fa-sign-out-alt text-lg"></i>
-            </a>
-        </div>
-    </nav>
+    <?php require_once __DIR__ . '/includes/nav.php'; ?>
 
     <!-- Main Content -->
     <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-6 md:gap-8">
@@ -469,6 +449,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     <button onclick="copyFromPreviousRace()" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded text-gray-300 transition">
                         <i class="fas fa-history mr-1"></i> Copy Prev
                     </button>
+                    <a href="calendar.php?race_id=<?php echo $raceId; ?>" title="Add this race deadline to your calendar" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded text-gray-300 hover:text-orange-400 transition flex items-center gap-1">
+                        <i class="fas fa-calendar-plus"></i> Remind Me
+                    </a>
                      <button id="saveButton" class="g-btn g-btn-blue px-6 py-2 text-sm shadow-lg hover:shadow-blue-500/20" onclick="savePredictions()" <?php if (!$isPredictionOpen || $hasPrediction) echo 'disabled style="opacity:0.5; cursor:not-allowed;"'; ?>>
                         SAVE <i class="fas fa-check ml-1"></i>
                     </button>
@@ -977,36 +960,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
             });
         }
 
+        // Previous race predictions preloaded server-side — no fetch needed
+        const prevPredictions = <?php echo json_encode($prevPredictions); ?>;
+
         function copyFromPreviousRace() {
-            // request previous race predictions for this user
-            fetch('predict.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    race_id: <?php echo $raceId; ?>,
-                    action: 'copy_previous',
-                    csrf_token: '<?php echo getCSRFToken(); ?>'
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    const list = document.getElementById('predictionList');
-                    // data.predictions is map driver_id -> predicted_position
-                    const preds = data.predictions;
-                    // sort by position
-                    const sorted = Object.entries(preds).sort(([,a],[,b]) => a - b);
-                    sorted.forEach(([driverId]) => {
-                        const item = list.querySelector(`.prediction-item[data-driver-id="${driverId}"]`);
-                        if (item) {
-                            list.appendChild(item); // move to end in order
-                        }
-                    });
-                } else {
-                    alert('Unable to copy previous race predictions');
-                }
-            })
-            .catch(err => alert('Network error'));
+            if (Object.keys(prevPredictions).length === 0) {
+                alert('No previous race predictions found to copy.');
+                return;
+            }
+            const list = document.getElementById('predictionList');
+            // Sort driver IDs by their previous predicted position
+            const sorted = Object.entries(prevPredictions).sort(([,a],[,b]) => a - b);
+            sorted.forEach(([driverId]) => {
+                const item = list.querySelector(`.prediction-item[data-driver-id="${driverId}"]`);
+                if (item) list.appendChild(item);
+            });
+            // Any drivers not in previous prediction stay at the bottom
+            updatePositionNumbers();
+            updateConstructorPoints();
         }
 
         function savePredictions() {
@@ -1038,7 +1009,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     constructor_predictions: constructorPredictions,
                     action: 'save_predictions',
                     csrf_token: '<?php echo getCSRFToken(); ?>'
-                })
+                }),
+                credentials: 'same-origin'
             })
             .then(res => res.json())
             .then(data => {

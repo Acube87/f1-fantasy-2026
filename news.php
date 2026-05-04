@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
+require_once 'includes/avatars.php';
 
 $user = getCurrentUser();
 if (!$user) {
@@ -72,24 +73,13 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-white font-sans">
+<body class="gaming-theme text-gray-200">
     <div class="min-h-screen">
-        <!-- Navigation -->
-        <nav class="border-b border-white/10 sticky top-0 z-50 bg-slate-950/95 backdrop-blur-sm">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-                <a href="dashboard.php" class="flex items-center gap-2 hover:opacity-80 transition">
-                    <i class="fas fa-chevron-left"></i>
-                    <span class="font-bold text-orange-500">Back to Dashboard</span>
-                </a>
-                <h1 class="text-2xl font-bold text-orange-500 flex items-center gap-2">
-                    <i class="fas fa-newspaper"></i> F1 Fantasy News
-                </h1>
-                <div class="w-24"></div>
-            </div>
-        </nav>
+        <!-- Navbar -->
+        <?php require_once __DIR__ . '/includes/nav.php'; ?>
 
         <!-- Main Content -->
-        <main class="max-w-4xl mx-auto px-4 py-8">
+        <main class="pt-24 max-w-4xl mx-auto px-4 py-8">
             <!-- No System Announcement -->
 
             <?php if (empty($posts)): ?>

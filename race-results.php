@@ -2,6 +2,7 @@
 require_once 'includes/auth.php';
 require_once 'includes/maintenance-gate.php';
 require_once 'includes/functions.php';
+require_once 'includes/avatars.php';
 
 $user = getCurrentUser();
 if (!$user) {
@@ -106,6 +107,20 @@ $scoreRecord = $stmt->get_result()->fetch_assoc();
 
 // Get user stats
 $stats = getUserStats($userId);
+
+// Race leaderboard — all users' scores for this race
+$raceLeaderboard = [];
+$lbStmt = $db->prepare("
+    SELECT s.user_id, s.total_points, s.driver_points, s.top3_bonus, s.constructor_points,
+           u.username
+    FROM scores s
+    JOIN users u ON s.user_id = u.id
+    WHERE s.race_id = ?
+    ORDER BY s.total_points DESC
+");
+$lbStmt->bind_param("i", $raceId);
+$lbStmt->execute();
+$raceLeaderboard = $lbStmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -120,30 +135,7 @@ $stats = getUserStats($userId);
 <body class="gaming-theme text-gray-200">
 
     <!-- Navbar -->
-    <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
-                <i class="fas fa-flag-checkered text-white text-lg"></i>
-            </div>
-            <span class="font-bold text-xl tracking-wide text-white">PADDOCK PICKS</span>
-        </div>
-        
-        <div class="flex items-center gap-6">
-            <div class="hidden md:flex items-center gap-4">
-                <a href="dashboard.php" class="text-gray-300 hover:text-white transition">Dashboard</a>
-                <a href="leaderboard.php" class="text-gray-300 hover:text-white transition">Leaderboard</a>
-            </div>
-            
-            <div class="flex items-center gap-3 pl-6 border-l border-white/10">
-                <a href="profile.php" class="w-10 h-10 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden hover:border-blue-500 transition cursor-pointer">
-                    <img src="https://api.dicebear.com/7.x/<?php echo $user['avatar_style'] ?? 'avataaars'; ?>/svg?seed=<?php echo $user['username']; ?>" alt="Avatar" class="w-full h-full">
-                </a>
-                <a href="logout.php" class="text-gray-400 hover:text-white transition">
-                    <i class="fas fa-sign-out-alt"></i>
-                </a>
-            </div>
-        </div>
-    </nav>
+    <?php require_once __DIR__ . '/includes/nav.php'; ?>
 
     <!-- Main Content -->
     <main class="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
@@ -262,88 +254,44 @@ $stats = getUserStats($userId);
                 </h2>
 
                 <?php if (empty($predictions)): ?>
-                    <div class="text-center py-12 text-gray-500">
-                        <i class="fas fa-info-circle text-4xl mb-4"></i>
-                        <p>You didn't make any predictions for this race.</p>
+                    <div class="text-center py-8 text-gray-500 text-sm">
+                        <i class="fas fa-info-circle mb-2 block text-2xl"></i>
+                        No predictions made for this race.
                     </div>
                 <?php else: ?>
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <table class="w-full text-sm">
                             <thead>
-                                <tr class="border-b border-white/10">
-                                    <th class="p-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Driver</th>
-                                    <th class="p-4 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Your Prediction</th>
-                                    <th class="p-4 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Actual Position</th>
-                                    <th class="p-4 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Result</th>
-                                    <th class="p-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Points</th>
+                                <tr class="border-b border-white/10 text-[10px] uppercase tracking-wider text-gray-500">
+                                    <th class="pb-2 text-left">Driver</th>
+                                    <th class="pb-2 text-center">Predicted</th>
+                                    <th class="pb-2 text-center">Actual</th>
+                                    <th class="pb-2 text-center">Result</th>
+                                    <th class="pb-2 text-right">Pts</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-white/5">
                                 <?php foreach ($predictions as $pIdx => $pred): ?>
-                                <tr class="border-b border-white/5 hover:bg-white/5 transition" id="row-<?php echo $pIdx; ?>">
-                                    <!-- Driver Info -->
-                                    <td class="p-4">
-                                        <div class="flex items-center gap-3">
-                                     <div class="w-10 h-10 rounded-full bg-slate-700 overflow-hidden">
-                                                 <div class="w-full h-full flex items-center justify-center text-gray-500">
-                                                     <i class="fas fa-user"></i>
-                                                 </div>
-                                             </div>
-                                            <div>
-                                                <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($pred['driver_name']); ?></div>
-                                                <div class="text-xs text-gray-500"><?php echo htmlspecialchars($pred['team']); ?></div>
-                                            </div>
-                                        </div>
+                                <tr class="hover:bg-white/5 transition <?php echo $pred['is_exact'] ? 'bg-green-500/5' : ''; ?>">
+                                    <td class="py-2 pr-4">
+                                        <div class="font-bold text-white"><?php echo htmlspecialchars($pred['driver_name']); ?></div>
+                                        <div class="text-[10px] text-gray-500"><?php echo htmlspecialchars($pred['team']); ?></div>
                                     </td>
-                                    
-                                    <!-- Predicted Position -->
-                                    <td class="p-4 text-center">
-                                        <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 font-bold">
-                                            P<?php echo ($pIdx + 1); ?>
-                                        </div>
+                                    <td class="py-2 text-center text-blue-400 font-bold">P<?php echo $pred['predicted_position']; ?></td>
+                                    <td class="py-2 text-center font-bold <?php echo $pred['is_exact'] ? 'text-green-400' : 'text-gray-400'; ?>">
+                                        <?php echo $pred['actual_position'] ? 'P' . $pred['actual_position'] : '<span class="text-gray-600">—</span>'; ?>
                                     </td>
-                                    
-                                    <!-- Actual Position -->
-                                    <td class="p-4 text-center">
-                                        <?php if ($pred['actual_position']): ?>
-                                        <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 font-bold">
-                                            P<?php echo $pred['actual_position']; ?>
-                                        </div>
-                                        <?php else: ?>
-                                        <span class="text-gray-600 text-sm">DNF</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    
-                                    <!-- Match Status -->
-                                    <td class="p-4 text-center">
+                                    <td class="py-2 text-center">
                                         <?php if ($pred['is_exact']): ?>
-                                        <div class="flex flex-col items-center gap-1">
-                                            <span class="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full">
-                                                <i class="fas fa-check-circle"></i> BASE
-                                            </span>
-                                        </div>
+                                            <span class="text-green-400 text-xs font-bold"><i class="fas fa-check"></i> Hit</span>
                                         <?php elseif ($pred['actual_position']): ?>
-                                        <span class="text-gray-500 text-sm">
-                                            <i class="fas fa-times-circle"></i> Miss
-                                        </span>
+                                            <span class="text-gray-600 text-xs"><i class="fas fa-times"></i> Miss</span>
                                         <?php else: ?>
-                                        <span class="text-red-500 text-sm">
-                                            <i class="fas fa-flag"></i> DNF
-                                        </span>
+                                            <span class="text-gray-600 text-xs">—</span>
                                         <?php endif; ?>
                                     </td>
-                                    
-                                    <!-- Points Earned -->
-                                    <td class="p-4 text-right">
-                                        <?php if ($pred['points_earned'] > 0): ?>
-                                        <div class="text-lg font-bold text-green-400">
-                                            +<?php echo $pred['points_earned']; ?>
-                                        </div>
-                                        <?php else: ?>
-                                        <div class="text-lg font-bold text-gray-600">
-                                            0
-                                        </div>
-                                        <?php endif; ?>
+                                    <td class="py-2 text-right font-black <?php echo $pred['points_earned'] > 0 ? 'text-green-400' : 'text-gray-600'; ?>">
+                                        <?php echo $pred['points_earned'] > 0 ? '+' . $pred['points_earned'] : '0'; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -353,43 +301,89 @@ $stats = getUserStats($userId);
                 <?php endif; ?>
             </div>
 
+            <!-- Race Leaderboard -->
+            <?php if (!empty($raceLeaderboard)): ?>
+            <div class="g-card p-6 mb-8">
+                <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-trophy text-yellow-500"></i> Race Leaderboard
+                    <span class="text-xs text-gray-500 font-normal ml-1"><?php echo count($raceLeaderboard); ?> drivers</span>
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/10 text-[10px] uppercase tracking-wider text-gray-500">
+                                <th class="pb-2 text-left w-8">#</th>
+                                <th class="pb-2 text-left">Driver</th>
+                                <th class="pb-2 text-center">Base</th>
+                                <th class="pb-2 text-center">Podium</th>
+                                <th class="pb-2 text-center">Constr.</th>
+                                <th class="pb-2 text-right font-bold">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <?php foreach ($raceLeaderboard as $lbIdx => $lbRow):
+                                $isCurrentUser = ($lbRow['user_id'] == $loggedInUserId);
+                                $rowClass = $isCurrentUser ? 'bg-orange-500/10' : '';
+                                $rank = $lbIdx + 1;
+                                $rankDisplay = match($rank) { 1 => '🥇', 2 => '🥈', 3 => '🥉', default => $rank };
+                            ?>
+                            <tr class="<?php echo $rowClass; ?> hover:bg-white/5 transition">
+                                <td class="py-2 pr-3 text-center text-xs text-gray-400"><?php echo $rankDisplay; ?></td>
+                                <td class="py-2">
+                                    <span class="font-bold <?php echo $isCurrentUser ? 'text-orange-400' : 'text-white'; ?>">
+                                        <?php echo htmlspecialchars($lbRow['username']); ?>
+                                    </span>
+                                    <?php if ($isCurrentUser): ?><span class="text-[10px] text-orange-500 ml-1">you</span><?php endif; ?>
+                                </td>
+                                <td class="py-2 text-center text-gray-300"><?php echo $lbRow['driver_points'] ?? 0; ?></td>
+                                <td class="py-2 text-center text-blue-400"><?php echo $lbRow['top3_bonus'] ?? 0; ?></td>
+                                <td class="py-2 text-center text-purple-400"><?php echo $lbRow['constructor_points'] ?? 0; ?></td>
+                                <td class="py-2 text-right font-black <?php echo $isCurrentUser ? 'text-orange-400' : 'text-white'; ?>">
+                                    <?php echo $lbRow['total_points']; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Full Race Results -->
             <?php if (!empty($actualResults)): ?>
             <div class="g-card p-6">
-                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                    <i class="fas fa-flag-checkered text-green-500"></i>
-                    Official Race Results
+                <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-flag-checkered text-green-500"></i> Official Results
+                    <span class="text-xs text-gray-500 font-normal ml-1"><?php echo count($actualResults); ?> finishers</span>
                 </h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <?php foreach ($actualResults as $rIdx => $result): 
-                        $displayPos = $rIdx + 1;
-                        $podiumClass = match($displayPos) {
-                            1 => 'border-l-yellow-400 bg-yellow-500/5',
-                            2 => 'border-l-gray-300 bg-gray-500/5',
-                            3 => 'border-l-amber-600 bg-amber-500/5',
-                            default => 'border-l-gray-700'
-                        };
-                    ?>
-                    <div class="g-card p-4 border-l-4 <?php echo $podiumClass; ?>">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center font-black text-white text-lg">
-                                    <?php echo $displayPos; ?>
-                                </div>
-                                <div>
-                                    <div class="text-sm font-bold text-white"><?php echo htmlspecialchars($result['driver_name']); ?></div>
-                                    <div class="text-xs text-gray-500"><?php echo htmlspecialchars($result['constructor_name'] ?? 'Unknown'); ?></div>
-                                </div>
-                            </div>
-                            <?php if ($result['fastest_lap']): ?>
-                            <div class="text-purple-400 text-xs font-bold">
-                                <i class="fas fa-bolt"></i> FL
-                            </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/10 text-[10px] uppercase tracking-wider text-gray-500">
+                                <th class="pb-2 text-left w-8">#</th>
+                                <th class="pb-2 text-left">Driver</th>
+                                <th class="pb-2 text-left">Constructor</th>
+                                <th class="pb-2 text-right">FL</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <?php foreach ($actualResults as $rIdx => $result):
+                                $pos = $rIdx + 1;
+                                $podiumColor = match($pos) { 1 => 'text-yellow-400', 2 => 'text-gray-300', 3 => 'text-amber-600', default => 'text-gray-400' };
+                            ?>
+                            <tr class="hover:bg-white/5 transition">
+                                <td class="py-2 pr-3 font-black <?php echo $podiumColor; ?> w-8"><?php echo $pos; ?></td>
+                                <td class="py-2 font-bold text-white"><?php echo htmlspecialchars($result['driver_name']); ?></td>
+                                <td class="py-2 text-gray-500 text-xs"><?php echo htmlspecialchars($result['constructor_name'] ?? '—'); ?></td>
+                                <td class="py-2 text-right">
+                                    <?php if ($result['fastest_lap']): ?>
+                                    <span class="text-purple-400 text-xs font-bold"><i class="fas fa-bolt"></i></span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <?php endif; ?>

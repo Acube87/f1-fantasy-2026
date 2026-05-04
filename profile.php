@@ -216,24 +216,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo SITE_NAME; ?></tit
 <body class="gaming-theme text-gray-200">
 
     <!-- Navbar -->
-    <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <a href="index.php" class="flex items-center gap-4 hover:opacity-80 transition">
-                <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
-                    <i class="fas fa-flag-checkered text-white text-lg"></i>
-                </div>
-                <span class="font-bold text-xl tracking-wide text-white">PADDOCK PICKS</span>
-            </a>
-        </div>
-        
-        <div class="flex items-center gap-6">
-            <a href="dashboard.php" class="text-gray-300 hover:text-white font-bold text-sm">Dashboard</a>
-            <a href="updates.php" class="text-orange-500 font-bold text-sm relative">
-                Race Updates
-                <span class="absolute -top-1 -right-2 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
-            </a>
-        </div>
-    </nav>
+    <?php require_once __DIR__ . '/includes/nav.php'; ?>
 
     <!-- Main Content -->
     <main class="pt-24 pb-12 px-4 md:px-8 max-w-6xl mx-auto">
