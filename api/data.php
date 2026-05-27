@@ -36,6 +36,7 @@ switch ($type) {
             echo json_encode(['error' => 'not_authenticated']);
             exit;
         }
+        try {
         $userId = $user['id'];
         $stats = getUserStats($userId);
         
@@ -155,6 +156,9 @@ switch ($type) {
             'totalPredictions' => (int)($acc['total'] ?? 0),
             'userAchievements' => $userAchievements,
         ]);
+        } catch (Exception $e) {
+            echo json_encode(['error' => 'dashboard_error', 'message' => $e->getMessage()]);
+        }
         break;
 
     case 'leaderboard':
