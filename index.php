@@ -181,10 +181,9 @@ input:focus{outline:none}
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 const api = (type, params) => {
-  let url = 'api/data.php?type=' + type;
-  if (params) url += '&' + new URLSearchParams(params);
-  return fetch(url, { credentials: 'same-origin' }).then(r => r.json());
-};
+    const p = new URLSearchParams({ type, ...params });
+    return fetch('api/data.php?' + p, { credentials: 'same-origin' }).then(r => r.json()).catch(() => ({}));
+  };
 const apiPost = (type, data) => fetch('api/data.php?type=' + type, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), credentials: 'same-origin' }).then(r => r.json());
 const postAuth = (data) => fetch('api/auth.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(data), credentials: 'same-origin' }).then(r => r.json());
 
@@ -419,7 +418,7 @@ const Dashboard = ({ onNav }) => {
         setAnimKey(k => k + 1);
       }
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   };
 
   useEffect(() => { load(); ref.current = setInterval(load, 15000); return () => clearInterval(ref.current); }, []);
@@ -710,7 +709,7 @@ const Dashboard = ({ onNav }) => {
 
 const LeaderboardPage = () => {
   const [d, setD] = useState(null);
-  useEffect(() => { api('leaderboard').then(setD); }, []);
+  useEffect(() => { api('leaderboard').then(setD).catch(() => setD(null)); }, []);
   const lb = d?.leaderboard || [];
   const medalIcons = ['crown','medal','medal'];
   const medalColors = ['#ffd700','#c0c0c0','#cd7f32'];
@@ -859,17 +858,13 @@ const PredictPage = ({ onNav }) => {
 
   const load = () => {
     api('predict').then(d => {
-      if (d.error) { setLoading(false); return; }
-      setData(d);
-      let ordered = [...(d.drivers || [])];
-      const ex = d.existingPredictions || {};
-      if (d.hasPrediction && Object.keys(ex).length > 0) {
-        ordered.sort((a,b) => (ex[a.id]||999) - (ex[b.id]||999));
-      }
-      setDrivers(ordered);
-      driversRef.current = ordered;
+      const p = (d.predictions || []).reduce((a, c) => { a[c.driver_id] = c; return a; }, {});
+      setPreds(p); setDrivers(d.drivers); setConstructors(d.constructors);
+      setExistingConstructor(d.constructor_prediction || null);
+      setRaceData(d.race || d.upcomingRaces?.[0] || null);
+      setDeadline(d.deadline ? new Date(d.deadline) : null);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);
@@ -1065,18 +1060,17 @@ const ResultsPage = ({ onNav }) => {
 
   const loadRace = (rid) => {
     setLoading(true);
-    api('results', { race_id: rid }).then(r => { setD(r); setLoading(false); });
+    api('results', { race_id: rid }).then(r => { setD(r); setLoading(false); }).catch(() => setLoading(false));
   };
-
   useEffect(() => {
     const h = window.location.hash.replace('#','');
     const q = h.split('?')[1];
     const p = new URLSearchParams(q || '');
     const rid = p.get('race_id');
     if (rid) {
-      api('results', { race_id: rid }).then(r => { setD(r); setLoading(false); });
+      api('results', { race_id: rid }).then(r => { setD(r); setLoading(false); }).catch(() => setLoading(false));
     } else {
-      api('results').then(r => { setD(r); setLoading(false); });
+      api('results').then(r => { setD(r); setLoading(false); }).catch(() => setLoading(false));
     }
   }, []);
 
@@ -1247,7 +1241,7 @@ const ProfilePage = ({ user, onNav }) => {
   const [msg, setMsg] = useState(null);
   const [toast, setToast] = useState(null);
 
-  const load = () => { api('profile').then(d => { setData(d); setLoading(false); }); };
+  const load = () => { api('profile').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); };
   useEffect(() => { load(); }, []);
 
       const handleSave = async (action, body) => {
@@ -1437,7 +1431,7 @@ const AchievementsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api('profile').then(d => { setProfile(d); setLoading(false); });
+    api('profile').then(d => { setProfile(d); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
   const unlocked = profile?.userAchievements || [];
@@ -1515,7 +1509,7 @@ const UpdatesPage = ({ onNav }) => {
   const [d, setD] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { api('updates').then(r => { setD(r); setLoading(false); }); }, []);
+  useEffect(() => { api('updates').then(r => { setD(r); setLoading(false); }).catch(() => setLoading(false)); }, []);
 
   if (loading) return <div className="page" style={{textAlign:'center',paddingTop:120,color:'var(--text2)'}}><I n="spinner" /></div>;
   if (!d) return null;
@@ -1676,7 +1670,7 @@ const AdminPage = () => {
       setRaces(d.races || []);
       setDrivers(d.drivers || []);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -1883,7 +1877,7 @@ const NewsPage = ({ onNav }) => {
     api('news').then(d => {
       if (d.posts) setPosts(d.posts);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);
@@ -2079,7 +2073,7 @@ const App = () => {
                 The ultimate F1 prediction league. Pick your drivers,<br />beat your rivals, own the podium.
               </p>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,animation:'wlcmFade 0.6s ease 0.25s both'}}>
-                {[{n:'24',l:'Races'},{n:'22',l:'Drivers'},{n:'10',l:'Teams'}].map((s,i) => (
+                {[{n:'24',l:'Races'},{n:'22',l:'Drivers'},{n:'11',l:'Teams'}].map((s,i) => (
                   <div key={i} style={{background:'rgba(255,255,255,0.03)',border:'1px solid var(--border)',borderRadius:12,padding:'14px 8px',textAlign:'center'}}>
                     <div style={{fontSize:24,fontWeight:'800',color:'var(--purple2)',lineHeight:1}}>{s.n}</div>
                     <div style={{fontSize:10,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.06em',fontWeight:'600',marginTop:4}}>{s.l}</div>
