@@ -73,7 +73,9 @@ switch ($action) {
         break;
 
     case 'logout':
-        logoutUser();
+        $_SESSION = [];
+        setcookie(session_name(), '', time() - 3600, '/');
+        session_destroy();
         echo json_encode(['ok' => true]);
         break;
 
