@@ -864,8 +864,6 @@ const PredictPage = ({ onNav }) => {
     api('predict').then(d => {
       if (d.error) { setLoading(false); return; }
       setData(d);
-      setConstructors(d.constructors || []);
-      setExistingConstructor(d.constructor_prediction || null);
       let ordered = [...(d.drivers || [])];
       const ex = d.existingPredictions || {};
       if (d.hasPrediction && Object.keys(ex).length > 0) {
