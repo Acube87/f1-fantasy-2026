@@ -863,11 +863,16 @@ const PredictPage = ({ onNav }) => {
   const load = () => {
     api('predict').then(d => {
       if (d.error) { setLoading(false); return; }
-      const p = (d.predictions || []).reduce((a, c) => { a[c.driver_id] = c; return a; }, {});
-      setPreds(p); setDrivers(d.drivers || []); setConstructors(d.constructors || []);
+      setData(d);
+      setConstructors(d.constructors || []);
       setExistingConstructor(d.constructor_prediction || null);
-      setRaceData(d.nextRace || d.race || d.upcomingRaces?.[0] || null);
-      setDeadline(d.deadline ? new Date(d.deadline * 1000) : null);
+      let ordered = [...(d.drivers || [])];
+      const ex = d.existingPredictions || {};
+      if (d.hasPrediction && Object.keys(ex).length > 0) {
+        ordered.sort((a,b) => (ex[a.id]||999) - (ex[b.id]||999));
+      }
+      setDrivers(ordered);
+      driversRef.current = ordered;
       setLoading(false);
     }).catch(() => setLoading(false));
   };
