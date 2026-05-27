@@ -957,7 +957,18 @@ const PredictPage = ({ onNav }) => {
   };
 
   if (loading) return <div className="page" style={{textAlign:'center',paddingTop:120,color:'var(--text2)'}}><I n="spinner" /></div>;
-  if (!data) return <div className="page" style={{textAlign:'center',paddingTop:120,color:'var(--text3)'}}>No race available</div>;
+  if (!data) return (
+    <div className="page" style={{textAlign:'center',paddingTop:80}}>
+      <div className="card" style={{maxWidth:400,margin:'0 auto',padding:40}}>
+        <I n="calendar-times" style={{fontSize:48,color:'var(--text3)',marginBottom:16}} />
+        <h3 style={{color:'var(--text)',marginBottom:8}}>Season Complete</h3>
+        <p style={{color:'var(--text2)',fontSize:14,lineHeight:1.6}}>All races are done! Check back when the next season starts.</p>
+        <button className="btn btn-outline btn-sm" style={{marginTop:12}} onClick={() => window.location.hash='dashboard'}>
+          <I n="arrow-left" /> Back to Dashboard
+        </button>
+      </div>
+    </div>
+  );
 
   const nr = data.nextRace;
   const deadlineMs = data.deadline ? data.deadline * 1000 : 0;
