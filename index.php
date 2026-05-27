@@ -6,6 +6,7 @@
 <title>Paddock Picks</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -2043,14 +2044,110 @@ const App = () => {
   if (!user && getPageName() !== 'leaderboard') {
     return (
       <>
+        <style>{`
+          .wlcm-cursor{position:fixed;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(220,0,0,0.08),transparent 70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:left 0.1s ease,top 0.1s ease;mix-blend-mode:screen}
+          @keyframes speedline{0%{transform:translateX(-100%) skewX(-30deg);opacity:0}30%{opacity:1}100%{transform:translateX(400%) skewX(-30deg);opacity:0}}
+          @keyframes rev{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+          @keyframes dash{to{stroke-dashoffset:-100}}
+          @keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+          @keyframes glow-pulse{0%,100%{box-shadow:0 0 30px rgba(220,0,0,0.3)}50%{box-shadow:0 0 60px rgba(220,0,0,0.6)}}
+          @keyframes checkers-scroll{0%{background-position:0 0}100%{background-position:20px 20px}}
+        `}</style>
+        <div className="wlcm-cursor" id="wlcmGlow" />
+        <div style={{
+          position:'fixed',inset:0,zIndex:0,overflow:'hidden',
+          background:'radial-gradient(ellipse at 50% 30%,rgba(220,0,0,0.05),#0c0f16 70%)'
+        }}>
+          {/* Speed lines */}
+          {[...Array(6)].map((_,i) => (
+            <div key={i} style={{
+              position:'absolute',top:Math.random()*100+'%',left:0,width:Math.random()*80+60+'px',
+              height:'1px',background:'linear-gradient(90deg,transparent,rgba(220,0,0,0.15),transparent)',
+              animation:`speedline ${Math.random()*2+2}s linear ${Math.random()*3}s infinite`,
+              transform:`rotate(${Math.random()*10-5}deg)`
+            }} />
+          ))}
+        </div>
         <Nav user={null} page={page} onNav={handleNav} onLogin={() => setShowLogin(true)} onLogout={() => {}} />
-        <div className="page" style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>
-          <div className="card anim" style={{padding:'40px',textAlign:'center',maxWidth:400}}>
-            <div style={{fontSize:'40px',marginBottom:'16px',color:'var(--purple2)'}}><I n="flag-checkered" /></div>
-            <h2 style={{fontSize:'24px',fontWeight:'800',marginBottom:'8px'}}>Welcome to Paddock Picks</h2>
-            <p style={{color:'var(--text2)',fontSize:'14px',marginBottom:'20px',lineHeight:1.6}}>The ultimate F1 prediction league. Compete with friends, predict results, climb the leaderboard.</p>
-            <button className="btn btn-primary btn-lg" onClick={() => setShowLogin(true)}>Get Started <I n="arrow-right" /></button>
+        <div style={{position:'relative',zIndex:1,minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'100px 20px 60px'}}
+             onMouseMove={(e)=>{const g=document.getElementById('wlcmGlow');if(g){g.style.left=e.clientX+'px';g.style.top=e.clientY+'px'}}}>
+          {/* Checkered stripe decorative */}
+          <div style={{
+            width:'100%',maxWidth:600,height:6,marginBottom:40,
+            background:'repeating-linear-gradient(90deg,#fff 0px,#fff 10px,#0c0f16 10px,#0c0f16 20px)',
+            animation:'checkers-scroll 2s linear infinite',opacity:0.4,borderRadius:3
+          }} />
+          
+          <div style={{animation:'fadeIn 0.8s cubic-bezier(0.16,1,0.3,1) both',textAlign:'center',maxWidth:600}}>
+            <div style={{
+              fontSize:13,fontWeight:'700',letterSpacing:'0.25em',color:'rgba(220,0,0,0.7)',
+              textTransform:'uppercase',marginBottom:16,
+              fontFamily:'Oswald,sans-serif'
+            }}>Season 2026</div>
+            
+            <h1 style={{
+              fontSize:'clamp(48px,10vw,80px)',fontWeight:'700',lineHeight:0.95,
+              marginBottom:8,textTransform:'uppercase',
+              fontFamily:'Oswald,sans-serif',letterSpacing:'-0.03em'
+            }}>
+              <span style={{color:'#fff'}}>PADDOCK</span><br />
+              <span style={{background:'linear-gradient(135deg,#ef4444,#dc2626,#b91c1c)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>PICKS</span>
+            </h1>
+            
+            <p style={{
+              color:'rgba(255,255,255,0.5)',fontSize:15,lineHeight:1.6,
+              marginBottom:32,fontFamily:'Barlow,sans-serif',fontWeight:'400'
+            }}>
+              The ultimate F1 prediction league. <br />
+              Pick your drivers, beat your rivals, own the podium.
+            </p>
           </div>
+
+          {/* Teaser stats */}
+          <div style={{
+            display:'flex',gap:24,marginBottom:36,flexWrap:'wrap',justifyContent:'center',
+            animation:'fadeIn 0.8s cubic-bezier(0.16,1,0.3,1) both',animationDelay:'0.2s'
+          }}>
+            {[{n:'24',l:'Races'},{n:'22',l:'Drivers'},{n:'10',l:'Constructors'},{n:'∞',l:'Possibilities'}].map((s,i) => (
+              <div key={i} style={{textAlign:'center'}}>
+                <div style={{fontSize:28,fontWeight:'700',color:'#ef4444',fontFamily:'Oswald,sans-serif',lineHeight:1}}>{s.n}</div>
+                <div style={{fontSize:11,color:'rgba(255,255,255,0.35)',textTransform:'uppercase',letterSpacing:'0.12em',fontWeight:'600',fontFamily:'Barlow,sans-serif'}}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{
+            display:'flex',gap:12,flexWrap:'wrap',justifyContent:'center',
+            animation:'fadeIn 0.8s cubic-bezier(0.16,1,0.3,1) both',animationDelay:'0.4s'
+          }}>
+            <button className="btn btn-lg" style={{
+              background:'linear-gradient(135deg,#dc2626,#b91c1c)',
+              color:'#fff',fontFamily:'Oswald,sans-serif',fontWeight:'700',
+              fontSize:16,letterSpacing:'0.08em',textTransform:'uppercase',
+              borderRadius:12,border:'none',padding:'16px 40px',cursor:'pointer',
+              boxShadow:'0 8px 32px rgba(220,0,0,0.3)',
+              animation:'glow-pulse 3s ease-in-out infinite',
+              transition:'all 0.2s'
+            }} onClick={() => setShowLogin(true)}>
+              Join the grid <span style={{marginLeft:8}}>🏁</span>
+            </button>
+            <button className="btn btn-lg" style={{
+              background:'transparent',color:'rgba(255,255,255,0.7)',
+              fontFamily:'Oswald,sans-serif',fontWeight:'600',
+              fontSize:14,letterSpacing:'0.08em',textTransform:'uppercase',
+              borderRadius:12,border:'1px solid rgba(255,255,255,0.1)',
+              padding:'16px 28px',cursor:'pointer',transition:'all 0.2s'
+            }} onClick={() => {window.location.hash='leaderboard';setPage('leaderboard')}}>
+              Standings <I n="arrow-right" style={{marginLeft:6}} />
+            </button>
+          </div>
+
+          {/* Checkered stripe bottom */}
+          <div style={{
+            width:'100%',maxWidth:600,height:6,marginTop:48,
+            background:'repeating-linear-gradient(90deg,#fff 0px,#fff 10px,#0c0f16 10px,#0c0f16 20px)',
+            animation:'checkers-scroll 2s linear infinite',opacity:0.4,borderRadius:3
+          }} />
         </div>
         {showLogin && <LoginModal onClose={() => setShowLogin(false)} onAuth={handleAuth} />}
       </>
