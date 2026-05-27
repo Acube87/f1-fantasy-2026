@@ -347,6 +347,7 @@ switch ($type) {
                 'circuit_name' => $race['circuit_name'],
                 'race_date' => $race['race_date'],
                 'flag' => getRaceFlag($race['country']),
+                'hero' => getRaceHeroImage($race['country']),
             ],
             'drivers' => $drivers,
             'existingPredictions' => $predictions,
@@ -387,6 +388,7 @@ switch ($type) {
                         'race_date' => $r['race_date'],
                         'status' => $r['status'],
                         'flag' => getRaceFlag($r['country']),
+                        'hero' => getRaceHeroImage($r['country']),
                     ];
                 }
             }
@@ -494,6 +496,7 @@ switch ($type) {
                 'circuit_name' => $race['circuit_name'],
                 'race_date' => $race['race_date'],
                 'flag' => getRaceFlag($race['country']),
+                'hero' => getRaceHeroImage($race['country']),
             ],
             'hasResults' => $hasResults,
             'predictions' => $predictions,

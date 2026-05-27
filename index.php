@@ -978,7 +978,7 @@ const PredictPage = ({ onNav }) => {
       {toast && <Toast message={toast.message} type={toast.type} onClose={()=>setToast(null)} />}
 
       <div className="hero anim" style={{minHeight:200,marginBottom:'16px'}}>
-        <div className="hero-bg" style={{backgroundImage:'url(https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop)'}}></div>
+        <div className="hero-bg" style={{backgroundImage:'url('+(nr?.hero||'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop')+')'}}></div>
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -1113,6 +1113,7 @@ const ResultsPage = ({ onNav }) => {
               </div>
               <div className="r-status">
                 {rc.status === 'completed' ? <span className="badge badge-green"><I n="check" style={{fontSize:9}} /> Results</span> :
+                 rc.status === 'cancelled' ? <span className="badge badge-red"><I n="ban" style={{fontSize:9}} /> Cancelled</span> :
                  <span className="badge badge-gray"><I n="clock" style={{fontSize:9}} /> Upcoming</span>}
               </div>
             </div>
@@ -1126,7 +1127,7 @@ const ResultsPage = ({ onNav }) => {
   return (
     <div className="page">
       <div className="hero anim" style={{minHeight:180,marginBottom:'16px'}}>
-        <div className="hero-bg" style={{backgroundImage:'url(https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop)'}}></div>
+        <div className="hero-bg" style={{backgroundImage:'url('+(r?.hero||'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop')+')'}}></div>
         <div className="hero-overlay" style={{background:'linear-gradient(180deg,rgba(12,15,22,0.3) 0%,rgba(12,15,22,0.9) 100%)'}}></div>
         <div className="hero-content">
           <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
@@ -1182,7 +1183,7 @@ const ResultsPage = ({ onNav }) => {
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px',alignItems:'start'}}>
             <div className="card anim anim-d1" style={{padding:'14px 16px'}}>
               <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
-                <I n="list" style={{marginRight:6}} />Predictions vs Actual
+                <I n="list" style={{marginRight:10}} />Predictions vs Actual
               </div>
               {d.predictions?.map((p,i) => (
                 <div className="driver-row" key={i}>
@@ -1210,7 +1211,7 @@ const ResultsPage = ({ onNav }) => {
             <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
               <div className="card anim anim-d2" style={{padding:'14px 16px'}}>
                 <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
-                  <I n="trophy" style={{marginRight:6}} />Race Leaderboard
+                  <I n="trophy" style={{marginRight:10}} />Race Leaderboard
                 </div>
                 {d.raceLeaderboard?.map((u,i) => (
                   <div className="lb-row" key={i} style={{padding:'8px 4px'}}>
@@ -1230,7 +1231,7 @@ const ResultsPage = ({ onNav }) => {
 
               <div className="card anim anim-d3" style={{padding:'14px 16px'}}>
                 <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
-                  <I n="flag-checkered" style={{marginRight:6}} />Official Results
+                  <I n="flag-checkered" style={{marginRight:10}} />Official Results
                 </div>
                 {d.actualResults?.map((res,i) => (
                   <div className="driver-row" key={i}>
@@ -1500,19 +1501,29 @@ const AchievementsPage = () => {
               <span style={{fontSize:'12px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.06em',color:t.color2}}>{tierLabels[tier]}</span>
               <span style={{fontSize:'11px',color:'var(--text3)',marginLeft:'auto'}}>{items.filter(a => unlockedIds.has(a.id)).length}/{items.length}</span>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:'10px'}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:'12px'}}>
               {items.map(ach => {
                 const isUnlocked = unlockedIds.has(ach.id);
                 return (
-                  <div key={ach.id} className={'card ach-card'+(isUnlocked?'':' locked')} style={{background: isUnlocked ? t.bg : 'var(--card)'}}>
-                    {isUnlocked && (
-                      <div className="ach-tag" style={{background:t.color2,color:'#fff'}}>Unlocked</div>
-                    )}
-                    <div className="ach-icon" style={{background:t.bg,color:t.color2}}>
-                      <I n={ach.icon.replace('fa-','')} />
+                  <div key={ach.id} className={'card card-hover'+(isUnlocked?'':'')}
+                    style={{padding:'20px',borderLeft:'4px solid '+(isUnlocked?t.color2:'var(--border)'),background:isUnlocked?t.bg:'var(--card)',opacity:isUnlocked?1:0.4,filter:isUnlocked?'none':'grayscale(1)',position:'relative'}}>
+                    <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'14px'}}>
+                      <div style={{width:56,height:56,borderRadius:14,background:t.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'24px',color:t.color2,flexShrink:0}}>
+                        <I n={ach.icon.replace('fa-','')} />
+                      </div>
+                      {!isUnlocked ? (
+                        <I n="lock" style={{fontSize:'16px',color:'var(--text3)'}} />
+                      ) : (
+                        <I n="check-circle" style={{fontSize:'16px',color:t.color2}} />
+                      )}
                     </div>
-                    <div className="ach-name">{ach.name}</div>
-                    <div className="ach-desc">{ach.desc}</div>
+                    <div style={{fontWeight:'700',fontSize:'15px',marginBottom:'6px',color:'var(--text)'}}>{ach.name}</div>
+                    <div style={{fontSize:'12px',color:'var(--text2)',lineHeight:1.4,marginBottom:'14px'}}>{ach.desc}</div>
+                    <div style={{paddingTop:'12px',borderTop:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                      <span style={{fontSize:'10px',fontWeight:'600',textTransform:'uppercase',color:'var(--text3)',letterSpacing:'0.03em'}}>How to Unlock</span>
+                      <span style={{fontSize:'9px',fontWeight:'700',textTransform:'uppercase',padding:'2px 10px',borderRadius:999,background:t.bg,color:t.color2,letterSpacing:'0.05em'}}>{tierLabels[tier]}</span>
+                    </div>
+                    <div style={{fontSize:'11px',color:'var(--text3)',marginTop:'6px',lineHeight:1.3}}>{ach.desc}</div>
                   </div>
                 );
               })}
