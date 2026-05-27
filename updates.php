@@ -212,7 +212,7 @@ $myStats = getUserStats($userId);
         }
     </style>
 </head>
-<body class="gaming-theme text-gray-200" style="font-family: 'Inter', sans-serif;">
+<body style="background:var(--f1-carbon);color:var(--f1-text);min-height:100vh;">
 
 <!-- ── NAV ──────────────────────────────────────────────────────────────── -->
 <?php require_once __DIR__ . '/includes/nav.php'; ?>
@@ -688,5 +688,6 @@ $myStats = getUserStats($userId);
     <p class="text-gray-600 text-xs font-bold uppercase tracking-widest">© <?php echo date('Y'); ?> Paddock Picks · Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-orange-400 transition">Scanerrific</a></p>
 </footer>
 
+<script src="app.js"></script>
 </body>
 </html>

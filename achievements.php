@@ -71,7 +71,7 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo $pageTitle; ?> - <
         }
     </style>
 </head>
-<body class="gaming-theme text-gray-200">
+<body style="background:var(--f1-carbon);color:var(--f1-text);min-height:100vh;">
 
     <!-- Navbar -->
     <?php require_once __DIR__ . '/includes/nav.php'; ?>
@@ -342,5 +342,6 @@ require_once __DIR__ . '/includes/maintenance-gate.php'; echo date('Y'); ?> <?ph
             });
         }
     </script>
+<script src="app.js"></script>
 </body>
 </html>

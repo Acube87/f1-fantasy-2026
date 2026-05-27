@@ -292,7 +292,7 @@ function updateUserTotals($userId) {
  */
 function getUpcomingRaces($limit = 10) {
     $db = getDB();
-    $stmt = $db->prepare("SELECT * FROM races WHERE status = 'upcoming' ORDER BY race_date ASC LIMIT ?");
+    $stmt = $db->prepare("SELECT * FROM races WHERE status = 'upcoming' AND race_date >= CURDATE() ORDER BY race_date ASC LIMIT ?");
     $stmt->bind_param("i", $limit);
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);

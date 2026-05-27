@@ -24,3 +24,4 @@ backups/
 f1.db
 serve-local.sh
 main
+paddock-picks-backup-*.sql

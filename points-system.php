@@ -15,7 +15,7 @@ $pageTitle = "Points System Explained";
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="gaming-theme text-gray-200">
+<body style="background:var(--f1-carbon);color:var(--f1-text);min-height:100vh;">
 
     <!-- Navbar -->
     <?php require_once __DIR__ . '/includes/nav.php'; ?>
@@ -343,5 +343,6 @@ $pageTitle = "Points System Explained";
         </p>
     </footer>
 
+<script src="app.js"></script>
 </body>
 </html>

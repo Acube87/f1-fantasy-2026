@@ -15,7 +15,7 @@ http://localhost:8000/admin/fetch-drivers.php
 ## Tech Stack
 
 - **Backend**: PHP 7.4+ with MySQL/MariaDB
-- **Frontend**: HTML, CSS (Tailwind via PostCSS), vanilla JS
+- **Frontend**: React 18 SPA (CDN + Babel standalone, no build step)
 - **Deployment**: Hostinger or Railway
 
 ## Key Files
@@ -29,13 +29,56 @@ http://localhost:8000/admin/fetch-drivers.php
 | `admin/fetch-drivers.php` | Fetches drivers/constructors from API |
 | `api/fetch-results.php` | Fetches race results, calculates scores |
 | `api/calculate-scores.php` | Scoring logic |
+| `api/data.php` | Unified JSON API for all SPA pages |
+| `api/auth.php` | Login/signup/logout JSON API |
+| `index.php` | **Main SPA entry point** — React 18 app with all pages |
+
+## SPA Architecture
+
+`index.php` is a React 18 SPA with hash-based routing. No full page reloads.
+
+### Hash Routes
+
+| Route | Page | Component |
+|-------|------|-----------|
+| `#dashboard` (or `/`) | Dashboard | `Dashboard` |
+| `#predict` | Predictions | `PredictPage` |
+| `#results` | Race Results | `ResultsPage` |
+| `#updates` | Roundup Feed | `UpdatesPage` |
+| `#leaderboard` | Standings | `LeaderboardPage` |
+| `#achievements` | Badges | `AchievementsPage` |
+| `#profile` | Settings | `ProfilePage` |
+
+### Nav Links (all hash-based, no .php hrefs)
+
+dashboard, predict, results, updates, leaderboard, achievements, profile
+
+### API Endpoints (api/data.php)
+
+| `type` param | Method | Description |
+|--------------|--------|-------------|
+| `dashboard` | GET | Personal stats, next race, recent results, standings |
+| `leaderboard` | GET | Full player rankings |
+| `predict` | GET | Drivers, existing predictions, deadline data |
+| `results` | GET | Race results with score breakdown |
+| `profile` | GET | User stats, accuracy, avatars, achievements |
+| `updates` | GET | Latest race roundup and submission tracker |
+| `save_predictions` | POST | Save driver/constructor predictions |
+| `update_profile` | POST | Update name/username/password/avatar |
+
+### Auth
+
+Login/signup via modal (`LoginModal`) — uses `api/auth.php`. Session cookies. Auth gating shows a welcome screen for unauthenticated users (except leaderboard which is public).
+
+### Design System
+
+Dark gaming theme: `#0c0f16` bg, `#181e2c` cards, `#7c3aed` purple accent, Inter font. All pages use consistent card/bento grid layouts.
 
 ## Setup Order
 
 1. `admin/setup-database.php` (create tables)
 2. `admin/setup-races.php` (populate races)
 3. `admin/fetch-drivers.php` (fetch drivers)
-4. Then update `predict.php` with current driver data (not automatic)
 
 ## Railway Deployment
 

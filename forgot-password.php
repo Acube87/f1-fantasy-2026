@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="gaming-theme flex flex-col min-h-screen">
+<body style="background:var(--f1-carbon);color:var(--f1-text);">
 
     <!-- Navbar -->
     <nav class="g-nav fixed w-full z-50 px-6 py-4 flex justify-between items-center">
