@@ -711,6 +711,14 @@ const Dashboard = ({ onNav }) => {
   );
 };
 
+const getLevel = (pts) => {
+  if (pts >= 1000) return {label:'Legend',icon:'crown',color:'var(--red)'};
+  if (pts >= 500) return {label:'Expert',icon:'star',color:'var(--purple2)'};
+  if (pts >= 250) return {label:'Veteran',icon:'shield',color:'var(--blue)'};
+  if (pts >= 100) return {label:'Pro',icon:'rocket',color:'var(--green)'};
+  return {label:'Rookie',icon:'seedling',color:'var(--text2)'};
+};
+
 const LeaderboardPage = () => {
   const [d, setD] = useState(null);
   useEffect(() => { api('leaderboard').then(setD).catch(() => setD(null)); }, []);
@@ -750,8 +758,20 @@ const LeaderboardPage = () => {
                   <div style={{width:isFirst?'72px':'56px',height:isFirst?'72px':'56px',borderRadius:'50%',overflow:'hidden',margin:'0 auto 10px',border:'3px solid ' + col,background:'var(--card2)'}}>
                     <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                   </div>
-                  <div style={{fontWeight:'800',fontSize:isFirst?'16px':'14px',marginBottom:'2px'}}>{p.username}</div>
-                  <div style={{fontSize:'10px',color:'var(--text2)',marginBottom:'8px'}}>{p.full_name||''}</div>
+                  <div style={{fontWeight:'800',fontSize:isFirst?'16px':'14px',marginBottom:'2px',display:'flex',alignItems:'center',justifyContent:'center',gap:'6px'}}>
+                    {p.username}
+                    {p.badges_data && p.badges_data.split('|').slice(0,3).map((b,i) => {
+                      const parts = b.split(':');
+                      if (parts.length < 3) return null;
+                      const tierColors = {common:'#22c55e',rare:'#4f7cff',epic:'#a855f7',legendary:'#ef4444',special:'#fb923c'};
+                      return <span key={i} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:'18px',height:'18px',borderRadius:'4px',background:tierColors[parts[1]||'common']+'20',fontSize:'10px',cursor:'help'}} title={parts[2]}><I n={parts[0].replace('fa-','')} /></span>;
+                    })}
+                  </div>
+                  <div style={{fontSize:'10px',color:'var(--text2)',marginBottom:'8px'}}>
+                    <span style={{display:'inline-flex',alignItems:'center',gap:'4px',padding:'2px 8px',borderRadius:'999px',background:getLevel(p.total_points).color+'15',color:getLevel(p.total_points).color,fontWeight:'700',fontSize:'9px',textTransform:'uppercase',letterSpacing:'0.04em'}}>
+                      <I n={getLevel(p.total_points).icon} style={{fontSize:'8px'}} /> {getLevel(p.total_points).label}
+                    </span>
+                  </div>
                   <div style={{fontWeight:'900',fontSize:isFirst?'28px':'22px',color:col}}>{p.total_points}</div>
                   <div style={{fontSize:'9px',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.06em',marginTop:'2px'}}>Points</div>
                   {d?.auth?.username===p.username && (
@@ -784,8 +804,20 @@ const LeaderboardPage = () => {
                   <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                 </div>
                 <div className="lb-name" style={{marginLeft:'8px'}}>
-                  <div className="lb-user" style={{fontSize:'14px'}}>{p.username} {d?.auth?.username===p.username && <span className="badge badge-purple" style={{fontSize:'8px',padding:'1px 6px',marginLeft:'4px'}}>You</span>}</div>
-                  <div className="lb-lvl" style={{fontSize:'11px'}}>{p.full_name||''}</div>
+                  <div className="lb-user" style={{fontSize:'14px',display:'flex',alignItems:'center',gap:'4px',flexWrap:'wrap'}}>
+                    {p.username} {d?.auth?.username===p.username && <span className="badge badge-purple" style={{fontSize:'8px',padding:'1px 6px'}}>You</span>}
+                    {p.badges_data && p.badges_data.split('|').slice(0,4).map((b,i) => {
+                      const parts = b.split(':');
+                      if (parts.length < 3) return null;
+                      const tierColors = {common:'#22c55e',rare:'#4f7cff',epic:'#a855f7',legendary:'#ef4444',special:'#fb923c'};
+                      return <span key={i} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:'16px',height:'16px',borderRadius:'3px',background:tierColors[parts[1]||'common']+'20',fontSize:'9px',cursor:'help'}} title={parts[2]}><I n={parts[0].replace('fa-','')} style={{fontSize:'8px'}} /></span>;
+                    })}
+                  </div>
+                  <div className="lb-lvl" style={{fontSize:'10px',display:'flex',alignItems:'center',gap:'4px',marginTop:'2px'}}>
+                    <span style={{display:'inline-flex',alignItems:'center',gap:'3px',padding:'1px 6px',borderRadius:'999px',background:getLevel(p.total_points).color+'15',color:getLevel(p.total_points).color,fontWeight:'600',fontSize:'8px',textTransform:'uppercase',letterSpacing:'0.03em'}}>
+                      <I n={getLevel(p.total_points).icon} style={{fontSize:'7px'}} /> {getLevel(p.total_points).label}
+                    </span>
+                  </div>
                 </div>
                 <div style={{fontSize:'12px',color:'var(--text2)',fontWeight:'500',marginLeft:'auto',marginRight:'24px'}}>{p.races_participated||0}</div>
                 <div style={{fontWeight:'800',fontSize:'18px',color:'var(--green)',minWidth:'50px',textAlign:'right'}}>{p.total_points}</div>
@@ -1506,7 +1538,7 @@ const AchievementsPage = () => {
                 const isUnlocked = unlockedIds.has(ach.id);
                 return (
                   <div key={ach.id} className={'card card-hover'+(isUnlocked?'':'')}
-                    style={{padding:'20px',borderLeft:'4px solid '+(isUnlocked?t.color2:'var(--border)'),background:isUnlocked?t.bg:'var(--card)',opacity:isUnlocked?1:0.4,filter:isUnlocked?'none':'grayscale(1)',position:'relative'}}>
+                    style={{padding:'20px',borderLeft:'4px solid '+(isUnlocked?t.color2:'var(--border)'),background:isUnlocked?t.bg:'var(--card)',opacity:isUnlocked?1:0.7,filter:isUnlocked?'none':'grayscale(0.5)',position:'relative'}}>
                     <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'14px'}}>
                       <div style={{width:56,height:56,borderRadius:14,background:t.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'24px',color:t.color2,flexShrink:0}}>
                         <I n={ach.icon.replace('fa-','')} />
