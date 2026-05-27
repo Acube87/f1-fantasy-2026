@@ -121,7 +121,7 @@ switch ($type) {
         }
         
         // Players count
-        $pc = $db->query("SELECT COUNT(*) as c FROM users WHERE is_active = 1 OR is_active IS NULL");
+        $pc = $db->query("SELECT COUNT(*) as c FROM users");
         $playersCount = $pc ? (int)$pc->fetch_assoc()['c'] : 0;
         
         // User achievements
