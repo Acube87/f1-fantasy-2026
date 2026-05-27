@@ -161,7 +161,9 @@ switch ($type) {
             'userAchievements' => $userAchievements,
         ]);
         } catch (Throwable $e) {
-            echo json_encode(['error' => 'dashboard_error', 'message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
+            $err = ['error' => 'dashboard_error', 'message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()];
+            error_log('DASHBOARD ERROR: ' . json_encode($err));
+            echo json_encode($err);
         }
         break;
 
