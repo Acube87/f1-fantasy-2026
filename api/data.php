@@ -36,6 +36,10 @@ switch ($type) {
             echo json_encode(['error' => 'not_authenticated']);
             exit;
         }
+        // Capture any PHP warnings/errors
+        set_error_handler(function($severity, $message, $file, $line) {
+            throw new ErrorException($message, 0, $severity, $file, $line);
+        });
         try {
         $userId = $user['id'];
         $stats = getUserStats($userId);
@@ -156,8 +160,8 @@ switch ($type) {
             'totalPredictions' => (int)($acc['total'] ?? 0),
             'userAchievements' => $userAchievements,
         ]);
-        } catch (Exception $e) {
-            echo json_encode(['error' => 'dashboard_error', 'message' => $e->getMessage()]);
+        } catch (Throwable $e) {
+            echo json_encode(['error' => 'dashboard_error', 'message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
         }
         break;
 
