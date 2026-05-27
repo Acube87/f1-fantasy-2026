@@ -182,7 +182,7 @@ const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 const api = (type, params) => {
     const p = new URLSearchParams({ type, ...params });
-    return fetch('api/data.php?' + p, { credentials: 'same-origin' }).then(r => r.json()).catch(() => ({}));
+    return fetch('api/data.php?' + p, { credentials: 'same-origin' }).then(r => r.text()).then(t => { try { return JSON.parse(t); } catch(e) { console.error('API JSON parse error for', type, t.slice(0,200)); return {}; } });
   };
 const apiPost = (type, data) => fetch('api/data.php?type=' + type, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), credentials: 'same-origin' }).then(r => r.json());
 const postAuth = (data) => fetch('api/auth.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(data), credentials: 'same-origin' }).then(r => r.json());
