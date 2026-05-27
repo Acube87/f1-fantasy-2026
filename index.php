@@ -182,8 +182,9 @@ const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 const api = (type, params) => {
     const p = new URLSearchParams({ type, ...params });
-    return fetch('api/data.php?' + p, { credentials: 'same-origin' }).then(r => r.text()).then(t => { try { var j = JSON.parse(t); return j; } catch(e) { console.error('API RAW RESPONSE for', type+':', t); return {}; } });
+    return fetch('api/data.php?' + p, { credentials: 'same-origin' }).then(r => r.text()).then(t => { try { return JSON.parse(t); } catch(e) { console.error('API RAW RESPONSE for', type+':', t); return {}; } });
   };
+const apiError = (d) => d && d.error && d.error !== 'not_authenticated';
 const apiPost = (type, data) => fetch('api/data.php?type=' + type, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), credentials: 'same-origin' }).then(r => r.json());
 const postAuth = (data) => fetch('api/auth.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(data), credentials: 'same-origin' }).then(r => r.json());
 
@@ -431,8 +432,8 @@ const Dashboard = ({ onNav }) => {
   );
 
   if (!data) return null;
-  if (data.error) {
-    return <div className="page" style={{padding:40,textAlign:'center'}}><div className="card" style={{padding:24,background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)'}}><I n="exclamation-triangle" style={{fontSize:32,color:'#ef4444',marginBottom:12}} /><h3 style={{color:'#ef4444',marginBottom:8}}>Dashboard Error</h3><p style={{color:'var(--text2)',fontSize:13}}>{data.message}</p><p style={{fontSize:11,color:'var(--text3)',marginTop:8}}>{data.file}:{data.line}</p></div></div>;
+  if (data.error || (!data.stats && !data.accuracy)) {
+    return <div className="page" style={{padding:40,textAlign:'center'}}><div className="card" style={{padding:24,background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)'}}><I n="exclamation-triangle" style={{fontSize:32,color:'#ef4444',marginBottom:12}} /><h3 style={{color:'#ef4444',marginBottom:8}}>Dashboard Error</h3><p style={{color:'var(--text2)',fontSize:13}}>{data.message || 'Empty response from server - try refreshing the page.'}</p>{data.file && <p style={{fontSize:11,color:'var(--text3)',marginTop:8}}>{data.file}:{data.line}</p>}</div></div>;
   }
 
   const nr = data.nextRace;
