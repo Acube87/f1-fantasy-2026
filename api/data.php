@@ -220,6 +220,10 @@ switch ($type) {
             echo json_encode(['error' => 'not_authenticated']);
             exit;
         }
+        set_error_handler(function($severity, $message, $file, $line) {
+            throw new ErrorException($message, 0, $severity, $file, $line);
+        });
+        try {
         $userId = $user['id'];
         $raceId = isset($_GET['race_id']) ? (int)$_GET['race_id'] : null;
 
@@ -354,6 +358,11 @@ switch ($type) {
             'prevPredictions' => $prevPredictions,
             'constructors' => $constructorsWithColors,
         ]);
+        } catch (Throwable $e) {
+            $err = ['error' => 'predict_error', 'message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()];
+            error_log('PREDICT ERROR: ' . json_encode($err));
+            echo json_encode($err);
+        }
         break;
 
     case 'results':

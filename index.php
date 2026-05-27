@@ -862,11 +862,12 @@ const PredictPage = ({ onNav }) => {
 
   const load = () => {
     api('predict').then(d => {
+      if (d.error) { setLoading(false); return; }
       const p = (d.predictions || []).reduce((a, c) => { a[c.driver_id] = c; return a; }, {});
-      setPreds(p); setDrivers(d.drivers); setConstructors(d.constructors);
+      setPreds(p); setDrivers(d.drivers || []); setConstructors(d.constructors || []);
       setExistingConstructor(d.constructor_prediction || null);
-      setRaceData(d.race || d.upcomingRaces?.[0] || null);
-      setDeadline(d.deadline ? new Date(d.deadline) : null);
+      setRaceData(d.nextRace || d.race || d.upcomingRaces?.[0] || null);
+      setDeadline(d.deadline ? new Date(d.deadline * 1000) : null);
       setLoading(false);
     }).catch(() => setLoading(false));
   };
