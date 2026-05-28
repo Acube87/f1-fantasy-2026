@@ -10,6 +10,7 @@
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -2071,6 +2072,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const circuitRef = useRef(null);
 
   const checkAuth = () => {
     api('user').then(d => {
@@ -2089,6 +2091,25 @@ const App = () => {
     });
   }, []);
 
+  // Circuit animation for welcome screen
+  useEffect(() => {
+    if (!circuitRef.current || !window.Motion) return;
+    const { animate, createMotionPath, createDrawable, morphTo } = window.Motion;
+    const track = circuitRef.current.querySelector('.circuit-track');
+    const car = circuitRef.current.querySelector('.circuit-car');
+    const alt = circuitRef.current.querySelector('.circuit-alt');
+    if (!track || !car) return;
+    animate(createDrawable(track), { draw: '0 1' }, { duration: 2.5, easing: [0.16, 1, 0.3, 1] });
+    animate(car, { ...createMotionPath(track) }, { duration: 6, delay: 2.5, repeat: Infinity, easing: 'linear' });
+    if (alt) {
+      let rev = false;
+      setInterval(() => {
+        rev = !rev;
+        animate(track, { d: morphTo(rev ? alt : track) }, { duration: 3, easing: [0.16, 1, 0.3, 1], direction: rev ? 'reverse' : 'normal' });
+      }, 8000);
+    }
+  }, [user]);
+
   const handleNav = (p) => { setPage(p); window.location.hash = p; };
   const handleAuth = () => { setShowLogin(false); checkAuth(); };
 
@@ -2105,46 +2126,66 @@ const App = () => {
           @keyframes wlcmSlide{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
         `}</style>
         <div style={{display:'flex',minHeight:'100vh',background:'var(--bg)'}}>
-          {/* LEFT — Hero Image Panel */}
-          <div style={{
+          {/* LEFT — Animated Circuit Panel */}
+          <div ref={circuitRef} style={{
             flex:'1.3',position:'relative',overflow:'hidden',display:'flex',
             alignItems:'center',justifyContent:'center',
-            background:'linear-gradient(135deg,#0c0f16 0%,#111620 100%)',
+            background:'radial-gradient(ellipse at 50% 30%,rgba(124,58,237,0.08),transparent 60%),linear-gradient(180deg,#080b12 0%,#0c0f16 40%,#111620 100%)',
             minHeight:'100vh'
           }}>
-            {/* Abstract gradient mesh */}
-            <div style={{
-              position:'absolute',inset:0,
-              background:'radial-gradient(ellipse at 20% 50%,rgba(124,58,237,0.12),transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(79,124,255,0.08),transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(251,146,60,0.06),transparent 50%)',
-            }} />
-            {/* Subtle grid pattern */}
-            <div style={{
-              position:'absolute',inset:0,
-              backgroundImage:'linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px)',
-              backgroundSize:'60px 60px'
-            }} />
-            {/* Brand content */}
-            <div style={{position:'relative',zIndex:2,textAlign:'center',padding:'40px',maxWidth:480}}>
-              <div style={{width:72,height:72,background:'linear-gradient(135deg,var(--purple),var(--blue))',borderRadius:20,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 28px',fontSize:32,color:'#fff',boxShadow:'0 8px 32px rgba(124,58,237,0.3)',animation:'wlcmFade 0.6s ease both'}}>
-                <I n="flag-checkered" />
+            <svg className="circuit-svg" viewBox="0 0 600 600" style={{position:'absolute',inset:0,width:'100%',height:'100%',opacity:0.6}}>
+              <defs>
+                <linearGradient id="trackGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#7c3aed" />
+                  <stop offset="50%" stopColor="#4f7cff" />
+                  <stop offset="100%" stopColor="#a855f7" />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+                <filter id="glowStrong">
+                  <feGaussianBlur stdDeviation="8" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+              {/* Circuit track background (faint static) */}
+              <path className="circuit-track-bg" d="M 120 520 C 80 440, 60 320, 140 240 C 200 180, 240 120, 320 100 C 400 80, 460 130, 480 200 C 500 280, 460 360, 400 400 C 340 440, 300 500, 240 520 C 200 530, 160 530, 120 520 Z" fill="none" stroke="rgba(124,58,237,0.08)" strokeWidth="6" />
+              {/* Main animated circuit path */}
+              <path className="circuit-track" d="M 120 520 C 80 440, 60 320, 140 240 C 200 180, 240 120, 320 100 C 400 80, 460 130, 480 200 C 500 280, 460 360, 400 400 C 340 440, 300 500, 240 520 C 200 530, 160 530, 120 520 Z" fill="none" stroke="url(#trackGlow)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#glow)" />
+              {/* Start/finish line */}
+              <line x1="120" y1="520" x2="140" y2="510" stroke="#fff" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4" />
+              {/* Sector markers */}
+              <circle cx="240" cy="120" r="3" fill="#22c55e" opacity="0.6" />
+              <circle cx="480" cy="200" r="3" fill="#4f7cff" opacity="0.6" />
+              {/* Alt circuit for morph */}
+              <path className="circuit-alt" d="M 140 520 C 100 460, 100 360, 180 280 C 240 220, 200 120, 280 100 C 380 80, 500 120, 500 220 C 500 320, 440 420, 360 460 C 280 500, 200 540, 140 520 Z" fill="none" stroke="url(#trackGlow)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#glowStrong)" opacity="0" pointer-events="none" />
+            </svg>
+            {/* Animated car */}
+            <div className="circuit-car" style={{
+              position:'absolute',width:16,height:16,zIndex:10,
+              display:'flex',alignItems:'center',justifyContent:'center'
+            }}>
+              <svg viewBox="0 0 24 24" style={{width:'100%',height:'100%'}}>
+                <path d="M19 8.5L17.5 6h-2.5l-1.5-2H11L9.5 6H7L5.5 8.5 7 12h10l1.5-3.5zM9 15c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="#a855f7" />
+              </svg>
+            </div>
+            {/* Circuit stats overlay */}
+            <div style={{position:'absolute',zIndex:2,bottom:0,left:0,right:0,padding:'60px 40px 40px',background:'linear-gradient(transparent,rgba(8,11,18,0.95))',textAlign:'center'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:16,marginBottom:14}}>
+                <div style={{width:44,height:44,background:'linear-gradient(135deg,var(--purple),var(--blue))',borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,color:'#fff',boxShadow:'0 4px 20px rgba(124,58,237,0.3)'}}>
+                  <I n="flag-checkered" />
+                </div>
+                <h1 style={{fontSize:28,fontWeight:'900',color:'#fff',textTransform:'uppercase',letterSpacing:'-0.02em',lineHeight:1.1}}>
+                  Paddock<br /><span style={{background:'linear-gradient(135deg,var(--purple2),var(--blue))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Picks</span>
+                </h1>
               </div>
-              <h1 style={{fontSize:42,fontWeight:'900',color:'#fff',textTransform:'uppercase',letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:12,animation:'wlcmFade 0.6s ease 0.1s both'}}>
-                Paddock<br /><span style={{background:'linear-gradient(135deg,var(--purple2),var(--blue))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Picks</span>
-              </h1>
-              <p style={{color:'var(--text2)',fontSize:15,lineHeight:1.7,marginBottom:32,animation:'wlcmFade 0.6s ease 0.2s both'}}>
-                The ultimate F1 prediction league. Pick your drivers,<br />beat your rivals, own the podium.
+              <p style={{color:'var(--text2)',fontSize:13,lineHeight:1.6,marginBottom:18,maxWidth:360,margin:'0 auto 18px'}}>
+                Pick your drivers, beat your rivals, own the podium.
               </p>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,animation:'wlcmFade 0.6s ease 0.25s both'}}>
-                {[{n:'24',l:'Races'},{n:'22',l:'Drivers'},{n:'11',l:'Teams'}].map((s,i) => (
-                  <div key={i} style={{background:'rgba(255,255,255,0.03)',border:'1px solid var(--border)',borderRadius:12,padding:'14px 8px',textAlign:'center'}}>
-                    <div style={{fontSize:24,fontWeight:'800',color:'var(--purple2)',lineHeight:1}}>{s.n}</div>
-                    <div style={{fontSize:10,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.06em',fontWeight:'600',marginTop:4}}>{s.l}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{marginTop:24,display:'flex',alignItems:'center',justifyContent:'center',gap:8,animation:'wlcmFade 0.6s ease 0.3s both'}}>
-                <span style={{width:8,height:8,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 8px rgba(34,197,94,0.4)'}} />
-                <span style={{fontSize:12,color:'var(--text3)'}}>Season 2026 active</span>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:10}}>
+                <span style={{width:6,height:6,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 6px rgba(34,197,94,0.4)'}} />
+                <span style={{fontSize:11,color:'var(--text3)'}}>Season 2026 &middot; 24 races</span>
               </div>
             </div>
           </div>
