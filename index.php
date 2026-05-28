@@ -655,6 +655,18 @@ const Dashboard = ({ onNav }) => {
               </div>
             </div>
 
+            {/* Race Director Meme */}
+            <div className="card" style={{overflow:'hidden',borderRadius:'var(--rad-lg)',background:'var(--card)',border:'1px solid var(--border)'}}>
+              <video autoPlay muted loop playsInline style={{width:'100%',display:'block'}}>
+                <source src="assets/race-director-dog.mp4" type="video/mp4" />
+              </video>
+              <div style={{padding:'10px 14px 12px',display:'flex',alignItems:'center',gap:8}}>
+                <span style={{width:6,height:6,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 6px rgba(34,197,94,0.4)'}} />
+                <span style={{fontSize:11,fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}>Race Director's Pet</span>
+                <span style={{fontSize:10,color:'var(--text3)',marginLeft:'auto'}}>🐶 🎧</span>
+              </div>
+            </div>
+
             {/* Trophy Cabinet */}
             <div className="card card-hover anim-slide-up" style={{animationDelay:'0.25s',padding:'16px'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
