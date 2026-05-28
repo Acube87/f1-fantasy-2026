@@ -2135,7 +2135,7 @@ const App = () => {
         // Map SVG viewBox coords (600x400) to pixel coords relative to parent
         const sr = svg.getBoundingClientRect();
         const pr = c.getBoundingClientRect();
-        const sx = sr.width / 600, sy = sr.height / 400;
+        const sx = sr.width / 600, sy = sr.height / 450;
         const cx = pt.x * sx + sr.left - pr.left;
         const cy = pt.y * sy + sr.top - pr.top;
         car.style.transform = 'translate(' + cx + 'px,' + cy + 'px) rotate(' + angle + 'deg)';
@@ -2144,7 +2144,7 @@ const App = () => {
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
-  }, [user]);
+  }, [loading]);
 
   const handleNav = (p) => { setPage(p); window.location.hash = p; };
   const handleAuth = () => { setShowLogin(false); checkAuth(); };
