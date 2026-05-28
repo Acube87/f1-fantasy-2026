@@ -520,10 +520,21 @@ const Dashboard = ({ onNav }) => {
             <div style={{fontSize:22,color:'var(--orange)',animation:'float 3s ease-in-out infinite 1s'}}><I n="bolt" /></div>
             <span style={{fontSize:12,color:'var(--text2)',lineHeight:1.4}}>Check the leaderboard and see how you stack up against rivals.</span>
           </div>
-          <a href="calendar.php" target="_blank" className="card card-hover" style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:8,textDecoration:'none',background:'var(--card2)',border:'1px dashed var(--border2)'}}>
-            <I n="calendar-alt" style={{color:'var(--orange)',fontSize:16}} />
-            <span style={{fontSize:10,fontWeight:'600',color:'var(--text2)',whiteSpace:'nowrap'}}>Subscribe</span>
-          </a>
+          <div style={{display:'flex',flexDirection:'column',gap:6,background:'var(--card2)',border:'1px dashed var(--border2)',borderRadius:'var(--rad-lg)',padding:'10px 14px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <I n="calendar-alt" style={{color:'var(--orange)',fontSize:14}} />
+              <span style={{fontSize:10,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}>Calendar Reminders</span>
+            </div>
+            <div style={{display:'flex',gap:6}}>
+              <a href="calendar.php" target="_blank" className="btn btn-sm" style={{background:'var(--card)',border:'1px solid var(--border2)',color:'var(--text)',fontSize:10,padding:'5px 10px'}}>
+                <I n="download" style={{fontSize:10}} /> .ics
+              </a>
+              <a href={'calendar.php?race_id='+(nr?.id||'')} target="_blank" className="btn btn-sm" style={{background:'var(--card)',border:'1px solid var(--border2)',color:'var(--purple2)',fontSize:10,padding:'5px 10px'}}>
+                <I n="bell" style={{fontSize:10}} /> Next Race
+              </a>
+              <span style={{fontSize:8,color:'var(--text3)',alignSelf:'center'}}>iCal · Android · Outlook</span>
+            </div>
+          </div>
         </div>
 
         {/* ===== MAIN GRID ===== */}
@@ -1595,113 +1606,138 @@ const UpdatesPage = ({ onNav }) => {
         <p style={{color:'var(--text2)',fontSize:'13px',marginTop:'4px'}}>Latest race results, standings, and prediction tracker</p>
       </div>
 
-      {d.lastRace && (
-        <>
-          <div className="card anim anim-d1" style={{padding:'16px',marginBottom:'16px'}}>
-            <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}}>
-              <span style={{fontSize:'24px'}}>{d.lastRace.flag}</span>
-              <div>
-                <div style={{fontSize:'16px',fontWeight:'700'}}>{d.lastRace.country} GP <span className="badge badge-green" style={{marginLeft:'8px',fontSize:'9px'}}>Completed</span></div>
-                <div style={{fontSize:'12px',color:'var(--text2)'}}>{new Date(d.lastRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
-              </div>
-            </div>
-
-            {d.raceWinner && (
-              <div style={{display:'flex',alignItems:'center',gap:'12px',padding:'12px',background:'var(--card2)',borderRadius:'var(--rad)',marginBottom:'12px'}}>
-                <I n="trophy" style={{fontSize:'18px',color:'var(--orange)'}} />
-                <div>
-                  <div style={{fontSize:'13px',fontWeight:'600'}}>{d.raceWinner.driver_name} wins!</div>
-                  <div style={{fontSize:'11px',color:'var(--text2)'}}>{d.raceWinner.constructor_name}</div>
-                </div>
-              </div>
-            )}
-
-            <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>Top 5</div>
-            {d.top5Results?.map((res,i) => {
-              const colors = ['var(--orange)','#a0a0a0','#cd7f32'];
-              return (
-                <div className="driver-row" key={i} style={{padding:'7px 0'}}>
-                  <div style={{width:'24px',textAlign:'center',fontWeight:'700',fontSize:'13px',color:i < 3 ? colors[i] : 'var(--text3)'}}>P{res.position}</div>
-                  <TeamBadge team={res.constructor_name} />
-                  <div style={{fontWeight:'600',fontSize:'12px'}}>{res.driver_name}</div>
-                  <div style={{fontSize:'10px',color:'var(--text2)',marginLeft:'auto'}}>{res.constructor_name}</div>
-                </div>
-              );
-            })}
-
-            <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',margin:'14px 0 8px'}}>Top Scorers</div>
-            {d.topScorers?.map((s,i) => (
-              <div className="lb-row" key={i} style={{padding:'8px 4px'}}>
-                <div style={{fontSize:'16px',width:'24px',textAlign:'center'}}>{i===0?'\u{1F947}':i===1?'\u{1F948}':i===2?'\u{1F949}':(i+1)}</div>
-                <div style={{width:'28px',height:'28px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
-                  <img src={getAvatarUrl(s.avatar_style,s.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                </div>
-                <div className="lb-name">
-                  <div className="lb-user">{s.username}</div>
-                </div>
-                <div style={{fontSize:'15px',fontWeight:'700',color:'var(--green)'}}>+{s.total_points}</div>
-              </div>
-            ))}
-
-            {(d.podiumSweepUsers?.length > 0 || d.constructorBonusUsers?.length > 0) && (
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginTop:'12px'}}>
-                {d.podiumSweepUsers?.length > 0 && (
-                  <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)'}}>
-                    <div style={{fontSize:'10px',color:'var(--orange)',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'4px'}}><I n="crown" style={{marginRight:4}} />Podium Sweep</div>
-                    <div style={{fontSize:'12px'}}>{d.podiumSweepUsers.join(', ')}</div>
-                  </div>
-                )}
-                {d.constructorBonusUsers?.length > 0 && (
-                  <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)'}}>
-                    <div style={{fontSize:'10px',color:'var(--blue)',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'4px'}}><I n="wrench" style={{marginRight:4}} />Constructor Bonus</div>
-                    <div style={{fontSize:'12px'}}>{d.constructorBonusUsers.join(', ')}</div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
+      {/* NEXT RACE — main focus, moved above last race */}
       {d.nextRace && (
-        <div className="card anim anim-d2" style={{padding:'16px',marginBottom:'16px'}}>
-          <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'12px'}}>
-            <I n="calendar-alt" style={{color:'var(--purple2)'}} />
-            <div style={{fontSize:'14px',fontWeight:'700'}}>Next Race: {d.nextRace.country} GP</div>
+        <div className="card anim anim-d1" style={{padding:'16px',marginBottom:'16px',border:'1px solid rgba(124,58,237,0.2)'}}>
+          <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}}>
+            <span style={{fontSize:'28px'}}>{d.nextRace.flag || '🏁'}</span>
+            <div style={{flex:1}}>
+              <div style={{fontSize:'16px',fontWeight:'700'}}>{d.nextRace.country} GP <span className="badge badge-purple" style={{marginLeft:'8px',fontSize:'9px'}}>Up Next</span></div>
+              <div style={{fontSize:'12px',color:'var(--text2)'}}>{new Date(d.nextRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} &middot; {d.nextRace.circuit_name}</div>
+            </div>
           </div>
-          <div style={{marginBottom:'10px'}}>
+
+          {/* Calendar download buttons */}
+          <div style={{display:'flex',gap:'8px',marginBottom:'14px',flexWrap:'wrap'}}>
+            <a href={'calendar.php?race_id='+d.nextRace.id} target="_blank" className="btn btn-sm" style={{background:'var(--card2)',color:'var(--text)',border:'1px solid var(--border2)'}}>
+              <I n="calendar-plus" style={{fontSize:12}} /> Download .ics <span style={{fontSize:9,color:'var(--text3)'}}>(iCal / Android / Outlook)</span>
+            </a>
+            <a href={'calendar.php'} target="_blank" className="btn btn-sm" style={{background:'var(--card2)',color:'var(--text)',border:'1px solid var(--border2)'}}>
+              <I n="calendar-alt" style={{fontSize:12}} /> Full Season Calendar
+            </a>
+          </div>
+
+          {/* Progress bar */}
+          <div style={{marginBottom:'12px'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
               <span style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)'}}>Prediction Progress</span>
-              <span style={{fontSize:'11px',fontWeight:'600',color:'var(--purple2)'}}>{d.submitted?.length||0}/{d.submitted?.length+d.missing?.length||0}</span>
+              <span style={{fontSize:'11px',fontWeight:'600',color:'var(--purple2)'}}>{d.submitted?.length||0}/{d.submitted?.length+d.missing?.length||0} players</span>
             </div>
             <div className="status-bar">
               <div className="status-fill purple" style={{width:Math.max(d.submissionPct||0,3)+'%'}}></div>
             </div>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
-            <div>
-              <div style={{fontSize:'10px',fontWeight:'600',color:'var(--green)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px'}}>Submitted ({d.submitted?.length||0})</div>
-              {d.submitted?.slice(0,8).map((s,i) => (
-                <div key={i} style={{display:'flex',alignItems:'center',gap:'6px',padding:'4px 0'}}>
-                  <div style={{width:'20px',height:'20px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)'}}>
+
+          {/* Full lists — no slice limit */}
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+            <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)',maxHeight:320,overflow:'auto'}}>
+              <div style={{fontSize:'10px',fontWeight:'700',color:'var(--green)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px',position:'sticky',top:0,background:'var(--card2)',paddingBottom:4,zIndex:1}}>
+                <I n="check-circle" style={{marginRight:4}} />Submitted ({d.submitted?.length||0})
+              </div>
+              {d.submitted?.length > 0 ? d.submitted.map((s,i) => (
+                <div key={i} style={{display:'flex',alignItems:'center',gap:'6px',padding:'3px 0'}}>
+                  <div style={{width:'20px',height:'20px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
                     <img src={getAvatarUrl(s.avatar_style,s.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                   </div>
                   <span style={{fontSize:'11px',fontWeight:'600'}}>{s.username}</span>
                 </div>
-              ))}
+              )) : <div style={{fontSize:'11px',color:'var(--text3)',padding:'8px 0'}}>No predictions yet</div>}
             </div>
-            <div>
-              <div style={{fontSize:'10px',fontWeight:'600',color:'var(--red)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px'}}>Missing ({d.missing?.length||0})</div>
-              {d.missing?.slice(0,8).map((s,i) => (
-                <div key={i} style={{display:'flex',alignItems:'center',gap:'6px',padding:'4px 0'}}>
-                  <div style={{width:'20px',height:'20px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)'}}>
+            <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)',maxHeight:320,overflow:'auto'}}>
+              <div style={{fontSize:'10px',fontWeight:'700',color:'var(--red)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px',position:'sticky',top:0,background:'var(--card2)',paddingBottom:4,zIndex:1}}>
+                <I n="times-circle" style={{marginRight:4}} />Missing ({d.missing?.length||0})
+              </div>
+              {d.missing?.length > 0 ? d.missing.map((s,i) => (
+                <div key={i} style={{display:'flex',alignItems:'center',gap:'6px',padding:'3px 0'}}>
+                  <div style={{width:'20px',height:'20px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
                     <img src={getAvatarUrl(s.avatar_style,s.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                   </div>
                   <span style={{fontSize:'11px',fontWeight:'600'}}>{s.username}</span>
                 </div>
-              ))}
+              )) : <div style={{fontSize:'11px',color:'var(--green)',padding:'8px 0'}}>Everyone has submitted!</div>}
             </div>
           </div>
+
+          <div style={{marginTop:12,fontSize:10,color:'var(--text3)',textAlign:'center'}}>
+            Deadline: {new Date(d.nextRace.race_date).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})} at midnight UTC
+          </div>
+        </div>
+      )}
+
+      {/* LAST RACE — moved below next race */}
+      {d.lastRace && (
+        <div className="card anim anim-d2" style={{padding:'16px',marginBottom:'16px'}}>
+          <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}}>
+            <span style={{fontSize:'24px'}}>{d.lastRace.flag}</span>
+            <div>
+              <div style={{fontSize:'16px',fontWeight:'700'}}>{d.lastRace.country} GP <span className="badge badge-green" style={{marginLeft:'8px',fontSize:'9px'}}>Completed</span></div>
+              <div style={{fontSize:'12px',color:'var(--text2)'}}>{new Date(d.lastRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+            </div>
+          </div>
+
+          {d.raceWinner && (
+            <div style={{display:'flex',alignItems:'center',gap:'12px',padding:'12px',background:'var(--card2)',borderRadius:'var(--rad)',marginBottom:'12px'}}>
+              <I n="trophy" style={{fontSize:'18px',color:'var(--orange)'}} />
+              <div>
+                <div style={{fontSize:'13px',fontWeight:'600'}}>{d.raceWinner.driver_name} wins!</div>
+                <div style={{fontSize:'11px',color:'var(--text2)'}}>{d.raceWinner.constructor_name}</div>
+              </div>
+            </div>
+          )}
+
+          <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>Top 5</div>
+          {d.top5Results?.map((res,i) => {
+            const colors = ['var(--orange)','#a0a0a0','#cd7f32'];
+            return (
+              <div className="driver-row" key={i} style={{padding:'7px 0'}}>
+                <div style={{width:'24px',textAlign:'center',fontWeight:'700',fontSize:'13px',color:i < 3 ? colors[i] : 'var(--text3)'}}>P{res.position}</div>
+                <TeamBadge team={res.constructor_name} />
+                <div style={{fontWeight:'600',fontSize:'12px'}}>{res.driver_name}</div>
+                <div style={{fontSize:'10px',color:'var(--text2)',marginLeft:'auto'}}>{res.constructor_name}</div>
+              </div>
+            );
+          })}
+
+          <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',margin:'14px 0 8px'}}>Top Scorers</div>
+          {d.topScorers?.map((s,i) => (
+            <div className="lb-row" key={i} style={{padding:'8px 4px'}}>
+              <div style={{fontSize:'16px',width:'24px',textAlign:'center'}}>{i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</div>
+              <div style={{width:'28px',height:'28px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
+                <img src={getAvatarUrl(s.avatar_style,s.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+              </div>
+              <div className="lb-name">
+                <div className="lb-user">{s.username}</div>
+              </div>
+              <div style={{fontSize:'15px',fontWeight:'700',color:'var(--green)'}}>+{s.total_points}</div>
+            </div>
+          ))}
+
+          {(d.podiumSweepUsers?.length > 0 || d.constructorBonusUsers?.length > 0) && (
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginTop:'12px'}}>
+              {d.podiumSweepUsers?.length > 0 && (
+                <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)'}}>
+                  <div style={{fontSize:'10px',color:'var(--orange)',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'4px'}}><I n="crown" style={{marginRight:4}} />Podium Sweep</div>
+                  <div style={{fontSize:'12px'}}>{d.podiumSweepUsers.join(', ')}</div>
+                </div>
+              )}
+              {d.constructorBonusUsers?.length > 0 && (
+                <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)'}}>
+                  <div style={{fontSize:'10px',color:'var(--blue)',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'4px'}}><I n="wrench" style={{marginRight:4}} />Constructor Bonus</div>
+                  <div style={{fontSize:'12px'}}>{d.constructorBonusUsers.join(', ')}</div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
