@@ -10,7 +10,7 @@
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/animejs@4.0.0/lib/anime.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -2105,26 +2105,20 @@ const App = () => {
 
   // Circuit animation for welcome screen
   useEffect(() => {
-    if (!circuitRef.current || !window.anime) return;
-    const { animate, svg } = window.anime;
+    if (!circuitRef.current || !window.Motion) return;
+    const { animate, createMotionPath, createDrawable, morphTo } = window.Motion;
     const track = circuitRef.current.querySelector('.circuit-track');
-    const alt = circuitRef.current.querySelector('.circuit-alt');
     const car = circuitRef.current.querySelector('.circuit-car');
+    const alt = circuitRef.current.querySelector('.circuit-alt');
     if (!track || !car) return;
-    const carPath = svg.createMotionPath(track);
-    const drawable = svg.createDrawable(track);
-    animate(drawable, { draw: '0 1', ease: 'easeInOutQuad', duration: 2500 });
-    setTimeout(() => {
-      animate(car, { ...carPath, ease: 'linear', duration: 6000, loop: true });
-    }, 2600);
+    animate(createDrawable(track), { draw: '0 1' }, { duration: 2.5, easing: [0.16, 1, 0.3, 1] });
+    animate(car, { ...createMotionPath(track) }, { duration: 6, delay: 2.5, repeat: Infinity, easing: 'linear' });
     if (alt) {
-      const altPath = svg.createMotionPath(alt);
-      let altIdx = false;
+      let rev = false;
       setInterval(() => {
-        altIdx = !altIdx;
-        const target = altIdx ? alt : track;
-        animate(car, { ...svg.createMotionPath(target), ease: 'linear', duration: 3000 });
-      }, 12000);
+        rev = !rev;
+        animate(track, { d: morphTo(rev ? alt : track) }, { duration: 3, easing: [0.16, 1, 0.3, 1], direction: rev ? 'reverse' : 'normal' });
+      }, 8000);
     }
   }, [user]);
 
@@ -2151,52 +2145,42 @@ const App = () => {
             background:'radial-gradient(ellipse at 50% 30%,rgba(124,58,237,0.08),transparent 60%),linear-gradient(180deg,#080b12 0%,#0c0f16 40%,#111620 100%)',
             minHeight:'100vh'
           }}>
-            <svg className="circuit-svg" viewBox="0 0 600 400" style={{position:'absolute',inset:0,width:'100%',height:'100%',opacity:0.55}}>
+            <svg className="circuit-svg" viewBox="0 0 600 600" style={{position:'absolute',inset:0,width:'100%',height:'100%',opacity:0.6}}>
               <defs>
                 <linearGradient id="trackGlow" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#7c3aed" />
                   <stop offset="50%" stopColor="#4f7cff" />
                   <stop offset="100%" stopColor="#a855f7" />
                 </linearGradient>
-                <filter id="trackGlowF">
-                  <feGaussianBlur stdDeviation="3" result="b" />
-                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
                 </filter>
-                <filter id="carGlow">
-                  <feGaussianBlur stdDeviation="6" result="b" />
-                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                <filter id="glowStrong">
+                  <feGaussianBlur stdDeviation="8" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
                 </filter>
               </defs>
-              {/* Asphalt background */}
-              <path className="circuit-asphalt" d="M 120 280 L 460 280 C 530 280, 560 230, 530 180 L 400 140 C 350 120, 250 120, 200 140 L 70 180 C 40 230, 70 280, 120 280 Z" fill="none" stroke="rgba(30,40,60,0.4)" strokeWidth="28" strokeLinecap="round" strokeLinejoin="round" />
-              {/* Track edge lines */}
-              <path className="circuit-edge" d="M 120 280 L 460 280 C 530 280, 560 230, 530 180 L 400 140 C 350 120, 250 120, 200 140 L 70 180 C 40 230, 70 280, 120 280 Z" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round" />
-              {/* Kerb markers at corners */}
-              <path d="M 460 280 C 495 280, 528 258, 545 230" fill="none" stroke="rgba(255,70,70,0.15)" strokeWidth="18" strokeLinecap="round" />
-              <path d="M 530 180 C 490 155, 450 140, 400 140" fill="none" stroke="rgba(255,70,70,0.15)" strokeWidth="18" strokeLinecap="round" />
-              <path d="M 200 140 C 165 140, 125 155, 85 180" fill="none" stroke="rgba(255,70,70,0.15)" strokeWidth="18" strokeLinecap="round" />
-              <path d="M 70 180 C 52 207, 52 237, 70 262" fill="none" stroke="rgba(255,70,70,0.15)" strokeWidth="18" strokeLinecap="round" />
+              {/* Circuit track background (faint static) */}
+              <path className="circuit-track-bg" d="M 120 520 C 80 440, 60 320, 140 240 C 200 180, 240 120, 320 100 C 400 80, 460 130, 480 200 C 500 280, 460 360, 400 400 C 340 440, 300 500, 240 520 C 200 530, 160 530, 120 520 Z" fill="none" stroke="rgba(124,58,237,0.08)" strokeWidth="6" />
               {/* Main animated circuit path */}
-              <path className="circuit-track" d="M 120 280 L 460 280 C 530 280, 560 230, 530 180 L 400 140 C 350 120, 250 120, 200 140 L 70 180 C 40 230, 70 280, 120 280 Z" fill="none" stroke="url(#trackGlow)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#trackGlowF)" />
+              <path className="circuit-track" d="M 120 520 C 80 440, 60 320, 140 240 C 200 180, 240 120, 320 100 C 400 80, 460 130, 480 200 C 500 280, 460 360, 400 400 C 340 440, 300 500, 240 520 C 200 530, 160 530, 120 520 Z" fill="none" stroke="url(#trackGlow)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#glow)" />
               {/* Start/finish line */}
-              <line className="circuit-sf" x1="120" y1="280" x2="140" y2="270" stroke="#fff" strokeWidth="2" strokeDasharray="6 4" opacity="0.5" />
-              {/* Corner markers */}
-              <text x="510" y="235" fill="rgba(255,255,255,0.12)" fontSize="10" fontWeight="700" fontFamily="sans-serif">T1</text>
-              <text x="390" y="135" fill="rgba(255,255,255,0.12)" fontSize="10" fontWeight="700" fontFamily="sans-serif">T2</text>
-              <text x="100" y="175" fill="rgba(255,255,255,0.12)" fontSize="10" fontWeight="700" fontFamily="sans-serif">T3</text>
-              <text x="55" y="235" fill="rgba(255,255,255,0.12)" fontSize="10" fontWeight="700" fontFamily="sans-serif">T4</text>
-              {/* DRS zone indicators */}
-              <line x1="180" y1="282" x2="380" y2="282" stroke="rgba(79,124,255,0.15)" strokeWidth="2" strokeDasharray="3 5" />
-              <text x="250" y="295" fill="rgba(79,124,255,0.12)" fontSize="8" fontWeight="600" fontFamily="sans-serif">DRS ZONE</text>
+              <line x1="120" y1="520" x2="140" y2="510" stroke="#fff" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4" />
+              {/* Sector markers */}
+              <circle cx="240" cy="120" r="3" fill="#22c55e" opacity="0.6" />
+              <circle cx="480" cy="200" r="3" fill="#4f7cff" opacity="0.6" />
               {/* Alt circuit for morph */}
-              <path className="circuit-alt" d="M 140 290 L 440 290 C 520 290, 560 230, 540 170 L 420 120 C 350 95, 250 95, 180 120 L 60 170 C 40 230, 60 290, 140 290 Z" fill="none" stroke="url(#trackGlow)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#trackGlowF)" opacity="0" pointer-events="none" />
+              <path className="circuit-alt" d="M 140 520 C 100 460, 100 360, 180 280 C 240 220, 200 120, 280 100 C 380 80, 500 120, 500 220 C 500 320, 440 420, 360 460 C 280 500, 200 540, 140 520 Z" fill="none" stroke="url(#trackGlow)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#glowStrong)" opacity="0" pointer-events="none" />
             </svg>
             {/* Animated car */}
             <div className="circuit-car" style={{
-              position:'absolute',width:14,height:14,zIndex:10,
-              display:'flex',alignItems:'center',justifyContent:'center',top:0,left:0
+              position:'absolute',width:16,height:16,zIndex:10,
+              display:'flex',alignItems:'center',justifyContent:'center'
             }}>
-              <div style={{width:14,height:14,borderRadius:'50%',background:'var(--purple2)',boxShadow:'0 0 12px rgba(168,85,247,0.8)',opacity:0.9}} />
+              <svg viewBox="0 0 24 24" style={{width:'100%',height:'100%'}}>
+                <path d="M19 8.5L17.5 6h-2.5l-1.5-2H11L9.5 6H7L5.5 8.5 7 12h10l1.5-3.5zM9 15c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="#a855f7" />
+              </svg>
             </div>
             {/* Circuit stats overlay */}
             <div style={{position:'absolute',zIndex:2,bottom:0,left:0,right:0,padding:'60px 40px 40px',background:'linear-gradient(transparent,rgba(8,11,18,0.95))',textAlign:'center'}}>
