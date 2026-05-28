@@ -10,7 +10,6 @@
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/animejs@4.0.0/lib/anime.umd.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -2091,29 +2090,48 @@ const App = () => {
     });
   }, []);
 
-  // Circuit animation for welcome screen
+  // Vanilla JS circuit car animation with correct SVG→pixel mapping
   useEffect(() => {
-    if (!circuitRef.current || !window.anime) return;
-    const { animate, svg } = window.anime;
-    const track = circuitRef.current.querySelector('.circuit-track');
-    const alt = circuitRef.current.querySelector('.circuit-alt');
-    const car = circuitRef.current.querySelector('.circuit-car');
+    const c = circuitRef.current;
+    if (!c) return;
+    const svg = c.querySelector('.circuit-svg');
+    const track = svg?.querySelector('.circuit-track');
+    const car = c.querySelector('.circuit-car');
     if (!track || !car) return;
-    const carPath = svg.createMotionPath(track);
-    const drawable = svg.createDrawable(track);
-    animate(drawable, { draw: '0 1', ease: 'easeInOutQuad', duration: 2500 });
-    setTimeout(() => {
-      animate(car, { ...carPath, ease: 'linear', duration: 6000, loop: true });
-    }, 2600);
-    if (alt) {
-      const altPath = svg.createMotionPath(alt);
-      let altIdx = false;
-      setInterval(() => {
-        altIdx = !altIdx;
-        const target = altIdx ? alt : track;
-        animate(car, { ...svg.createMotionPath(target), ease: 'linear', duration: 3000 });
-      }, 12000);
-    }
+
+    const len = track.getTotalLength();
+    track.style.strokeDasharray = len;
+    track.style.strokeDashoffset = len;
+
+    let start = null, drawn = false;
+    const loop = (ts) => {
+      if (!start) start = ts;
+      const t = ts - start;
+      // Draw track (2.5s)
+      if (!drawn) {
+        const p = Math.min(t / 2500, 1);
+        track.style.strokeDashoffset = len * (1 - p);
+        if (p >= 1) drawn = true;
+      }
+      // Car follows after 2s delay
+      const ct = t - 2000;
+      if (ct > 0) {
+        const p = (ct % 6000) / 6000;
+        const pt = track.getPointAtLength(p * len);
+        const p2 = track.getPointAtLength(Math.min(p * len + 3, len));
+        const angle = Math.atan2(p2.y - pt.y, p2.x - pt.x) * 180 / Math.PI;
+        // Map SVG viewBox coords (600x400) to pixel coords relative to parent
+        const sr = svg.getBoundingClientRect();
+        const pr = c.getBoundingClientRect();
+        const sx = sr.width / 600, sy = sr.height / 400;
+        const cx = pt.x * sx + sr.left - pr.left;
+        const cy = pt.y * sy + sr.top - pr.top;
+        car.style.transform = 'translate(' + cx + 'px,' + cy + 'px) rotate(' + angle + 'deg)';
+        car.style.opacity = '1';
+      }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
   }, [user]);
 
   const handleNav = (p) => { setPage(p); window.location.hash = p; };
@@ -2139,52 +2157,39 @@ const App = () => {
             background:'radial-gradient(ellipse at 50% 30%,rgba(124,58,237,0.08),transparent 60%),linear-gradient(180deg,#080b12 0%,#0c0f16 40%,#111620 100%)',
             minHeight:'100vh'
           }}>
-            <svg className="circuit-svg" viewBox="0 0 600 400" style={{position:'absolute',inset:0,width:'100%',height:'100%',opacity:0.55}}>
+            <svg className="circuit-svg" viewBox="0 0 600 450" style={{position:'absolute',inset:0,width:'100%',height:'100%',opacity:0.6}}>
               <defs>
                 <linearGradient id="trackGlow" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#7c3aed" />
                   <stop offset="50%" stopColor="#4f7cff" />
                   <stop offset="100%" stopColor="#a855f7" />
                 </linearGradient>
-                <filter id="trackGlowF">
-                  <feGaussianBlur stdDeviation="3" result="b" />
-                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-                </filter>
-                <filter id="carGlow">
-                  <feGaussianBlur stdDeviation="6" result="b" />
-                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-                </filter>
+                <filter id="trackGlowF"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
               </defs>
-              {/* Asphalt background */}
-              <path className="circuit-asphalt" d="M 120 280 L 460 280 C 530 280, 560 230, 530 180 L 400 140 C 350 120, 250 120, 200 140 L 70 180 C 40 230, 70 280, 120 280 Z" fill="none" stroke="rgba(30,40,60,0.4)" strokeWidth="28" strokeLinecap="round" strokeLinejoin="round" />
-              {/* Track edge lines */}
-              <path className="circuit-edge" d="M 120 280 L 460 280 C 530 280, 560 230, 530 180 L 400 140 C 350 120, 250 120, 200 140 L 70 180 C 40 230, 70 280, 120 280 Z" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round" />
-              {/* Kerb markers at corners */}
-              <path d="M 460 280 C 495 280, 528 258, 545 230" fill="none" stroke="rgba(255,70,70,0.15)" strokeWidth="18" strokeLinecap="round" />
-              <path d="M 530 180 C 490 155, 450 140, 400 140" fill="none" stroke="rgba(255,70,70,0.15)" strokeWidth="18" strokeLinecap="round" />
-              <path d="M 200 140 C 165 140, 125 155, 85 180" fill="none" stroke="rgba(255,70,70,0.15)" strokeWidth="18" strokeLinecap="round" />
-              <path d="M 70 180 C 52 207, 52 237, 70 262" fill="none" stroke="rgba(255,70,70,0.15)" strokeWidth="18" strokeLinecap="round" />
-              {/* Main animated circuit path */}
-              <path className="circuit-track" d="M 120 280 L 460 280 C 530 280, 560 230, 530 180 L 400 140 C 350 120, 250 120, 200 140 L 70 180 C 40 230, 70 280, 120 280 Z" fill="none" stroke="url(#trackGlow)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#trackGlowF)" />
+              {/* Asphalt (thick dark path behind everything) */}
+              <path d="M 80 260 Q 120 90, 320 100 C 470 110, 560 180, 540 290 C 520 380, 400 420, 280 390 C 180 360, 100 340, 80 260 Z" fill="none" stroke="rgba(20,28,42,0.5)" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" />
+              {/* Track edge (thin white lines both sides) */}
+              <path d="M 80 260 Q 120 90, 320 100 C 470 110, 560 180, 540 290 C 520 380, 400 420, 280 390 C 180 360, 100 340, 80 260 Z" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="26" strokeLinecap="round" strokeLinejoin="round" />
+              {/* Kerbs at corner exits */}
+              <path d="M 470 110 C 510 120, 545 150, 550 185" fill="none" stroke="rgba(255,60,60,0.15)" strokeWidth="20" strokeLinecap="round" />
+              <path d="M 520 350 C 480 395, 420 410, 370 405" fill="none" stroke="rgba(255,60,60,0.15)" strokeWidth="20" strokeLinecap="round" />
+              <path d="M 180 380 C 140 385, 100 370, 85 330" fill="none" stroke="rgba(255,60,60,0.15)" strokeWidth="20" strokeLinecap="round" />
+              {/* The animated racing line */}
+              <path className="circuit-track" d="M 80 260 Q 120 90, 320 100 C 470 110, 560 180, 540 290 C 520 380, 400 420, 280 390 C 180 360, 100 340, 80 260 Z" fill="none" stroke="url(#trackGlow)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#trackGlowF)" />
               {/* Start/finish line */}
-              <line className="circuit-sf" x1="120" y1="280" x2="140" y2="270" stroke="#fff" strokeWidth="2" strokeDasharray="6 4" opacity="0.5" />
+              <line x1="80" y1="260" x2="105" y2="245" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" strokeDasharray="8 5" />
+              <text x="85" y="235" fill="rgba(255,255,255,0.12)" fontSize="8" fontWeight="600" fontFamily="sans-serif" letterSpacing="1">S/F</text>
               {/* Corner markers */}
-              <text x="510" y="235" fill="rgba(255,255,255,0.12)" fontSize="10" fontWeight="700" fontFamily="sans-serif">T1</text>
-              <text x="390" y="135" fill="rgba(255,255,255,0.12)" fontSize="10" fontWeight="700" fontFamily="sans-serif">T2</text>
-              <text x="100" y="175" fill="rgba(255,255,255,0.12)" fontSize="10" fontWeight="700" fontFamily="sans-serif">T3</text>
-              <text x="55" y="235" fill="rgba(255,255,255,0.12)" fontSize="10" fontWeight="700" fontFamily="sans-serif">T4</text>
-              {/* DRS zone indicators */}
-              <line x1="180" y1="282" x2="380" y2="282" stroke="rgba(79,124,255,0.15)" strokeWidth="2" strokeDasharray="3 5" />
-              <text x="250" y="295" fill="rgba(79,124,255,0.12)" fontSize="8" fontWeight="600" fontFamily="sans-serif">DRS ZONE</text>
-              {/* Alt circuit for morph */}
-              <path className="circuit-alt" d="M 140 290 L 440 290 C 520 290, 560 230, 540 170 L 420 120 C 350 95, 250 95, 180 120 L 60 170 C 40 230, 60 290, 140 290 Z" fill="none" stroke="url(#trackGlow)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#trackGlowF)" opacity="0" pointer-events="none" />
+              <text x="505" y="160" fill="rgba(255,255,255,0.1)" fontSize="9" fontWeight="700" fontFamily="sans-serif">T1</text>
+              <text x="480" y="390" fill="rgba(255,255,255,0.1)" fontSize="9" fontWeight="700" fontFamily="sans-serif">T2</text>
+              <text x="145" y="365" fill="rgba(255,255,255,0.1)" fontSize="9" fontWeight="700" fontFamily="sans-serif">T3</text>
             </svg>
             {/* Animated car */}
             <div className="circuit-car" style={{
-              position:'absolute',width:14,height:14,zIndex:10,
-              display:'flex',alignItems:'center',justifyContent:'center',top:0,left:0
+              position:'absolute',width:12,height:12,zIndex:10,top:0,left:0,
+              display:'flex',alignItems:'center',justifyContent:'center',opacity:0
             }}>
-              <div style={{width:14,height:14,borderRadius:'50%',background:'var(--purple2)',boxShadow:'0 0 12px rgba(168,85,247,0.8)',opacity:0.9}} />
+              <div style={{width:12,height:12,borderRadius:'50%',background:'#a855f7',boxShadow:'0 0 14px rgba(168,85,247,0.9)'}} />
             </div>
             {/* Circuit stats overlay */}
             <div style={{position:'absolute',zIndex:2,bottom:0,left:0,right:0,padding:'60px 40px 40px',background:'linear-gradient(transparent,rgba(8,11,18,0.95))',textAlign:'center'}}>
