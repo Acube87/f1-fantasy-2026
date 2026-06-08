@@ -1235,72 +1235,71 @@ const ResultsPage = ({ onNav }) => {
             </div>
           )}
 
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px',alignItems:'start'}}>
-            <div className="card anim anim-d1" style={{padding:'14px 16px'}}>
-              <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
-                <I n="list" style={{marginRight:10}} />Predictions vs Actual
-              </div>
-              {d.predictions?.map((p,i) => (
-                <div className="driver-row" key={i}>
-                  <div className="driver-pos">{p.predicted_position}</div>
-                  <TeamBadge team={p.team} />
-                  <div style={{flex:1,minWidth:0}}>
-                    <div className="driver-name">{p.driver_name}</div>
-                  </div>
-                  {p.actual_position ? (
-                    <>
-                      <span style={{fontSize:'11px',color:'var(--text2)',marginRight:'4px'}}>P{p.actual_position}</span>
-                      {p.is_exact
-                        ? <span className="badge badge-green"><I n="check" style={{fontSize:9}} /></span>
-                        : <span className="badge badge-red"><I n="times" style={{fontSize:9}} /></span>
-                      }
-                      <span style={{fontWeight:'700',fontSize:'13px',color:'var(--green)',marginLeft:'6px',minWidth:30,textAlign:'right'}}>{p.points_earned > 0 ? '+'+p.points_earned : 0}</span>
-                    </>
-                  ) : (
-                    <span style={{fontSize:'11px',color:'var(--text3)'}}>N/A</span>
-                  )}
-                </div>
-              ))}
+          {/* 1. Official Results — top, always visible */}
+          <div className="card anim anim-d1" style={{padding:'14px 16px',marginBottom:'12px'}}>
+            <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
+              <I n="flag-checkered" style={{marginRight:10}} />Official Results
             </div>
-
-            <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
-              <div className="card anim anim-d2" style={{padding:'14px 16px'}}>
-                <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
-                  <I n="trophy" style={{marginRight:10}} />Race Leaderboard
+            {d.actualResults?.map((res,i) => (
+              <div className="driver-row" key={i}>
+                <div className="driver-pos" style={{background:res.position <= 3 ? ['var(--orange)','#a0a0a0','#cd7f32'][res.position-1] + '33' : 'var(--card2)'}}>{res.position}</div>
+                <TeamBadge team={res.constructor_name} />
+                <div style={{flex:1,minWidth:0}}>
+                  <div className="driver-name">{res.driver_name}</div>
+                  <div className="team-name">{res.constructor_name}</div>
                 </div>
-                {d.raceLeaderboard?.map((u,i) => (
-                  <div className="lb-row" key={i} style={{padding:'8px 4px'}}>
-                    <div className={'lb-rk lb-rk-'+(i<3?(i+1):'')}>{i+1}</div>
-                    <div className="lb-name">
-                      <div className="lb-user">{u.username}</div>
-                    </div>
-                    <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
-                      <span style={{fontSize:'10px',color:'var(--text3)'}}>{u.driver_points}</span>
-                      {u.top3_bonus > 0 && <I n="crown" style={{fontSize:'10px',color:'var(--orange)'}} />}
-                      {u.constructor_points > 0 && <I n="wrench" style={{fontSize:'10px',color:'var(--blue)'}} />}
-                      <div className="lb-pts" style={{fontSize:'15px'}}>{u.total_points}</div>
-                    </div>
-                  </div>
-                ))}
+                {res.fastest_lap > 0 && <span className="badge badge-purple" style={{fontSize:'9px'}}><I n="bolt" /> FL</span>}
               </div>
+            ))}
+          </div>
 
-              <div className="card anim anim-d3" style={{padding:'14px 16px'}}>
-                <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
-                  <I n="flag-checkered" style={{marginRight:10}} />Official Results
-                </div>
-                {d.actualResults?.map((res,i) => (
-                  <div className="driver-row" key={i}>
-                    <div className="driver-pos" style={{background:res.position <= 3 ? ['var(--orange)','#a0a0a0','#cd7f32'][res.position-1] + '33' : 'var(--card2)'}}>{res.position}</div>
-                    <TeamBadge team={res.constructor_name} />
-                    <div style={{flex:1,minWidth:0}}>
-                      <div className="driver-name">{res.driver_name}</div>
-                      <div className="team-name">{res.constructor_name}</div>
-                    </div>
-                    {res.fastest_lap > 0 && <span className="badge badge-purple" style={{fontSize:'9px'}}><I n="bolt" /> FL</span>}
-                  </div>
-                ))}
-              </div>
+          {/* 2. Predictions vs Actual */}
+          <div className="card anim anim-d2" style={{padding:'14px 16px',marginBottom:'12px'}}>
+            <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
+              <I n="list" style={{marginRight:10}} />Predictions vs Actual
             </div>
+            {d.predictions?.map((p,i) => (
+              <div className="driver-row" key={i}>
+                <div className="driver-pos">{p.predicted_position}</div>
+                <TeamBadge team={p.team} />
+                <div style={{flex:1,minWidth:0}}>
+                  <div className="driver-name">{p.driver_name}</div>
+                </div>
+                {p.actual_position ? (
+                  <>
+                    <span style={{fontSize:'11px',color:'var(--text2)',marginRight:'4px'}}>P{p.actual_position}</span>
+                    {p.is_exact
+                      ? <span className="badge badge-green"><I n="check" style={{fontSize:9}} /></span>
+                      : <span className="badge badge-red"><I n="times" style={{fontSize:9}} /></span>
+                    }
+                    <span style={{fontWeight:'700',fontSize:'13px',color:'var(--green)',marginLeft:'6px',minWidth:30,textAlign:'right'}}>{p.points_earned > 0 ? '+'+p.points_earned : 0}</span>
+                  </>
+                ) : (
+                  <span style={{fontSize:'11px',color:'var(--text3)'}}>N/A</span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* 3. Race Leaderboard */}
+          <div className="card anim anim-d3" style={{padding:'14px 16px',marginBottom:'12px'}}>
+            <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
+              <I n="trophy" style={{marginRight:10}} />Race Leaderboard
+            </div>
+            {d.raceLeaderboard?.map((u,i) => (
+              <div className="lb-row" key={i} style={{padding:'8px 4px'}}>
+                <div className={'lb-rk lb-rk-'+(i<3?(i+1):'')}>{i+1}</div>
+                <div className="lb-name">
+                  <div className="lb-user">{u.username}</div>
+                </div>
+                <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
+                  <span style={{fontSize:'10px',color:'var(--text3)'}}>{u.driver_points}</span>
+                  {u.top3_bonus > 0 && <I n="crown" style={{fontSize:'10px',color:'var(--orange)'}} />}
+                  {u.constructor_points > 0 && <I n="wrench" style={{fontSize:'10px',color:'var(--blue)'}} />}
+                  <div className="lb-pts" style={{fontSize:'15px'}}>{u.total_points}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </>
       )}
