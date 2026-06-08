@@ -376,7 +376,7 @@ switch ($type) {
 
         if (!$raceId) {
             // Return list of all races so user can pick one
-            $allRaces = $db->query("SELECT id, race_name, country, circuit_name, race_date, status FROM races ORDER BY race_date DESC");
+            $allRaces = $db->query("SELECT id, race_name, country, circuit_name, race_date, status FROM races ORDER BY status ASC, race_date DESC");
             $raceList = [];
             if ($allRaces) {
                 while ($r = $allRaces->fetch_assoc()) {
