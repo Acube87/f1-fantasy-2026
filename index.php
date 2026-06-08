@@ -1970,6 +1970,86 @@ const AdminPage = () => {
           </button>
         </div>
       </div>
+
+      {/* ===== RACE CONTROL — Post-Race Briefing & Tools ===== */}
+      <div className="card" style={{padding:32,borderTop:'4px solid var(--orange)',borderRadius:24,marginTop:24}}>
+        <div style={{marginBottom:24}}>
+          <span style={{background:'var(--orange)',color:'#fff',fontSize:10,fontWeight:'900',padding:'4px 12px',borderRadius:999,textTransform:'uppercase',letterSpacing:'0.12em',display:'inline-block',marginBottom:12}}>
+            <I n="cog" style={{marginRight:6}} />Race Control
+          </span>
+          <h2 style={{fontSize:32,fontWeight:'900',color:'#fff',fontStyle:'italic',textTransform:'uppercase',lineHeight:1.1}}>Briefing &amp; <span style={{color:'var(--orange)'}}>Ops</span></h2>
+          <p style={{color:'var(--text2)',fontSize:14,marginTop:8}}>Generate post-race debriefs, rescore races, create news posts, and manage the season.</p>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+          {/* Selected Race Details */}
+          <div style={{padding:20,background:'rgba(251,146,60,0.06)',border:'1px solid rgba(251,146,60,0.15)',borderRadius:16}}>
+            <div style={{fontSize:11,fontWeight:'700',color:'var(--orange)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:12}}>
+              <I n="flag-checkered" style={{marginRight:6}} />Selected Race
+            </div>
+            {raceId ? (() => {
+              const r = races.find(x => x.id == raceId);
+              if (!r) return <div style={{fontSize:13,color:'var(--text3)'}}>Race not found</div>;
+              const isComplete = r.status === 'completed';
+              return (
+                <div>
+                  <div style={{fontSize:20,fontWeight:'800',marginBottom:4}}>{r.country || r.race_name} GP</div>
+                  <div style={{fontSize:13,color:'var(--text2)',marginBottom:8}}>
+                    {new Date(r.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+                    {' '}
+                    <span className={'badge ' + (isComplete ? 'badge-green' : 'badge-purple')} style={{fontSize:9}}>
+                      {isComplete ? 'Completed' : 'Upcoming'}
+                    </span>
+                  </div>
+                  <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>
+                    <a href={'admin/generate-debriefs.php?race_id='+raceId} target="_blank" className="btn btn-sm" style={{background:'var(--orange)',color:'#fff',border:'none'}}>
+                      <I n="newspaper" style={{fontSize:11}} /> Generate Debrief
+                    </a>
+                    {isComplete && (
+                      <a href={'admin/rescore-race.php?race_id='+raceId} target="_blank" className="btn btn-sm" style={{background:'var(--card)',color:'var(--text)',border:'1px solid var(--border2)'}}>
+                        <I n="redo-alt" style={{fontSize:11}} /> Rescore
+                      </a>
+                    )}
+                    <a href={'admin/create-post.php?race_id='+raceId} target="_blank" className="btn btn-sm" style={{background:'var(--card)',color:'var(--text)',border:'1px solid var(--border2)'}}>
+                      <I n="pen" style={{fontSize:11}} /> Create Post
+                    </a>
+                  </div>
+                </div>
+              );
+            })() : (
+              <div style={{fontSize:13,color:'var(--text3)'}}>Select a race above first to access post-race tools.</div>
+            )}
+          </div>
+
+          {/* Quick Links */}
+          <div style={{padding:20,background:'rgba(255,255,255,0.02)',border:'1px solid var(--border)',borderRadius:16}}>
+            <div style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:12}}>
+              <I n="link" style={{marginRight:6}} />Admin Tools
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {[
+                {url:'admin/generate-debriefs.php',label:'Debrief Manager',icon:'newspaper',desc:'Preview & publish post-race debriefs'},
+                {url:'admin/create-post.php',label:'Create Post',icon:'pen',desc:'Write a manual news update'},
+                {url:'admin/rescore-race.php',label:'Rescore Race',icon:'redo-alt',desc:'Recalculate scores for a race'},
+                {url:'admin/fetch-race-results.php',label:'Fetch from F1 API',icon:'cloud-download-alt',desc:'Auto-fetch race results'},
+                {url:'admin/backup-database.php',label:'Backup Database',icon:'database',desc:'Download SQL export'},
+                {url:'admin/diagnose.php',label:'Diagnostics',icon:'stethoscope',desc:'Fix duplicate entries'},
+              ].map((t,i) => (
+                <a key={i} href={t.url} target="_blank" style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:10,background:'var(--card)',border:'1px solid var(--border)',textDecoration:'none',transition:'all 0.15s'}}>
+                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(251,146,60,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <I n={t.icon} style={{fontSize:12,color:'var(--orange)'}} />
+                  </div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:12,fontWeight:'700',color:'var(--text)'}}>{t.label}</div>
+                    <div style={{fontSize:10,color:'var(--text3)'}}>{t.desc}</div>
+                  </div>
+                  <I n="external-link-alt" style={{fontSize:10,color:'var(--text3)'}} />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
