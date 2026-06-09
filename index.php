@@ -546,31 +546,58 @@ const Dashboard = ({ onNav }) => {
         {/* ===== BENTO GRID ===== */}
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14,gridAutoFlow:'dense'}}>
 
-          {/* Full Standings — takes full width when alone */}
-          <div className="card anim-slide-up" style={{gridColumn:'1/-1',padding:'16px'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          {/* Full Standings — professional table */}
+          <div className="card anim-slide-up" style={{gridColumn:'1/-1',padding:0,overflow:'hidden'}}>
+            <div style={{padding:'16px 16px 0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                <I n="trophy" style={{color:'var(--orange)',marginRight:6}} />Standings
+                <I n="trophy" style={{color:'var(--orange)',marginRight:6}} />Championship Standings
               </span>
-              <span style={{fontSize:10,color:'var(--text3)'}}>{data.leaderboard?.length||0} players</span>
+              <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>{data.leaderboard?.length||0} players</span>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:6}}>
-              {data.leaderboard?.map((p,i) => (
-                <div key={i} className={'lb-row card-hover'+(data.auth?.username===p.username?' me':'')} style={{borderRadius:10,padding:'8px 10px',background:i%2===0?'var(--card2)':'transparent'}}>
-                  <div className={'lb-rk lb-rk-'+(i<3?(i+1):'')} style={{fontSize:13,minWidth:28}}>{i+1}</div>
-                  <div style={{width:26,height:26,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0,border:'2px solid '+(i===0?'var(--orange)':i===1?'#a0a0a0':i===2?'#cd7f32':'transparent')}}>
-                    <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                  </div>
-                  <div className="lb-name" style={{minWidth:0}}>
-                    <div className="lb-user" style={{fontSize:11}}>
-                      {p.username}
-                      {i===0 && <I n="crown" style={{color:'var(--orange)',fontSize:9,marginLeft:3}} />}
-                      {data.auth?.username===p.username && <span className="badge badge-purple" style={{fontSize:7,padding:'1px 5px',marginLeft:4}}>You</span>}
+            <div style={{marginTop:10}}>
+              {/* Table header */}
+              <div style={{display:'grid',gridTemplateColumns:'40px 1fr 80px',gap:0,padding:'8px 16px',fontSize:9,fontWeight:'700',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>
+                <span>Pos</span>
+                <span>Player</span>
+                <span style={{textAlign:'right'}}>Points</span>
+              </div>
+              {data.leaderboard?.map((p,i) => {
+                const pos = i + 1;
+                const isUser = data.auth?.username === p.username;
+                return (
+                  <div key={i} style={{
+                    display:'grid',gridTemplateColumns:'40px 1fr 80px',gap:0,padding:'10px 16px',
+                    borderBottom:i < data.leaderboard.length - 1 ? '1px solid var(--border)' : 'none',
+                    background:isUser ? 'rgba(124,58,237,0.08)' : (i%2===0 ? 'rgba(255,255,255,0.015)' : 'transparent'),
+                    transition:'background 0.15s'
+                  }}>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      <span style={{
+                        width:24,height:24,borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',
+                        fontWeight:'800',fontSize:11,
+                        background:pos===1?'linear-gradient(135deg,var(--orange),#e67e22)':pos===2?'linear-gradient(135deg,#a0a0a0,#888)':pos===3?'linear-gradient(135deg,#cd7f32,#a0652e)':'rgba(255,255,255,0.05)',
+                        color:pos<=3?'#fff':'var(--text2)'
+                      }}>{pos}</span>
+                      {pos === 1 && <I n="crown" style={{color:'var(--orange)',fontSize:10}} />}
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0}}>
+                      <div style={{width:28,height:28,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0,border:'2px solid '+(pos===1?'var(--orange)':pos===2?'#a0a0a0':pos===3?'#cd7f32':'transparent')}}>
+                        <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                      </div>
+                      <div style={{minWidth:0}}>
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <span style={{fontWeight:'700',fontSize:13,color:isUser?'var(--purple2)':'var(--text)'}}>{p.username}</span>
+                          {isUser && <span className="badge badge-purple" style={{fontSize:7,padding:'1px 5px'}}>You</span>}
+                        </div>
+                        <div style={{fontSize:9,color:'var(--text3)'}}>{p.races_participated||0} races</div>
+                      </div>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end'}}>
+                      <span style={{fontWeight:'900',fontSize:18,color:pos<=3?'var(--orange)':isUser?'var(--purple2)':'var(--green)',letterSpacing:'-0.02em'}}>{p.total_points}</span>
                     </div>
                   </div>
-                  <div className="lb-pts" style={{fontSize:14}}>{p.total_points}</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
