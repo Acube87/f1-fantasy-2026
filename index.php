@@ -543,194 +543,181 @@ const Dashboard = ({ onNav }) => {
           </div>
         </div>
 
-        {/* ===== MAIN GRID ===== */}
-        <div style={{display:'grid',gridTemplateColumns:'1.3fr 1fr',gap:14,alignItems:'start'}}>
+        {/* ===== BENTO GRID ===== */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14,gridAutoFlow:'dense'}}>
 
-          {/* LEFT COLUMN */}
-          <div style={{display:'flex',flexDirection:'column',gap:14}}>
-
-            {/* Recent Results */}
-            <div className="card card-hover anim-slide-up" style={{animationDelay:'0.15s',padding:'16px'}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-                <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                  <I n="history" style={{color:'var(--blue)',marginRight:6}} />Recent Results
-                </span>
-                <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>{data.totalPredictions} picks</span>
-              </div>
-              {data.recentResults?.length > 0 ? data.recentResults.map((r,i) => {
-                const maxPts = Math.max(...(data.recentResults||[]).map(x=>x.total_points), 1);
-                const barW = (r.total_points / maxPts) * 100;
-                return (
-                  <a key={i} href={'#results?race_id='+r.race_id} onClick={(e)=>{e.preventDefault();onNav('results?race_id='+r.race_id)}}
-                    style={{display:'block',padding:'10px 0',borderBottom:i<data.recentResults.length-1?'1px solid var(--border)':'none',cursor:'pointer',transition:'all 0.25s'}}
-                    onMouseEnter={e=>{e.currentTarget.style.transform='translateX(4px)'}}
-                    onMouseLeave={e=>{e.currentTarget.style.transform='translateX(0)'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:10}}>
-                      <div style={{width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,var(--purple),var(--blue))',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                        <I n="flag" style={{color:'#fff',fontSize:14}} />
-                      </div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{display:'flex',alignItems:'center',gap:8}}>
-                          <span style={{fontWeight:'700',fontSize:13}}>{r.country} GP</span>
-                          <span style={{fontSize:10,color:'var(--text3)'}}>{new Date(r.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
-                        </div>
-                        <div style={{marginTop:4,height:4,background:'var(--card2)',borderRadius:2,overflow:'hidden',width:'100%',maxWidth:200}}>
-                          <div style={{height:'100%',width:barW+'%',background:'linear-gradient(90deg,var(--green),#16a34a)',borderRadius:2,transition:'width 1s cubic-bezier(0.16,1,0.3,1)'}} />
-                        </div>
-                      </div>
-                      <div style={{fontWeight:'900',fontSize:20,color:'var(--green)',letterSpacing:'-0.02em'}}>+{r.total_points}</div>
-                    </div>
-                  </a>
-                );
-              }) : (
-                <div style={{textAlign:'center',padding:'24px 0',color:'var(--text3)',fontSize:13}}>
-                  <I n="flag-checkered" style={{fontSize:24,display:'block',margin:'0 auto 8px',opacity:0.3}} />
-                  No races yet — make your first prediction!
-                </div>
-              )}
+          {/* Full Standings — takes full width when alone */}
+          <div className="card anim-slide-up" style={{gridColumn:'1/-1',padding:'16px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+              <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
+                <I n="trophy" style={{color:'var(--orange)',marginRight:6}} />Standings
+              </span>
+              <span style={{fontSize:10,color:'var(--text3)'}}>{data.leaderboard?.length||0} players</span>
             </div>
-
-            {/* My Picks for Next Race */}
-            {data.userPicks?.length > 0 && (
-              <div className="card card-hover anim-slide-up" style={{animationDelay:'0.2s',padding:'16px'}}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-                  <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                    <I n="list-ol" style={{color:'var(--orange)',marginRight:6}} />My Predictions
-                  </span>
-                  <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>Rd {nr?.race_number||'-'}</span>
-                </div>
-                <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                  {data.userPicks.map((p,i) => (
-                    <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:10,background:'var(--card2)',border:'1px solid var(--border)',animation:'slide-right 0.4s cubic-bezier(0.16,1,0.3,1) both',animationDelay:(0.25 + i*0.06)+'s'}}>
-                      <div style={{width:26,height:26,borderRadius:6,background:'linear-gradient(135deg,var(--purple),var(--orange))',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'800',fontSize:11,color:'#fff',flexShrink:0}}>P{i+1}</div>
-                      <TeamBadge team={p.team} />
-                      <span style={{fontWeight:'600',fontSize:13,flex:1}}>{p.driver_name}</span>
-                      <span style={{fontSize:10,color:'var(--text3)'}}>#{p.predicted_position}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Upcoming Races */}
-            <div className="card card-hover anim-slide-up" style={{animationDelay:'0.25s',padding:'16px'}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                  <I n="calendar-alt" style={{color:'var(--purple2)',marginRight:6}} />Upcoming
-                </span>
-                <span style={{fontSize:10,color:'var(--text3)'}}>{data.upcomingRaces?.length||0} events</span>
-              </div>
-              {data.upcomingRaces?.length > 0 ? data.upcomingRaces.map((r,i) => (
-                <div key={i} className="race-row card-hover" style={{padding:'10px 8px',borderRadius:8,opacity:r.unlocked?1:0.4,animation:'slide-right 0.4s cubic-bezier(0.16,1,0.3,1) both',animationDelay:(0.3 + i*0.04)+'s'}}>
-                  <div style={{fontSize:20,width:32,textAlign:'center',flexShrink:0}}>{r.flag || nr?.flag || ''}</div>
-                  <div style={{flex:1}}>
-                    <div className="r-name" style={{fontSize:13}}>{r.country} GP</div>
-                    <div className="r-meta" style={{fontSize:11}}>{new Date(r.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
-                  </div>
-                  <div className="r-status">
-                    {r.unlocked && r.is_open ? <span className="badge badge-green anim-glow-green"><I n="check-circle" style={{fontSize:9}} /> Open</span>
-                      : r.unlocked && !r.is_open ? <span className="badge badge-red"><I n="lock" style={{fontSize:9}} /> Closed</span>
-                      : <span className="badge badge-gray"><I n="lock" style={{fontSize:9}} /> Locked</span>}
-                  </div>
-                </div>
-              )) : (
-                <div style={{textAlign:'center',padding:'20px 0',color:'var(--text3)',fontSize:13}}>Season complete!</div>
-              )}
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN */}
-          <div style={{display:'flex',flexDirection:'column',gap:14}}>
-
-            {/* Standings — full table */}
-            <div className="card anim-slide-up" style={{animationDelay:'0.2s',padding:'16px',maxHeight:560,overflow:'auto'}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8,position:'sticky',top:0,background:'var(--card)',zIndex:1,paddingBottom:8}}>
-                <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                  <I n="trophy" style={{color:'var(--orange)',marginRight:6}} />Standings
-                </span>
-                <span style={{fontSize:10,color:'var(--text3)'}}>{data.leaderboard?.length||0} players</span>
-              </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:6}}>
               {data.leaderboard?.map((p,i) => (
-                <div key={i} className={'lb-row card-hover'+(data.auth?.username===p.username?' me':'')} style={{borderRadius:10,padding:'9px 10px'}}>
-                  <div className={'lb-rk lb-rk-'+(i<3?(i+1):'')} style={{fontSize:14}}>{i+1}</div>
-                  <div style={{width:30,height:30,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0,border:'2px solid '+(i===0?'var(--orange)':i===1?'#a0a0a0':i===2?'#cd7f32':'transparent')}}>
+                <div key={i} className={'lb-row card-hover'+(data.auth?.username===p.username?' me':'')} style={{borderRadius:10,padding:'8px 10px',background:i%2===0?'var(--card2)':'transparent'}}>
+                  <div className={'lb-rk lb-rk-'+(i<3?(i+1):'')} style={{fontSize:13,minWidth:28}}>{i+1}</div>
+                  <div style={{width:26,height:26,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0,border:'2px solid '+(i===0?'var(--orange)':i===1?'#a0a0a0':i===2?'#cd7f32':'transparent')}}>
                     <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                   </div>
-                  <div className="lb-name">
-                    <div className="lb-user" style={{fontSize:12}}>
+                  <div className="lb-name" style={{minWidth:0}}>
+                    <div className="lb-user" style={{fontSize:11}}>
                       {p.username}
-                      {i===0 && <I n="crown" style={{color:'var(--orange)',fontSize:10,marginLeft:4}} />}
-                      {data.auth?.username===p.username && <span className="badge badge-purple" style={{fontSize:8,padding:'1px 6px',marginLeft:4}}>You</span>}
+                      {i===0 && <I n="crown" style={{color:'var(--orange)',fontSize:9,marginLeft:3}} />}
+                      {data.auth?.username===p.username && <span className="badge badge-purple" style={{fontSize:7,padding:'1px 5px',marginLeft:4}}>You</span>}
                     </div>
-                    <div className="lb-lvl" style={{fontSize:10}}>{p.races_participated||0} races</div>
                   </div>
-                  <div className="lb-pts" style={{fontSize:16}}>{p.total_points}</div>
+                  <div className="lb-pts" style={{fontSize:14}}>{p.total_points}</div>
                 </div>
               ))}
             </div>
+          </div>
 
-            {/* Race Director Meme */}
-            <div className="card" style={{overflow:'hidden',borderRadius:'var(--rad-lg)',background:'var(--card)',border:'1px solid var(--border)'}}>
-              <video autoPlay muted loop playsInline style={{width:'100%',display:'block'}}>
-                <source src="assets/race-director-dog.mp4" type="video/mp4" />
-              </video>
-              <div style={{padding:'10px 14px 12px',display:'flex',alignItems:'center',gap:8}}>
-                <span style={{width:6,height:6,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 6px rgba(34,197,94,0.4)'}} />
-                <span style={{fontSize:11,fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}>Race Director's Pet</span>
-                <span style={{fontSize:10,color:'var(--text3)',marginLeft:'auto'}}>🐶 🎧</span>
-              </div>
+          {/* Recent Results */}
+          <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+              <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
+                <I n="history" style={{color:'var(--blue)',marginRight:6}} />Recent
+              </span>
+              <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>{data.totalPredictions} picks</span>
             </div>
+            {data.recentResults?.length > 0 ? data.recentResults.map((r,i) => {
+              const maxPts = Math.max(...(data.recentResults||[]).map(x=>x.total_points), 1);
+              const barW = (r.total_points / maxPts) * 100;
+              return (
+                <a key={i} href={'#results?race_id='+r.race_id} onClick={(e)=>{e.preventDefault();onNav('results?race_id='+r.race_id)}}
+                  style={{display:'block',padding:'10px 0',borderBottom:i<data.recentResults.length-1?'1px solid var(--border)':'none',cursor:'pointer',transition:'all 0.25s'}}
+                  onMouseEnter={e=>{e.currentTarget.style.transform='translateX(4px)'}}
+                  onMouseLeave={e=>{e.currentTarget.style.transform='translateX(0)'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:10}}>
+                    <div style={{width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,var(--purple),var(--blue))',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                      <I n="flag" style={{color:'#fff',fontSize:14}} />
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:'flex',alignItems:'center',gap:8}}>
+                        <span style={{fontWeight:'700',fontSize:13}}>{r.country} GP</span>
+                        <span style={{fontSize:10,color:'var(--text3)'}}>{new Date(r.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
+                      </div>
+                      <div style={{marginTop:4,height:4,background:'var(--card2)',borderRadius:2,overflow:'hidden',width:'100%',maxWidth:200}}>
+                        <div style={{height:'100%',width:barW+'%',background:'linear-gradient(90deg,var(--green),#16a34a)',borderRadius:2,transition:'width 1s cubic-bezier(0.16,1,0.3,1)'}} />
+                      </div>
+                    </div>
+                    <div style={{fontWeight:'900',fontSize:20,color:'var(--green)',letterSpacing:'-0.02em'}}>+{r.total_points}</div>
+                  </div>
+                </a>
+              );
+            }) : (
+              <div style={{textAlign:'center',padding:'24px 0',color:'var(--text3)',fontSize:13}}>
+                <I n="flag-checkered" style={{fontSize:24,display:'block',margin:'0 auto 8px',opacity:0.3}} />
+                No races yet — make your first prediction!
+              </div>
+            )}
+          </div>
 
-            {/* Trophy Cabinet */}
-            <div className="card card-hover anim-slide-up" style={{animationDelay:'0.25s',padding:'16px'}}>
+          {/* My Predictions */}
+          {data.userPicks?.length > 0 && (
+            <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
                 <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                  <I n="medal" style={{color:'var(--orange)',marginRight:6}} />Trophy Cabinet
+                  <I n="list-ol" style={{color:'var(--orange)',marginRight:6}} />My Picks
                 </span>
-                <a className="btn btn-outline btn-sm" style={{fontSize:9,padding:'3px 10px'}} onClick={(e)=>{e.preventDefault();onNav('achievements')}}>
-                  <I n="trophy" /> All {ALL_ACHIEVEMENTS.length}
-                </a>
+                <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>Rd {nr?.race_number||'-'}</span>
               </div>
-              {unlockedAchs.length > 0 ? (
-                <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8}}>
-                  {unlockedAchs.slice(0, 8).map((a,i) => {
-                    const def = ALL_ACHIEVEMENTS.find(x => x.id === a.id);
-                    if (!def) return null;
-                    const t = TIER_CONFIG[def.tier] || TIER_CONFIG.common;
-                    return (
-                      <div key={a.id} className="card-hover" style={{
-                        padding:'10px 8px',borderRadius:10,textAlign:'center',
-                        background:t.bg,border:'1px solid '+t.color+'30',
-                        animation:'bounce-in 0.5s cubic-bezier(0.16,1,0.3,1) both',
-                        animationDelay:(0.3 + i*0.06)+'s',position:'relative',overflow:'hidden'
-                      }}>
-                        <div style={{fontSize:18,color:t.color2,marginBottom:4}}><I n={def.icon.replace('fa-','')} /></div>
-                        <div style={{fontSize:10,fontWeight:'700',color:'var(--text)',lineHeight:1.2}}>{def.name}</div>
-                        <div style={{fontSize:8,color:'var(--text3)',marginTop:2}}>{def.desc}</div>
-                        <div className={`anim-shimmer`} style={{
-                          position:'absolute',inset:0,pointerEvents:'none',
-                          background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.03),transparent)',
-                          backgroundSize:'200% 100%',animation:'shimmer-card 3s ease-in-out infinite'
-                        }} />
-                      </div>
-                    );
-                  })}
-                  {unlockedAchs.length > 8 && (
-                    <div onClick={(e)=>{e.preventDefault();onNav('achievements')}}
-                      style={{padding:'10px 8px',borderRadius:10,textAlign:'center',background:'var(--card2)',border:'1px dashed var(--border2)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,fontSize:11,fontWeight:'600',color:'var(--text2)',transition:'all 0.2s',gridColumn:'span 2'}}>
-                      <I n="plus-circle" /> {unlockedAchs.length - 8} more
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{textAlign:'center',padding:'20px 0',color:'var(--text3)',fontSize:13}}>
-                  <I n="trophy" style={{fontSize:28,display:'block',margin:'0 auto 8px',opacity:0.2}} />
-                  No achievements unlocked yet
-                </div>
-              )}
+              <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                {data.userPicks.map((p,i) => (
+                  <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:10,background:'var(--card2)',border:'1px solid var(--border)'}}>
+                    <div style={{width:26,height:26,borderRadius:6,background:'linear-gradient(135deg,var(--purple),var(--orange))',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'800',fontSize:11,color:'#fff',flexShrink:0}}>P{i+1}</div>
+                    <TeamBadge team={p.team} />
+                    <span style={{fontWeight:'600',fontSize:13,flex:1}}>{p.driver_name}</span>
+                    <span style={{fontSize:10,color:'var(--text3)'}}>#{p.predicted_position}</span>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
 
+          {/* Upcoming Races */}
+          <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+              <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
+                <I n="calendar-alt" style={{color:'var(--purple2)',marginRight:6}} />Upcoming
+              </span>
+              <span style={{fontSize:10,color:'var(--text3)'}}>{data.upcomingRaces?.length||0} events</span>
+            </div>
+            {data.upcomingRaces?.length > 0 ? data.upcomingRaces.map((r,i) => (
+              <div key={i} className="race-row card-hover" style={{padding:'10px 8px',borderRadius:8,opacity:r.unlocked?1:0.4}}>
+                <div style={{fontSize:20,width:32,textAlign:'center',flexShrink:0}}>{r.flag || nr?.flag || ''}</div>
+                <div style={{flex:1}}>
+                  <div className="r-name" style={{fontSize:13}}>{r.country} GP</div>
+                  <div className="r-meta" style={{fontSize:11}}>{new Date(r.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+                </div>
+                <div className="r-status">
+                  {r.unlocked && r.is_open ? <span className="badge badge-green anim-glow-green"><I n="check-circle" style={{fontSize:9}} /> Open</span>
+                    : r.unlocked && !r.is_open ? <span className="badge badge-red"><I n="lock" style={{fontSize:9}} /> Closed</span>
+                    : <span className="badge badge-gray"><I n="lock" style={{fontSize:9}} /> Locked</span>}
+                </div>
+              </div>
+            )) : (
+              <div style={{textAlign:'center',padding:'20px 0',color:'var(--text3)',fontSize:13}}>Season complete!</div>
+            )}
           </div>
+
+          {/* Race Director Meme */}
+          <div className="card" style={{overflow:'hidden',borderRadius:'var(--rad-lg)',background:'var(--card)',border:'1px solid var(--border)'}}>
+            <video autoPlay muted loop playsInline style={{width:'100%',display:'block'}}>
+              <source src="assets/race-director-dog.mp4" type="video/mp4" />
+            </video>
+            <div style={{padding:'10px 14px 12px',display:'flex',alignItems:'center',gap:8}}>
+              <span style={{width:6,height:6,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 6px rgba(34,197,94,0.4)'}} />
+              <span style={{fontSize:11,fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}>Race Director's Pet</span>
+              <span style={{fontSize:10,color:'var(--text3)',marginLeft:'auto'}}>🐶 🎧</span>
+            </div>
+          </div>
+
+          {/* Trophy Cabinet */}
+          <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+              <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
+                <I n="medal" style={{color:'var(--orange)',marginRight:6}} />Trophy Cabinet
+              </span>
+              <a className="btn btn-outline btn-sm" style={{fontSize:9,padding:'3px 10px'}} onClick={(e)=>{e.preventDefault();onNav('achievements')}}>
+                <I n="trophy" /> All {ALL_ACHIEVEMENTS.length}
+              </a>
+            </div>
+            {unlockedAchs.length > 0 ? (
+              <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8}}>
+                {unlockedAchs.slice(0, 8).map((a,i) => {
+                  const def = ALL_ACHIEVEMENTS.find(x => x.id === a.id);
+                  if (!def) return null;
+                  const t = TIER_CONFIG[def.tier] || TIER_CONFIG.common;
+                  return (
+                    <div key={a.id} className="card-hover" style={{
+                      padding:'10px 8px',borderRadius:10,textAlign:'center',
+                      background:t.bg,border:'1px solid '+t.color+'30',
+                      position:'relative',overflow:'hidden'
+                    }}>
+                      <div style={{fontSize:18,color:t.color2,marginBottom:4}}><I n={def.icon.replace('fa-','')} /></div>
+                      <div style={{fontSize:10,fontWeight:'700',color:'var(--text)',lineHeight:1.2}}>{def.name}</div>
+                      <div style={{fontSize:8,color:'var(--text3)',marginTop:2}}>{def.desc}</div>
+                    </div>
+                  );
+                })}
+                {unlockedAchs.length > 8 && (
+                  <div onClick={(e)=>{e.preventDefault();onNav('achievements')}}
+                    style={{padding:'10px 8px',borderRadius:10,textAlign:'center',background:'var(--card2)',border:'1px dashed var(--border2)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,fontSize:11,fontWeight:'600',color:'var(--text2)',transition:'all 0.2s',gridColumn:'span 2'}}>
+                    <I n="plus-circle" /> {unlockedAchs.length - 8} more
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{textAlign:'center',padding:'20px 0',color:'var(--text3)',fontSize:13}}>
+                <I n="trophy" style={{fontSize:28,display:'block',margin:'0 auto 8px',opacity:0.2}} />
+                No achievements unlocked yet
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
     </div>
