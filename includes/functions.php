@@ -439,7 +439,7 @@ function getRaceHeroImage($country) {
         'Miami' => 'https://images.unsplash.com/photo-1617170788758-725d9475a32b?q=80&w=2070&auto=format&fit=crop',
         'Monaco' => 'https://images.unsplash.com/photo-1641491095983-f41553fc6db9?q=80&w=2832&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         'Canada' => 'https://images.unsplash.com/photo-1610141353646-14306dc6a9ab?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'Spain' => 'https://images.unsplash.com/photo-1543783232-26037dd78bfc?q=80&w=2070&auto=format&fit=crop',
+        'Spain' => 'https://images.unsplash.com/photo-1534001265532-393289eb8ed3?q=80&w=2874&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         'Austria' => 'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?q=80&w=2070&auto=format&fit=crop',
         'Uk' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
         'UK' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
