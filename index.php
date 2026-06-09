@@ -136,6 +136,7 @@ input:focus{outline:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes float-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes f1-pulse{0%,100%{box-shadow:0 0 30px rgba(225,6,0,0.35),inset 0 1px 0 rgba(255,255,255,0.15);background-position:0% 50%}50%{box-shadow:0 0 50px rgba(225,6,0,0.55),inset 0 1px 0 rgba(255,255,255,0.25);background-position:100% 50%}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes glow{0%,100%{box-shadow:0 0 8px rgba(124,58,237,0.2)}50%{box-shadow:0 0 24px rgba(124,58,237,0.4)}}
 @keyframes glow-green{0%,100%{box-shadow:0 0 8px rgba(34,197,94,0.2)}50%{box-shadow:0 0 24px rgba(34,197,94,0.4)}}
@@ -458,30 +459,35 @@ const Dashboard = ({ onNav }) => {
       <div style={{position:'relative',zIndex:1}}>
 
         {/* ===== HERO ===== */}
-        <div className="card anim-scale-in" style={{overflow:'hidden',position:'relative',marginBottom:16,minHeight:200}}>
+        <div className="card anim-scale-in" style={{overflow:'hidden',position:'relative',marginBottom:16,minHeight:340}}>
           <div className="hero-bg" style={{backgroundImage:'url('+(nr?.hero||'')+')',position:'absolute',inset:0,backgroundSize:'cover',backgroundPosition:'center',transition:'transform 0.6s ease'}}></div>
-          <div className="hero-overlay" style={{position:'absolute',inset:0,background:'linear-gradient(180deg,rgba(12,15,22,0.2) 0%,rgba(12,15,22,0.85) 60%,var(--bg) 100%)'}}></div>
-          <div style={{position:'relative',zIndex:2,padding:24,display:'flex',flexDirection:'row',alignItems:'flex-end',gap:16,flexWrap:'wrap',minHeight:200}}>
+          <div className="hero-overlay" style={{position:'absolute',inset:0,background:'linear-gradient(180deg,rgba(12,15,22,0.15) 0%,rgba(12,15,22,0.8) 50%,var(--bg) 100%)'}}></div>
+          <div style={{position:'relative',zIndex:2,padding:'32px 28px',display:'flex',flexDirection:'row',alignItems:'flex-end',gap:16,flexWrap:'wrap',minHeight:340}}>
             <div style={{flex:1,minWidth:200}}>
-              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,flexWrap:'wrap'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,flexWrap:'wrap'}}>
                 <span className="badge badge-purple anim-bounce-in" style={{animationDelay:'0.1s'}}><I n="flag-checkered" style={{fontSize:10}} /> R{nr?.race_number||'-'}</span>
-                {nr && <span style={{fontSize:24,animation:'float 3s ease-in-out infinite'}}>{nr.flag}</span>}
+                {nr && <span style={{fontSize:28,animation:'float 3s ease-in-out infinite'}}>{nr.flag}</span>}
                 {data.isDoublePoints && <span className="badge badge-green anim-glow-green"><I n="bolt" /> 2x</span>}
                 {data.predictionsOpen && <span className="badge badge-green anim-glow-green"><I n="check-circle" /> Open</span>}
                 {!data.predictionsOpen && nr && <span className="badge badge-red"><I n="lock" /> Locked</span>}
               </div>
-              <div style={{fontSize:26,fontWeight:'900',textTransform:'uppercase',letterSpacing:'-0.02em',marginBottom:2}}>
+              <div style={{fontSize:34,fontWeight:'900',textTransform:'uppercase',letterSpacing:'-0.02em',marginBottom:4,lineHeight:1.1}}>
                 {nr?.country||'Season Complete'}
               </div>
-              <div style={{fontSize:13,color:'var(--text2)',marginBottom:8}}>
-                <I n="map-marker-alt" style={{color:'var(--purple2)',fontSize:11,marginRight:4}} /> {nr?.circuit_name||''}
+              <div style={{fontSize:14,color:'var(--text2)',marginBottom:12}}>
+                <I n="map-marker-alt" style={{color:'var(--purple2)',fontSize:12,marginRight:4}} /> {nr?.circuit_name||''}
               </div>
-              <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
-                <span style={{fontSize:12,color:'var(--text2)'}}><I n="calendar" style={{marginRight:4}} />{nr ? new Date(nr.race_date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}) : ''}</span>
+              <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'center'}}>
+                <span style={{fontSize:13,color:'var(--text2)'}}><I n="calendar" style={{marginRight:4}} />{nr ? new Date(nr.race_date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}) : ''}</span>
                 {data.predictionsOpen && (
-                  <button className="btn btn-primary btn-sm anim-glow" onClick={()=>onNav('predict')} style={{animationDelay:'1s'}}>
-                    <I n="arrow-right" /> Predict Now
+                  <button onClick={()=>onNav('predict')}
+                    style={{position:'relative',padding:'14px 36px',fontFamily:'Inter,sans-serif',fontSize:15,fontWeight:'800',letterSpacing:'0.06em',textTransform:'uppercase',border:'none',borderRadius:12,color:'#fff',cursor:'pointer',background:'linear-gradient(135deg,#e10600 0%,#ff2800 50%,#e10600 100%)',backgroundSize:'200% 100%',boxShadow:'0 0 30px rgba(225,6,0,0.35),inset 0 1px 0 rgba(255,255,255,0.15)',animation:'f1-pulse 1.5s ease-in-out infinite',display:'flex',alignItems:'center',gap:10}}>
+                    <span style={{fontSize:18}}>🏁</span> Predict Now
+                    <span style={{position:'absolute',inset:0,borderRadius:12,border:'2px solid rgba(255,255,255,0.08)',pointerEvents:'none'}} />
                   </button>
+                )}
+                {!data.predictionsOpen && nr && (
+                  <span style={{fontSize:12,color:'var(--text3)',display:'flex',alignItems:'center',gap:6}}><I n="lock" /> Predictions closed</span>
                 )}
               </div>
             </div>
@@ -636,16 +642,16 @@ const Dashboard = ({ onNav }) => {
           {/* RIGHT COLUMN */}
           <div style={{display:'flex',flexDirection:'column',gap:14}}>
 
-            {/* Standings */}
-            <div className="card card-hover anim-slide-up" style={{animationDelay:'0.2s',padding:'16px'}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+            {/* Standings — full table */}
+            <div className="card anim-slide-up" style={{animationDelay:'0.2s',padding:'16px',maxHeight:560,overflow:'auto'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8,position:'sticky',top:0,background:'var(--card)',zIndex:1,paddingBottom:8}}>
                 <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
                   <I n="trophy" style={{color:'var(--orange)',marginRight:6}} />Standings
                 </span>
-                <span className="badge badge-purple" style={{fontSize:9}}>Top 5</span>
+                <span style={{fontSize:10,color:'var(--text3)'}}>{data.leaderboard?.length||0} players</span>
               </div>
               {data.leaderboard?.map((p,i) => (
-                <div key={i} className={'lb-row card-hover'+(data.auth?.username===p.username?' me':'')} style={{borderRadius:10,padding:'9px 10px',animation:'slide-right 0.4s cubic-bezier(0.16,1,0.3,1) both',animationDelay:(0.25 + i*0.05)+'s'}}>
+                <div key={i} className={'lb-row card-hover'+(data.auth?.username===p.username?' me':'')} style={{borderRadius:10,padding:'9px 10px'}}>
                   <div className={'lb-rk lb-rk-'+(i<3?(i+1):'')} style={{fontSize:14}}>{i+1}</div>
                   <div style={{width:30,height:30,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0,border:'2px solid '+(i===0?'var(--orange)':i===1?'#a0a0a0':i===2?'#cd7f32':'transparent')}}>
                     <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
@@ -661,9 +667,6 @@ const Dashboard = ({ onNav }) => {
                   <div className="lb-pts" style={{fontSize:16}}>{p.total_points}</div>
                 </div>
               ))}
-              <div style={{marginTop:8,paddingTop:8,borderTop:'1px solid var(--border)'}}>
-                <a className="btn btn-outline btn-sm btn-block" onClick={(e)=>{e.preventDefault();onNav('leaderboard')}}><I n="arrow-right" /> Full Standings</a>
-              </div>
             </div>
 
             {/* Race Director Meme */}

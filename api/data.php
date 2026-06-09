@@ -108,8 +108,8 @@ switch ($type) {
             $upcomingRaces[] = $race;
         }
         
-        // Leaderboard top 5
-        $leaderboard = getLeaderboard(5);
+        // Leaderboard full
+        $leaderboard = getLeaderboard(200);
         
         // User picks for next race
         $userPicks = [];
