@@ -108,6 +108,19 @@ switch ($type) {
             $upcomingRaces[] = $race;
         }
         
+        // Last completed race + user score
+        $lastRaceInfo = null;
+        $lrStmt = $db->query("SELECT id, race_name, country, circuit_name, race_date, race_number FROM races WHERE status = 'completed' ORDER BY race_date DESC LIMIT 1");
+        if ($lrStmt && $lr = $lrStmt->fetch_assoc()) {
+            $lastRaceInfo = $lr;
+            $lastRaceInfo['flag'] = getRaceFlag($lr['country']);
+            $lastRaceInfo['hero'] = getRaceHeroImage($lr['country']);
+            $myScoreStmt = $db->prepare("SELECT total_points, driver_points, top3_bonus, constructor_points FROM scores WHERE user_id = ? AND race_id = ?");
+            $myScoreStmt->bind_param("ii", $userId, $lr['id']);
+            $myScoreStmt->execute();
+            $lastRaceInfo['myScore'] = $myScoreStmt->get_result()->fetch_assoc();
+        }
+        
         // Leaderboard full
         $leaderboard = getLeaderboard(200);
         
@@ -152,6 +165,7 @@ switch ($type) {
             'progressBarWidth' => $progressBarWidth,
             'isDoublePoints' => $isNextDoublePoints,
             'deadline' => $deadline ? $deadline->getTimestamp() * 1000 : 0,
+            'lastRace' => $lastRaceInfo,
             'recentResults' => $recentResults,
             'upcomingRaces' => $upcomingRaces,
             'leaderboard' => $leaderboard,

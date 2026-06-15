@@ -48,9 +48,11 @@ input:focus{outline:none}
 .nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;letter-spacing:-0.02em;cursor:pointer}
 .nav-brand-icon{width:32px;height:32px;background:var(--purple);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff}
 .nav-links{display:flex;align-items:center;gap:2px}
-.nav-link{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:15px;cursor:pointer;transition:all 0.2s}
+.nav-link{height:36px;border-radius:8px;display:flex;align-items:center;gap:6px;padding:0 10px;color:var(--text3);font-size:13px;cursor:pointer;transition:all 0.2s;text-decoration:none}
 .nav-link:hover{color:var(--text);background:rgba(255,255,255,0.04)}
 .nav-link.active{color:var(--purple2);background:rgba(124,58,237,0.1)}
+.nav-label{font-size:11px;font-weight:600}
+@media(max-width:768px){.nav-label{display:none}.nav-link{padding:0 8px}}
 .page{padding-top:72px;padding-bottom:24px;max-width:1400px;margin:0 auto;padding-left:20px;padding-right:20px}
 .hero{position:relative;border-radius:var(--rad-lg);overflow:hidden;min-height:280px;display:flex;flex-direction:column;justify-content:flex-end}
 .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 0.6s ease}
@@ -264,6 +266,7 @@ const Nav = ({ user, page, onNav, onLogin, onLogout }) => {
             <a key={l.page} href={'#'+l.page} className={'nav-link'+(page.split('?')[0]===l.page?' active':'')}
                onClick={(e)=>{e.preventDefault();onNav(l.page)}}>
               <I n={l.icon} />
+              <span className="nav-label">{l.page.charAt(0).toUpperCase()+l.page.slice(1)}</span>
             </a>
           ))}
         </div>
@@ -511,6 +514,43 @@ const Dashboard = ({ onNav }) => {
             </div>
           ))}
         </div>
+
+        {/* ===== LAST RACE BANNER ===== */}
+        {data.lastRace && (
+          <a href={'#results?race_id='+data.lastRace.id} onClick={(e)=>{e.preventDefault();onNav('results?race_id='+data.lastRace.id)}}
+            style={{display:'flex',alignItems:'center',gap:14,marginBottom:16,padding:'14px 18px',borderRadius:14,textDecoration:'none',
+              background:'linear-gradient(135deg,rgba(79,124,255,0.1),rgba(124,58,237,0.08))',
+              border:'1px solid rgba(79,124,255,0.2)',
+              cursor:'pointer',transition:'all 0.2s'}}
+            onMouseEnter={e=>{e.currentTarget.style.background='linear-gradient(135deg,rgba(79,124,255,0.16),rgba(124,58,237,0.12))';e.currentTarget.style.borderColor='rgba(79,124,255,0.35)'}}
+            onMouseLeave={e=>{e.currentTarget.style.background='linear-gradient(135deg,rgba(79,124,255,0.1),rgba(124,58,237,0.08))';e.currentTarget.style.borderColor='rgba(79,124,255,0.2)'}}>
+            <div style={{width:42,height:42,borderRadius:12,background:'linear-gradient(135deg,var(--blue),var(--purple))',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:20}}>
+              {data.lastRace.flag}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:11,fontWeight:'700',color:'var(--blue)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:2}}>
+                <I n="flag-checkered" style={{fontSize:9,marginRight:4}} />Previous Race
+              </div>
+              <div style={{fontWeight:'700',fontSize:15}}>{data.lastRace.country} Grand Prix</div>
+              <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>
+                {data.lastRace.myScore ? (
+                  <>You scored <strong style={{color:'var(--green)'}}>+{data.lastRace.myScore.total_points} pts</strong> &middot; click to see full race results</>
+                ) : (
+                  <>Click to see race results and leaderboard</>
+                )}
+              </div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              {data.lastRace.myScore && (
+                <div style={{textAlign:'right'}}>
+                  <div style={{fontWeight:'900',fontSize:24,color:'var(--green)',lineHeight:1}}>+{data.lastRace.myScore.total_points}</div>
+                  <div style={{fontSize:9,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.04em'}}>Your score</div>
+                </div>
+              )}
+              <I n="chevron-right" style={{color:'var(--text3)',fontSize:14}} />
+            </div>
+          </a>
+        )}
 
         {/* ===== PROMO CARDS + CALENDAR ===== */}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr auto',gap:10,marginBottom:16}}>
