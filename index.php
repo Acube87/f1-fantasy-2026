@@ -1462,6 +1462,9 @@ const ResultsPage = ({ onNav }) => {
           </div>
         </>
       )}
+    </div>
+  );
+};
 
 const ProfilePage = ({ user, onNav }) => {
   const [data, setData] = useState(null);
