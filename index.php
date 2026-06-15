@@ -1315,35 +1315,33 @@ const ResultsPage = ({ onNav }) => {
             </div>
 
             {/* Podium top 3 */}
-            <div style={{display:'flex',justifyContent:'center',alignItems:'flex-end',gap:'16px',marginBottom:'20px',position:'relative',zIndex:1}}>
-              {d.raceLeaderboard?.slice(0,3).map((u,i) => {
-                const pos = [1,0,2][i]; // reorder: 2nd, 1st, 3rd
-                const p = d.raceLeaderboard[pos];
-                if (!p) return null;
-                const medals = ['🥇','🥈','🥉'];
-                const colors = ['var(--orange)','#a0a0a0','#cd7f32'];
-                const heights = [120,140,100];
-                const heightsPx = [100,130,90];
-                return (
-                  <div key={pos} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'6px'}}>
-                    <div style={{width:48,height:48,borderRadius:'50%',overflow:'hidden',border:'3px solid '+colors[pos],boxShadow:'0 0 20px '+colors[pos]+'40'}}>
-                      <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+            <div style={{display:'flex',justifyContent:'center',alignItems:'flex-end',gap:'20px',marginBottom:'20px',position:'relative',zIndex:1,minHeight:180}}>
+              {(() => {
+                const top3 = d.raceLeaderboard?.slice(0,3) || [];
+                const podium = top3.length >= 2 ? [top3[1], top3[0], top3[2]] : top3.length === 2 ? [top3[1], top3[0]] : top3;
+                return podium.map((p,i) => {
+                  if (!p) return null;
+                  const isFirst = i === 1 || (podium.length === 2 && i === 1) || (podium.length === 1 && i === 0);
+                  const isSecond = i === 0 && podium.length >= 2;
+                  const isThird = i === 2;
+                  const color = isFirst ? 'var(--orange)' : isSecond ? '#a0a0a0' : '#cd7f32';
+                  const medal = isFirst ? '🥇' : isSecond ? '🥈' : '🥉';
+                  const barH = isFirst ? 130 : isSecond ? 100 : 90;
+                  return (
+                    <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'6px'}}>
+                      <div style={{width:48,height:48,borderRadius:'50%',overflow:'hidden',border:'3px solid '+color,boxShadow:'0 0 20px '+color+'40'}}>
+                        <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                      </div>
+                      <div style={{fontSize:'11px',fontWeight:'700',textAlign:'center',lineHeight:1.2}}>{p.username}</div>
+                      {p.full_name && <div style={{fontSize:'9px',color:'var(--text3)',textAlign:'center',lineHeight:1,marginTop:-2}}>{p.full_name}</div>}
+                      <div style={{fontSize:'20px',fontWeight:'900',color:color}}>+{p.total_points}</div>
+                      <div style={{width:80,height:barH,borderRadius:'10px 10px 0 0',background:'linear-gradient(180deg,'+color+','+color+'44)',border:'1px solid '+color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'28px'}}>
+                        {medal}
+                      </div>
                     </div>
-                    <div style={{fontSize:'11px',fontWeight:'700',textAlign:'center',lineHeight:1.2}}>{p.username}</div>
-                    {p.full_name && <div style={{fontSize:'9px',color:'var(--text3)',textAlign:'center',lineHeight:1,marginTop:-2}}>{p.full_name}</div>}
-                    <div style={{fontSize:'20px',fontWeight:'900',color:colors[pos]}}>+{p.total_points}</div>
-                    <div style={{
-                      width:80,height:heightsPx[i],borderRadius:'10px 10px 0 0',
-                      background:'linear-gradient(180deg,'+colors[pos]+' 0%,'+colors[pos]+'44 100%)',
-                      border:'1px solid '+colors[pos]+'66',
-                      display:'flex',alignItems:'center',justifyContent:'center',
-                      fontSize:'28px',marginBottom:'-16px'
-                    }}>
-                      {medals[pos]}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
 
             {/* Full leaderboard list */}
