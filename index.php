@@ -1332,7 +1332,9 @@ const ResultsPage = ({ onNav }) => {
                       <div style={{width:48,height:48,borderRadius:'50%',overflow:'hidden',border:'3px solid '+color,boxShadow:'0 0 20px '+color+'40'}}>
                         <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                       </div>
-                      <div style={{fontSize:'11px',fontWeight:'700',textAlign:'center',lineHeight:1.2}}>{p.username}</div>
+                      <div style={{fontSize:'11px',fontWeight:'700',textAlign:'center',lineHeight:1.2}}>
+                        <a href={'view-predictions.php?user_id='+p.user_id+'&race_id='+d.race.id} target="_blank" style={{color:'inherit',textDecoration:'none'}}>{p.username}</a>
+                      </div>
                       {p.full_name && <div style={{fontSize:'9px',color:'var(--text3)',textAlign:'center',lineHeight:1,marginTop:-2}}>{p.full_name}</div>}
                       <div style={{fontSize:'20px',fontWeight:'900',color:color}}>+{p.total_points}</div>
                       <div style={{width:80,height:barH,borderRadius:'10px 10px 0 0',background:'linear-gradient(180deg,'+color+','+color+'44)',border:'1px solid '+color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'28px'}}>
@@ -1373,7 +1375,7 @@ const ResultsPage = ({ onNav }) => {
                       </div>
                       <div style={{minWidth:0}}>
                         <div style={{display:'flex',alignItems:'center',gap:3}}>
-                          <span style={{fontWeight:'700',fontSize:'12px',color:isYou?'var(--purple2)':'var(--text)'}}>{u.username}</span>
+                          <a href={'view-predictions.php?user_id='+u.user_id+'&race_id='+d.race.id} target="_blank" style={{fontWeight:'700',fontSize:'12px',color:isYou?'var(--purple2)':'var(--text)',textDecoration:'none'}}>{u.username}</a>
                           {isYou && <span className="badge badge-purple" style={{fontSize:7,padding:'1px 4px'}}>You</span>}
                         </div>
                         {u.full_name && <div style={{fontSize:'9px',color:'var(--text3)',lineHeight:1.2}}>{u.full_name}</div>}
