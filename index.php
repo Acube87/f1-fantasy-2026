@@ -139,6 +139,7 @@ input:focus{outline:none}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes float-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes f1-pulse{0%,100%{box-shadow:0 0 30px rgba(225,6,0,0.35),inset 0 1px 0 rgba(255,255,255,0.15);background-position:0% 50%}50%{box-shadow:0 0 50px rgba(225,6,0,0.55),inset 0 1px 0 rgba(255,255,255,0.25);background-position:100% 50%}}
+@keyframes firework{0%{transform:scale(0);opacity:1}50%{opacity:1}100%{transform:scale(1.5);opacity:0}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes glow{0%,100%{box-shadow:0 0 8px rgba(124,58,237,0.2)}50%{box-shadow:0 0 24px rgba(124,58,237,0.4)}}
 @keyframes glow-green{0%,100%{box-shadow:0 0 8px rgba(34,197,94,0.2)}50%{box-shadow:0 0 24px rgba(34,197,94,0.4)}}
@@ -1292,8 +1293,127 @@ const ResultsPage = ({ onNav }) => {
             </div>
           )}
 
-          {/* 1. Official Results — top, always visible */}
-          <div className="card anim anim-d1" style={{padding:'14px 16px',marginBottom:'12px'}}>
+          {/* 1. Race Leaderboard — TOP with podium styling + fireworks */}
+          <div className="card anim anim-d1" style={{padding:'16px',marginBottom:'12px',position:'relative',overflow:'hidden',border:'1px solid rgba(255,215,0,0.15)'}}>
+            {/* Fireworks overlay */}
+            <div className="fireworks" style={{position:'absolute',inset:0,pointerEvents:'none',overflow:'hidden',opacity:0.3}}>
+              {[0,1,2,3,4,5].map(i => (
+                <div key={i} className="fw-particle" style={{
+                  position:'absolute',width:4,height:4,borderRadius:'50%',
+                  background:['var(--orange)','var(--purple2)','var(--blue)','var(--green)','var(--red)','#ff0'][i],
+                  left:Math.random()*90+5+'%',top:Math.random()*80+10+'%',
+                  animation:'firework '+(1.5+Math.random()*2)+'s ease-out infinite',
+                  animationDelay:Math.random()*3+'s',
+                  boxShadow:'0 0 6px 2px '+['rgba(255,215,0,0.6)','rgba(168,85,247,0.6)','rgba(79,124,255,0.6)','rgba(34,197,94,0.6)','rgba(239,68,68,0.6)','rgba(255,255,0,0.6)'][i]
+                }} />
+              ))}
+            </div>
+
+            <div style={{fontSize:'14px',fontWeight:'800',color:'var(--orange)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:'14px',textAlign:'center',position:'relative',zIndex:1}}>
+              <I n="crown" style={{marginRight:8}} />Race Podium
+            </div>
+
+            {/* Podium top 3 */}
+            <div style={{display:'flex',justifyContent:'center',alignItems:'flex-end',gap:'16px',marginBottom:'20px',position:'relative',zIndex:1}}>
+              {d.raceLeaderboard?.slice(0,3).map((u,i) => {
+                const pos = [1,0,2][i]; // reorder: 2nd, 1st, 3rd
+                const p = d.raceLeaderboard[pos];
+                if (!p) return null;
+                const medals = ['🥇','🥈','🥉'];
+                const colors = ['var(--orange)','#a0a0a0','#cd7f32'];
+                const heights = [120,140,100];
+                const heightsPx = [100,130,90];
+                return (
+                  <div key={pos} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'6px'}}>
+                    <div style={{width:48,height:48,borderRadius:'50%',overflow:'hidden',border:'3px solid '+colors[pos],boxShadow:'0 0 20px '+colors[pos]+'40'}}>
+                      <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                    </div>
+                    <div style={{fontSize:'11px',fontWeight:'700',textAlign:'center',lineHeight:1.2}}>{p.username}</div>
+                    <div style={{fontSize:'20px',fontWeight:'900',color:colors[pos]}}>+{p.total_points}</div>
+                    <div style={{
+                      width:80,height:heightsPx[i],borderRadius:'10px 10px 0 0',
+                      background:'linear-gradient(180deg,'+colors[pos]+' 0%,'+colors[pos]+'44 100%)',
+                      border:'1px solid '+colors[pos]+'66',
+                      display:'flex',alignItems:'center',justifyContent:'center',
+                      fontSize:'28px',marginBottom:'-16px'
+                    }}>
+                      {medals[pos]}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Full leaderboard list */}
+            <div style={{position:'relative',zIndex:1}}>
+              <div style={{display:'grid',gridTemplateColumns:'30px 1fr 40px 40px 50px',gap:'4px',padding:'6px 10px',fontSize:'9px',fontWeight:'700',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.06em',borderBottom:'1px solid var(--border)'}}>
+                <span>#</span><span>Player</span><span style={{textAlign:'center'}}>Drv</span><span style={{textAlign:'center'}}>Bns</span><span style={{textAlign:'right'}}>Total</span>
+              </div>
+              {d.raceLeaderboard?.map((u,i) => {
+                const isTop3 = i < 3;
+                const isYou = d.auth?.username === u.username;
+                return (
+                  <div key={i} style={{
+                    display:'grid',gridTemplateColumns:'30px 1fr 40px 40px 50px',gap:'4px',
+                    padding:'7px 10px',borderRadius:8,
+                    background:isTop3 ? ['rgba(255,215,0,0.06)','rgba(192,192,192,0.06)','rgba(205,127,50,0.06)'][i] : isYou ? 'rgba(124,58,237,0.08)' : i%2===0 ? 'rgba(255,255,255,0.015)' : 'transparent',
+                    borderBottom:i < d.raceLeaderboard.length-1 ? '1px solid var(--border)' : 'none'
+                  }}>
+                    <div style={{display:'flex',alignItems:'center'}}>
+                      <span style={{
+                        width:22,height:22,borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',
+                        fontWeight:'800',fontSize:10,
+                        background:isTop3?['linear-gradient(135deg,var(--orange),#e67e22)','linear-gradient(135deg,#a0a0a0,#888)','linear-gradient(135deg,#cd7f32,#a0652e)'][i]:'rgba(255,255,255,0.05)',
+                        color:isTop3?'#fff':'var(--text2)'
+                      }}>{i+1}</span>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',gap:6,minWidth:0}}>
+                      <div style={{width:24,height:24,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
+                        <img src={getAvatarUrl(u.avatar_style,u.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                      </div>
+                      <div style={{minWidth:0}}>
+                        <div style={{display:'flex',alignItems:'center',gap:3}}>
+                          <span style={{fontWeight:'700',fontSize:'12px',color:isYou?'var(--purple2)':'var(--text)'}}>{u.username}</span>
+                          {isYou && <span className="badge badge-purple" style={{fontSize:7,padding:'1px 4px'}}>You</span>}
+                        </div>
+                        {/* Achievements */}
+                        {u.achievements?.length > 0 && (
+                          <div style={{display:'flex',gap:3,marginTop:2}}>
+                            {u.achievements.map((a,j) => {
+                              const def = ALL_ACHIEVEMENTS.find(x => x.id === a.id);
+                              if (!def) return null;
+                              return (
+                                <span key={j} className="badge" style={{
+                                  fontSize:7,padding:'1px 5px',gap:2,
+                                  background:'rgba(124,58,237,0.12)',color:'var(--purple2)',border:'1px solid rgba(124,58,237,0.15)'
+                                }}>
+                                  <I n={def.icon.replace('fa-','')} style={{fontSize:7}} /> {def.name}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <span style={{fontSize:'11px',fontWeight:'600',color:'var(--text2)'}}>{u.driver_points}</span>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:3}}>
+                      {u.top3_bonus > 0 && <I n="crown" style={{fontSize:'9px',color:'var(--orange)'}} />}
+                      {u.constructor_points > 0 && <I n="wrench" style={{fontSize:'9px',color:'var(--blue)'}} />}
+                      {(u.top3_bonus > 0 || u.constructor_points > 0) && <span style={{fontSize:'10px',fontWeight:'600',color:'var(--green)'}}>+{u.top3_bonus+u.constructor_points}</span>}
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end'}}>
+                      <span style={{fontWeight:'900',fontSize:'16px',color:isTop3?['var(--orange)','#a0a0a0','#cd7f32'][i]:isYou?'var(--purple2)':'var(--green)'}}>{u.total_points}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. Official Results */}
+          <div className="card anim anim-d2" style={{padding:'14px 16px',marginBottom:'12px'}}>
             <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
               <I n="flag-checkered" style={{marginRight:10}} />Official Results
             </div>
@@ -1310,8 +1430,8 @@ const ResultsPage = ({ onNav }) => {
             ))}
           </div>
 
-          {/* 2. Predictions vs Actual */}
-          <div className="card anim anim-d2" style={{padding:'14px 16px',marginBottom:'12px'}}>
+          {/* 3. Predictions vs Actual */}
+          <div className="card anim anim-d3" style={{padding:'14px 16px',marginBottom:'12px'}}>
             <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
               <I n="list" style={{marginRight:10}} />Predictions vs Actual
             </div>
@@ -1337,32 +1457,8 @@ const ResultsPage = ({ onNav }) => {
               </div>
             ))}
           </div>
-
-          {/* 3. Race Leaderboard */}
-          <div className="card anim anim-d3" style={{padding:'14px 16px',marginBottom:'12px'}}>
-            <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
-              <I n="trophy" style={{marginRight:10}} />Race Leaderboard
-            </div>
-            {d.raceLeaderboard?.map((u,i) => (
-              <div className="lb-row" key={i} style={{padding:'8px 4px'}}>
-                <div className={'lb-rk lb-rk-'+(i<3?(i+1):'')}>{i+1}</div>
-                <div className="lb-name">
-                  <div className="lb-user">{u.username}</div>
-                </div>
-                <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
-                  <span style={{fontSize:'10px',color:'var(--text3)'}}>{u.driver_points}</span>
-                  {u.top3_bonus > 0 && <I n="crown" style={{fontSize:'10px',color:'var(--orange)'}} />}
-                  {u.constructor_points > 0 && <I n="wrench" style={{fontSize:'10px',color:'var(--blue)'}} />}
-                  <div className="lb-pts" style={{fontSize:'15px'}}>{u.total_points}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </>
       )}
-    </div>
-  );
-};
 
 const ProfilePage = ({ user, onNav }) => {
   const [data, setData] = useState(null);

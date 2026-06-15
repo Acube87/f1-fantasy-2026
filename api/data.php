@@ -487,11 +487,11 @@ switch ($type) {
         $stmt->execute();
         $scoreRecord = $stmt->get_result()->fetch_assoc();
 
-        // Get race leaderboard
+        // Get race leaderboard with achievements
         $raceLeaderboard = [];
         $lbStmt = $db->prepare("
             SELECT s.user_id, s.total_points, s.driver_points, s.top3_bonus, s.constructor_points,
-                   u.username
+                   u.username, u.avatar_style
             FROM scores s
             JOIN users u ON s.user_id = u.id
             WHERE s.race_id = ?
@@ -499,7 +499,22 @@ switch ($type) {
         ");
         $lbStmt->bind_param("i", $raceId);
         $lbStmt->execute();
-        $raceLeaderboard = $lbStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $lbRaw = $lbStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        // Attach achievements for each player
+        foreach ($lbRaw as &$entry) {
+            $entry['achievements'] = [];
+            if (function_exists('getUserAchievements')) {
+                try {
+                    $ach = getUserAchievements($entry['user_id'], $db);
+                    if (!empty($ach)) {
+                        $entry['achievements'] = array_slice($ach, 0, 3);
+                    }
+                } catch (Exception $e) {}
+            }
+        }
+        unset($entry);
+        $raceLeaderboard = $lbRaw;
 
         echo json_encode([
             'auth' => getUserData($user),
