@@ -491,7 +491,7 @@ switch ($type) {
         $raceLeaderboard = [];
         $lbStmt = $db->prepare("
             SELECT s.user_id, s.total_points, s.driver_points, s.top3_bonus, s.constructor_points,
-                   u.username, u.avatar_style
+                   u.username, u.full_name, u.avatar_style
             FROM scores s
             JOIN users u ON s.user_id = u.id
             WHERE s.race_id = ?

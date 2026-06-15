@@ -630,7 +630,8 @@ const Dashboard = ({ onNav }) => {
                           <span style={{fontWeight:'700',fontSize:13,color:isUser?'var(--purple2)':'var(--text)'}}>{p.username}</span>
                           {isUser && <span className="badge badge-purple" style={{fontSize:7,padding:'1px 5px'}}>You</span>}
                         </div>
-                        <div style={{fontSize:9,color:'var(--text3)'}}>{p.races_participated||0} races</div>
+                        {p.full_name && <div style={{fontSize:10,color:'var(--text3)',lineHeight:1.3}}>{p.full_name}</div>}
+                        <div style={{fontSize:9,color:'var(--text3)',marginTop:1}}>{p.races_participated||0} races</div>
                       </div>
                     </div>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end'}}>
@@ -1329,6 +1330,7 @@ const ResultsPage = ({ onNav }) => {
                       <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                     </div>
                     <div style={{fontSize:'11px',fontWeight:'700',textAlign:'center',lineHeight:1.2}}>{p.username}</div>
+                    {p.full_name && <div style={{fontSize:'9px',color:'var(--text3)',textAlign:'center',lineHeight:1,marginTop:-2}}>{p.full_name}</div>}
                     <div style={{fontSize:'20px',fontWeight:'900',color:colors[pos]}}>+{p.total_points}</div>
                     <div style={{
                       width:80,height:heightsPx[i],borderRadius:'10px 10px 0 0',
@@ -1376,6 +1378,7 @@ const ResultsPage = ({ onNav }) => {
                           <span style={{fontWeight:'700',fontSize:'12px',color:isYou?'var(--purple2)':'var(--text)'}}>{u.username}</span>
                           {isYou && <span className="badge badge-purple" style={{fontSize:7,padding:'1px 4px'}}>You</span>}
                         </div>
+                        {u.full_name && <div style={{fontSize:'9px',color:'var(--text3)',lineHeight:1.2}}>{u.full_name}</div>}
                         {/* Achievements */}
                         {u.achievements?.length > 0 && (
                           <div style={{display:'flex',gap:3,marginTop:2}}>
