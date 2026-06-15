@@ -645,7 +645,7 @@ const Dashboard = ({ onNav }) => {
           <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
               <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                <I n="history" style={{color:'var(--blue)',marginRight:6}} />Recent
+                <I n="history" style={{color:'var(--blue)',marginRight:10}} />Recent
               </span>
               <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>{data.totalPredictions} picks</span>
             </div>
@@ -687,7 +687,7 @@ const Dashboard = ({ onNav }) => {
             <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
                 <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                  <I n="list-ol" style={{color:'var(--orange)',marginRight:6}} />My Picks
+                  <I n="list-ol" style={{color:'var(--orange)',marginRight:10}} />My Picks
                 </span>
                 <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>Rd {nr?.race_number||'-'}</span>
               </div>
@@ -708,7 +708,7 @@ const Dashboard = ({ onNav }) => {
           <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
               <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                <I n="calendar-alt" style={{color:'var(--purple2)',marginRight:6}} />Upcoming
+                <I n="calendar-alt" style={{color:'var(--purple2)',marginRight:10}} />Upcoming
               </span>
               <span style={{fontSize:10,color:'var(--text3)'}}>{data.upcomingRaces?.length||0} events</span>
             </div>
@@ -746,7 +746,7 @@ const Dashboard = ({ onNav }) => {
           <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
               <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                <I n="medal" style={{color:'var(--orange)',marginRight:6}} />Trophy Cabinet
+                <I n="medal" style={{color:'var(--orange)',marginRight:10}} />Trophy Cabinet
               </span>
               <a className="btn btn-outline btn-sm" style={{fontSize:9,padding:'3px 10px'}} onClick={(e)=>{e.preventDefault();onNav('achievements')}}>
                 <I n="trophy" /> All {ALL_ACHIEVEMENTS.length}
@@ -1134,7 +1134,7 @@ const PredictPage = ({ onNav }) => {
         <div className="card anim anim-d1" style={{padding:'12px'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px',padding:'4px 8px'}}>
             <span style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}>
-              <I n="list-ol" style={{marginRight:6}} />Driver Order
+              <I n="list-ol" style={{marginRight:10}} />Driver Order
             </span>
             <div style={{display:'flex',gap:'6px'}}>
               {data.predictionsOpen && (
@@ -1161,7 +1161,7 @@ const PredictPage = ({ onNav }) => {
 
         <div className="card anim anim-d2" style={{padding:'14px 16px'}}>
           <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'10px'}}>
-            <I n="industry" style={{marginRight:6}} />Projected Constructors
+            <I n="industry" style={{marginRight:10}} />Projected Constructors
           </div>
           {constructorProjection.length === 0 ? (
             <div style={{textAlign:'center',padding:'20px',color:'var(--text3)',fontSize:'12px'}}>Order drivers to see projections</div>
@@ -1430,7 +1430,7 @@ const ProfilePage = ({ user, onNav }) => {
 
       <div className="card anim anim-d1" style={{padding:'24px',marginBottom:'24px'}}>
         <div style={{fontSize:'14px',fontWeight:'700',color:'var(--text)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'16px'}}>
-          <I n="palette" style={{marginRight:8,color:'var(--purple2)'}} />Choose Your Avatar
+          <I n="palette" style={{marginRight:10,color:'var(--purple2)'}} />Choose Your Avatar
         </div>
         <div className="avatar-grid">
           {Object.entries(avatars).map(([key, label]) => (
@@ -1444,7 +1444,7 @@ const ProfilePage = ({ user, onNav }) => {
 
       <div className="card anim anim-d2" style={{padding:'24px',marginBottom:'24px'}}>
         <div style={{fontSize:'14px',fontWeight:'700',color:'var(--text)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'20px'}}>
-          <I n="cog" style={{marginRight:8,color:'var(--purple2)'}} />Account Settings
+          <I n="cog" style={{marginRight:10,color:'var(--purple2)'}} />Account Settings
         </div>
 
         <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
@@ -1504,7 +1504,7 @@ const ProfilePage = ({ user, onNav }) => {
 
       <div className="card anim anim-d3" style={{padding:'24px',marginBottom:'24px'}}>
         <div style={{fontSize:'14px',fontWeight:'700',color:'var(--text)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'16px'}}>
-          <I n="crosshairs" style={{marginRight:8,color:'var(--purple2)'}} />Prediction Accuracy
+          <I n="crosshairs" style={{marginRight:10,color:'var(--purple2)'}} />Prediction Accuracy
         </div>
         <div className="stat-grid" style={{gap:'12px'}}>
           <div className="card stat-box" style={{background:'var(--card2)',padding:'18px 12px'}}>
@@ -1524,7 +1524,7 @@ const ProfilePage = ({ user, onNav }) => {
 
       <div className="card anim anim-d4" style={{padding:'24px'}}>
         <div style={{fontSize:'14px',fontWeight:'700',color:'var(--text)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'16px'}}>
-          <I n="crown" style={{marginRight:8,color:'var(--purple2)'}} />Best Performance
+          <I n="crown" style={{marginRight:10,color:'var(--purple2)'}} />Best Performance
         </div>
         {data.bestRace ? (
           <div style={{background:'var(--card2)',padding:'24px',borderRadius:'var(--rad)',textAlign:'center',marginBottom:'20px'}}>
@@ -1536,7 +1536,7 @@ const ProfilePage = ({ user, onNav }) => {
           <div style={{textAlign:'center',padding:'32px',color:'var(--text3)',fontSize:'13px',marginBottom:'20px'}}>No races yet</div>
         )}
         <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'12px'}}>
-          <I n="history" style={{marginRight:6}} />Race History
+          <I n="history" style={{marginRight:10}} />Race History
         </div>
         {data.recentRaces?.length > 0 ? data.recentRaces.map((rc,i) => (
           <div className="race-row" key={i} style={{padding:'12px 0'}}>
@@ -1799,7 +1799,7 @@ const UpdatesPage = ({ onNav }) => {
 
       <div className="card anim anim-d3" style={{padding:'16px'}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
-          <span style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}><I n="trophy" style={{color:'var(--orange)',marginRight:6}} />Leaderboard Snapshot</span>
+          <span style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}><I n="trophy" style={{color:'var(--orange)',marginRight:10}} />Leaderboard Snapshot</span>
           <a className="btn btn-outline btn-sm" onClick={(e)=>{e.preventDefault();onNav('leaderboard')}}>Full Standings</a>
         </div>
         {d.leaderboard?.map((p,i) => (
@@ -1945,7 +1945,7 @@ const AdminPage = () => {
       {/* Header */}
       <div style={{marginBottom:32}}>
         <span style={{background:'var(--red)',color:'#fff',fontSize:10,fontWeight:'900',padding:'4px 12px',borderRadius:999,textTransform:'uppercase',letterSpacing:'0.12em',display:'inline-block',marginBottom:12}}>
-          <I n="terminal" style={{marginRight:6}} />Manual Override Mode
+          <I n="terminal" style={{marginRight:10}} />Manual Override Mode
         </span>
         <h1 style={{fontSize:48,fontWeight:'900',color:'#fff',fontStyle:'italic',textTransform:'uppercase',lineHeight:1.1}}>Race <span style={{background:'linear-gradient(135deg,var(--purple),var(--orange))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Commander</span></h1>
         <p style={{color:'var(--text2)',fontSize:14,marginTop:8}}>Update race results, calculate points, and move the season forward.</p>
@@ -2031,7 +2031,7 @@ const AdminPage = () => {
       <div className="card" style={{padding:32,borderTop:'4px solid var(--orange)',borderRadius:24,marginTop:24}}>
         <div style={{marginBottom:24}}>
           <span style={{background:'var(--orange)',color:'#fff',fontSize:10,fontWeight:'900',padding:'4px 12px',borderRadius:999,textTransform:'uppercase',letterSpacing:'0.12em',display:'inline-block',marginBottom:12}}>
-            <I n="cog" style={{marginRight:6}} />Race Control
+            <I n="cog" style={{marginRight:10}} />Race Control
           </span>
           <h2 style={{fontSize:32,fontWeight:'900',color:'#fff',fontStyle:'italic',textTransform:'uppercase',lineHeight:1.1}}>Briefing &amp; <span style={{color:'var(--orange)'}}>Ops</span></h2>
           <p style={{color:'var(--text2)',fontSize:14,marginTop:8}}>Generate post-race debriefs, rescore races, create news posts, and manage the season.</p>
@@ -2041,7 +2041,7 @@ const AdminPage = () => {
           {/* Selected Race Details */}
           <div style={{padding:20,background:'rgba(251,146,60,0.06)',border:'1px solid rgba(251,146,60,0.15)',borderRadius:16}}>
             <div style={{fontSize:11,fontWeight:'700',color:'var(--orange)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:12}}>
-              <I n="flag-checkered" style={{marginRight:6}} />Selected Race
+              <I n="flag-checkered" style={{marginRight:10}} />Selected Race
             </div>
             {raceId ? (() => {
               const r = races.find(x => x.id == raceId);
@@ -2080,7 +2080,7 @@ const AdminPage = () => {
           {/* Quick Links */}
           <div style={{padding:20,background:'rgba(255,255,255,0.02)',border:'1px solid var(--border)',borderRadius:16}}>
             <div style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:12}}>
-              <I n="link" style={{marginRight:6}} />Admin Tools
+              <I n="link" style={{marginRight:10}} />Admin Tools
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:8}}>
               {[
