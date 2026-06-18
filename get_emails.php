@@ -3,7 +3,7 @@ require_once 'config.php';
 
 try {
     $db = getDB();
-    $stmt = $db->query("SELECT email FROM users WHERE is_active = 1 ORDER BY email");
+    $stmt = $db->query("SELECT email FROM users ORDER BY email");
     $emails = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
     if (empty($emails)) {

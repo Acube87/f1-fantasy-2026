@@ -160,7 +160,7 @@ if ($nextRace) {
 
 // Total players count
 $playersCount = 0;
-$pc = $db->query("SELECT COUNT(*) as c FROM users WHERE is_active = 1");
+$pc = $db->query("SELECT COUNT(*) as c FROM users");
 if ($pc) $playersCount = (int)$pc->fetch_assoc()['c'];
 
 // Completed races count

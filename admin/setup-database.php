@@ -20,6 +20,10 @@ $sql = "CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     full_name VARCHAR(100),
     avatar_url VARCHAR(255),
+    avatar_style VARCHAR(50) DEFAULT 'avataaars',
+    is_active BOOLEAN DEFAULT TRUE,
+    is_admin TINYINT(1) DEFAULT 0,
+    last_login TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )";
 

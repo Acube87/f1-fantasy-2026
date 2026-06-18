@@ -25,19 +25,21 @@ function getCurrentUser() {
     
     $db = getDB();
     
-    // AUTO-MIGRATE: Ensure avatar_style and is_admin exist before selecting them
+    // AUTO-MIGRATE: Ensure avatar_style, is_admin, is_active, last_login exist before selecting them
     // This protects the live app from crashing if the migration hasn't run yet
     static $migrationsChecked = false;
     if (!$migrationsChecked) {
+        $tryCol = function($col, $def) use ($db) {
+            $r = $db->query("SHOW COLUMNS FROM users LIKE '$col'");
+            if ($r && $r->num_rows == 0) {
+                $db->query("ALTER TABLE users ADD COLUMN $col $def");
+            }
+        };
         try {
-            $check = $db->query("SHOW COLUMNS FROM users LIKE 'avatar_style'");
-            if ($check->num_rows == 0) {
-                $db->query("ALTER TABLE users ADD COLUMN avatar_style VARCHAR(50) DEFAULT 'avataaars' AFTER email");
-            }
-            $check = $db->query("SHOW COLUMNS FROM users LIKE 'is_admin'");
-            if ($check->num_rows == 0) {
-                $db->query("ALTER TABLE users ADD COLUMN is_admin TINYINT(1) DEFAULT 0");
-            }
+            $tryCol('avatar_style', "VARCHAR(50) DEFAULT 'avataaars' AFTER email");
+            $tryCol('is_admin', 'TINYINT(1) DEFAULT 0');
+            $tryCol('is_active', 'BOOLEAN DEFAULT TRUE');
+            $tryCol('last_login', 'TIMESTAMP NULL');
             $migrationsChecked = true;
         } catch (Exception $e) {
             // Silently continue, the query below might still fail if ALTER failed
