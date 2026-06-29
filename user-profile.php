@@ -18,7 +18,7 @@ if (!$profileUserId || !is_numeric($profileUserId)) {
 
 // If viewing own profile, redirect to dashboard
 if ($profileUserId == $user['id']) {
-    header('Location: dashboard.php');
+    header('Location: index.php#dashboard');
     exit;
 }
 

@@ -117,7 +117,7 @@ $totalPoints += $constructorBonus;
         </div>
         <div class="flex items-center gap-4">
              <span class="bg-blue-500/10 text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/20">MOCKUP PAGE</span>
-             <a href="dashboard.php" class="text-gray-400 hover:text-white transition text-sm">Dashboard</a>
+             <a href="index.php#dashboard" class="text-gray-400 hover:text-white transition text-sm">Dashboard</a>
         </div>
     </nav>
 
@@ -293,7 +293,7 @@ $totalPoints += $constructorBonus;
 
         <!-- Call to Action -->
         <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
-            <a href="dashboard.php" class="g-btn bg-white text-slate-950 px-10 py-4 font-black text-sm rounded-2xl flex items-center gap-3 transition hover:scale-105 active:scale-95">
+            <a href="index.php#dashboard" class="g-btn bg-white text-slate-950 px-10 py-4 font-black text-sm rounded-2xl flex items-center gap-3 transition hover:scale-105 active:scale-95">
                 <i class="fas fa-arrow-left"></i> RETURN TO DASHBOARD
             </a>
             <p class="text-xs text-gray-500 font-bold">Mockup Revision 1.0 - Private Access</p>

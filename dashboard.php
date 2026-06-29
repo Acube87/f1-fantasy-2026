@@ -1,17 +1,15 @@
 <?php
 require_once __DIR__ . '/includes/maintenance-gate.php';
 require_once 'includes/auth.php';
-require_once 'includes/functions.php';
-require_once 'includes/avatars.php';
 
+// Redirect to the SPA dashboard — single consistent UI
 $user = getCurrentUser();
-if (!$user) {
+if ($user) {
+    header('Location: index.php#dashboard');
+} else {
     header('Location: index.php');
-    exit;
 }
-
-$db = getDB();
-$userId = $user['id'];
+exit;
 
 try {
     $checkCol = $db->query("SHOW COLUMNS FROM users LIKE 'avatar_style'");

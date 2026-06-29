@@ -151,7 +151,7 @@ function isAdmin() {
  */
 function requireAdmin() {
     if (!isAdmin()) {
-        header('Location: ../dashboard.php');
+        header('Location: ../index.php#dashboard');
         exit;
     }
 }

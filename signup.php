@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if (isLoggedIn()) {
-    header('Location: dashboard.php');
+    header('Location: index.php#dashboard');
     exit;
 }
 ?>
@@ -65,6 +65,7 @@ if (isLoggedIn()) {
     <title>Sign Up — Paddock Picks</title>
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>.honey { display: none; }</style>
 </head>
 <body class="auth-page">

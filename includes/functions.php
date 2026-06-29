@@ -334,7 +334,8 @@ function getLeaderboard($limit = 50) {
         $sql = "
             SELECT 
                 u.id, u.username, u.full_name, u.avatar_style, 
-                ut.total_points, ut.races_participated,
+                COALESCE(ut.total_points, 0) as total_points,
+                COALESCE(ut.races_participated, 0) as races_participated,
                 GROUP_CONCAT(CONCAT(a.icon, ':', a.tier, ':', a.name) SEPARATOR '|') as badges_data
             FROM users u 
             LEFT JOIN user_totals ut ON u.id = ut.user_id 
@@ -346,7 +347,9 @@ function getLeaderboard($limit = 50) {
         ";
     } else {
         $sql = "
-            SELECT u.id, u.username, u.full_name, u.avatar_style, ut.total_points, ut.races_participated 
+            SELECT u.id, u.username, u.full_name, u.avatar_style, 
+                   COALESCE(ut.total_points, 0) as total_points,
+                   COALESCE(ut.races_participated, 0) as races_participated
             FROM users u 
             LEFT JOIN user_totals ut ON u.id = ut.user_id 
             ORDER BY ut.total_points DESC, ut.races_participated DESC 
@@ -357,7 +360,26 @@ function getLeaderboard($limit = 50) {
     $stmt = $db->prepare($sql);
     $stmt->bind_param("i", $limit);
     $stmt->execute();
-    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $results = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    
+    // Recalculate races_participated for each user from actual data
+    foreach ($results as &$row) {
+        if ((int)$row['races_participated'] === 0) {
+            $countStmt = $db->prepare("
+                SELECT COUNT(DISTINCT p.race_id) as races 
+                FROM predictions p
+                JOIN races r ON p.race_id = r.id
+                WHERE p.user_id = ? AND r.status = 'completed'
+            ");
+            $countStmt->bind_param("i", $row['id']);
+            $countStmt->execute();
+            $cResult = $countStmt->get_result()->fetch_assoc();
+            $row['races_participated'] = (int)($cResult['races'] ?? 0);
+        }
+    }
+    unset($row);
+    
+    return $results;
 }
 
 /**
@@ -403,6 +425,20 @@ function getUserStats($userId) {
     $result = $stmt->get_result()->fetch_assoc();
     $totalPoints = $result ? (int)$result['total_points'] : 0;
     $racesParticipated = $result ? (int)$result['races_participated'] : 0;
+    
+    // Recalculate from actual data if zero — matches dashboard.php logic
+    if ($racesParticipated === 0) {
+        $countStmt = $db->prepare("
+            SELECT COUNT(DISTINCT race_id) as races 
+            FROM predictions p
+            JOIN races r ON p.race_id = r.id
+            WHERE p.user_id = ? AND r.status = 'completed'
+        ");
+        $countStmt->bind_param("i", $userId);
+        $countStmt->execute();
+        $countResult = $countStmt->get_result()->fetch_assoc();
+        $racesParticipated = (int)($countResult['races'] ?? 0);
+    }
     
     // Calculate Rank
     // Rank is 1 + count of people with MORE points than me

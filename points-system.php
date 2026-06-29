@@ -319,7 +319,7 @@ $pageTitle = "Points System Explained";
         <!-- CTA Button -->
         <?php if ($user): ?>
         <div class="text-center mt-12">
-            <a href="dashboard.php" class="g-btn g-btn-orange px-8 py-4 text-lg inline-flex items-center gap-3">
+            <a href="index.php#dashboard" class="g-btn g-btn-orange px-8 py-4 text-lg inline-flex items-center gap-3">
                 <i class="fas fa-chart-line"></i>
                 Go to Dashboard
             </a>

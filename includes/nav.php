@@ -2,12 +2,12 @@
 $_navUser = $user ?? $currentUser ?? null;
 $_navPage = basename($_SERVER['PHP_SELF']);
 $_navItems = [
-    ['href' => 'dashboard.php',   'icon' => 'fas fa-home',          'label' => ''],
-    ['href' => 'predict.php',     'icon' => 'fas fa-pencil-alt',    'label' => ''],
-    ['href' => 'leaderboard.php', 'icon' => 'fas fa-trophy',        'label' => ''],
-    ['href' => 'updates.php',     'icon' => 'fas fa-broadcast-tower','label' => '', 'pulse' => true],
-    ['href' => 'news.php',        'icon' => 'fas fa-flag-checkered', 'label' => ''],
-    ['href' => 'achievements.php','icon' => 'fas fa-medal',         'label' => ''],
+    ['href' => 'index.php#dashboard',   'icon' => 'fas fa-home',          'label' => ''],
+    ['href' => 'index.php#predict',     'icon' => 'fas fa-pencil-alt',    'label' => ''],
+    ['href' => 'index.php#leaderboard', 'icon' => 'fas fa-trophy',        'label' => ''],
+    ['href' => 'index.php#updates',     'icon' => 'fas fa-broadcast-tower','label' => '', 'pulse' => true],
+    ['href' => 'index.php#results',     'icon' => 'fas fa-flag-checkered', 'label' => ''],
+    ['href' => 'index.php#achievements','icon' => 'fas fa-medal',         'label' => ''],
 ];
 $totalPoints = $_SESSION['nav_points'] ?? 0;
 $navStats = $stats ?? [];
@@ -55,7 +55,7 @@ $navStats = $stats ?? [];
         <i class="fas fa-coins topnav-wallet-icon"></i>
         <span class="topnav-wallet-value"><?php echo number_format($navStats['total_points'] ?? $totalPoints); ?> $</span>
       </div>
-      <a href="profile.php" class="topnav-profile">
+      <a href="index.php#profile" class="topnav-profile">
         <div class="topnav-avatar">
           <img src="<?php echo getAvatarUrl($_navUser['avatar_style'] ?? 'avataaars', $_navUser['username']); ?>" alt="">
         </div>

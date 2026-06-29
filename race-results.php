@@ -27,7 +27,7 @@ $viewUserName = $viewUser ? $viewUser['username'] : 'User';
 $raceId = isset($_GET['race_id']) ? intval($_GET['race_id']) : 0;
 
 if (!$raceId) {
-    header('Location: dashboard.php');
+    header('Location: index.php#dashboard');
     exit;
 }
 
@@ -38,7 +38,7 @@ $stmt->execute();
 $race = $stmt->get_result()->fetch_assoc();
 
 if (!$race) {
-    header('Location: dashboard.php');
+    header('Location: index.php#dashboard');
     exit;
 }
 
@@ -143,7 +143,7 @@ $raceLeaderboard = $lbStmt->get_result()->fetch_all(MYSQLI_ASSOC);
         
         <!-- Race Header -->
         <div class="mb-8">
-            <a href="dashboard.php" class="text-gray-400 hover:text-white transition mb-4 inline-flex items-center gap-2">
+            <a href="index.php#dashboard" class="text-gray-400 hover:text-white transition mb-4 inline-flex items-center gap-2">
                 <i class="fas fa-arrow-left"></i> Back to Dashboard
             </a>
             

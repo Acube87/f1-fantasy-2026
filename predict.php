@@ -32,7 +32,7 @@ if (!$raceId) {
     if ($nextRace) {
         header('Location: predict.php?race_id=' . $nextRace['id']);
     } else {
-        header('Location: dashboard.php');
+        header('Location: index.php#dashboard');
     }
     exit;
 }
@@ -1021,7 +1021,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $input && isset($input['action'])) 
                     
                     // Redirect after animation
                     setTimeout(() => {
-                        window.location.href = 'dashboard.php';
+                        window.location.href = 'index.php#dashboard';
                     }, 2000);
                 } else {
                     alert('Error: ' + data.message);
