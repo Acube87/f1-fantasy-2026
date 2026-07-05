@@ -16,10 +16,10 @@ $navStats = $stats ?? [];
   <div class="topnav-inner">
     <div class="topnav-left">
       <a href="index.php" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-        <div style="width:34px;height:34px;background:linear-gradient(135deg,var(--accent-purple),#6d28d9);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:white;">
+        <div style="width:34px;height:34px;background:linear-gradient(135deg,var(--accent-purple),#cc0055);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:white;">
           <i class="fas fa-flag-checkered"></i>
         </div>
-        <span style="font-weight:800;font-size:15px;color:var(--text-primary);letter-spacing:-0.02em;">PADDOCK</span>
+        <span style="font-weight:800;font-size:15px;color:var(--text-primary);letter-spacing:-0.02em;">PADDOCK PITS</span>
       </a>
       <?php if ($_navUser): ?>
       <div class="topnav-icons">

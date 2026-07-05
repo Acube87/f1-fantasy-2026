@@ -180,8 +180,6 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --f1-carbon: #0A0A0A;
-            --f1-text: #FFFFFF;
             --nfs-pink: #ff0077;
             --nfs-cyan: #00e5ff;
             --nfs-orange: #ff6a00;
