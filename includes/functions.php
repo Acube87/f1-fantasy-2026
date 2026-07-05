@@ -492,7 +492,7 @@ function getRaceHeroImage($country) {
         'UK' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
         'United kingdom' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
         'Hungary' => 'https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=2070&auto=format&fit=crop',
-        'Belgium' => '/assets/angrycube_imagine_f1_spa_-_belgium_race_rttrack_epic_hero_ima_0ee6ac9d-5eb4-4f67-a646-bde9f710dea1_0-2.png',
+        'Belgium' => '/assets/belgium-hero.jpg',
         'Netherlands' => 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?q=80&w=2070&auto=format&fit=crop',
         'Italy' => 'https://images.unsplash.com/photo-1529260830199-42c24126f198?q=80&w=2070&auto=format&fit=crop',
         'Azerbaijan' => 'https://images.unsplash.com/photo-1549420070-5b1b4b2cb82b?q=80&w=2070&auto=format&fit=crop',
