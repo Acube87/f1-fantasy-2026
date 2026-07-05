@@ -117,6 +117,10 @@ $teamAbbr = [
     <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --f1-carbon: #0A0A0A;
+            --f1-text: #FFFFFF;
+        }
         .team-badge {
             width: 28px; height: 28px; border-radius: 6px;
             display: flex; align-items: center; justify-content: center;
