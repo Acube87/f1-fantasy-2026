@@ -56,7 +56,7 @@ switch ($type) {
         if ($nextRace) {
             $deadline = getPredictionDeadline($nextRace['race_date']);
             $now = new DateTime('now', new DateTimeZone('UTC'));
-            $isNextDoublePoints = in_array($nextRace['country'], ['China', 'UK', 'Singapore']);
+            $isNextDoublePoints = isDoublePointsRace($nextRace);
             
             if ($now < $deadline) {
                 $predictionsOpen = true;

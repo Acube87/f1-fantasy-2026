@@ -83,6 +83,17 @@ function getF1Points() {
 }
 
 /**
+ * Double points races for 2026: China, British/UK, Singapore.
+ */
+function isDoublePointsRace($race) {
+    $country = is_array($race) ? ($race['country'] ?? '') : (string)$race;
+    $raceName = is_array($race) ? ($race['race_name'] ?? '') : '';
+
+    return in_array($country, ['China', 'UK', 'United Kingdom', 'Singapore'], true)
+        || stripos($raceName, 'British') !== false;
+}
+
+/**
  * Calculate constructor standings for a race based on driver results
  * Returns constructor_key => total_points (sorted descending)
  * Uses constructor_name as fallback when constructor_id is NULL (Race Control manual entries)
@@ -118,18 +129,18 @@ function calculateConstructorStandingsForRace($raceResults) {
  * 1. Exact driver position match: F1 base points (25-18-15-12-10-8-6-4-2-1 for P1-P10) + 3 strategy bonus
  * 2. Podium Sweep (P1, P2, P3 all correct): +10 bonus
  * 3. Top Constructor prediction: +5 bonus
- * 4. Double points races (China, UK, Singapore): 2x multiplier
+ * 4. Double points races (China, British/UK, Singapore): 2x multiplier
  */
 function calculateRaceScores($raceId) {
     $db = getDB();
     $F1_POINTS = getF1Points();
 
     // Get race details for double points check
-    $raceStmt = $db->prepare("SELECT country FROM races WHERE id = ?");
+    $raceStmt = $db->prepare("SELECT country, race_name FROM races WHERE id = ?");
     $raceStmt->bind_param("i", $raceId);
     $raceStmt->execute();
     $race = $raceStmt->get_result()->fetch_assoc();
-    $isDoublePoints = in_array($race['country'], ['China', 'UK', 'Singapore']);
+    $isDoublePoints = isDoublePointsRace($race);
 
     // Get all users who made predictions
     $stmt = $db->prepare("SELECT DISTINCT user_id FROM predictions WHERE race_id = ?");
@@ -838,4 +849,3 @@ function generateDebriefPreview($raceId, $db = null) {
 
     return $content;
 }
-

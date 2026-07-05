@@ -200,7 +200,7 @@ foreach ($racesToFetch as $race) {
         ];
         
         // Check if this is a double points race
-        $isDoublePoints = in_array($race['country'], ['China', 'UK', 'Singapore']);
+        $isDoublePoints = isDoublePointsRace($race);
         
         // Calculate points
         $basePoints = 0;

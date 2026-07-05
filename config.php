@@ -111,11 +111,15 @@ function getDB() {
     } else {
         // Validate existing connection is still alive
         try {
-            // ping() returns TRUE if connection is alive
-            if (!$conn->ping()) {
+            // Lightweight health check. mysqli::ping() emits deprecation output
+            // on PHP 8.4+, which can corrupt JSON API responses.
+            $healthCheck = @$conn->query('SELECT 1');
+            if (!$healthCheck) {
                 error_log("Database connection lost - reconnecting...");
                 $conn->close();
                 $conn = $createConnection();
+            } else {
+                $healthCheck->free();
             }
         } catch (Exception $e) {
             // Connection is dead, recreate it

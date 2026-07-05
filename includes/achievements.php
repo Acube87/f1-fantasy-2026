@@ -307,7 +307,8 @@ function checkSingleRaceScore($userId, $minScore, $doubleOnly, $db) {
             SELECT MAX(s.total_points) as max_score 
             FROM scores s
             JOIN races r ON s.race_id = r.id
-            WHERE s.user_id = ? AND r.country IN ('China', 'UK', 'Singapore')
+            WHERE s.user_id = ?
+              AND (r.country IN ('China', 'UK', 'United Kingdom', 'Singapore') OR r.race_name LIKE '%British%')
         ";
     }
     
