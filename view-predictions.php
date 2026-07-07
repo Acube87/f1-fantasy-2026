@@ -315,6 +315,119 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
             font-size: 1.4rem;
             letter-spacing: 0.04em;
         }
+
+        /* ── Prediction Row Redesign ───────────────────────── */
+        @keyframes slideInRow {
+            from { opacity: 0; transform: translateX(-14px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes exactPulse {
+            0%,100% { border-color: rgba(0,255,136,0.4); box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+            50%     { border-color: rgba(0,255,136,0.8); box-shadow: 0 0 18px rgba(0,255,136,0.18); }
+        }
+        @keyframes ptsPop {
+            0%   { transform: scale(0.4); opacity: 0; }
+            65%  { transform: scale(1.2); }
+            100% { transform: scale(1);   opacity: 1; }
+        }
+        @keyframes shimmerBg {
+            0%   { background-position: -200% center; }
+            100% { background-position:  200% center; }
+        }
+
+        .drow {
+            display: grid;
+            grid-template-columns: 1fr 30px 90px 64px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-left: 3px solid transparent;
+            animation: slideInRow 0.4s ease both;
+            transition: background 0.15s;
+        }
+        .drow:last-child { border-bottom: none; }
+        .drow:hover { background: rgba(255,255,255,0.025); }
+        .drow.exact {
+            background: rgba(0,255,136,0.05);
+            border-left-color: #00ff88;
+            animation: slideInRow 0.4s ease both, exactPulse 2.8s ease-in-out 0.5s infinite;
+        }
+        .drow.miss   { border-left-color: rgba(239,68,68,0.25); }
+        .drow.pending{ opacity: 0.45; border-left-color: rgba(100,116,139,0.2); }
+
+        .dcell-pred {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 10px 11px 14px;
+        }
+        .dcell-match {
+            display: flex; align-items: center; justify-content: center;
+        }
+        .dcell-actual {
+            display: flex; align-items: center; gap: 8px;
+            padding: 11px 6px;
+        }
+        .dcell-pts {
+            padding: 11px 14px 11px 4px;
+            text-align: right;
+        }
+
+        .ppip {
+            min-width: 34px; height: 34px; border-radius: 7px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 0.02em;
+        }
+        .ppip.rank1  { background: rgba(255,215,0,0.12); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); }
+        .ppip.rank2  { background: rgba(200,200,210,0.1); color: #c8c8d2; border: 1px solid rgba(200,200,210,0.25); }
+        .ppip.rank3  { background: rgba(205,127,50,0.12); color: #e09050; border: 1px solid rgba(205,127,50,0.28); }
+        .ppip.top10  { background: rgba(255,106,0,0.08); color: #ff8040; border: 1px solid rgba(255,106,0,0.18); }
+        .ppip.other  { background: rgba(255,255,255,0.04); color: #64748b; border: 1px solid rgba(255,255,255,0.08); }
+        .ppip.aexact { background: rgba(0,255,136,0.14); color: #00ff88; border: 1px solid rgba(0,255,136,0.35); }
+
+        .dname { font-size: 0.8rem; font-weight: 700; color: #e2e8f0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dteam { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #475569; margin-top: 2px; }
+
+        .match-exact { font-size: 17px; color: #00ff88; filter: drop-shadow(0 0 5px rgba(0,255,136,0.7)); }
+        .match-miss  { font-size: 13px; color: #3f4f60; }
+        .match-na    { font-size: 13px; color: #2a3542; }
+
+        .apos-badge {
+            font-family: 'Bebas Neue', sans-serif; font-size: 0.78rem;
+            color: #64748b; white-space: nowrap;
+        }
+        .apos-diff {
+            font-size: 0.58rem; font-weight: 700; color: #475569;
+            letter-spacing: 0.02em;
+        }
+
+        .pts-num {
+            font-family: 'Bebas Neue', sans-serif; font-size: 1.55rem; letter-spacing: 0.02em;
+            color: #00ff88; line-height: 1;
+            animation: ptsPop 0.45s cubic-bezier(0.175,0.885,0.32,1.275) both;
+        }
+        .pts-tag { font-size: 0.44rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #00cc70; }
+        .pts-zero { font-size: 0.9rem; font-weight: 700; color: #263040; }
+
+        /* Score breakdown cards */
+        .scard {
+            border-radius: 12px; text-align: center; padding: 14px 8px;
+            border: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden;
+            background: rgba(255,255,255,0.02);
+        }
+        .scard::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            border-radius: 99px;
+        }
+        .scard.stotal::after  { background: linear-gradient(90deg, #00ff88, #00e5ff); }
+        .scard.sdriver::after { background: #3b82f6; }
+        .scard.spodium::after { background: #a855f7; }
+        .scard.scons::after   { background: #f97316; }
+        .scard-num {
+            font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1;
+            animation: ptsPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275) 0.1s both;
+        }
+        .scard-lbl {
+            font-size: 0.52rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: #475569; margin-top: 4px;
+        }
     </style>
 </head>
 <body style="background:var(--f1-carbon);color:var(--f1-text);min-height:100vh;">
@@ -503,21 +616,24 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
         <!-- Score breakdown -->
         <?php if ($scoreRecord): ?>
         <div class="grid grid-cols-4 gap-3 mb-5">
-            <div class="g-card p-3 text-center">
-                <div class="text-lg font-black text-emerald-400"><?php echo $scoreRecord['total_points']; ?></div>
-                <div class="text-[0.55rem] text-gray-500 uppercase tracking-widest font-semibold">Total</div>
+            <div class="scard stotal">
+                <div class="scard-num" style="color:#00ff88">
+                    <?php if ($isDoublePoints): ?><span style="font-size:0.8rem;color:#ff0077;font-family:'Bebas Neue',sans-serif;">2×</span><?php endif; ?>
+                    <?php echo $scoreRecord['total_points']; ?>
+                </div>
+                <div class="scard-lbl">Total Pts</div>
             </div>
-            <div class="g-card p-3 text-center">
-                <div class="text-lg font-black text-blue-400"><?php echo $scoreRecord['driver_points']; ?></div>
-                <div class="text-[0.55rem] text-gray-500 uppercase tracking-widest font-semibold">Driver</div>
+            <div class="scard sdriver">
+                <div class="scard-num" style="color:#3b82f6"><?php echo $scoreRecord['driver_points']; ?></div>
+                <div class="scard-lbl">Driver</div>
             </div>
-            <div class="g-card p-3 text-center">
-                <div class="text-lg font-black text-purple-400"><?php echo $scoreRecord['top3_bonus']; ?></div>
-                <div class="text-[0.55rem] text-gray-500 uppercase tracking-widest font-semibold">Podium</div>
+            <div class="scard spodium">
+                <div class="scard-num" style="color:#a855f7"><?php echo $scoreRecord['top3_bonus']; ?></div>
+                <div class="scard-lbl">Podium</div>
             </div>
-            <div class="g-card p-3 text-center">
-                <div class="text-lg font-black text-orange-400"><?php echo $scoreRecord['constructor_points']; ?></div>
-                <div class="text-[0.55rem] text-gray-500 uppercase tracking-widest font-semibold">Constructor</div>
+            <div class="scard scons">
+                <div class="scard-num" style="color:#f97316"><?php echo $scoreRecord['constructor_points']; ?></div>
+                <div class="scard-lbl">Constructor</div>
             </div>
         </div>
         <?php endif; ?>
@@ -527,77 +643,121 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
             <div class="px-4 py-3 border-b border-white/10 bg-black/20 flex items-center gap-2">
                 <i class="fas fa-list-ol text-orange-500 text-sm"></i>
                 <h2 class="font-bold text-white text-sm uppercase tracking-wider">Driver Predictions</h2>
-                <span class="ml-auto text-xs text-gray-500"><?php echo count($predictions); ?> drivers</span>
-            </div>
-            <div>
-                <div class="pred-row" style="border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);padding:6px 16px;font-size:0.6rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em">
-                    <div style="width:32px;text-align:center">Pred</div>
-                    <div style="width:24px;text-align:center"></div>
-                    <div style="width:28px;text-align:center">Act</div>
-                    <div style="width:28px"></div>
-                    <div class="flex-1">Driver</div>
-                    <div style="min-width:40px;text-align:right">Pts</div>
-                </div>
-                <?php foreach ($predictions as $pred):
-                    $predPos   = (int)$pred['predicted_position'];
-                    $team      = $pred['team'] ?? '';
-                    $teamSlug  = strtolower(str_replace(' ', '-', $team));
-                    $abbr      = $teamAbbr[$team] ?? strtoupper(substr($team, 0, 3));
-                    $driverId  = $pred['driver_id'];
-
-                    $actual = $actualResults[$driverId] ?? $actualResults[$pred['driver_name']] ?? null;
-                    $actualPos = $actual ? (int)$actual['position'] : null;
-
-                    $isExact = $actualPos !== null && $actualPos === $predPos;
-                    $isInTop10 = $actualPos !== null && $actualPos <= 10;
-                    $ptsEarned = 0;
-                    if ($isExact && $predPos <= 10) {
-                        $ptsEarned = $F1_POINTS[$predPos - 1] + 3;
-                    } elseif ($actualPos !== null && $predPos <= 10 && $actualPos <= 10) {
-                        $ptsEarned = $F1_POINTS[$actualPos - 1];
-                    }
-
-                    $predPosClass = match($predPos) { 1 => 'pos-medal-1', 2 => 'pos-medal-2', 3 => 'pos-medal-3', default => '' };
+                <?php
+                $exactCount = 0;
+                foreach ($predictions as $p) {
+                    $did = $p['driver_id'];
+                    $act = $actualResults[$did] ?? $actualResults[$p['driver_name']] ?? null;
+                    if ($act && (int)$act['position'] === (int)$p['predicted_position']) $exactCount++;
+                }
                 ?>
-                <div class="pred-row">
-                    <div class="pos-num <?php echo $predPosClass; ?>" style="width:32px">
-                        <?php if ($predPos === 1): ?>🥇<?php elseif ($predPos === 2): ?>🥈<?php elseif ($predPos === 3): ?>🥉<?php else: echo $predPos; endif; ?>
-                    </div>
-                    <div style="width:24px;text-align:center;flex-shrink:0;font-size:14px">
-                        <?php if ($actualPos === null): ?>
-                            <span style="color:#64748b">—</span>
-                        <?php elseif ($isExact): ?>
-                            <span style="color:#22c55e">✅</span>
-                        <?php elseif ($actualPos !== null && $predPos <= 10 && $actualPos <= 10): ?>
-                            <span style="color:#f59e0b">⬇</span>
-                        <?php else: ?>
-                            <span style="color:#ef4444">✗</span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="pos-num" style="width:28px;font-size:0.7rem">
-                        <?php if ($actualPos !== null): ?>
-                            <?php if ($actualPos === 1): ?>🥇<?php elseif ($actualPos === 2): ?>🥈<?php elseif ($actualPos === 3): ?>🥉<?php else: ?>P<?php echo $actualPos; endif; ?>
-                        <?php else: ?>
-                            <span style="color:#64748b">N/A</span>
-                        <?php endif; ?>
-                    </div>
-                    <div style="width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.55rem;font-weight:900;background:rgba(255,255,255,0.08);color:#94a3b8"><?php echo $abbr; ?></div>
-                    <div class="flex-1">
-                        <div class="text-sm font-semibold text-white"><?php echo htmlspecialchars($pred['driver_name']); ?></div>
-                        <div class="text-xs text-gray-500"><?php echo htmlspecialchars($team); ?></div>
-                    </div>
-                    <div style="text-align:right;min-width:40px">
-                        <?php if ($ptsEarned > 0): ?>
-                            <div class="text-sm font-black text-emerald-400">+<?php echo $ptsEarned; ?></div>
-                            <?php if ($isExact): ?>
-                            <div class="text-[0.55rem] text-emerald-500 font-semibold uppercase tracking-wider">Exact</div>
-                            <?php endif; ?>
-                        <?php elseif ($actualPos !== null): ?>
-                            <div class="text-xs text-gray-600">0</div>
-                        <?php endif; ?>
+                <span class="ml-auto text-xs text-gray-500"><?php echo count($predictions); ?> drivers</span>
+                <?php if ($exactCount > 0): ?>
+                <span style="font-size:0.6rem;font-weight:800;background:rgba(0,255,136,0.12);color:#00ff88;border:1px solid rgba(0,255,136,0.25);padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.06em;">
+                    <?php echo $exactCount; ?> exact ✓
+                </span>
+                <?php endif; ?>
+            </div>
+
+            <!-- Column headers -->
+            <div style="display:grid;grid-template-columns:1fr 30px 90px 64px;padding:5px 14px;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.25);">
+                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#334155;">Your Pick</div>
+                <div></div>
+                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#334155;text-align:center;">Actual</div>
+                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#334155;text-align:right;padding-right:14px;">Pts</div>
+            </div>
+
+            <div>
+            <?php foreach ($predictions as $i => $pred):
+                $predPos  = (int)$pred['predicted_position'];
+                $team     = $pred['team'] ?? '';
+                $abbr     = $teamAbbr[$team] ?? strtoupper(substr($team, 0, 3));
+                $driverId = $pred['driver_id'];
+
+                $actual    = $actualResults[$driverId] ?? $actualResults[$pred['driver_name']] ?? null;
+                $actualPos = $actual ? (int)$actual['position'] : null;
+                $isExact   = $actualPos !== null && $actualPos === $predPos;
+
+                // Fixed: award +3 for ANY exact match; F1 base points only for top 10
+                $ptsEarned = 0;
+                if ($isExact) {
+                    $ptsEarned = 3;
+                    if ($predPos <= 10) {
+                        $ptsEarned += $F1_POINTS[$predPos - 1];
+                    }
+                }
+
+                $rowClass = $isExact ? 'exact' : ($actualPos !== null ? 'miss' : 'pending');
+                $delay    = number_format($i * 0.045, 3);
+
+                $predPos === 1  ? $pipClass = 'rank1'  :
+                ($predPos === 2 ? $pipClass = 'rank2'  :
+                ($predPos === 3 ? $pipClass = 'rank3'  :
+                ($predPos <= 10 ? $pipClass = 'top10'  :
+                                  $pipClass = 'other')));
+
+                if ($isExact) {
+                    $aPipClass = 'aexact';
+                } elseif ($actualPos === 1)  { $aPipClass = 'rank1'; }
+                elseif ($actualPos === 2)    { $aPipClass = 'rank2'; }
+                elseif ($actualPos === 3)    { $aPipClass = 'rank3'; }
+                elseif ($actualPos !== null && $actualPos <= 10) { $aPipClass = 'top10'; }
+                else                         { $aPipClass = 'other'; }
+
+                $diff = $actualPos !== null ? $actualPos - $predPos : null;
+                if ($diff === 0)       $diffTxt = '';
+                elseif ($diff !== null && $diff > 0)  $diffTxt = '▼' . abs($diff);
+                elseif ($diff !== null)               $diffTxt = '▲' . abs($diff);
+                else                   $diffTxt = '';
+            ?>
+            <div class="drow <?php echo $rowClass; ?>" style="animation-delay:<?php echo $delay; ?>s">
+
+                <!-- Your pick -->
+                <div class="dcell-pred">
+                    <div class="ppip <?php echo $pipClass; ?>">P<?php echo $predPos; ?></div>
+                    <div style="min-width:0">
+                        <div class="dname"><?php echo htmlspecialchars($pred['driver_name']); ?></div>
+                        <div class="dteam"><?php echo $abbr; ?></div>
                     </div>
                 </div>
-                <?php endforeach; ?>
+
+                <!-- Match indicator -->
+                <div class="dcell-match">
+                    <?php if ($actualPos === null): ?>
+                        <span class="match-na"><i class="fas fa-minus"></i></span>
+                    <?php elseif ($isExact): ?>
+                        <span class="match-exact">✓</span>
+                    <?php else: ?>
+                        <span class="match-miss"><i class="fas fa-times"></i></span>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Actual result -->
+                <div class="dcell-actual">
+                    <?php if ($actualPos !== null): ?>
+                        <div class="ppip <?php echo $aPipClass; ?>">P<?php echo $actualPos; ?></div>
+                        <?php if ($diffTxt): ?>
+                        <div class="apos-diff" style="color:<?php echo ($diff > 0 ? '#ef4444' : '#f97316'); ?>"><?php echo $diffTxt; ?></div>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <span style="font-size:0.65rem;color:#334155;">TBC</span>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Points -->
+                <div class="dcell-pts">
+                    <?php if ($ptsEarned > 0): ?>
+                        <div class="pts-num" style="animation-delay:<?php echo number_format($delay + 0.12, 3); ?>s">+<?php echo $ptsEarned; ?></div>
+                        <?php if ($isExact): ?><div class="pts-tag">exact</div><?php endif; ?>
+                    <?php elseif ($actualPos !== null): ?>
+                        <div class="pts-zero">0</div>
+                    <?php else: ?>
+                        <div class="pts-zero">–</div>
+                    <?php endif; ?>
+                </div>
+
+            </div>
+            <?php endforeach; ?>
             </div>
         </div>
 

@@ -8,6 +8,7 @@ $_navItems = [
     ['href' => 'index.php#updates',     'icon' => 'fas fa-broadcast-tower','label' => '', 'pulse' => true],
     ['href' => 'index.php#results',     'icon' => 'fas fa-flag-checkered', 'label' => ''],
     ['href' => 'index.php#achievements','icon' => 'fas fa-medal',         'label' => ''],
+    ['href' => 'points-system.php',     'icon' => 'fas fa-bolt',          'label' => 'Points System'],
 ];
 $totalPoints = $_SESSION['nav_points'] ?? 0;
 $navStats = $stats ?? [];
