@@ -99,13 +99,13 @@ h3,.h3{font-weight:600;letter-spacing:-0.01em;line-height:1.3}
 .race-info-right{flex-shrink:0;display:flex;align-items:center;gap:16px}
 .race-title{font-family:'Teko',sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;font-size:28px;color:var(--text);line-height:1;margin-bottom:2px}
 .race-meta{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
-.cd-ring{position:relative;width:56px;height:56px;flex-shrink:0}
+.cd-ring{position:relative;width:64px;height:64px;flex-shrink:0}
 .cd-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .cd-ring circle{fill:none}
-.cd-ring .bg{stroke:var(--border);stroke-width:3}
-.cd-ring .fg{stroke-linecap:round;transition:stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1),stroke 0.5s ease;stroke-width:3}
-.cd-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);font-weight:700;line-height:1.2}
-@media(max-width:768px){.hero{height:180px}.race-info{flex-direction:column;align-items:stretch;padding:16px;gap:12px;margin-top:16px}.race-title{font-size:20px}}
+.cd-ring .bg{stroke:var(--border-light);stroke-width:5}
+.cd-ring .fg{stroke-linecap:round;transition:stroke-dashoffset 0.6s linear,stroke 0.4s ease;stroke-width:5}
+.cd-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);font-weight:700;line-height:1.15}
+@media(max-width:768px){.hero{height:180px}.race-info{flex-direction:column;align-items:stretch;padding:16px;gap:12px;margin-top:16px}.race-title{font-size:20px}.r-grid{grid-template-columns:1fr!important}.r-hide{display:none!important}}
 /* ===== QUOTE ===== */
 .quote-block{max-width:680px;margin:0 auto 64px;padding-left:24px;border-left:2px solid var(--gold)}
 .quote-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;margin-bottom:16px;background:var(--surface-muted)}
@@ -357,27 +357,27 @@ const LoginModal = ({ onClose, onAuth, defaultTab }) => {
   );
 };
 
-const CountdownRing = ({ deadline, open, text, progress }) => {
-  const [cd, setCd] = useState(text || '');
-  const [offset, setOffset] = useState((1-(progress||0)/100)*180);
-  const [ringColor, setRingColor] = useState('#2D6A4F');
-  const circ = 2 * Math.PI * 27;
+const CountdownRing = ({ deadline }) => {
+  const [cd, setCd] = useState('');
+  const [pct, setPct] = useState(0);
+  const [color, setColor] = useState('#2D6A4F');
+  const R = 26, S = (R+6)*2, circ = 2 * Math.PI * R;
 
   useEffect(() => {
-    if (!deadline) return;
+    if (!deadline) { setCd('—'); setPct(0); setColor('#2D6A4F'); return; }
     const tick = () => {
       const left = deadline - Date.now();
-      if (left <= 0) { setCd('Locked'); setOffset(0); setRingColor('var(--text3)'); return; }
-      const d = Math.floor(left/86400000), h = Math.floor((left%86400000)/3600000), m = Math.floor((left%3600000)/60000);
-      setCd(d > 0 ? d+'d '+h+'h' : h > 0 ? h+'h '+m+'m' : m > 0 ? m+'m' : '');
+      if (left <= 0) { setCd('Locked'); setPct(1); setColor('var(--text3)'); return; }
+      const d = Math.floor(left/86400000);
+      const h = Math.floor((left%86400000)/3600000);
+      const m = Math.floor((left%3600000)/60000);
+      setCd(d > 0 ? d+'d '+h+'h' : h > 0 ? h+'h '+m+'m' : m+'m');
       const maxW = 7*24*60*60*1000;
-      const elapsed = maxW - left;
-      const p = Math.min(Math.max(elapsed/maxW,0),1);
-      setOffset(circ*(1-p));
-      const daysLeft = left / 86400000;
-      if (daysLeft > 3) setRingColor('#2D6A4F');
-      else if (daysLeft > 1) setRingColor('#C9A96E');
-      else setRingColor('#C41E3A');
+      setPct(Math.min(Math.max((maxW-left)/maxW,0),1));
+      const days = left/86400000;
+      if (days > 3) setColor('#2D6A4F');
+      else if (days > 1) setColor('#C9A96E');
+      else setColor('#C41E3A');
     };
     tick();
     const id = setInterval(tick, 1000);
@@ -386,9 +386,9 @@ const CountdownRing = ({ deadline, open, text, progress }) => {
 
   return (
     <div className="cd-ring">
-      <svg viewBox="0 0 64 64">
-        <circle className="bg" cx="32" cy="32" r="27"/>
-        <circle className="fg" cx="32" cy="32" r="27" strokeDasharray={circ} strokeDashoffset={offset} style={{stroke:ringColor}}/>
+      <svg viewBox={'0 0 '+S+' '+S}>
+        <circle className="bg" cx={S/2} cy={S/2} r={R}/>
+        <circle className="fg" cx={S/2} cy={S/2} r={R} strokeDasharray={circ} strokeDashoffset={circ*(1-pct)} style={{stroke:color}}/>
       </svg>
       <div className="cd-text">{cd}</div>
     </div>
@@ -501,7 +501,7 @@ const Dashboard = ({ onNav }) => {
       <div style={{display:'flex',flexDirection:'column',gap:'1px',background:'var(--border)',marginTop:24}}>
 
         {/* STAT GRID (4-up) */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'1px',background:'var(--border)'}}>
+        <div className="r-grid" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'1px',background:'var(--border)'}}>
           {[
             { label:'Rank', val:'#'+(data.stats?.rank||'-'), icon:'crown' },
             { label:'Points', val:data.stats?.total_points??0, icon:'star' },
@@ -573,7 +573,7 @@ const Dashboard = ({ onNav }) => {
         </div>
 
         {/* TWO-COLUMN: Recent Results + Race Winners */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
+        <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
 
           {/* Recent Results (left) — user own scores */}
           <div style={{background:'var(--surface)',padding:'16px'}}>
@@ -688,7 +688,7 @@ const Dashboard = ({ onNav }) => {
         )}
 
         {/* TWO-COLUMN: Upcoming + Trophy */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
+        <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
 
           {/* Upcoming */}
           <div style={{background:'var(--surface)',padding:'16px'}}>
@@ -782,7 +782,7 @@ const Dashboard = ({ onNav }) => {
         </div>
 
         {/* PROMO ROW (4 items) */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:'1px',background:'var(--border)'}}>
+        <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:'1px',background:'var(--border)'}}>
           <div style={{background:'var(--surface)',padding:'10px 12px',display:'flex',alignItems:'center',gap:10}}>
             <I n="star" style={{color:'var(--accent)',fontSize:14}} />
             <span style={{fontSize:11,color:'var(--text2)',lineHeight:1.3}}>Make picks before deadline</span>
@@ -803,7 +803,7 @@ const Dashboard = ({ onNav }) => {
         </div>
 
         {/* SCANERRIFIC */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
+        <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
           <a href="https://scanerrific.com" target="_blank" rel="noopener" style={{background:'var(--surface)',padding:'16px',display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none',minHeight:80}}>
             <img src="/assets/logo_refreshed_scanerrific_no_bg_black.png" alt="Scanerrific" style={{maxHeight:36,objectFit:'contain'}} />
           </a>
@@ -1864,7 +1864,7 @@ const UpdatesPage = ({ onNav }) => {
           </div>
 
           {/* Full lists — no slice limit */}
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+          <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
             <div style={{background:'var(--bg2)',padding:'10px',borderRadius:'var(--rad)',maxHeight:320,overflow:'auto'}}>
               <div style={{fontSize:'10px',fontWeight:'700',color:'var(--success)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px',position:'sticky',top:0,background:'var(--bg2)',paddingBottom:4,zIndex:1}}>
                 <I n="check-circle" style={{marginRight:4}} />Submitted ({d.submitted?.length||0})
@@ -1950,7 +1950,7 @@ const UpdatesPage = ({ onNav }) => {
           ))}
 
           {(d.podiumSweepUsers?.length > 0 || d.constructorBonusUsers?.length > 0) && (
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginTop:'12px'}}>
+            <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginTop:'12px'}}>
               {d.podiumSweepUsers?.length > 0 && (
                 <div style={{background:'var(--bg2)',padding:'10px',borderRadius:'var(--rad)'}}>
                   <div style={{fontSize:'10px',color:'var(--accent-warm)',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'4px'}}><I n="crown" style={{marginRight:4}} />Podium Sweep</div>
@@ -2180,7 +2180,7 @@ const AdminPage = () => {
           </div>
         </div>
 
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24}}>
+        <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24}}>
           {/* Input Zone */}
           <div>
             <div className="card" style={{position:'relative',padding:0,overflow:'hidden'}}>
@@ -2233,7 +2233,7 @@ const AdminPage = () => {
           <p style={{color:'var(--text2)',fontSize:14,marginTop:8}}>Generate post-race debriefs, rescore races, create news posts, and manage the season.</p>
         </div>
 
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+        <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
           {/* Selected Race Details */}
           <div style={{padding:20,background:'rgba(255,135,0,0.04)',border:'1px solid rgba(255,135,0,0.1)',borderRadius:16}}>
             <div style={{fontSize:11,fontWeight:'700',color:'var(--accent-warm)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:12}}>
