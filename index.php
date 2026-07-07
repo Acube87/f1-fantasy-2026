@@ -1,3 +1,11 @@
+<?php
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/avatars.php';
+$user        = getCurrentUser();
+$currentUser = $user;
+$stats       = $user ? getUserStats($user['id']) : [];
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +14,7 @@
 <title>Paddock Picks</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/gaming-style.css">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
@@ -43,16 +52,6 @@ input:focus{outline:none}
 .input{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none}
 .input:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(124,58,237,0.08)}
 .input::placeholder{color:var(--text3)}
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(12,15,22,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1400px;margin:0 auto}
-.nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;letter-spacing:-0.02em;cursor:pointer}
-.nav-brand-icon{width:32px;height:32px;background:var(--purple);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff}
-.nav-links{display:flex;align-items:center;gap:2px}
-.nav-link{height:36px;border-radius:8px;display:flex;align-items:center;gap:6px;padding:0 10px;color:var(--text3);font-size:13px;cursor:pointer;transition:all 0.2s;text-decoration:none}
-.nav-link:hover{color:var(--text);background:rgba(255,255,255,0.04)}
-.nav-link.active{color:var(--purple2);background:rgba(124,58,237,0.1)}
-.nav-label{font-size:11px;font-weight:600}
-@media(max-width:768px){.nav-label{display:none}.nav-link{padding:0 8px}}
 .page{padding-top:72px;padding-bottom:24px;max-width:1400px;margin:0 auto;padding-left:20px;padding-right:20px}
 .hero{position:relative;border-radius:var(--rad-lg);overflow:hidden;min-height:280px;display:flex;flex-direction:column;justify-content:flex-end}
 .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 0.6s ease}
@@ -179,6 +178,7 @@ input:focus{outline:none}
 </style>
 </head>
 <body>
+<?php require_once __DIR__ . '/includes/nav.php'; ?>
 <div id="root"></div>
 
 <script type="text/babel">
@@ -250,60 +250,6 @@ const getAvatarUrl = (style, seed) => {
 
 const I = ({ n, s }) => React.createElement('i', { className: 'fa-solid fa-' + n, style: s });
 
-const Nav = ({ user, page, onNav, onLogin, onLogout }) => {
-  const links = [
-    {page:'dashboard',icon:'grip'}, {page:'predict',icon:'list-ol'}, {page:'results',icon:'flag-checkered'},
-    {page:'updates',icon:'newspaper'}, {page:'news',icon:'rss'}, {page:'leaderboard',icon:'trophy'}, {page:'achievements',icon:'medal'}, {page:'profile',icon:'user'},
-    {page:'__points__',icon:'bolt',label:'Points',href:'points-system.php'}
-  ];
-  return (
-    <nav className="nav">
-      <div className="nav-inner">
-        <a href="#dashboard" onClick={(e)=>{e.preventDefault();onNav('dashboard')}} className="nav-brand">
-          <div className="nav-brand-icon"><I n="flag-checkered" /></div>
-          PADDOCK
-        </a>
-        <div className="nav-links">
-          {links.map(l => l.href ? (
-            <a key={l.page} href={l.href} className="nav-link" title={l.label}
-               style={{color:'#ffd700',border:'1px solid rgba(255,215,0,0.25)',background:'rgba(255,215,0,0.07)',borderRadius:'6px',padding:'4px 10px'}}>
-              <I n={l.icon} />
-              <span className="nav-label" style={{color:'#ffd700'}}>{l.label}</span>
-            </a>
-          ) : (
-            <a key={l.page} href={'#'+l.page} className={'nav-link'+(page.split('?')[0]===l.page?' active':'')}
-               onClick={(e)=>{e.preventDefault();onNav(l.page)}}>
-              <I n={l.icon} />
-              <span className="nav-label">{l.page.charAt(0).toUpperCase()+l.page.slice(1)}</span>
-            </a>
-          ))}
-        </div>
-        <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-          {user ? (
-            <>
-              <a style={{display:'flex',alignItems:'center',gap:'6px',padding:'4px 8px 4px 4px',borderRadius:'8px',background:'var(--card2)',border:'1px solid var(--border)',cursor:'pointer'}}
-                 onClick={(e)=>{e.preventDefault();onNav('profile')}}>
-                <div style={{width:'28px',height:'28px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
-                  <img src={getAvatarUrl(user.avatar_style,user.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                </div>
-                <span style={{fontSize:'13px',fontWeight:'600'}}>{user.username}</span>
-              </a>
-              {user.is_admin && (
-                <a href="#admin" className={'nav-link'+(page==='admin'?' active':'')} title="Race Control" onClick={(e)=>{e.preventDefault();onNav('admin')}} style={{color:'var(--orange)'}}><I n="shield" /></a>
-              )}
-              <a className="nav-link" onClick={(e)=>{e.preventDefault();postAuth({action:'logout'}).then(()=>onLogout())}}><I n="sign-out-alt" /></a>
-            </>
-          ) : (
-            <>
-              <a className="btn btn-ghost btn-sm" onClick={(e)=>{e.preventDefault();onLogin()}}>Log In</a>
-              <a className="btn btn-primary btn-sm" onClick={(e)=>{e.preventDefault();onLogin()}}>Sign Up</a>
-            </>
-          )}
-        </div>
-      </div>
-    </nav>
-  );
-};
 
 const LoginModal = ({ onClose, onAuth, defaultTab }) => {
   const [tab, setTab] = useState(defaultTab || 'login');
@@ -2392,7 +2338,6 @@ const App = () => {
   if (!user && getPageName() !== 'leaderboard') {
     return (
       <>
-        <Nav user={null} page={page} onNav={handleNav} onLogin={() => setShowLogin(true)} onLogout={() => {}} />
         <style>{`
           @keyframes wlcmFade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
           @keyframes wlcmSlide{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
@@ -2522,7 +2467,6 @@ const App = () => {
 
   return (
     <>
-      <Nav user={user} page={page} onNav={handleNav} onLogin={() => setShowLogin(true)} onLogout={() => setUser(null)} />
       {(pn === 'dashboard' || pn === '') && <Dashboard onNav={handleNav} />}
       {pn === 'leaderboard' && <LeaderboardPage />}
       {pn === 'predict' && <PredictPage onNav={handleNav} />}

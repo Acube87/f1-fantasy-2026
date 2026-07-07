@@ -666,7 +666,13 @@ $stats = $user ? getUserStats($user['id']) : [];
                                 <div style="font-size:0.8rem;color:<?php echo str_contains($r['cls'],'exact') ? '#00ff88' : (str_contains($r['cls'],'miss') ? '#475569' : '#f97316'); ?>;"><?php echo $r['label']; ?></div>
                                 <div style="font-size:0.6rem;color:#334155;margin-top:1px;"><?php echo $r['sub']; ?></div>
                             </div>
-                            <div class="er-pts" style="color:<?php echo str_contains($r['cls'],'miss') ? '#2d3748' : (str_contains($r['cls'],'cons') ? '#3b82f6' : str_contains($r['cls'],'bonus') ? '#f97316' : '#00ff88'); ?>;animation-delay:<?php echo $r['delay']+0.1; ?>s"><?php echo $r['pts']; ?></div>
+                            <?php
+                            if (str_contains($r['cls'],'miss'))  $erColor = '#2d3748';
+                            elseif (str_contains($r['cls'],'cons'))  $erColor = '#3b82f6';
+                            elseif (str_contains($r['cls'],'bonus')) $erColor = '#f97316';
+                            else $erColor = '#00ff88';
+                            ?>
+                            <div class="er-pts" style="color:<?php echo $erColor; ?>;animation-delay:<?php echo $r['delay']+0.1; ?>s"><?php echo $r['pts']; ?></div>
                         </div>
                         <?php endforeach; ?>
 
