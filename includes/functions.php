@@ -519,6 +519,43 @@ function getRaceHeroImage($country) {
 }
 
 /**
+ * Get circuit track SVG URL (local file)
+ */
+function getCircuitSvg($circuitName, $country) {
+    $map = [
+        'Albert Park Circuit'            => 'melbourne-2',
+        'Shanghai International Circuit' => 'shanghai-1',
+        'Suzuka Circuit'                 => 'suzuka-2',
+        'Bahrain International Circuit'  => 'bahrain-1',
+        'Jeddah Corniche Circuit'        => 'jeddah-1',
+        'Miami International Autodrome'  => 'miami-1',
+        'Circuit Gilles Villeneuve'      => 'montreal-6',
+        'Circuit de Monaco'              => 'monaco-6',
+        'Circuit de Barcelona-Catalunya' => 'catalunya-6',
+        'Red Bull Ring'                  => 'spielberg-3',
+        'Silverstone Circuit'            => 'silverstone-8',
+        'Circuit de Spa-Francorchamps'   => 'spa-francorchamps-4',
+        'Hungaroring'                    => 'hungaroring-3',
+        'Zandvoort'                      => 'zandvoort-5',
+        'Monza'                          => 'monza-7',
+        'Madrid Street Circuit'          => 'madring-1',
+        'Baku City Circuit'              => 'baku-1',
+        'Marina Bay Street Circuit'      => 'marina-bay-4',
+        'Circuit of the Americas'        => 'austin-1',
+        'Autódromo Hermanos Rodríguez'   => '',
+        'Interlagos'                     => 'interlagos-2',
+        'Las Vegas Strip Circuit'        => 'las-vegas-1',
+        'Lusail International Circuit'   => 'lusail-1',
+        'Yas Marina Circuit'             => 'yas-marina-2',
+    ];
+    $id = $map[$circuitName] ?? '';
+    if ($id) {
+        return '/assets/circuits/' . $id . '.svg';
+    }
+    return '';
+}
+
+/**
  * Get country flag emoji
  */
 function getRaceFlag($country) {

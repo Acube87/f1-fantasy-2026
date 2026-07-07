@@ -656,7 +656,7 @@ const Dashboard = ({ onNav }) => {
                     <div style={{fontSize:10,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',marginTop:2}}>/ {data.totalRaces}</div>
                   </div>
                 ) : null}
-                {/* Right: Track details + button */}
+                {/* Track details + button */}
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
                     <span style={{fontSize:22}}>{data.nextRace.flag}</span>
@@ -665,21 +665,17 @@ const Dashboard = ({ onNav }) => {
                   </div>
                   <div style={{fontSize:12,color:'var(--text2)',marginBottom:2}}>{data.nextRace.circuit_name}</div>
                   <div style={{fontSize:11,color:'var(--text3)',marginBottom:16}}>{new Date(data.nextRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
-
-                  {/* Most picked winner for this race */}
-                  {data.mostPickedNextWinner && (
-                    <div style={{fontSize:11,color:'var(--text2)',marginBottom:14,padding:'8px 10px',background:'var(--surface-muted)',border:'1px solid var(--border-light)'}}>
-                      <i className="fa-solid fa-users" style={{marginRight:6,color:'var(--text3)'}}></i>
-                      Most picked winner: <strong>{data.mostPickedNextWinner.driver_name}</strong>
-                      <span style={{color:'var(--text3)',marginLeft:4}}>({data.mostPickedNextWinner.count}/{data.mostPickedNextWinner.total} players)</span>
-                    </div>
-                  )}
-
                   <button className="btn btn-sm" style={{background:'var(--text)',color:'#fff',padding:'8px 18px',fontSize:12,fontWeight:600,border:'none',cursor:'pointer',fontFamily:'Inter,sans-serif'}}
                     onClick={()=>onNav('predict')}>
                     Make Predictions <i className="fa-solid fa-arrow-right" style={{fontSize:10,marginLeft:4}}></i>
                   </button>
                 </div>
+                {/* Circuit SVG */}
+                {data.nextRace.circuit_svg && (
+                  <div style={{flexShrink:0,width:110,height:80,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <img src={data.nextRace.circuit_svg} alt="track layout" style={{maxWidth:'100%',maxHeight:'100%',opacity:0.35}} />
+                  </div>
+                )}
               </div>
             </div>
           </div>

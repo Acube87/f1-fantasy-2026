@@ -211,6 +211,7 @@ switch ($type) {
                 'race_name' => $nextRace['race_name'],
                 'country' => $nextRace['country'],
                 'circuit_name' => $nextRace['circuit_name'],
+                'circuit_svg' => getCircuitSvg($nextRace['circuit_name'], $nextRace['country']),
                 'race_date' => $nextRace['race_date'],
                 'race_number' => $nextRace['race_number'],
                 'flag' => getRaceFlag($nextRace['country']),
