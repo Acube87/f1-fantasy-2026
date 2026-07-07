@@ -76,48 +76,80 @@ $csrfToken = getCSRFToken();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create News Post — Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../css/gaming-style.css">
+    <title>Create Post — <?php echo SITE_NAME; ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+    <style>
+        :root{
+          --canvas:#F5F3EF;--bg:#F5F3EF;--surface:#FFF;--border:#E8E5E0;--border-light:#F0EDE8;
+          --text:#1A1A1A;--text2:#6B6864;--text3:#A09C96;
+          --accent:#C41E3A;--accent-soft:#F5E6E9;
+          --live:#2D6A4F;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--canvas);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;padding:24px}
+        a{text-decoration:none;color:inherit}
+        .caps{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3)}
+        .card{background:var(--surface);border:1px solid var(--border)}
+        .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;font-size:10px;font-weight:500;border:1px solid}
+        input,select,textarea{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:var(--surface);border:1px solid var(--border);padding:10px 14px;outline:none;transition:border-color 150ms;width:100%}
+        input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+        textarea{resize:vertical;font-family:'JetBrains Mono',monospace;font-size:13px}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 24px;font-size:14px;font-weight:600;border:1px solid var(--border);cursor:pointer;transition:all 150ms;background:var(--surface);color:var(--text)}
+        .btn:hover{background:var(--canvas)}
+        .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .btn-primary:hover{opacity:0.9}
+        label{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:6px}
+        .page{max-width:640px;margin:0 auto}
+        .flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-3{gap:12px}.gap-4{gap:16px}.mb-4{margin-bottom:16px}.mb-6{margin-bottom:24px}.mb-8{margin-bottom:32px}.mt-8{margin-top:32px}
+        .p-4{padding:16px}.p-6{padding:24px}
+        .msg{font-size:13px;padding:12px 16px;border:1px solid}
+        .msg.success{background:rgba(45,106,79,0.06);border-color:rgba(45,106,79,0.15);color:var(--live)}
+        .msg.error{background:rgba(196,30,58,0.06);border-color:rgba(196,30,58,0.15);color:var(--accent)}
+        .msg a{font-weight:600;text-decoration:underline}
+        .truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    </style>
 </head>
-<body class="gaming-theme text-gray-200 min-h-screen p-8">
-    <div class="max-w-3xl mx-auto">
-        <div class="mb-6 flex items-center justify-between">
-            <a href="race-control.php" class="text-gray-400 hover:text-white text-sm transition">
-                <i class="fas fa-arrow-left mr-2"></i>Race Control
-            </a>
-            <a href="../news.php" class="text-orange-400 hover:text-orange-300 text-sm transition font-bold">
-                <i class="fas fa-newspaper mr-1"></i>View News Feed
-            </a>
+<body>
+    <div class="page">
+
+        <!-- Nav -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:8px">
+                <i class="fas fa-pen-nib" style="color:var(--accent);font-size:16px"></i>
+                <span style="font-weight:700;font-size:16px">Create News Post</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+                <a href="race-control.php" style="font-size:12px;color:var(--text2)"><i class="fas fa-arrow-left"></i> Race Control</a>
+                <a href="../news.php" style="font-size:12px;color:var(--accent);font-weight:600"><i class="fas fa-newspaper"></i> News Feed</a>
+            </div>
         </div>
 
-        <div class="g-card p-8 rounded-[2rem] border-t-4 border-t-orange-500">
-            <h1 class="text-3xl font-black text-white italic uppercase mb-2">
-                <i class="fas fa-pen-nib text-orange-500 mr-2"></i>Create News Post
-            </h1>
-            <p class="text-gray-400 text-sm mb-8">Posts appear on the <strong class="text-white">News & Posts</strong> page for all users with likes and comments.</p>
+        <!-- Form -->
+        <div class="card" style="padding:24px;margin-bottom:24px">
+            <div style="margin-bottom:20px">
+                <div style="font-weight:700;font-size:18px;margin-bottom:2px">New Post</div>
+                <div class="caps">Posts appear on the News page with likes and comments</div>
+            </div>
 
             <?php if ($message): ?>
-            <div class="mb-6 p-4 rounded-xl border <?php echo $messageType === 'success' ? 'bg-green-500/10 border-green-500/30 text-green-300' : 'bg-red-500/10 border-red-500/30 text-red-400'; ?>">
+            <div class="msg <?php echo $messageType === 'success' ? 'success' : 'error'; ?>" style="margin-bottom:20px">
                 <?php echo $message; ?>
             </div>
             <?php endif; ?>
 
-            <form method="POST" class="space-y-6">
+            <form method="POST" style="display:flex;flex-direction:column;gap:20px">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
 
                 <div>
-                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Post Title *</label>
-                    <input type="text" name="title" required
-                           class="w-full p-4 rounded-xl bg-black/30 border border-white/10 text-white font-bold placeholder-gray-600 focus:border-orange-500 focus:outline-none"
-                           placeholder="e.g. App Update v2.1 — Score Corrections & New Features">
+                    <label>Post Title *</label>
+                    <input type="text" name="title" required style="font-weight:600" placeholder="e.g. App Update v2.1 — Score Corrections">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Related Race <span class="text-gray-600 font-normal normal-case">(optional)</span></label>
-                    <select name="race_id" class="w-full p-4 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-orange-500 focus:outline-none">
-                        <option value="">— No specific race (General post) —</option>
+                    <label>Related Race <span style="font-weight:400;text-transform:none;color:var(--text3)">(optional)</span></label>
+                    <select name="race_id">
+                        <option value="">— General post (no specific race) —</option>
                         <?php foreach ($races as $r): ?>
                         <option value="<?php echo $r['id']; ?>"><?php echo htmlspecialchars($r['race_name']); ?></option>
                         <?php endforeach; ?>
@@ -125,50 +157,40 @@ $csrfToken = getCSRFToken();
                 </div>
 
                 <div>
-                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                        Content * <span class="text-gray-600 font-normal normal-case">(HTML supported for rich posts)</span>
-                    </label>
-                    <textarea name="content" required rows="14"
-                              class="w-full p-4 rounded-xl bg-black/30 border border-white/10 text-white font-mono text-sm placeholder-gray-600 focus:border-orange-500 focus:outline-none resize-y"
-                              placeholder="Write your post content here. HTML is supported for rich formatting.&#10;&#10;Plain text works too — line breaks are preserved."></textarea>
-                    <p class="text-[10px] text-gray-600 mt-1">Tip: Use HTML for rich posts (bold, colors, grids). For simple posts, plain text with line breaks works fine.</p>
+                    <label>Content * <span style="font-weight:400;text-transform:none;color:var(--text3)">(HTML supported)</span></label>
+                    <textarea name="content" required rows="14" placeholder="Write your post content here. HTML is supported for rich formatting."></textarea>
+                    <div class="caps" style="margin-top:4px;font-size:9px">HTML supported for rich posts. Line breaks are preserved.</div>
                 </div>
 
-                <div class="bg-orange-500/5 border border-orange-500/15 rounded-xl p-4">
-                    <p class="text-xs text-orange-300">
-                        <strong>Preview:</strong> The post will appear at the top of the News feed immediately after publishing. Users can like and comment on it.
-                    </p>
+                <div style="padding:12px 16px;background:var(--accent-soft);border:1px solid rgba(196,30,58,0.12);font-size:12px;color:var(--text2)">
+                    <strong style="color:var(--accent)">Preview:</strong> The post will appear at the top of the News feed immediately. Users can like and comment.
                 </div>
 
-                <button type="submit" id="publish-btn"
-                        class="w-full py-4 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-black text-lg rounded-2xl transition transform hover:scale-[1.02] flex items-center justify-center gap-3 shadow-lg shadow-orange-500/20">
-                    <i class="fas fa-paper-plane"></i>
-                    PUBLISH TO NEWS FEED
+                <button type="submit" class="btn btn-primary" style="padding:14px;font-size:15px;font-weight:700">
+                    <i class="fas fa-paper-plane"></i> Publish to News Feed
                 </button>
             </form>
         </div>
 
         <!-- Recent Posts -->
-        <div class="mt-8 g-card p-6 rounded-[2rem]">
-            <h2 class="text-sm font-black text-white uppercase tracking-widest mb-4"><i class="fas fa-list text-gray-500 mr-2"></i>Manage Posts</h2>
+        <div class="card" style="padding:20px">
+            <div class="caps" style="margin-bottom:12px;font-size:11px"><i class="fas fa-list" style="margin-right:8px"></i>Recent Posts</div>
             <?php
             $recent = $db->query("SELECT id, title, created_at FROM posts ORDER BY created_at DESC LIMIT 10")->fetch_all(MYSQLI_ASSOC);
             foreach ($recent as $rp): ?>
-            <div class="flex items-center justify-between py-3 border-b border-white/5 last:border-0 group">
-                <div class="truncate flex-1">
-                    <div class="text-sm text-gray-300 font-bold"><?php echo htmlspecialchars($rp['title']); ?></div>
-                    <div class="text-[10px] text-gray-600"><?php echo date('d M H:i', strtotime($rp['created_at'])); ?></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-light)">
+                <div class="truncate" style="flex:1">
+                    <div style="font-weight:600;font-size:13px"><?php echo htmlspecialchars($rp['title']); ?></div>
+                    <div class="caps" style="font-size:9px"><?php echo date('d M H:i', strtotime($rp['created_at'])); ?></div>
                 </div>
-                <div class="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <a href="?delete=<?php echo $rp['id']; ?>&csrf=<?php echo $csrfToken; ?>" 
-                       onclick="return confirm('Delete this post?');"
-                       class="w-8 h-8 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition">
-                        <i class="fas fa-trash text-xs"></i>
-                    </a>
-                </div>
+                <a href="?delete=<?php echo $rp['id']; ?>&csrf=<?php echo $csrfToken; ?>" 
+                   onclick="return confirm('Delete this post?');"
+                   style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);border:1px solid var(--border);flex-shrink:0">
+                    <i class="fas fa-trash"></i>
+                </a>
             </div>
             <?php endforeach; ?>
-            <?php if (empty($recent)): ?><p class="text-gray-500 text-sm">No posts yet.</p><?php endif; ?>
+            <?php if (empty($recent)): ?><div class="caps" style="font-size:11px;padding:12px;text-align:center">No posts yet.</div><?php endif; ?>
         </div>
     </div>
 </body>

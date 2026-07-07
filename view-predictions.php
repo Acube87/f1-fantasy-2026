@@ -174,146 +174,93 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Race Results – <?php echo htmlspecialchars($race['country']); ?> GP · <?php echo SITE_NAME; ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --nfs-pink: #ff0077;
-            --nfs-cyan: #00e5ff;
-            --nfs-orange: #ff6a00;
-            --nfs-green: #00ff88;
-            --nfs-purple: #8b5cf6;
+            --canvas:#F5F3EF;--bg:#F5F3EF;--bg2:#FAF9F7;--surface:#FFF;--card:#FFF;--card2:#FAF9F7;--surface-muted:#FAF9F7;
+            --border:#E8E5E0;--border-light:#F0EDE8;
+            --text:#1A1A1A;--text2:#6B6864;--text3:#A09C96;
+            --accent:#C41E3A;--accent-soft:#F5E6E9;
+            --live:#2D6A4F;--gold:#C9A96E;--silver:#A8A5A0;--bronze:#B08050;
         }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', sans-serif; background: var(--canvas); color: var(--text);
+            min-height: 100vh;
         }
-        .hero-card {
-            position: relative;
-            border-radius: 16px;
-            overflow: hidden;
-            min-height: 220px;
-            display: flex;
-            align-items: center;
+        .hero-bg {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center center;
         }
-        .hero-card .hero-bg {
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center center;
+        .hero-overlay {
+            position: absolute; inset: 0;
         }
-        .hero-card .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.6) 50%, rgba(10,10,10,0.3) 100%);
-        }
-        .hero-card .hero-carbon {
-            position: absolute;
-            inset: 0;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 20px,
-                rgba(255,255,255,0.02) 20px,
-                rgba(255,255,255,0.02) 40px
-            );
-        }
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            padding: 40px 32px;
-        }
-
         .race-user-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
             transition: all 0.2s;
         }
         .race-user-card:hover {
-            background: rgba(255,255,255,0.06);
+            background: var(--surface-muted);
         }
         .race-user-card.active {
-            border-color: var(--nfs-pink);
-            box-shadow: 0 0 20px rgba(255,0,119,0.15);
+            border-color: var(--accent);
         }
 
         .pos-num {
             font-variant-numeric: tabular-nums;
-            width: 28px;
-            text-align: center;
-            font-weight: 800;
-            color: #64748b;
-            font-size: 0.8rem;
+            width: 28px; text-align: center;
+            font-weight: 800; color: var(--text2); font-size: 0.8rem;
         }
-        .pos-medal-1 { color: #FBBF24; text-shadow: 0 0 8px rgba(251,191,36,0.5); }
-        .pos-medal-2 { color: #CBD5E1; }
-        .pos-medal-3 { color: #D97706; }
+        .pos-medal-1 { color: var(--gold); }
+        .pos-medal-2 { color: var(--silver); }
+        .pos-medal-3 { color: var(--bronze); }
 
         .pred-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 12px;
             padding: 8px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
             transition: background 0.15s;
         }
-        .pred-row:hover { background: rgba(255,255,255,0.05); }
+        .pred-row:hover { background: var(--surface-muted); }
 
         .double-points-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, rgba(255,0,119,0.2), rgba(255,106,0,0.2));
-            border: 1px solid rgba(255,0,119,0.4);
-            border-radius: 20px;
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent);
             padding: 4px 14px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #ff0077;
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 8px rgba(255,0,119,0.2); }
-            50% { box-shadow: 0 0 20px rgba(255,0,119,0.5); }
+            font-size: 0.7rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--accent);
         }
 
         .rank-num {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.3rem;
-            letter-spacing: 0.02em;
+            font-family: 'Playfair Display', serif; font-style: italic;
+            font-size: 1.3rem; letter-spacing: 0.02em;
         }
 
         .user-nav-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: inline-flex; align-items: center; gap: 6px;
             padding: 8px 16px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: #94a3b8;
-            font-size: 0.85rem;
-            font-weight: 600;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            font-size: 0.85rem; font-weight: 600;
             transition: all 0.2s;
         }
         .user-nav-btn:hover {
-            background: rgba(255,255,255,0.08);
-            color: #fff;
+            background: var(--surface-muted);
+            color: var(--text);
         }
         .user-nav-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
+            opacity: 0.3; cursor: not-allowed;
         }
 
         .section-header {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.4rem;
-            letter-spacing: 0.04em;
+            font-family: 'Playfair Display', serif; font-style: italic;
+            font-size: 1.4rem; letter-spacing: 0.04em; color: var(--text);
         }
 
         /* ── Prediction Row Redesign ───────────────────────── */
@@ -322,37 +269,34 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
             to   { opacity: 1; transform: translateX(0); }
         }
         @keyframes exactPulse {
-            0%,100% { border-color: rgba(0,255,136,0.4); box-shadow: 0 0 0 0 rgba(0,255,136,0); }
-            50%     { border-color: rgba(0,255,136,0.8); box-shadow: 0 0 18px rgba(0,255,136,0.18); }
+            0%,100% { border-color: rgba(45,106,79,0.4); box-shadow: 0 0 0 0 rgba(45,106,79,0); }
+            50%     { border-color: rgba(45,106,79,0.8); box-shadow: 0 0 18px rgba(45,106,79,0.18); }
         }
         @keyframes ptsPop {
             0%   { transform: scale(0.4); opacity: 0; }
             65%  { transform: scale(1.2); }
             100% { transform: scale(1);   opacity: 1; }
         }
-        @keyframes shimmerBg {
-            0%   { background-position: -200% center; }
-            100% { background-position:  200% center; }
-        }
 
         .drow {
             display: grid;
             grid-template-columns: 1fr 30px 90px 64px;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid var(--border-light);
             border-left: 3px solid transparent;
             animation: slideInRow 0.4s ease both;
             transition: background 0.15s;
+            background: var(--surface);
         }
         .drow:last-child { border-bottom: none; }
-        .drow:hover { background: rgba(255,255,255,0.025); }
+        .drow:hover { background: var(--surface-muted); }
         .drow.exact {
-            background: rgba(0,255,136,0.05);
-            border-left-color: #00ff88;
+            background: rgba(45,106,79,0.04);
+            border-left-color: var(--live);
             animation: slideInRow 0.4s ease both, exactPulse 2.8s ease-in-out 0.5s infinite;
         }
-        .drow.miss   { border-left-color: rgba(239,68,68,0.25); }
-        .drow.pending{ opacity: 0.45; border-left-color: rgba(100,116,139,0.2); }
+        .drow.miss   { border-left-color: rgba(196,30,58,0.25); }
+        .drow.pending{ opacity: 0.45; border-left-color: var(--text3); }
 
         .dcell-pred {
             display: flex; align-items: center; gap: 10px;
@@ -371,137 +315,171 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
         }
 
         .ppip {
-            min-width: 34px; height: 34px; border-radius: 7px; flex-shrink: 0;
+            min-width: 34px; height: 34px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 0.02em;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+            font-variant-numeric: tabular-nums;
         }
-        .ppip.rank1  { background: rgba(255,215,0,0.12); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); }
-        .ppip.rank2  { background: rgba(200,200,210,0.1); color: #c8c8d2; border: 1px solid rgba(200,200,210,0.25); }
-        .ppip.rank3  { background: rgba(205,127,50,0.12); color: #e09050; border: 1px solid rgba(205,127,50,0.28); }
-        .ppip.top10  { background: rgba(255,106,0,0.08); color: #ff8040; border: 1px solid rgba(255,106,0,0.18); }
-        .ppip.other  { background: rgba(255,255,255,0.04); color: #64748b; border: 1px solid rgba(255,255,255,0.08); }
-        .ppip.aexact { background: rgba(0,255,136,0.14); color: #00ff88; border: 1px solid rgba(0,255,136,0.35); }
+        .ppip.rank1  { background: rgba(201,169,110,0.12); color: var(--gold); border: 1px solid rgba(201,169,110,0.3); }
+        .ppip.rank2  { background: rgba(168,165,160,0.1); color: var(--silver); border: 1px solid rgba(168,165,160,0.25); }
+        .ppip.rank3  { background: rgba(176,128,80,0.12); color: var(--bronze); border: 1px solid rgba(176,128,80,0.28); }
+        .ppip.top10  { background: rgba(196,30,58,0.06); color: var(--accent); border: 1px solid rgba(196,30,58,0.15); }
+        .ppip.other  { background: var(--surface-muted); color: var(--text2); border: 1px solid var(--border); }
+        .ppip.aexact { background: rgba(45,106,79,0.1); color: var(--live); border: 1px solid rgba(45,106,79,0.25); }
 
-        .dname { font-size: 0.8rem; font-weight: 700; color: #e2e8f0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .dteam { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #475569; margin-top: 2px; }
+        .dname { font-size: 0.8rem; font-weight: 700; color: var(--text); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dteam { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text2); margin-top: 2px; }
 
-        .match-exact { font-size: 17px; color: #00ff88; filter: drop-shadow(0 0 5px rgba(0,255,136,0.7)); }
-        .match-miss  { font-size: 13px; color: #3f4f60; }
-        .match-na    { font-size: 13px; color: #2a3542; }
+        .match-exact { font-size: 17px; color: var(--live); }
+        .match-miss  { font-size: 13px; color: var(--text3); }
+        .match-na    { font-size: 13px; color: var(--text3); }
 
         .apos-badge {
-            font-family: 'Bebas Neue', sans-serif; font-size: 0.78rem;
-            color: #64748b; white-space: nowrap;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+            color: var(--text2); white-space: nowrap;
         }
         .apos-diff {
-            font-size: 0.58rem; font-weight: 700; color: #475569;
+            font-size: 0.58rem; font-weight: 700; color: var(--text2);
             letter-spacing: 0.02em;
         }
 
         .pts-num {
-            font-family: 'Bebas Neue', sans-serif; font-size: 1.55rem; letter-spacing: 0.02em;
-            color: #00ff88; line-height: 1;
+            font-family: 'JetBrains Mono', monospace; font-size: 1.55rem;
+            font-variant-numeric: tabular-nums;
+            color: var(--live); line-height: 1;
             animation: ptsPop 0.45s cubic-bezier(0.175,0.885,0.32,1.275) both;
         }
-        .pts-tag { font-size: 0.44rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #00cc70; }
-        .pts-zero { font-size: 0.9rem; font-weight: 700; color: #263040; }
+        .pts-tag { font-size: 0.44rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--live); }
+        .pts-zero { font-size: 0.9rem; font-weight: 700; color: var(--text3); }
 
         /* Score breakdown cards */
         .scard {
-            border-radius: 12px; text-align: center; padding: 14px 8px;
-            border: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden;
-            background: rgba(255,255,255,0.02);
+            text-align: center; padding: 14px 8px;
+            border: 1px solid var(--border); position: relative; overflow: hidden;
+            background: var(--surface);
         }
         .scard::after {
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-            border-radius: 99px;
         }
-        .scard.stotal::after  { background: linear-gradient(90deg, #00ff88, #00e5ff); }
-        .scard.sdriver::after { background: #3b82f6; }
-        .scard.spodium::after { background: #a855f7; }
-        .scard.scons::after   { background: #f97316; }
+        .scard.stotal::after  { background: var(--live); }
+        .scard.sdriver::after { background: var(--accent); }
+        .scard.spodium::after { background: var(--gold); }
+        .scard.scons::after   { background: var(--text2); }
         .scard-num {
-            font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1;
+            font-family: 'JetBrains Mono', monospace; font-size: 2rem; line-height: 1;
+            font-variant-numeric: tabular-nums;
             animation: ptsPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275) 0.1s both;
         }
         .scard-lbl {
             font-size: 0.52rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: #475569; margin-top: 4px;
+            letter-spacing: 0.08em; color: var(--text2); margin-top: 4px;
         }
+
+        /* g-card (from old gaming-style.css) */
+        .g-card { background: var(--surface); border: 1px solid var(--border); }
+
+        /* Override Tailwind dark-theme colors for editorial theme */
+        .text-white { color: var(--text); }
+        .text-gray-300 { color: var(--text); }
+        .text-gray-400 { color: var(--text2); }
+        .text-gray-500 { color: var(--text2); }
+        .text-gray-600 { color: var(--text3); }
+        .text-amber-400 { color: var(--gold); }
+        .text-emerald-400 { color: var(--live); }
+        .text-orange-400 { color: var(--accent); }
+        .text-orange-500 { color: var(--accent); }
+        .text-blue-400 { color: var(--text2); }
+        .text-purple-400 { color: var(--text2); }
+        .text-yellow-400 { color: var(--gold); }
+        .bg-black\/20 { background: var(--surface-muted); }
+        .border-white\/10 { border-color: var(--border); }
+        .border-white\/5 { border-color: var(--border-light); }
+        .hover\:text-orange-400:hover { color: var(--accent); }
+        .hover\:text-orange-300:hover { color: var(--accent); }
+        .hover\:text-white:hover { color: var(--text); }
+        .hover\:border-blue-500\/30:hover { border-color: var(--accent); }
+        .hover\:bg-blue-500\/5:hover { background: var(--accent-soft); }
+
+        /* Remove all border-radius */
+        .g-card, .rounded-lg, .rounded-full { border-radius: 0 !important; }
+
+        .hero{position:relative;height:220px;overflow:hidden}
+        .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+        .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.5) 100%)}
+        .race-info{background:var(--surface);border:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+        .race-info-left{flex:1;min-width:0}
+        .race-info-right{flex-shrink:0;display:flex;align-items:center;gap:12px}
+        .race-title{font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:22px;color:var(--text);line-height:1.2;margin-bottom:2px}
+        .race-meta{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
+        .race-flag{font-size:32px;line-height:1;flex-shrink:0}
     </style>
 </head>
-<body style="background:var(--f1-carbon);color:var(--f1-text);min-height:100vh;">
+<body>
 
     <?php require_once __DIR__ . '/includes/nav.php'; ?>
 
     <main class="pt-20 pb-16 px-4 md:px-8 max-w-5xl mx-auto">
 
         <!-- Back link -->
-        <a href="leaderboard.php" class="inline-flex items-center gap-2 text-gray-500 hover:text-white transition mb-5 text-sm">
+        <a href="leaderboard.php" class="inline-flex items-center gap-2 transition mb-5 text-sm" style="color:var(--text2)">
             <i class="fas fa-arrow-left"></i> Back to Leaderboard
         </a>
 
-        <!-- Hero Banner -->
-        <div class="hero-card mb-6">
+        <!-- Hero Banner (just image) -->
+        <div class="hero" style="height:220px;margin-bottom:0">
             <?php if ($raceHero): ?>
             <div class="hero-bg" style="background-image:url('<?php echo $raceHero; ?>')"></div>
             <?php endif; ?>
             <div class="hero-overlay"></div>
-            <div class="hero-carbon"></div>
-            <div class="hero-content w-full">
-                <div class="flex items-start justify-between flex-wrap gap-4">
+        </div>
+
+        <!-- Race Info (below hero) -->
+        <div class="race-info" style="margin-bottom:20px">
+            <div class="race-info-left">
+                <div class="flex items-center gap-3">
+                    <span class="race-flag"><?php echo $raceFlag; ?></span>
                     <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="text-5xl"><?php echo $raceFlag; ?></span>
-                            <div>
-                                <div class="text-xs text-gray-500 uppercase tracking-widest font-bold"><?php echo htmlspecialchars($race['circuit_name'] ?? ''); ?></div>
-                                <h1 class="text-3xl md:text-4xl font-black text-white uppercase tracking-wide" style="font-family:'Bebas Neue',sans-serif;letter-spacing:0.04em">
-                                    <?php echo htmlspecialchars($race['country']); ?> GP
-                                </h1>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 mt-1">
-                            <span class="text-xs text-gray-400"><?php echo $raceDateFormatted; ?></span>
-                            <?php if ($isDoublePoints): ?>
-                            <span class="double-points-badge">
-                                <i class="fas fa-bolt"></i> 2x Points
-                            </span>
-                            <?php endif; ?>
+                        <div class="race-title" style="font-size:22px"><?php echo htmlspecialchars($race['country']); ?> GP</div>
+                        <div class="race-meta">
+                            <?php echo htmlspecialchars($race['circuit_name'] ?? ''); ?> · <?php echo $raceDateFormatted; ?>
                         </div>
                     </div>
-                    <?php if (!$gatedPage && count($allRaceUsers) > 1): ?>
-                    <div class="flex items-center gap-2">
-                        <?php if ($prevUserId): ?>
-                        <a href="view-predictions.php?user_id=<?php echo $prevUserId; ?>&race_id=<?php echo $raceId; ?>" class="user-nav-btn">
-                            <i class="fas fa-chevron-left"></i> Prev
-                        </a>
-                        <?php endif; ?>
-                        <span class="text-xs text-gray-500 px-2">
-                            <?php echo $currentIdx + 1; ?>/<?php echo count($allRaceUsers); ?>
-                        </span>
-                        <?php if ($nextUserId): ?>
-                        <a href="view-predictions.php?user_id=<?php echo $nextUserId; ?>&race_id=<?php echo $raceId; ?>" class="user-nav-btn">
-                            Next <i class="fas fa-chevron-right"></i>
-                        </a>
-                        <?php endif; ?>
-                    </div>
+                </div>
+            </div>
+            <div class="race-info-right">
+                <?php if ($isDoublePoints): ?>
+                <span class="badge badge-accent" style="font-size:10px"><i class="fas fa-bolt"></i> 2x Points</span>
+                <?php endif; ?>
+                <?php if (!$gatedPage && count($allRaceUsers) > 1): ?>
+                <div class="flex items-center gap-1">
+                    <?php if ($prevUserId): ?>
+                    <a href="view-predictions.php?user_id=<?php echo $prevUserId; ?>&race_id=<?php echo $raceId; ?>" class="user-nav-btn" style="padding:4px 10px;font-size:12px">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <?php endif; ?>
+                    <span class="mono" style="font-size:11px;color:var(--text2);padding:0 4px"><?php echo $currentIdx + 1; ?>/<?php echo count($allRaceUsers); ?></span>
+                    <?php if ($nextUserId): ?>
+                    <a href="view-predictions.php?user_id=<?php echo $nextUserId; ?>&race_id=<?php echo $raceId; ?>" class="user-nav-btn" style="padding:4px 10px;font-size:12px">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
                     <?php endif; ?>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
 
         <?php if ($gatedPage): ?>
         <!-- GATE -->
         <div class="g-card p-10 text-center">
-            <div class="w-20 h-20 rounded-full bg-yellow-500/20 flex items-center justify-center text-4xl mx-auto mb-6">
+            <div class="w-20 h-20 flex items-center justify-center text-4xl mx-auto mb-6" style="color:var(--gold)">
                 🔒
             </div>
-            <h2 class="text-2xl font-black text-white mb-3">Predictions Hidden Until Deadline</h2>
-            <p class="text-gray-400 text-sm max-w-md mx-auto mb-6">
-                Predictions for this race will be visible <strong class="text-white">after the prediction deadline</strong>.<br><br>
-                <span class="text-yellow-400 font-bold"><?php echo $deadlineFormatted; ?></span>
+            <h2 class="text-2xl font-black mb-3">Predictions Hidden Until Deadline</h2>
+            <p class="text-sm max-w-md mx-auto mb-6" style="color:var(--text2)">
+                Predictions for this race will be visible <strong>after the prediction deadline</strong>.<br><br>
+                <span class="font-bold" style="color:var(--gold)"><?php echo $deadlineFormatted; ?></span>
             </p>
-            <a href="leaderboard.php" class="g-btn g-btn-blue px-6 py-2.5 inline-flex items-center gap-2 text-sm">
+            <a href="leaderboard.php" class="btn-outline inline-flex items-center gap-2 text-sm px-6 py-2.5">
                 <i class="fas fa-arrow-left"></i> Back to Leaderboard
             </a>
         </div>
@@ -509,22 +487,22 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
         <?php elseif (!$gatedPage && count($allRaceUsers) === 0): ?>
         <!-- No predictions at all -->
         <div class="g-card p-10 text-center">
-            <div class="w-20 h-20 rounded-full bg-gray-500/20 flex items-center justify-center text-4xl mx-auto mb-6">
-                <i class="fas fa-ghost text-gray-500 text-3xl"></i>
+            <div class="w-20 h-20 flex items-center justify-center text-4xl mx-auto mb-6" style="color:var(--text3)">
+                <i class="fas fa-ghost text-3xl"></i>
             </div>
-            <h2 class="text-2xl font-black text-white mb-3">No Predictions Yet</h2>
-            <p class="text-gray-400 text-sm">No one has submitted predictions for this race.</p>
+            <h2 class="text-2xl font-black mb-3">No Predictions Yet</h2>
+            <p class="text-sm" style="color:var(--text2)">No one has submitted predictions for this race.</p>
         </div>
 
         <?php else: ?>
 
         <!-- Race Leaderboard (All Users) -->
         <div class="g-card overflow-hidden mb-6">
-            <div class="px-5 py-3 border-b border-white/10 bg-black/20 flex items-center gap-2">
-                <i class="fas fa-trophy text-amber-400 text-sm"></i>
-                <h2 class="section-header text-white">Race Leaderboard</h2>
+            <div class="px-5 py-3 border-b border-[var(--border)] bg-[var(--surface-muted)] flex items-center gap-2">
+                <i class="fas fa-trophy text-sm" style="color:var(--gold)"></i>
+                <h2 class="section-header">Race Leaderboard</h2>
                 <?php if ($isDoublePoints): ?>
-                <span class="ml-auto double-points-badge text-[0.6rem]">
+                <span class="ml-auto double-points-badge" style="font-size:0.6rem">
                     <i class="fas fa-bolt"></i> 2x Points
                 </span>
                 <?php endif; ?>
@@ -542,23 +520,23 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
                             <?php echo $medal ?: '#' . $rank; ?>
                         </div>
                         <img src="<?php echo getAvatarUrl($ru['avatar_style'] ?? 'avataaars', $ru['username']); ?>"
-                             alt="" class="w-8 h-8 rounded-full border <?php echo $isActive ? 'border-[#ff0077]' : 'border-white/10'; ?>">
+                             alt="" class="w-8 h-8 border <?php echo $isActive ? 'border-[var(--accent)]' : 'border-[var(--border)]'; ?>">
                         <div class="flex-1">
-                            <div class="font-semibold text-sm <?php echo $isActive ? 'text-white' : 'text-gray-300'; ?>">
+                            <div class="font-semibold text-sm <?php echo $isActive ? '' : ''; ?>">
                                 <?php echo htmlspecialchars($ru['username']); ?>
-                                <?php if ($isActive): ?><span class="text-xs text-[#ff0077] ml-1">(viewing)</span><?php endif; ?>
+                                <?php if ($isActive): ?><span class="text-xs ml-1" style="color:var(--accent)">(viewing)</span><?php endif; ?>
                             </div>
-                            <div class="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
-                                <span>Driver: <strong class="text-blue-400"><?php echo $ru['driver_points']; ?></strong></span>
-                                <span>Constructor: <strong class="text-orange-400"><?php echo $ru['constructor_points']; ?></strong></span>
-                                <span>Podium: <strong class="text-purple-400"><?php echo $ru['top3_bonus']; ?></strong></span>
+                            <div class="flex items-center gap-3 mt-0.5" style="color:var(--text2);font-size:0.75rem">
+                                <span>Driver: <strong style="color:var(--accent)"><?php echo $ru['driver_points']; ?></strong></span>
+                                <span>Constructor: <strong style="color:var(--accent)"><?php echo $ru['constructor_points']; ?></strong></span>
+                                <span>Podium: <strong style="color:var(--gold)"><?php echo $ru['top3_bonus']; ?></strong></span>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xl font-black <?php echo $rank === 1 ? 'text-amber-400' : ($rank === 2 ? 'text-gray-300' : ($rank === 3 ? 'text-orange-400' : 'text-gray-400')); ?>">
+                            <div class="text-xl font-black" style="color:<?php echo $rank === 1 ? 'var(--gold)' : ($rank === 2 ? 'var(--silver)' : ($rank === 3 ? 'var(--bronze)' : 'var(--text2)')); ?>">
                                 <?php echo $ru['total_points']; ?>
                             </div>
-                            <div class="text-[0.55rem] text-gray-600 uppercase tracking-wider font-semibold">Total</div>
+                            <div class="text-[0.55rem] uppercase tracking-wider font-semibold" style="color:var(--text3)">Total</div>
                         </div>
                         <?php if (!$isActive): ?>
                         <i class="fas fa-chevron-right text-gray-600 text-sm"></i>
@@ -572,13 +550,13 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
         <!-- Current User Predictions vs Actual -->
         <?php if (empty($predictions)): ?>
         <div class="g-card p-8 text-center">
-            <div class="w-16 h-16 rounded-full bg-gray-500/20 flex items-center justify-center text-3xl mx-auto mb-4">
-                <i class="fas fa-ghost text-gray-500"></i>
+            <div class="w-16 h-16 flex items-center justify-center text-3xl mx-auto mb-4" style="color:var(--text3)">
+                <i class="fas fa-ghost"></i>
             </div>
-            <h2 class="text-xl font-black text-white mb-2">
+            <h2 class="text-xl font-black mb-2">
                 <?php echo $displayName; ?> didn't predict this race
             </h2>
-            <p class="text-gray-500 text-sm">No predictions submitted.</p>
+            <p class="text-sm" style="color:var(--text2)">No predictions submitted.</p>
         </div>
 
         <?php else: ?>
@@ -588,20 +566,20 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
             <div class="flex items-center justify-between flex-wrap gap-3">
                 <div class="flex items-center gap-3">
                     <img src="<?php echo getAvatarUrl($targetUser['avatar_style'] ?? 'avataaars', $targetUser['username']); ?>"
-                         alt="Avatar" class="w-10 h-10 rounded-full border-2 border-orange-500/50">
+                         alt="Avatar" class="w-10 h-10 border-2" style="border-color:var(--accent)">
                     <div>
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">Predictions by</div>
-                        <div class="text-lg font-black text-orange-400">
+                        <div class="text-xs uppercase tracking-wide" style="color:var(--text2)">Predictions by</div>
+                        <div class="text-lg font-black" style="color:var(--accent)">
                             <?php echo $displayName; ?>
-                            <?php if ($isMe): ?><span class="text-xs bg-orange-500/20 text-orange-400 px-2 rounded ml-1">YOU</span><?php endif; ?>
+                            <?php if ($isMe): ?><span class="text-xs px-2 ml-1" style="color:var(--accent);background:var(--accent-soft)">YOU</span><?php endif; ?>
                         </div>
                     </div>
                 </div>
                 <?php if ($scoreRecord): ?>
                 <div class="flex items-center gap-4">
                     <div class="text-right">
-                        <div class="text-2xl font-black text-emerald-400"><?php echo $scoreRecord['total_points']; ?></div>
-                        <div class="text-[0.55rem] text-gray-500 uppercase tracking-widest font-semibold">Total</div>
+                        <div class="text-2xl font-black" style="color:var(--live)"><?php echo $scoreRecord['total_points']; ?></div>
+                        <div class="text-[0.55rem] uppercase tracking-widest font-semibold" style="color:var(--text3)">Total</div>
                     </div>
                     <?php if ($isDoublePoints): ?>
                     <div class="double-points-badge">
@@ -617,22 +595,22 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
         <?php if ($scoreRecord): ?>
         <div class="grid grid-cols-4 gap-3 mb-5">
             <div class="scard stotal">
-                <div class="scard-num" style="color:#00ff88">
-                    <?php if ($isDoublePoints): ?><span style="font-size:0.8rem;color:#ff0077;font-family:'Bebas Neue',sans-serif;">2×</span><?php endif; ?>
+                <div class="scard-num" style="color:var(--live)">
+                    <?php if ($isDoublePoints): ?><span style="font-size:0.8rem;color:var(--accent)">2×</span><?php endif; ?>
                     <?php echo $scoreRecord['total_points']; ?>
                 </div>
                 <div class="scard-lbl">Total Pts</div>
             </div>
             <div class="scard sdriver">
-                <div class="scard-num" style="color:#3b82f6"><?php echo $scoreRecord['driver_points']; ?></div>
+                <div class="scard-num" style="color:var(--accent)"><?php echo $scoreRecord['driver_points']; ?></div>
                 <div class="scard-lbl">Driver</div>
             </div>
             <div class="scard spodium">
-                <div class="scard-num" style="color:#a855f7"><?php echo $scoreRecord['top3_bonus']; ?></div>
+                <div class="scard-num" style="color:var(--gold)"><?php echo $scoreRecord['top3_bonus']; ?></div>
                 <div class="scard-lbl">Podium</div>
             </div>
             <div class="scard scons">
-                <div class="scard-num" style="color:#f97316"><?php echo $scoreRecord['constructor_points']; ?></div>
+                <div class="scard-num" style="color:var(--text2)"><?php echo $scoreRecord['constructor_points']; ?></div>
                 <div class="scard-lbl">Constructor</div>
             </div>
         </div>
@@ -640,9 +618,9 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
 
         <!-- Predictions vs Actual Table -->
         <div class="g-card overflow-hidden mb-5">
-            <div class="px-4 py-3 border-b border-white/10 bg-black/20 flex items-center gap-2">
-                <i class="fas fa-list-ol text-orange-500 text-sm"></i>
-                <h2 class="font-bold text-white text-sm uppercase tracking-wider">Driver Predictions</h2>
+            <div class="px-4 py-3 border-b border-[var(--border)] bg-[var(--surface-muted)] flex items-center gap-2">
+                <i class="fas fa-list-ol text-sm" style="color:var(--accent)"></i>
+                <h2 class="font-bold text-sm uppercase tracking-wider">Driver Predictions</h2>
                 <?php
                 $exactCount = 0;
                 foreach ($predictions as $p) {
@@ -651,20 +629,20 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
                     if ($act && (int)$act['position'] === (int)$p['predicted_position']) $exactCount++;
                 }
                 ?>
-                <span class="ml-auto text-xs text-gray-500"><?php echo count($predictions); ?> drivers</span>
+                <span class="ml-auto text-xs" style="color:var(--text2)"><?php echo count($predictions); ?> drivers</span>
                 <?php if ($exactCount > 0): ?>
-                <span style="font-size:0.6rem;font-weight:800;background:rgba(0,255,136,0.12);color:#00ff88;border:1px solid rgba(0,255,136,0.25);padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.06em;">
+                <span style="font-size:0.6rem;font-weight:800;background:rgba(45,106,79,0.1);color:var(--live);border:1px solid rgba(45,106,79,0.2);padding:2px 8px;text-transform:uppercase;letter-spacing:0.06em;">
                     <?php echo $exactCount; ?> exact ✓
                 </span>
                 <?php endif; ?>
             </div>
 
             <!-- Column headers -->
-            <div style="display:grid;grid-template-columns:1fr 30px 90px 64px;padding:5px 14px;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.25);">
-                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#334155;">Your Pick</div>
+            <div style="display:grid;grid-template-columns:1fr 30px 90px 64px;padding:5px 14px;border-bottom:1px solid var(--border);background:var(--surface-muted);">
+                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);">Your Pick</div>
                 <div></div>
-                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#334155;text-align:center;">Actual</div>
-                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#334155;text-align:right;padding-right:14px;">Pts</div>
+                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);text-align:center;">Actual</div>
+                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);text-align:right;padding-right:14px;">Pts</div>
             </div>
 
             <div>
@@ -737,10 +715,10 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
                     <?php if ($actualPos !== null): ?>
                         <div class="ppip <?php echo $aPipClass; ?>">P<?php echo $actualPos; ?></div>
                         <?php if ($diffTxt): ?>
-                        <div class="apos-diff" style="color:<?php echo ($diff > 0 ? '#ef4444' : '#f97316'); ?>"><?php echo $diffTxt; ?></div>
+                        <div class="apos-diff" style="color:<?php echo ($diff > 0 ? 'var(--accent)' : 'var(--live)'); ?>"><?php echo $diffTxt; ?></div>
                         <?php endif; ?>
                     <?php else: ?>
-                        <span style="font-size:0.65rem;color:#334155;">TBC</span>
+                        <span style="font-size:0.65rem;color:var(--text3);">TBC</span>
                     <?php endif; ?>
                 </div>
 
@@ -764,9 +742,9 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
         <!-- Constructor Predictions -->
         <?php if (!empty($constructorPreds)): ?>
         <div class="g-card overflow-hidden mb-5">
-            <div class="px-4 py-3 border-b border-white/10 bg-black/20 flex items-center gap-2">
-                <i class="fas fa-wrench text-blue-400 text-sm"></i>
-                <h2 class="font-bold text-white text-sm uppercase tracking-wider">Constructor Predictions</h2>
+            <div class="px-4 py-3 border-b border-[var(--border)] bg-[var(--surface-muted)] flex items-center gap-2">
+                <i class="fas fa-wrench text-sm" style="color:var(--accent)"></i>
+                <h2 class="font-bold text-sm uppercase tracking-wider">Constructor Predictions</h2>
             </div>
             <div class="p-4 space-y-2">
                 <?php
@@ -791,13 +769,13 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
                     $conActualPos = $actualConstructors[$conName] ?? null;
                     $conCorrect = $conActualPos !== null && $conActualPos === $conPredPos;
                 ?>
-                <div class="flex items-center gap-3 py-2 px-3 bg-white/5 rounded-lg">
-                    <span class="text-blue-400 font-black text-lg"><?php echo $conPredPos; ?></span>
-                    <span class="text-sm font-semibold text-white flex-1"><?php echo htmlspecialchars($conName); ?></span>
+                <div class="flex items-center gap-3 py-2 px-3" style="background:var(--surface-muted);border:1px solid var(--border-light)">
+                    <span class="font-black text-lg" style="color:var(--accent)"><?php echo $conPredPos; ?></span>
+                    <span class="text-sm font-semibold flex-1"><?php echo htmlspecialchars($conName); ?></span>
                     <?php if ($conActualPos !== null): ?>
-                        <span class="text-xs text-gray-500">Actual: #<?php echo $conActualPos; ?></span>
+                        <span class="text-xs" style="color:var(--text2)">Actual: #<?php echo $conActualPos; ?></span>
                         <?php if ($conCorrect): ?>
-                            <span class="text-emerald-400 text-sm">✅</span>
+                            <span class="text-sm" style="color:var(--live)">✅</span>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
@@ -811,10 +789,10 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
 
     </main>
 
-    <footer class="mt-12 border-t border-white/10 py-6 text-center">
-        <p class="text-gray-500 text-sm mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
-        <p class="text-gray-600 text-xs">
-            Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-orange-500 hover:text-orange-400 font-semibold transition">Scanerrific</a>
+    <footer class="mt-12 py-6 text-center" style="border-top:1px solid var(--border);">
+        <p class="text-sm mb-2" style="color:var(--text2)">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+        <p class="text-xs" style="color:var(--text3)">
+            Powered by <a href="https://www.scanerrific.com" target="_blank" style="color:var(--accent);font-weight:600">Scanerrific</a>
         </p>
     </footer>
 

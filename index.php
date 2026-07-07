@@ -18,167 +18,205 @@ if (!$user) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Paddock Picks</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Teko:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15/Sortable.min.js"></script>
 <style>
+/* ===== RESET ===== */
 *{margin:0;padding:0;box-sizing:border-box}
+#root .card,#root .btn,#root .badge,#root .modal,#root .toast,#root .hero,#root .constr-card,#root .ach-card,#root .avatar-option{border-radius:0!important}
+/* ===== TOKENS ===== */
 :root{
-  --bg:#0c0f16;--bg2:#111620;--card:#181e2c;--card2:#1e2537;--border:rgba(255,255,255,0.05);
-  --border2:rgba(255,255,255,0.08);--text:#f0f2f5;--text2:#8a92a8;--text3:#555b6e;
-  --purple:#7c3aed;--purple2:#a855f7;--blue:#4f7cff;--green:#22c55e;--red:#ef4444;
-  --orange:#fb923c;--rad:12px;--rad-lg:16px;
+  --canvas:#F5F3EF;--bg:#F5F3EF;--bg2:#FAF9F7;--surface:#FFF;--card:#FFF;--card2:#FAF9F7;--surface-muted:#FAF9F7;
+  --border:#E8E5E0;--border-light:#F0EDE8;
+  --text:#1A1A1A;--text2:#6B6864;--text3:#A09C96;
+  --accent:#C41E3A;--accent-soft:#F5E6E9;
+  --live:#2D6A4F;
+  --gold:#C9A96E;--silver:#A8A5A0;--bronze:#B08050;
+  --primary:#C41E3A;--primary-hover:#A0182E;--success:#2D6A4F;--danger:#C41E3A;
+  --orange:#C9A96E;--blue:#A8A5A0;--green:#2D6A4F;--red:#C41E3A;
+  --accent-warm:#C9A96E;
+  --rad:0;--rad-pill:0;--rad-sm:0;
+  --shadow:0 4px 24px rgba(0,0,0,0.04);
 }
-body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--card2);border-radius:2px}
+body{background:var(--canvas);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent-soft)}
+::-webkit-scrollbar{width:0}
 a{text-decoration:none;color:inherit}
-input:focus{outline:none}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 18px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:all 0.2s}
-.btn-primary{background:var(--purple);color:#fff}
-.btn-primary:hover{background:#6d28d9;transform:translateY(-1px)}
-.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
-.btn-outline:hover{border-color:var(--purple);color:var(--text)}
-.btn-ghost{background:transparent;color:var(--text2);padding:6px}
-.btn-ghost:hover{color:var(--text)}
-.btn-sm{padding:5px 12px;font-size:11px}
-.btn-lg{padding:12px 28px;font-size:15px}
+/* ===== TYPE ===== */
+.display{font-family:'Playfair Display',serif;font-weight:400;font-style:italic;line-height:1.1}
+.serif{font-family:'Playfair Display',serif}
+h1,.h1{font-weight:800;letter-spacing:-0.02em;line-height:1.1}
+h2,.h2{font-weight:700;letter-spacing:-0.01em;line-height:1.2}
+h3,.h3{font-weight:600;letter-spacing:-0.01em;line-height:1.3}
+.lead{font-size:17px;font-weight:400;color:var(--text2);line-height:1.6}
+.muted{font-size:13px;color:var(--text3)}
+.sans{font-family:'Inter',sans-serif}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.racing{font-family:'Teko',sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;line-height:1}
+.caps{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
+.ch{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;border:1px solid var(--border);border-radius:var(--rad-pill);cursor:pointer;transition:all 200ms;background:var(--surface);color:var(--text)}
+.btn:hover{background:var(--canvas);border-color:var(--border)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{opacity:0.9;background:var(--accent)}
+.btn-outline{background:transparent;border-color:var(--border);color:var(--text2)}
+.btn-outline:hover{background:var(--surface);border-color:var(--accent);color:var(--accent)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text2)}
+.btn-ghost:hover{background:var(--canvas);color:var(--text)}
+.btn-sm{padding:5px 14px;font-size:12px;border-radius:14px}
+.btn-lg{padding:12px 28px;font-size:16px;border-radius:28px}
 .btn-block{width:100%}
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad-lg);box-shadow:0 4px 24px rgba(0,0,0,0.3)}
-.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;font-size:11px;font-weight:600;border-radius:999px}
-.badge-purple{background:rgba(124,58,237,0.15);color:var(--purple2);border:1px solid rgba(124,58,237,0.2)}
-.badge-green{background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.15)}
-.badge-red{background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.15)}
-.badge-gray{background:rgba(255,255,255,0.04);color:var(--text2);border:1px solid var(--border)}
-.input{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none}
-.input:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(124,58,237,0.08)}
+/* ===== CARDS ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad)}
+.card-hover{transition:all 200ms ease}
+.card-hover:hover{background:var(--surface-muted);border-color:var(--border)}
+/* ===== BADGES ===== */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;font-size:12px;font-weight:500;border:1px solid;border-radius:var(--rad-sm);background:var(--surface)}
+.badge-accent{background:var(--accent-soft);color:var(--accent);border-color:rgba(196,30,58,0.15)}
+.badge-live{background:rgba(45,106,79,0.08);color:var(--live);border-color:rgba(45,106,79,0.15)}
+.badge-gray{background:var(--surface-muted);color:var(--text2);border-color:var(--border)}
+.badge-gold{background:rgba(201,169,110,0.1);color:var(--gold);border-color:rgba(201,169,110,0.2)}
+.badge-green{background:rgba(45,106,79,0.08);color:var(--live);border-color:rgba(45,106,79,0.15)}
+.badge-red{background:rgba(196,30,58,0.08);color:var(--accent);border-color:rgba(196,30,58,0.15)}
+.badge-purple{background:var(--accent-soft);color:var(--accent);border-color:rgba(196,30,58,0.15)}
+/* ===== INPUTS ===== */
+.input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--rad-sm);padding:10px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:15px;outline:none;transition:border-color 200ms}
+.input:focus{border-color:var(--accent)}
 .input::placeholder{color:var(--text3)}
-.page{padding-top:72px;padding-bottom:24px;max-width:1400px;margin:0 auto;padding-left:20px;padding-right:20px}
-.hero{position:relative;border-radius:var(--rad-lg);overflow:hidden;min-height:280px;display:flex;flex-direction:column;justify-content:flex-end}
-.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 0.6s ease}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,15,22,0.2) 0%,rgba(12,15,22,0.85) 60%,var(--bg) 100%)}
-.hero-content{position:relative;z-index:2;padding:24px}
-.cd-ring{position:relative;width:64px;height:64px;flex-shrink:0}
+/* ===== LAYOUT ===== */
+.page{max-width:1080px;margin:0 auto;padding:80px 24px 60px}
+@media(max-width:768px){.page{padding:72px 12px 40px}}
+/* ===== FLOATING ACTIONS ===== */
+.hero{position:relative;height:280px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-color:#1a1a2e;background-image:linear-gradient(135deg,#1a1a2e,#16213e)}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.5) 100%)}
+.race-info{background:var(--surface);border:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:24px}
+.race-info-left{flex:1;min-width:0}
+.race-info-right{flex-shrink:0;display:flex;align-items:center;gap:16px}
+.race-title{font-family:'Teko',sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;font-size:28px;color:var(--text);line-height:1;margin-bottom:2px}
+.race-meta{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
+.cd-ring{position:relative;width:52px;height:52px;flex-shrink:0}
 .cd-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.cd-ring circle{fill:none;stroke-width:3.5}
-.cd-ring .bg{stroke:var(--card2)}
-.cd-ring .fg{stroke:var(--purple);stroke-linecap:round;transition:stroke-dashoffset 1s ease}
-.cd-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text)}
-.status-bar{height:4px;background:var(--card2);border-radius:2px;overflow:hidden;margin-top:12px}
-.status-fill{height:100%;border-radius:2px;transition:width 1s ease}
-.status-fill.open{background:linear-gradient(90deg,var(--green),#16a34a)}
-.status-fill.closed{background:var(--text3)}
-.status-fill.green{background:var(--green)}
-.status-fill.purple{background:var(--purple)}
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.stat-box{padding:16px;text-align:center;border-radius:var(--rad)}
-.stat-box .v{font-size:24px;font-weight:800;line-height:1.2}
-.stat-box .l{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-top:2px}
-.race-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
-.race-row:last-child{border-bottom:none}
-.r-flag{font-size:18px;width:32px;text-align:center;flex-shrink:0}
-.r-name{font-weight:600;font-size:14px;color:var(--text)}
-.r-meta{font-size:11px;color:var(--text2)}
-.r-status{margin-left:auto}
-.res-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
-.res-row:last-child{border-bottom:none}
-.res-icon{width:32px;height:32px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--text2);flex-shrink:0}
-.res-name{font-weight:600;font-size:13px;color:var(--text)}
-.res-date{font-size:11px;color:var(--text2)}
-.res-pts{font-weight:700;font-size:16px;color:var(--green);margin-left:auto}
-.lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;transition:background 0.2s}
-.lb-row:hover{background:rgba(255,255,255,0.02)}
-.lb-row.me{background:rgba(124,58,237,0.06)}
-.lb-rk{width:24px;text-align:center;font-weight:700;font-size:15px}
-.lb-rk-1{color:var(--orange)}
-.lb-rk-2{color:#a0a0a0}
-.lb-rk-3{color:#cd7f32}
-.lb-name{flex:1;min-width:0}
-.lb-user{font-weight:600;font-size:13px}
-.lb-lvl{font-size:10px;color:var(--text2)}
-.lb-pts{font-weight:700;color:var(--text)}
-.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:var(--rad-lg);padding:28px;width:100%;max-width:380px;box-shadow:0 24px 80px rgba(0,0,0,0.5)}
-.modal .field{margin-bottom:14px}
-.modal .field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:5px}
+.cd-ring circle{fill:none;stroke-width:4}
+.cd-ring .bg{stroke:var(--border)}
+.cd-ring .fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.cd-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text);font-weight:700}
+@media(max-width:768px){.hero{height:180px}.race-info{flex-direction:column;align-items:stretch;padding:16px;gap:12px;margin-top:16px}.race-title{font-size:20px}}
+/* ===== QUOTE ===== */
+.quote-block{max-width:680px;margin:0 auto 64px;padding-left:24px;border-left:2px solid var(--gold)}
+.quote-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;margin-bottom:16px;background:var(--surface-muted)}
+.quote-avatar img{width:100%;height:100%;object-fit:cover}
+.quote-text{font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:26px;color:var(--text);line-height:1.4;margin-bottom:16px}
+.quote-attribution{font-size:14px;color:var(--text2)}
+.quote-attribution::before{content:'';display:block;width:24px;height:2px;background:var(--gold);margin-bottom:8px}
+/* ===== FLOATING ACTIONS ===== */
+.float-actions{position:fixed;bottom:32px;right:32px;z-index:50;display:flex;flex-direction:column;gap:12px}
+.float-btn{width:48px;height:48px;border-radius:14px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text);cursor:pointer;transition:all 150ms;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.float-btn:hover{background:var(--text);color:var(--surface)}
+/* ===== PREDICTION ROW ===== */
+.pred-row{display:flex;align-items:center;gap:16px;height:72px;padding:0 16px;border-bottom:1px solid var(--border-light);transition:background 200ms;cursor:pointer}
+.pred-row:hover{background:var(--surface-muted)}
+.pred-pos{width:40px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--text3);flex-shrink:0}
+.pred-avatar{width:48px;height:48px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--border)}
+.pred-avatar img{width:100%;height:100%;object-fit:cover}
+.pred-info{flex:1;min-width:0}
+.pred-name{font-size:16px;font-weight:500;color:var(--text);line-height:1.3}
+.pred-team{font-size:13px;color:var(--text2)}
+.pred-odds{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--text);margin-right:16px}
+.pred-selector{width:28px;height:28px;border-radius:50%;border:1.5px solid #D5D2CC;flex-shrink:0;transition:all 200ms;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pred-selector.selected{background:var(--accent);border-color:var(--accent)}
+.pred-selector.selected::after{content:'✓';color:#fff;font-size:14px;font-weight:700}
+/* ===== LEADERBOARD MINI ===== */
+.lb-mini{border:1px solid var(--border);border-radius:var(--rad);padding:24px}
+.lb-mini-header{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2);margin-bottom:20px}
+.lb-mini-row{display:flex;align-items:center;gap:12px;height:48px;padding:0 4px}
+.lb-mini-avatar{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--surface-muted)}
+.lb-mini-avatar img{width:100%;height:100%;object-fit:cover}
+.lb-mini-name{font-size:14px;font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-mini-pts{font-family:'JetBrains Mono',monospace;font-size:14px}
+.lb-mini-me{background:var(--accent-soft);margin:0 -8px;padding:0 12px;border-radius:var(--rad-sm);border-left:2px solid var(--accent)}
+.lb-mini-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.lb-mini-dot.gold{background:var(--gold)}
+.lb-mini-dot.silver{background:var(--silver)}
+.lb-mini-dot.bronze{background:var(--bronze)}
+.ach-dropdown{max-height:0;overflow:hidden;transition:max-height 0.35s ease,opacity 0.3s ease,padding 0.3s ease;opacity:0;padding:0 8px}
+.ach-dropdown.open{max-height:400px;opacity:1;padding:12px 8px}
+
+
+/* ===== CONSTRUCTOR CARD ===== */
+.constr-card{border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;cursor:pointer;transition:all 200ms;aspect-ratio:4/5;position:relative}
+.constr-card:hover{border-color:#D5D2CC;transform:translateY(-2px)}
+.constr-card.selected{border:2px solid var(--accent)}
+.constr-card-bg{position:absolute;inset:0;background:var(--border-light);display:flex;align-items:center;justify-content:center;font-size:48px;opacity:0.3}
+.constr-card-img{width:100%;height:100%;object-fit:cover}
+.constr-card-overlay{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent)}
+.constr-card-name{font-size:20px;font-weight:500;color:#fff}
+.constr-card-count{font-size:13px;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.7)}
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:28px;width:100%;max-width:400px}
+.modal .field{margin-bottom:16px}
+.modal .field label{display:block;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:6px}
 .modal .field .iw{position:relative}
-.modal .field .iw i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px}
-.modal .field .iw input{padding-left:36px}
-.modal .err{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);color:var(--red);padding:10px 14px;border-radius:8px;font-size:13px;text-align:center;margin-bottom:14px}
-.modal .success{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.15);color:var(--green);padding:10px 14px;border-radius:8px;font-size:13px;text-align:center;margin-bottom:14px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.anim{animation:fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both}
-.anim-d1{animation-delay:0.05s}
-.anim-d2{animation-delay:0.1s}
-.anim-d3{animation-delay:0.15s}
-.anim-d4{animation-delay:0.2s}
-.driver-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;transition:background 0.2s;border-bottom:1px solid var(--border)}
-.driver-row:last-child{border-bottom:none}
-.driver-row:hover{background:rgba(255,255,255,0.02)}
-.driver-pos{width:28px;height:28px;border-radius:6px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--text);flex-shrink:0}
-.team-badge{width:32px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;flex-shrink:0;letter-spacing:0.5px}
-.driver-name{font-weight:600;font-size:13px;flex:1}
-.team-name{font-size:10px;color:var(--text2)}
-.move-btn{width:26px;height:26px;border-radius:6px;border:none;background:var(--card2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.15s;flex-shrink:0}
-.move-btn:hover{background:var(--purple);color:#fff}
-.move-btn:disabled{opacity:0.3;cursor:not-allowed}
-.move-btn:disabled:hover{background:var(--card2);color:var(--text2)}
+.modal .field .iw i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px}
+.modal .field .iw input{padding-left:40px}
+.modal .err{background:rgba(255,59,48,0.06);border:1px solid rgba(255,59,48,0.15);color:var(--accent);padding:10px 14px;border-radius:var(--rad-sm);font-size:13px;text-align:center;margin-bottom:16px}
+.modal .success{background:rgba(45,106,79,0.06);border:1px solid rgba(45,106,79,0.15);color:var(--live);padding:10px 14px;border-radius:var(--rad-sm);font-size:13px;text-align:center;margin-bottom:16px}
+/* ===== AVATAR ===== */
 .avatar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:10px;max-height:400px;overflow-y:auto;padding:4px}
-.avatar-option{width:100%;aspect-ratio:1;border-radius:12px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px}
-.avatar-option:hover{border-color:var(--purple2);box-shadow:0 0 0 3px rgba(124,58,237,0.15)}
-.avatar-option.active{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,0.3)}
+.avatar-option{width:100%;aspect-ratio:1;border-radius:var(--rad-sm);border:2px solid var(--border);background:var(--surface);cursor:pointer;transition:all 200ms;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px}
+.avatar-option:hover{border-color:var(--accent)}
+.avatar-option.active{border-color:var(--accent);background:var(--accent-soft)}
 .avatar-option img{width:100%;height:100%;object-fit:contain}
-.ach-card{position:relative;padding:16px;border-radius:var(--rad);text-align:center;transition:all 0.3s}
-.ach-card.locked{opacity:0.35;filter:grayscale(1)}
-.ach-card .ach-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 10px}
-.ach-card .ach-name{font-weight:700;font-size:12px;margin-bottom:4px}
-.ach-card .ach-desc{font-size:10px;color:var(--text2);line-height:1.3}
-.ach-tag{position:absolute;top:8px;right:8px;font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:999px}
+/* ===== ACHIEVEMENTS ===== */
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.ach-card{position:relative;padding:20px;border:1px solid var(--border);border-radius:var(--rad);text-align:center;transition:all 300ms;background:var(--surface)}
+.ach-card.locked{opacity:0.4;filter:grayscale(1)}
+.ach-card .ach-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px}
+.ach-card .ach-name{font-weight:600;font-size:13px;margin-bottom:4px}
+.ach-card .ach-desc{font-size:11px;color:var(--text2);line-height:1.4}
+.ach-tag{position:absolute;top:12px;right:12px;font-size:9px;font-weight:600;text-transform:uppercase;padding:2px 8px;border-radius:var(--rad-sm)}
+/* ===== KEYFRAMES ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeUp 600ms cubic-bezier(0.22,1,0.36,1) both}
+.anim-d1{animation-delay:80ms}
+.anim-d2{animation-delay:160ms}
+.anim-d3{animation-delay:240ms}
+.anim-d4{animation-delay:320ms}
+.fa-spinner{animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes float-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes f1-pulse{0%,100%{box-shadow:0 0 30px rgba(225,6,0,0.35),inset 0 1px 0 rgba(255,255,255,0.15);background-position:0% 50%}50%{box-shadow:0 0 50px rgba(225,6,0,0.55),inset 0 1px 0 rgba(255,255,255,0.25);background-position:100% 50%}}
-@keyframes firework{0%{transform:scale(0);opacity:1}50%{opacity:1}100%{transform:scale(1.5);opacity:0}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(124,58,237,0.2)}50%{box-shadow:0 0 24px rgba(124,58,237,0.4)}}
-@keyframes glow-green{0%,100%{box-shadow:0 0 8px rgba(34,197,94,0.2)}50%{box-shadow:0 0 24px rgba(34,197,94,0.4)}}
-@keyframes glow-blue{0%,100%{box-shadow:0 0 8px rgba(79,124,255,0.2)}50%{box-shadow:0 0 24px rgba(79,124,255,0.4)}}
-@keyframes scale-in{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
-@keyframes slide-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slide-right{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
-@keyframes bounce-in{0%{opacity:0;transform:scale(0.3)}50%{transform:scale(1.08)}70%{transform:scale(0.95)}100%{opacity:1;transform:scale(1)}}
-@keyframes shimmer-card{0%{background-position:200% 0}100%{background-position:-200% 0}}
-@keyframes orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes count-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-.anim-float{animation:float 3s ease-in-out infinite}
-.anim-float-slow{animation:float-slow 4s ease-in-out infinite}
-.anim-shimmer{background:linear-gradient(90deg,transparent,rgba(255,255,255,0.03),transparent);background-size:200% 100%;animation:shimmer 3s ease-in-out infinite}
-.anim-glow{animation:glow 3s ease-in-out infinite}
-.anim-glow-green{animation:glow-green 3s ease-in-out infinite}
-.anim-glow-blue{animation:glow-blue 3s ease-in-out infinite}
-.anim-scale-in{animation:scale-in 0.5s cubic-bezier(0.16,1,0.3,1) both}
-.anim-slide-up{animation:slide-up 0.6s cubic-bezier(0.16,1,0.3,1) both}
-.anim-slide-right{animation:slide-right 0.5s cubic-bezier(0.16,1,0.3,1) both}
-.anim-bounce-in{animation:bounce-in 0.6s cubic-bezier(0.16,1,0.3,1) both}
-.card-hover{transition:all 0.3s cubic-bezier(0.16,1,0.3,1)}
-.card-hover:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(124,58,237,0.15)}
-.card-hover-green:hover{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(34,197,94,0.15)}
-.card-hover-blue:hover{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(79,124,255,0.15)}
-.card-hover-orange:hover{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(251,146,60,0.15)}
-.fa-spinner{animation:spin 1s linear infinite}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:300;background:var(--card);border:1px solid var(--border2);border-radius:var(--rad);padding:12px 20px;font-size:13px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:flex;align-items:center;gap:8px;animation:fadeUp 0.3s ease both}
-.toast.success{border-color:rgba(34,197,94,0.3);color:var(--green)}
-.toast.error{border-color:rgba(239,68,68,0.3);color:var(--red)}
-.sortable-ghost{opacity:0.3;background:var(--card2)!important}
-.sortable-drag{opacity:0.9;background:var(--card2)!important;border:1px solid var(--purple)!important;box-shadow:0 8px 32px rgba(0,0,0,0.5)!important;transform:scale(1.02)}
-.sortable-chosen{background:rgba(124,58,237,0.06)!important}
-.driver-row{cursor:grab}
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:300;background:var(--surface);border:1px solid var(--border);border-radius:var(--rad-pill);padding:12px 24px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;animation:fadeUp 300ms ease both}
+.toast.success{color:var(--live)}
+.toast.error{color:var(--accent)}
+/* ===== SORTABLE ===== */
+.sortable-ghost{opacity:0.15!important}
+.sortable-drag{opacity:0.95;border:1px solid var(--accent)!important}
+.sortable-chosen{background:var(--accent-soft)!important}
+/* ===== DRIVER ROW (predict page) ===== */
+.driver-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border-light);cursor:grab;transition:background 200ms}
+.driver-row:last-child{border-bottom:none}
+.driver-row:hover{background:var(--surface-muted)}
 .driver-row:active{cursor:grabbing}
 .driver-row.hidden{display:none!important}
+.driver-pos{width:28px;height:28px;border-radius:50%;background:var(--canvas);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;color:var(--text2);flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.team-badge{width:28px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;text-transform:uppercase;flex-shrink:0;letter-spacing:0.5px}
+.driver-name{font-weight:500;font-size:15px;flex:1}
+.team-name{font-size:12px;color:var(--text2)}
+.move-btn{width:28px;height:28px;border-radius:50%;border:none;background:var(--canvas);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 150ms;flex-shrink:0}
+.move-btn:hover{background:var(--accent);color:#fff}
+.move-btn:disabled{opacity:0.25;cursor:not-allowed}
+/* ===== UTILITY ===== */
+.caps-label{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
+.data-number{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.text-accent{color:var(--accent)}
+.text-gold{color:var(--gold)}
+.text-live{color:var(--live)}
+.bg-accent-soft{background:var(--accent-soft)}
 </style>
 </head>
 <body>
@@ -238,11 +276,11 @@ const ALL_ACHIEVEMENTS = [
 ];
 
 const TIER_CONFIG = {
-  common:{color:'var(--green)',bg:'rgba(34,197,94,0.1)',color2:'#22c55e'},
-  rare:{color:'var(--blue)',bg:'rgba(79,124,255,0.1)',color2:'#4f7cff'},
-  epic:{color:'var(--purple2)',bg:'rgba(168,85,247,0.1)',color2:'#a855f7'},
-  legendary:{color:'var(--red)',bg:'rgba(239,68,68,0.1)',color2:'#ef4444'},
-  special:{color:'var(--orange)',bg:'rgba(251,146,60,0.1)',color2:'#fb923c'}
+  common:{color:'var(--success)',bg:'rgba(40,167,69,0.08)',color2:'#28A745'},
+  rare:{color:'var(--accent)',bg:'rgba(0,210,190,0.08)',color2:'#00D2BE'},
+  epic:{color:'var(--primary)',bg:'rgba(225,6,0,0.08)',color2:'#C00500'},
+  legendary:{color:'var(--danger)',bg:'rgba(220,53,69,0.08)',color2:'#DC3545'},
+  special:{color:'var(--accent-warm)',bg:'rgba(255,135,0,0.08)',color2:'#FF8700'}
 };
 
 const getAvatarUrl = (style, seed) => {
@@ -372,6 +410,7 @@ const Dashboard = ({ onNav }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [animKey, setAnimKey] = useState(0);
+  const [podiumIdx, setPodiumIdx] = useState(0);
   const ref = useRef(null);
 
   const load = () => {
@@ -379,6 +418,7 @@ const Dashboard = ({ onNav }) => {
       if (d.error !== 'not_authenticated') {
         setData(d);
         setAnimKey(k => k + 1);
+        setPodiumIdx(0);
       }
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -388,14 +428,14 @@ const Dashboard = ({ onNav }) => {
 
   if (loading) return (
     <div className="page" style={{textAlign:'center',paddingTop:120}}>
-      <div style={{width:64,height:64,border:'4px solid var(--card2)',borderTopColor:'var(--purple)',borderRadius:'50%',animation:'spin 1s linear infinite',margin:'0 auto 16px'}} />
-      <div style={{height:14,width:200,background:'var(--card2)',borderRadius:6,margin:'0 auto',animation:'shimmer-card 2s linear infinite',background:'linear-gradient(90deg,var(--card2) 25%,var(--card) 50%,var(--card2) 75%)',backgroundSize:'200% 100%'}} />
+      <div style={{width:64,height:64,border:'4px solid var(--border)',borderTopColor:'var(--primary)',borderRadius:'50%',animation:'spin 1s linear infinite',margin:'0 auto 16px'}} />
+      <div style={{height:14,width:200,background:'var(--bg2)',borderRadius:6,margin:'0 auto',animation:'pulse 1.5s ease-in-out infinite'}} />
     </div>
   );
 
   if (!data) return null;
   if (data.error || (!data.stats && !data.accuracy)) {
-    return <div className="page" style={{padding:40,textAlign:'center'}}><div className="card" style={{padding:24,background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)'}}><I n="exclamation-triangle" style={{fontSize:32,color:'#ef4444',marginBottom:12}} /><h3 style={{color:'#ef4444',marginBottom:8}}>Dashboard Error</h3><p style={{color:'var(--text2)',fontSize:13}}>{data.message || 'Empty response from server - try refreshing the page.'}</p>{data.file && <p style={{fontSize:11,color:'var(--text3)',marginTop:8}}>{data.file}:{data.line}</p>}</div></div>;
+    return <div className="page" style={{padding:40,textAlign:'center'}}><div className="card" style={{padding:24,background:'rgba(220,53,69,0.06)',border:'1px solid rgba(220,53,69,0.15)'}}><I n="exclamation-triangle" style={{fontSize:32,color:'var(--danger)',marginBottom:12}} /><h3 style={{color:'var(--danger)',marginBottom:8}}>Dashboard Error</h3><p style={{color:'var(--text2)',fontSize:13}}>{data.message || 'Empty response from server - try refreshing the page.'}</p>{data.file && <p style={{fontSize:11,color:'var(--text3)',marginTop:8}}>{data.file}:{data.line}</p>}</div></div>;
   }
 
   const nr = data.nextRace;
@@ -408,377 +448,424 @@ const Dashboard = ({ onNav }) => {
     return <div className="team-badge" style={{background:color}}>{abbr}</div>;
   };
 
+  const nextRaceStr = nr?.country ? nr.country.toLowerCase().replace(/\s/g, '').replace(/grandprix/gi, '') + 'gp' : 'silverstone';
+  const heroBg = nr?.hero || '';
+  const lb = data.leaderboard || [];
+  const maxRecentPts = Math.max(...(data.recentResults||[]).map(x=>x.total_points), 1);
+
   return (
-    <div className="page" style={{position:'relative',overflow:'hidden',minHeight:'100vh'}}>
-      {/* Ambient background orbs */}
-      <div style={{position:'fixed',inset:0,pointerEvents:'none',overflow:'hidden',zIndex:0}}>
-        <div style={{position:'absolute',width:400,height:400,borderRadius:'50%',background:'radial-gradient(circle,rgba(124,58,237,0.06),transparent 70%)',top:'-100px',left:'-100px',animation:'float 8s ease-in-out infinite'}} />
-        <div style={{position:'absolute',width:300,height:300,borderRadius:'50%',background:'radial-gradient(circle,rgba(79,124,255,0.05),transparent 70%)',bottom:'-50px',right:'-50px',animation:'float 6s ease-in-out infinite reverse'}} />
-        <div style={{position:'absolute',width:250,height:250,borderRadius:'50%',background:'radial-gradient(circle,rgba(251,146,60,0.04),transparent 70%)',top:'40%',right:'10%',animation:'float 10s ease-in-out infinite 2s'}} />
+    <div className="page">
+
+      {/* ===== HERO (just image) ===== */}
+      <div className="hero">
+        <div className="hero-bg" style={heroBg ? {backgroundImage:'url('+heroBg+')'} : {}}></div>
+        <div className="hero-overlay"></div>
       </div>
 
-      <div style={{position:'relative',zIndex:1}}>
-
-        {/* ===== HERO ===== */}
-        <div className="card anim-scale-in" style={{overflow:'hidden',position:'relative',marginBottom:16,minHeight:340}}>
-          <div className="hero-bg" style={{backgroundImage:'url('+(nr?.hero||'')+')',position:'absolute',inset:0,backgroundSize:'cover',backgroundPosition:'center',transition:'transform 0.6s ease'}}></div>
-          <div className="hero-overlay" style={{position:'absolute',inset:0,background:'linear-gradient(180deg,rgba(12,15,22,0.15) 0%,rgba(12,15,22,0.8) 50%,var(--bg) 100%)'}}></div>
-          <div style={{position:'relative',zIndex:2,padding:'32px 28px',display:'flex',flexDirection:'row',alignItems:'flex-end',gap:16,flexWrap:'wrap',minHeight:340}}>
-            <div style={{flex:1,minWidth:200}}>
-              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,flexWrap:'wrap'}}>
-                <span className="badge badge-purple anim-bounce-in" style={{animationDelay:'0.1s'}}><I n="flag-checkered" style={{fontSize:10}} /> R{nr?.race_number||'-'}</span>
-                {nr && <span style={{fontSize:28,animation:'float 3s ease-in-out infinite'}}>{nr.flag}</span>}
-                {data.isDoublePoints && <span className="badge badge-green anim-glow-green"><I n="bolt" /> 2x</span>}
-                {data.predictionsOpen && <span className="badge badge-green anim-glow-green"><I n="check-circle" /> Open</span>}
-                {!data.predictionsOpen && nr && <span className="badge badge-red"><I n="lock" /> Locked</span>}
-              </div>
-              <div style={{fontSize:34,fontWeight:'900',textTransform:'uppercase',letterSpacing:'-0.02em',marginBottom:4,lineHeight:1.1}}>
-                {nr?.country||'Season Complete'}
-              </div>
-              <div style={{fontSize:14,color:'var(--text2)',marginBottom:12}}>
-                <I n="map-marker-alt" style={{color:'var(--purple2)',fontSize:12,marginRight:4}} /> {nr?.circuit_name||''}
-              </div>
-              <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'center'}}>
-                <span style={{fontSize:13,color:'var(--text2)'}}><I n="calendar" style={{marginRight:4}} />{nr ? new Date(nr.race_date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}) : ''}</span>
-                {data.predictionsOpen && (
-                  <button onClick={()=>onNav('predict')}
-                    style={{position:'relative',padding:'14px 36px',fontFamily:'Inter,sans-serif',fontSize:15,fontWeight:'800',letterSpacing:'0.06em',textTransform:'uppercase',border:'none',borderRadius:12,color:'#fff',cursor:'pointer',background:'linear-gradient(135deg,#e10600 0%,#ff2800 50%,#e10600 100%)',backgroundSize:'200% 100%',boxShadow:'0 0 30px rgba(225,6,0,0.35),inset 0 1px 0 rgba(255,255,255,0.15)',animation:'f1-pulse 1.5s ease-in-out infinite',display:'flex',alignItems:'center',gap:10}}>
-                    <span style={{fontSize:18}}>🏁</span> Predict Now
-                    <span style={{position:'absolute',inset:0,borderRadius:12,border:'2px solid rgba(255,255,255,0.08)',pointerEvents:'none'}} />
-                  </button>
-                )}
-                {!data.predictionsOpen && nr && (
-                  <span style={{fontSize:12,color:'var(--text3)',display:'flex',alignItems:'center',gap:6}}><I n="lock" /> Predictions closed</span>
-                )}
-              </div>
-            </div>
-            <CountdownRing deadline={data.deadline} open={data.predictionsOpen} text={data.countdownText} progress={data.progressBarWidth} />
+      {/* ===== RACE INFO (below hero) ===== */}
+      {nr && <div className="race-info">
+        <div className="race-info-left">
+          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6,flexWrap:'wrap'}}>
+            <span className="badge badge-live" style={{fontSize:10,padding:'2px 8px'}}><I n="flag-checkered" style={{fontSize:10}} /> Round {nr.race_number}</span>
+            {data.isDoublePoints && <span className="badge badge-gold" style={{fontSize:10,padding:'2px 8px'}}><I n="bolt" style={{fontSize:10}} /> 2x</span>}
+            {data.predictionsOpen !== undefined && (
+              data.predictionsOpen
+                ? <span className="badge badge-live" style={{fontSize:10,padding:'2px 8px'}}><span style={{width:6,height:6,borderRadius:'50%',background:'var(--live)',display:'inline-block'}} /> Open</span>
+                : <span className="badge badge-gray" style={{fontSize:10,padding:'2px 8px'}}><I n="lock" style={{fontSize:10}} /> Locked</span>
+            )}
           </div>
-          <StatusBar progress={data.progressBarWidth} open={data.predictionsOpen} />
+          <div className="race-title">{nr.country}</div>
+          <div className="race-meta">{nr.circuit_name ? nr.circuit_name + ' \u00B7 ' : ''}{nr ? new Date(nr.race_date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}) : ''}</div>
         </div>
+        <div className="race-info-right">
+          <div style={{textAlign:'right'}}>
+            <div className="caps" style={{fontSize:9,marginBottom:2}}>Deadline</div>
+            <div className="mono" style={{fontSize:13,color:'var(--accent)',fontWeight:700}}>{data.countdownText || '—'}</div>
+          </div>
+          <CountdownRing deadline={data.deadline} open={data.predictionsOpen} text={data.countdownText} progress={data.progressBarWidth} />
+          {data.predictionsOpen && (
+            <button onClick={()=>onNav('predict')} className="btn btn-primary btn-sm" style={{whiteSpace:'nowrap',marginLeft:4}}>
+              Predict <I n="arrow-right" style={{fontSize:11}} />
+            </button>
+          )}
+        </div>
+      </div>}
 
-        {/* ===== STATS ROW ===== */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:16}}>
+      {/* ===== CONTENT STACK (zero gaps, 1px separator lines) ===== */}
+      <div style={{display:'flex',flexDirection:'column',gap:'1px',background:'var(--border)',marginTop:24}}>
+
+        {/* STAT GRID (4-up) */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'1px',background:'var(--border)'}}>
           {[
-            { label:'Rank', val:'#'+(data.stats?.rank||'-'), color:'var(--purple2)', icon:'crown', delay:'0.05s' },
-            { label:'Points', val:data.stats?.total_points??0, color:'var(--green)', icon:'star', delay:'0.1s' },
-            { label:'Races', val:data.stats?.races_participated??0, color:'var(--blue)', icon:'flag-checkered', delay:'0.15s' },
-            { label:'Accuracy', val:data.accuracy+'%', color:'var(--orange)', icon:'crosshairs', delay:'0.2s' }
+            { label:'Rank', val:'#'+(data.stats?.rank||'-'), icon:'crown' },
+            { label:'Points', val:data.stats?.total_points??0, icon:'star' },
+            { label:'Races', val:data.stats?.races_participated??0, icon:'flag-checkered' },
+            { label:'Accuracy', val:data.accuracy+'%', icon:'crosshairs' }
           ].map((s,i) => (
-            <div key={i} className="card card-hover" style={{padding:'16px 12px',textAlign:'center',animation:'scale-in 0.5s cubic-bezier(0.16,1,0.3,1) both',animationDelay:s.delay}}>
-              <div className="anim-float-slow" style={{fontSize:22,color:s.color,marginBottom:4}}><I n={s.icon} /></div>
-              <div style={{fontSize:22,fontWeight:'800',lineHeight:1.2,color:s.color,transition:'all 0.5s ease'}} key={animKey}>{s.val}</div>
-              <div style={{fontSize:10,color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.06em',fontWeight:'600',marginTop:2}}>{s.label}</div>
+            <div key={i} style={{background:'var(--surface)',padding:'16px 8px',textAlign:'center'}}>
+              <div style={{fontSize:13,color:'var(--accent)',marginBottom:4}}><I n={s.icon} /></div>
+              <div className="mono" style={{fontSize:22,fontWeight:700,color:'var(--text)'}}>{s.val}</div>
+              <div className="caps" style={{fontSize:10,marginTop:2}}>{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* ===== LAST RACE BANNER ===== */}
+        {/* LAST RACE */}
         {data.lastRace && (
           <a href={'#results?race_id='+data.lastRace.id} onClick={(e)=>{e.preventDefault();onNav('results?race_id='+data.lastRace.id)}}
-            style={{display:'flex',alignItems:'center',gap:14,marginBottom:16,padding:'14px 18px',borderRadius:14,textDecoration:'none',
-              background:'linear-gradient(135deg,rgba(79,124,255,0.1),rgba(124,58,237,0.08))',
-              border:'1px solid rgba(79,124,255,0.2)',
-              cursor:'pointer',transition:'all 0.2s'}}
-            onMouseEnter={e=>{e.currentTarget.style.background='linear-gradient(135deg,rgba(79,124,255,0.16),rgba(124,58,237,0.12))';e.currentTarget.style.borderColor='rgba(79,124,255,0.35)'}}
-            onMouseLeave={e=>{e.currentTarget.style.background='linear-gradient(135deg,rgba(79,124,255,0.1),rgba(124,58,237,0.08))';e.currentTarget.style.borderColor='rgba(79,124,255,0.2)'}}>
-            <div style={{width:42,height:42,borderRadius:12,background:'linear-gradient(135deg,var(--blue),var(--purple))',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:20}}>
-              {data.lastRace.flag}
-            </div>
+            style={{display:'flex',alignItems:'center',gap:12,padding:'14px 18px',background:'var(--surface)',cursor:'pointer',textDecoration:'none'}}>
+            <div style={{width:36,height:36,fontSize:20,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{data.lastRace.flag}</div>
             <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:11,fontWeight:'700',color:'var(--blue)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:2}}>
-                <I n="flag-checkered" style={{fontSize:9,marginRight:4}} />Previous Race
-              </div>
-              <div style={{fontWeight:'700',fontSize:15}}>{data.lastRace.country} Grand Prix</div>
-              <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>
-                {data.lastRace.myScore ? (
-                  <>You scored <strong style={{color:'var(--green)'}}>+{data.lastRace.myScore.total_points} pts</strong> &middot; click to see full race results</>
-                ) : (
-                  <>Click to see race results and leaderboard</>
-                )}
+              <div className="caps" style={{marginBottom:2}}>Previous Race</div>
+              <div style={{fontWeight:600,fontSize:14}}><span className="racing">{data.lastRace.country}</span> Grand Prix</div>
+              <div style={{fontSize:12,color:'var(--text2)'}}>
+                {data.lastRace.myScore ? <>Scored <strong style={{color:'var(--live)'}}>+{data.lastRace.myScore.total_points} pts</strong></> : <>Click to see results</>}
               </div>
             </div>
-            <div style={{display:'flex',alignItems:'center',gap:8}}>
-              {data.lastRace.myScore && (
-                <div style={{textAlign:'right'}}>
-                  <div style={{fontWeight:'900',fontSize:24,color:'var(--green)',lineHeight:1}}>+{data.lastRace.myScore.total_points}</div>
-                  <div style={{fontSize:9,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.04em'}}>Your score</div>
-                </div>
-              )}
-              <I n="chevron-right" style={{color:'var(--text3)',fontSize:14}} />
-            </div>
+            {data.lastRace.myScore && (
+              <div className="mono" style={{fontWeight:700,fontSize:20,color:'var(--live)'}}>+{data.lastRace.myScore.total_points}</div>
+            )}
+            <I n="chevron-right" style={{color:'var(--text3)',fontSize:14}} />
           </a>
         )}
 
-        {/* ===== PROMO CARDS + CALENDAR ===== */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr auto',gap:10,marginBottom:16}}>
-          <div className="card card-hover" style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12,background:'linear-gradient(135deg,rgba(124,58,237,0.08),transparent)',border:'1px solid rgba(124,58,237,0.15)'}}>
-            <div style={{fontSize:22,color:'var(--purple2)',animation:'float 3s ease-in-out infinite'}}><I n="star" /></div>
-            <span style={{fontSize:12,color:'var(--text2)',lineHeight:1.4}}>Stay ahead of the grid — make your picks before the deadline!</span>
+        {/* STANDINGS (full) */}
+        <div style={{background:'var(--surface)'}}>
+          <div style={{padding:'14px 18px',display:'flex',justifyContent:'space-between',alignItems:'center',borderBottom:'1px solid var(--border)'}}>
+            <span className="ch"><I n="trophy" /><span>Standings</span></span>
+            <span style={{fontSize:12,color:'var(--text3)'}}>{lb.length} players</span>
           </div>
-          <div className="card card-hover" style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12,background:'linear-gradient(135deg,rgba(79,124,255,0.08),transparent)',border:'1px solid rgba(79,124,255,0.15)'}}>
-            <div style={{fontSize:22,color:'var(--blue)',animation:'float 3s ease-in-out infinite 0.5s'}}><I n="trophy" /></div>
-            <span style={{fontSize:12,color:'var(--text2)',lineHeight:1.4}}>Double points in China, UK & Singapore — plan your strategy!</span>
+          <div style={{display:'grid',gridTemplateColumns:'36px 1fr 70px',padding:'8px 18px',fontSize:11,color:'var(--text3)',borderBottom:'1px solid var(--border-light)'}}>
+            <span className="caps" style={{fontSize:10}}>Pos</span><span className="caps" style={{fontSize:10}}>Player</span><span className="caps" style={{fontSize:10,textAlign:'right'}}>Pts</span>
           </div>
-          <div className="card card-hover" style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12,background:'linear-gradient(135deg,rgba(251,146,60,0.08),transparent)',border:'1px solid rgba(251,146,60,0.15)'}}>
-            <div style={{fontSize:22,color:'var(--orange)',animation:'float 3s ease-in-out infinite 1s'}}><I n="bolt" /></div>
-            <span style={{fontSize:12,color:'var(--text2)',lineHeight:1.4}}>Check the leaderboard and see how you stack up against rivals.</span>
-          </div>
-          <div style={{display:'flex',flexDirection:'column',gap:6,background:'var(--card2)',border:'1px dashed var(--border2)',borderRadius:'var(--rad-lg)',padding:'10px 14px'}}>
-            <div style={{display:'flex',alignItems:'center',gap:8}}>
-              <I n="calendar-alt" style={{color:'var(--orange)',fontSize:14}} />
-              <span style={{fontSize:10,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}>Calendar Reminders</span>
-            </div>
-            <div style={{display:'flex',gap:6}}>
-              <a href="calendar.php" target="_blank" className="btn btn-sm" style={{background:'var(--card)',border:'1px solid var(--border2)',color:'var(--text)',fontSize:10,padding:'5px 10px'}}>
-                <I n="download" style={{fontSize:10}} /> .ics
-              </a>
-              <a href={'calendar.php?race_id='+(nr?.id||'')} target="_blank" className="btn btn-sm" style={{background:'var(--card)',border:'1px solid var(--border2)',color:'var(--purple2)',fontSize:10,padding:'5px 10px'}}>
-                <I n="bell" style={{fontSize:10}} /> Next Race
-              </a>
-              <span style={{fontSize:8,color:'var(--text3)',alignSelf:'center'}}>iCal · Android · Outlook</span>
-            </div>
-          </div>
+          {lb.slice(0,10).map((p,i) => {
+            const pos = i + 1;
+            const isMe = data.auth?.username === p.username;
+            return (
+              <div key={i} style={{
+                display:'grid',gridTemplateColumns:'36px 1fr 70px',padding:'8px 18px',
+                borderBottom:i < Math.min(lb.length,10)-1 ? '1px solid var(--border-light)' : 'none',
+                background:isMe ? 'var(--accent-soft)' : (i%2===0 ? '' : 'var(--surface-muted)')
+              }}>
+                <div style={{display:'flex',alignItems:'center',gap:4}}>
+                  {pos <= 3 ? <span style={{fontSize:14}}>{['🥇','🥈','🥉'][pos-1]}</span>
+                    : <span className="mono" style={{fontWeight:600,fontSize:12,color:'var(--text3)'}}>{pos}</span>}
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0}}>
+                  <div style={{width:28,height:28,borderRadius:'50%',overflow:'hidden',background:'var(--surface-muted)',flexShrink:0}}>
+                    <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                  </div>
+                  <span style={{fontWeight:600,fontSize:13,color:isMe?'var(--accent)':'var(--text)'}}>{p.username}</span>
+                  {isMe && <span className="badge badge-accent" style={{fontSize:8,padding:'1px 6px'}}>You</span>}
+                </div>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end'}}>
+                  <span className="mono" style={{fontWeight:700,fontSize:15}}>{p.total_points}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* ===== BENTO GRID ===== */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14,gridAutoFlow:'dense'}}>
+        {/* TWO-COLUMN: Recent Results + Race Winners */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
 
-          {/* Full Standings — professional table */}
-          <div className="card anim-slide-up" style={{gridColumn:'1/-1',padding:0,overflow:'hidden'}}>
-            <div style={{padding:'16px 16px 0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                <I n="trophy" style={{color:'var(--orange)',marginRight:6}} />Championship Standings
-              </span>
-              <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>{data.leaderboard?.length||0} players</span>
-            </div>
-            <div style={{marginTop:10}}>
-              {/* Table header */}
-              <div style={{display:'grid',gridTemplateColumns:'40px 1fr 80px',gap:0,padding:'8px 16px',fontSize:9,fontWeight:'700',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>
-                <span>Pos</span>
-                <span>Player</span>
-                <span style={{textAlign:'right'}}>Points</span>
+          {/* Recent Results (left) — user own scores */}
+          <div style={{background:'var(--surface)',padding:'16px'}}>
+            <div className="ch" style={{marginBottom:6}}><I n="flag-checkered" /><span>Recent Results</span></div>
+            {data.recentResults?.[0] && data.totalRaces ? (
+              <div style={{fontSize:11,color:'var(--text2)',marginBottom:10,display:'flex',alignItems:'center',gap:8}}>
+                <span className="mono" style={{fontWeight:600,color:'var(--text)'}}>R{data.recentResults[0].race_number}/{data.totalRaces}</span>
+                {data.mostPickedWinner && (
+                  <span>· Most picked winner: <strong>{data.mostPickedWinner.driver_name}</strong> ({data.mostPickedWinner.count}/{data.mostPickedWinner.total} players)</span>
+                )}
               </div>
-              {data.leaderboard?.map((p,i) => {
-                const pos = i + 1;
-                const isUser = data.auth?.username === p.username;
-                return (
-                  <div key={i} style={{
-                    display:'grid',gridTemplateColumns:'40px 1fr 80px',gap:0,padding:'10px 16px',
-                    borderBottom:i < data.leaderboard.length - 1 ? '1px solid var(--border)' : 'none',
-                    background:isUser ? 'rgba(124,58,237,0.08)' : (i%2===0 ? 'rgba(255,255,255,0.015)' : 'transparent'),
-                    transition:'background 0.15s'
-                  }}>
-                    <div style={{display:'flex',alignItems:'center',gap:6}}>
-                      <span style={{
-                        width:24,height:24,borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',
-                        fontWeight:'800',fontSize:11,
-                        background:pos===1?'linear-gradient(135deg,var(--orange),#e67e22)':pos===2?'linear-gradient(135deg,#a0a0a0,#888)':pos===3?'linear-gradient(135deg,#cd7f32,#a0652e)':'rgba(255,255,255,0.05)',
-                        color:pos<=3?'#fff':'var(--text2)'
-                      }}>{pos}</span>
-                      {pos === 1 && <I n="crown" style={{color:'var(--orange)',fontSize:10}} />}
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0}}>
-                      <div style={{width:28,height:28,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0,border:'2px solid '+(pos===1?'var(--orange)':pos===2?'#a0a0a0':pos===3?'#cd7f32':'transparent')}}>
-                        <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                      </div>
-                      <div style={{minWidth:0}}>
-                        <div style={{display:'flex',alignItems:'center',gap:4}}>
-                          <span style={{fontWeight:'700',fontSize:13,color:isUser?'var(--purple2)':'var(--text)'}}>{p.username}</span>
-                          {isUser && <span className="badge badge-purple" style={{fontSize:7,padding:'1px 5px'}}>You</span>}
-                        </div>
-                        {p.full_name && <div style={{fontSize:10,color:'var(--text3)',lineHeight:1.3}}>{p.full_name}</div>}
-                        <div style={{fontSize:9,color:'var(--text3)',marginTop:1}}>{p.races_participated||0} races</div>
-                      </div>
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end'}}>
-                      <span style={{fontWeight:'900',fontSize:18,color:pos<=3?'var(--orange)':isUser?'var(--purple2)':'var(--green)',letterSpacing:'-0.02em'}}>{p.total_points}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Recent Results */}
-          <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-              <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                <I n="history" style={{color:'var(--blue)',marginRight:10}} />Recent
-              </span>
-              <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>{data.totalPredictions} picks</span>
-            </div>
-            {data.recentResults?.length > 0 ? data.recentResults.map((r,i) => {
-              const maxPts = Math.max(...(data.recentResults||[]).map(x=>x.total_points), 1);
-              const barW = (r.total_points / maxPts) * 100;
-              return (
-                <a key={i} href={'#results?race_id='+r.race_id} onClick={(e)=>{e.preventDefault();onNav('results?race_id='+r.race_id)}}
-                  style={{display:'block',padding:'10px 0',borderBottom:i<data.recentResults.length-1?'1px solid var(--border)':'none',cursor:'pointer',transition:'all 0.25s'}}
-                  onMouseEnter={e=>{e.currentTarget.style.transform='translateX(4px)'}}
-                  onMouseLeave={e=>{e.currentTarget.style.transform='translateX(0)'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:10}}>
-                    <div style={{width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,var(--purple),var(--blue))',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                      <I n="flag" style={{color:'#fff',fontSize:14}} />
-                    </div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{display:'flex',alignItems:'center',gap:8}}>
-                        <span style={{fontWeight:'700',fontSize:13}}>{r.country} GP</span>
-                        <span style={{fontSize:10,color:'var(--text3)'}}>{new Date(r.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
-                      </div>
-                      <div style={{marginTop:4,height:4,background:'var(--card2)',borderRadius:2,overflow:'hidden',width:'100%',maxWidth:200}}>
-                        <div style={{height:'100%',width:barW+'%',background:'linear-gradient(90deg,var(--green),#16a34a)',borderRadius:2,transition:'width 1s cubic-bezier(0.16,1,0.3,1)'}} />
-                      </div>
-                    </div>
-                    <div style={{fontWeight:'900',fontSize:20,color:'var(--green)',letterSpacing:'-0.02em'}}>+{r.total_points}</div>
-                  </div>
-                </a>
-              );
-            }) : (
-              <div style={{textAlign:'center',padding:'24px 0',color:'var(--text3)',fontSize:13}}>
-                <I n="flag-checkered" style={{fontSize:24,display:'block',margin:'0 auto 8px',opacity:0.3}} />
-                No races yet — make your first prediction!
-              </div>
+            ) : null}
+            {data.recentResults?.length > 0 ? data.recentResults.map((r,i) => (
+              <a key={i} href={'#results?race_id='+r.race_id} onClick={(e)=>{e.preventDefault();onNav('results?race_id='+r.race_id)}}
+                style={{display:'flex',alignItems:'center',gap:10,padding:'8px 0',borderBottom:i<data.recentResults.length-1?'1px solid var(--border-light)':'none',cursor:'pointer',textDecoration:'none'}}>
+                <div style={{width:28,height:28,fontSize:16,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,background:'var(--surface-muted)'}}>{r.flag || '🏁'}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:600,fontSize:13}}><span className="racing">{r.country}</span> GP</div>
+                  <div style={{fontSize:11,color:'var(--text2)'}}>{new Date(r.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+                </div>
+                <div className="mono" style={{fontWeight:700,fontSize:18,color:'var(--live)'}}>+{r.total_points}</div>
+              </a>
+            )) : (
+              <div style={{textAlign:'center',padding:'20px 0',color:'var(--text3)',fontSize:13}}>No races yet</div>
             )}
           </div>
 
-          {/* My Predictions */}
-          {data.userPicks?.length > 0 && (
-            <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-                <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                  <I n="list-ol" style={{color:'var(--orange)',marginRight:10}} />My Picks
-                </span>
-                <span style={{fontSize:10,color:'var(--text3)',background:'var(--card2)',padding:'3px 10px',borderRadius:999}}>Rd {nr?.race_number||'-'}</span>
-              </div>
-              <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                {data.userPicks.map((p,i) => (
-                  <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:10,background:'var(--card2)',border:'1px solid var(--border)'}}>
-                    <div style={{width:26,height:26,borderRadius:6,background:'linear-gradient(135deg,var(--purple),var(--orange))',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'800',fontSize:11,color:'#fff',flexShrink:0}}>P{i+1}</div>
-                    <TeamBadge team={p.team} />
-                    <span style={{fontWeight:'600',fontSize:13,flex:1}}>{p.driver_name}</span>
-                    <span style={{fontSize:10,color:'var(--text3)'}}>#{p.predicted_position}</span>
+          {/* Race Winners (right) — top 3 users per race */}
+          <div style={{background:'var(--surface)',padding:'16px'}}>
+            <div className="ch" style={{marginBottom:12}}><I n="trophy" /><span>Race Winners</span></div>
+            {data && (()=>{
+              const podiums = data.racePodiums || [];
+              if (podiums.length === 0) return <div style={{textAlign:'center',padding:'20px 0',color:'var(--text3)',fontSize:13}}>No races yet</div>;
+              const total = podiums.length;
+              const pIdx = podiumIdx < total ? podiumIdx : 0;
+              const race = podiums[pIdx];
+              const medal = ['🥇','🥈','🥉'];
+              const posColors = ['#C9A96E','#A8A5A0','#B08050'];
+              return (
+                <>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+                    <button onClick={()=>setPodiumIdx(pIdx>0?pIdx-1:total-1)} style={{background:'none',border:'1px solid var(--border)',padding:'4px 8px',cursor:'pointer',fontSize:11,color:'var(--text2)'}}><I n="chevron-left" /></button>
+                    <span style={{fontSize:10,color:'var(--text3)',fontWeight:500}}>{pIdx+1} / {total}</span>
+                    <button onClick={()=>setPodiumIdx(pIdx<total-1?pIdx+1:0)} style={{background:'none',border:'1px solid var(--border)',padding:'4px 8px',cursor:'pointer',fontSize:11,color:'var(--text2)'}}><I n="chevron-right" /></button>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                  <div style={{padding:'10px',background:'var(--surface-muted)',border:'1px solid var(--border-light)'}}>
+                    <a href={'#results?race_id='+race.id} onClick={(e)=>{e.preventDefault();onNav('results?race_id='+race.id)}} style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8,cursor:'pointer',textDecoration:'none'}}>
+                      <div style={{fontWeight:600,fontSize:12,display:'flex',alignItems:'center',gap:6}}>
+                        <span>{race.flag}</span>
+                        <span className="racing" style={{fontSize:17}}>{race.country}</span>
+                        <span style={{fontWeight:400,color:'var(--text3)',fontSize:11}}>GP</span>
+                      </div>
+                      <span style={{fontSize:10,color:'var(--text3)'}}>{new Date(race.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
+                    </a>
+                    <div style={{display:'flex',flexDirection:'column',gap:3}}>
+                      {race.podium.map((d,pi) => (
+                        <div key={pi} style={{display:'flex',alignItems:'center',gap:6,padding:'4px 6px',fontSize:12,background:pi===0?'rgba(201,169,110,0.08)':'transparent'}}>
+                          <span style={{fontSize:15}}>{medal[pi]}</span>
+                          <span style={{fontWeight:700,color:posColors[pi],fontSize:12,minWidth:20}}>{'P'+(pi+1)}</span>
+                          <div style={{width:20,height:20,borderRadius:'50%',overflow:'hidden',background:'var(--surface-muted)',flexShrink:0}}>
+                            <img src={getAvatarUrl(d.avatar_style,d.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                          </div>
+                          <span style={{fontWeight:600,fontSize:13}}>{d.username}</span>
+                          <span className="mono" style={{fontSize:12,fontWeight:700,color:'var(--success)',marginLeft:'auto'}}>+{d.total_points}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
 
-          {/* Upcoming Races */}
-          <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-              <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                <I n="calendar-alt" style={{color:'var(--purple2)',marginRight:10}} />Upcoming
-              </span>
-              <span style={{fontSize:10,color:'var(--text3)'}}>{data.upcomingRaces?.length||0} events</span>
+        </div>
+
+        {/* My Picks */}
+        {data.userPicks?.length > 0 && (
+          <div style={{display:'grid',gridTemplateColumns:'1fr',gap:'1px',background:'var(--border)'}}>
+            <div style={{background:'var(--surface)',padding:'16px'}}>
+              <div className="ch" style={{marginBottom:12}}><I n="list-ol" /><span>My Picks</span></div>
+              {data.userPicks.map((p,i) => (
+                <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'6px 0',borderBottom:i<data.userPicks.length-1?'1px solid var(--border-light)':'none'}}>
+                  <span className="mono" style={{width:22,height:22,background:'var(--accent)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:10}}>P{i+1}</span>
+                  <TeamBadge team={p.team} />
+                  <span style={{fontWeight:600,fontSize:13,flex:1}}>{p.driver_name}</span>
+                  <span className="mono" style={{fontSize:11,color:'var(--text3)'}}>#{p.predicted_position}</span>
+                </div>
+              ))}
             </div>
+          </div>
+        )}
+
+        {/* TWO-COLUMN: Upcoming + Trophy */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
+
+          {/* Upcoming */}
+          <div style={{background:'var(--surface)',padding:'16px'}}>
+            <div className="ch" style={{marginBottom:12}}><I n="calendar-alt" /><span>Upcoming</span></div>
             {data.upcomingRaces?.length > 0 ? data.upcomingRaces.map((r,i) => (
-              <div key={i} className="race-row card-hover" style={{padding:'10px 8px',borderRadius:8,opacity:r.unlocked?1:0.4}}>
-                <div style={{fontSize:20,width:32,textAlign:'center',flexShrink:0}}>{r.flag || nr?.flag || ''}</div>
+              <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 0',borderBottom:i<data.upcomingRaces.length-1?'1px solid var(--border-light)':'none',opacity:r.unlocked?1:0.45}}>
+                <div style={{fontSize:20,width:28,textAlign:'center',flexShrink:0}}>{r.flag}</div>
                 <div style={{flex:1}}>
-                  <div className="r-name" style={{fontSize:13}}>{r.country} GP</div>
-                  <div className="r-meta" style={{fontSize:11}}>{new Date(r.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+                  <div style={{fontWeight:600,fontSize:13}}><span className="racing">{r.country}</span> GP</div>
+                  <div style={{fontSize:11,color:'var(--text2)'}}>{new Date(r.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
                 </div>
-                <div className="r-status">
-                  {r.unlocked && r.is_open ? <span className="badge badge-green anim-glow-green"><I n="check-circle" style={{fontSize:9}} /> Open</span>
-                    : r.unlocked && !r.is_open ? <span className="badge badge-red"><I n="lock" style={{fontSize:9}} /> Closed</span>
-                    : <span className="badge badge-gray"><I n="lock" style={{fontSize:9}} /> Locked</span>}
-                </div>
+                {r.unlocked && r.is_open ? <span className="badge badge-live" style={{fontSize:10}}>Open</span>
+                  : r.unlocked && !r.is_open ? <span className="badge badge-gray" style={{fontSize:10}}>Closed</span>
+                  : <span className="badge badge-gray" style={{fontSize:10}}>Locked</span>}
               </div>
             )) : (
-              <div style={{textAlign:'center',padding:'20px 0',color:'var(--text3)',fontSize:13}}>Season complete!</div>
+              <div style={{textAlign:'center',padding:'16px 0',color:'var(--text3)',fontSize:13}}>Season complete</div>
             )}
-          </div>
-
-          {/* Race Director Meme */}
-          <div className="card" style={{overflow:'hidden',borderRadius:'var(--rad-lg)',background:'var(--card)',border:'1px solid var(--border)'}}>
-            <video autoPlay muted loop playsInline style={{width:'100%',display:'block'}}>
-              <source src="assets/race-director-dog.mp4" type="video/mp4" />
-            </video>
-            <div style={{padding:'10px 14px 12px',display:'flex',alignItems:'center',gap:8}}>
-              <span style={{width:6,height:6,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 6px rgba(34,197,94,0.4)'}} />
-              <span style={{fontSize:11,fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}>Race Director's Pet</span>
-              <span style={{fontSize:10,color:'var(--text3)',marginLeft:'auto'}}>🐶 🎧</span>
-            </div>
           </div>
 
           {/* Trophy Cabinet */}
-          <div className="card card-hover anim-slide-up" style={{padding:'16px'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-              <span style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                <I n="medal" style={{color:'var(--orange)',marginRight:10}} />Trophy Cabinet
-              </span>
-              <a className="btn btn-outline btn-sm" style={{fontSize:9,padding:'3px 10px'}} onClick={(e)=>{e.preventDefault();onNav('achievements')}}>
-                <I n="trophy" /> All {ALL_ACHIEVEMENTS.length}
-              </a>
+          <div style={{background:'var(--surface)',padding:'20px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+              <span className="ch" style={{fontSize:11}}><I n="trophy" /><span>Trophy Cabinet</span></span>
+              <button className="btn btn-sm btn-outline" style={{fontSize:10}} onClick={()=>onNav('achievements')}>All</button>
             </div>
-            {unlockedAchs.length > 0 ? (
-              <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8}}>
-                {unlockedAchs.slice(0, 8).map((a,i) => {
-                  const def = ALL_ACHIEVEMENTS.find(x => x.id === a.id);
-                  if (!def) return null;
-                  const t = TIER_CONFIG[def.tier] || TIER_CONFIG.common;
-                  return (
-                    <div key={a.id} className="card-hover" style={{
-                      padding:'10px 8px',borderRadius:10,textAlign:'center',
-                      background:t.bg,border:'1px solid '+t.color+'30',
-                      position:'relative',overflow:'hidden'
-                    }}>
-                      <div style={{fontSize:18,color:t.color2,marginBottom:4}}><I n={def.icon.replace('fa-','')} /></div>
-                      <div style={{fontSize:10,fontWeight:'700',color:'var(--text)',lineHeight:1.2}}>{def.name}</div>
-                      <div style={{fontSize:8,color:'var(--text3)',marginTop:2}}>{def.desc}</div>
-                    </div>
-                  );
-                })}
-                {unlockedAchs.length > 8 && (
-                  <div onClick={(e)=>{e.preventDefault();onNav('achievements')}}
-                    style={{padding:'10px 8px',borderRadius:10,textAlign:'center',background:'var(--card2)',border:'1px dashed var(--border2)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,fontSize:11,fontWeight:'600',color:'var(--text2)',transition:'all 0.2s',gridColumn:'span 2'}}>
-                    <I n="plus-circle" /> {unlockedAchs.length - 8} more
+
+            <div style={{display:'flex',gap:16,flexWrap:'wrap'}}>
+              {/* LEFT: Quick Stats + Next Up */}
+              <div style={{flex:'0 0 140px',minWidth:120}}>
+                <div style={{textAlign:'center',padding:'12px 8px',border:'1px solid var(--border-light)',background:'var(--surface-muted)'}}>
+                  <div className="mono" style={{fontSize:28,fontWeight:700,color:'var(--accent)'}}>{unlockedAchs.length}</div>
+                  <div className="caps" style={{fontSize:9}}>Unlocked</div>
+                  <div className="mono" style={{fontSize:13,fontWeight:600,color:'var(--text2)',marginTop:4}}>/ {ALL_ACHIEVEMENTS.length}</div>
+                  <div style={{marginTop:8,height:3,background:'var(--border)',borderRadius:2,overflow:'hidden'}}>
+                    <div style={{height:'100%',width:Math.round((unlockedAchs.length/ALL_ACHIEVEMENTS.length)*100)+'%',background:'var(--accent)'}}></div>
+                  </div>
+                  <div style={{fontSize:10,fontWeight:600,marginTop:4,color:'var(--text2)'}}>{Math.round((unlockedAchs.length/ALL_ACHIEVEMENTS.length)*100)}%</div>
+                </div>
+
+                {/* Next up */}
+                {unlockedAchs.length < ALL_ACHIEVEMENTS.length && (
+                  <div style={{marginTop:10}}>
+                    <div className="caps" style={{fontSize:9,marginBottom:6}}>Next Up</div>
+                    {(()=>{
+                      const locked = ALL_ACHIEVEMENTS.filter(a => !unlockedAchs.find(u => u.id === a.id));
+                      return locked.slice(0,3).map((a,i) => {
+                        const t = TIER_CONFIG[a.tier];
+                        return <div key={i} style={{display:'flex',alignItems:'center',gap:6,padding:'4px 0',fontSize:11}}>
+                          <span style={{fontSize:12,color:t.color2,width:16,textAlign:'center'}}><I n={a.icon.replace('fa-','')} /></span>
+                          <span style={{color:'var(--text2)'}}>{a.name}</span>
+                        </div>;
+                      });
+                    })()}
                   </div>
                 )}
               </div>
-            ) : (
-              <div style={{textAlign:'center',padding:'20px 0',color:'var(--text3)',fontSize:13}}>
-                <I n="trophy" style={{fontSize:28,display:'block',margin:'0 auto 8px',opacity:0.2}} />
-                No achievements unlocked yet
+
+              {/* RIGHT: Trophy Grid */}
+              <div style={{flex:1,minWidth:200}}>
+                {unlockedAchs.length > 0 ? (
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(72px,1fr))',gap:6}}>
+                    {unlockedAchs.slice(0,18).map((a,i) => {
+                      const def = ALL_ACHIEVEMENTS.find(x => x.id === a.id);
+                      if (!def) return null;
+                      const t = TIER_CONFIG[def.tier] || TIER_CONFIG.common;
+                      return (
+                        <div key={a.id} style={{padding:'8px 4px',textAlign:'center',background:t.bg,border:'1px solid '+t.color2+'20',position:'relative'}} title={def.desc}>
+                          <div style={{fontSize:18,color:t.color2,lineHeight:1,marginBottom:4}}><I n={def.icon.replace('fa-','')} /></div>
+                          <div style={{fontSize:9,fontWeight:600,lineHeight:1.2,color:'var(--text)'}}>{def.name}</div>
+                          <div style={{fontSize:7,position:'absolute',top:2,right:2,color:t.color2,opacity:0.5}}>{def.tier.charAt(0).toUpperCase()}</div>
+                        </div>
+                      );
+                    })}
+                    {unlockedAchs.length > 18 && (
+                      <div style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'8px',background:'var(--surface-muted)',border:'1px dashed var(--border)',cursor:'pointer',fontSize:10,color:'var(--text2)'}} onClick={()=>onNav('achievements')}>
+                        +{unlockedAchs.length - 18} more
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{textAlign:'center',padding:'20px 0',color:'var(--text3)',fontSize:12}}>
+                    <I n="trophy" style={{fontSize:24,color:'var(--text3)',marginBottom:6}} /><br />
+                    No trophies yet — start predicting!
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
         </div>
+
+        {/* PROMO ROW (4 items) */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:'1px',background:'var(--border)'}}>
+          <div style={{background:'var(--surface)',padding:'10px 12px',display:'flex',alignItems:'center',gap:10}}>
+            <I n="star" style={{color:'var(--accent)',fontSize:14}} />
+            <span style={{fontSize:11,color:'var(--text2)',lineHeight:1.3}}>Make picks before deadline</span>
+          </div>
+          <div style={{background:'var(--surface)',padding:'10px 12px',display:'flex',alignItems:'center',gap:10}}>
+            <I n="trophy" style={{color:'var(--gold)',fontSize:14}} />
+            <span style={{fontSize:11,color:'var(--text2)',lineHeight:1.3}}>Double points races active</span>
+          </div>
+          <div style={{background:'var(--surface)',padding:'10px 12px',display:'flex',alignItems:'center',gap:10}}>
+            <I n="bolt" style={{color:'var(--accent)',fontSize:14}} />
+            <span style={{fontSize:11,color:'var(--text2)',lineHeight:1.3}}>Check the leaderboard</span>
+          </div>
+          <div style={{background:'var(--surface)',padding:'10px 12px',display:'flex',alignItems:'center',gap:10,borderLeft:'1px dashed var(--border)'}}>
+            <I n="calendar-alt" style={{color:'var(--text2)',fontSize:14}} />
+            <span style={{fontSize:11,color:'var(--text2)',lineHeight:1.3}}>Add to Calendar</span>
+            <a href="calendar.php" target="_blank" className="btn btn-sm btn-outline" style={{fontSize:9,marginLeft:'auto',whiteSpace:'nowrap'}}><I n="download" /> .ics</a>
+          </div>
+        </div>
+
+        {/* SCANERRIFIC */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
+          <a href="https://scanerrific.com" target="_blank" rel="noopener" style={{background:'var(--surface)',padding:'16px',display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none',minHeight:80}}>
+            <img src="/assets/logo_refreshed_scanerrific_no_bg_black.png" alt="Scanerrific" style={{maxHeight:36,objectFit:'contain'}} />
+          </a>
+          <div style={{background:'var(--surface)',padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'center',gap:10,flexWrap:'wrap'}}>
+            <span style={{fontSize:11,fontWeight:600,color:'var(--text)',whiteSpace:'nowrap'}}>Fuel Your NPD</span>
+            <a href="https://scanerrific.com" target="_blank" rel="noopener" className="btn btn-sm btn-outline" style={{fontSize:9}}>Scanerrific.com</a>
+            <div style={{display:'flex',gap:6}}>
+              <a href="https://x.com/Scanerrific" target="_blank" rel="noopener" style={{width:22,height:22,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--surface-muted)',fontSize:10,color:'var(--text2)'}}><i className="fa-brands fa-twitter"></i></a>
+              <a href="https://www.facebook.com/profile.php?id=61574704850921" target="_blank" rel="noopener" style={{width:22,height:22,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--surface-muted)',fontSize:10,color:'var(--text2)'}}><i className="fa-brands fa-facebook-f"></i></a>
+              <a href="https://www.linkedin.com/company/86236157" target="_blank" rel="noopener" style={{width:22,height:22,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--surface-muted)',fontSize:10,color:'var(--text2)'}}><i className="fa-brands fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      {/* ===== FLOATING ACTIONS ===== */}
+      <div className="float-actions">
+        <button className="float-btn" onClick={()=>onNav('predict')}><I n="pencil-alt" /></button>
+        <button className="float-btn" onClick={()=>window.location.reload()}><I n="sync" /></button>
+      </div>
+
     </div>
   );
 };
 
 const getLevel = (pts) => {
-  if (pts >= 1000) return {label:'Legend',icon:'crown',color:'var(--red)'};
-  if (pts >= 500) return {label:'Expert',icon:'star',color:'var(--purple2)'};
-  if (pts >= 250) return {label:'Veteran',icon:'shield',color:'var(--blue)'};
-  if (pts >= 100) return {label:'Pro',icon:'rocket',color:'var(--green)'};
+  if (pts >= 1000) return {label:'Legend',icon:'crown',color:'var(--danger)'};
+  if (pts >= 500) return {label:'Expert',icon:'star',color:'var(--primary)'};
+  if (pts >= 250) return {label:'Veteran',icon:'shield',color:'var(--accent)'};
+  if (pts >= 100) return {label:'Pro',icon:'rocket',color:'var(--success)'};
   return {label:'Rookie',icon:'seedling',color:'var(--text2)'};
 };
 
 const LeaderboardPage = () => {
   const [d, setD] = useState(null);
+  const [expanded, setExpanded] = useState(null);
   useEffect(() => { api('leaderboard').then(setD).catch(() => setD(null)); }, []);
   const lb = d?.leaderboard || [];
   const medalIcons = ['crown','medal','medal'];
-  const medalColors = ['#ffd700','#c0c0c0','#cd7f32'];
+  const medalColors = ['#FFD700','#C0C0C0','#CD7F32'];
   const gradColors = [
-    'linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,180,0,0.05))',
-    'linear-gradient(135deg,rgba(192,192,192,0.12),rgba(160,160,160,0.04))',
-    'linear-gradient(135deg,rgba(205,127,50,0.12),rgba(180,100,30,0.04))'
+    'linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,180,0,0.02))',
+    'linear-gradient(135deg,rgba(192,192,192,0.06),rgba(160,160,160,0.02))',
+    'linear-gradient(135deg,rgba(205,127,50,0.06),rgba(180,100,30,0.02))'
   ];
 
   const top3 = lb.slice(0, 3);
   const rest = lb.slice(3);
 
+  const toggleExpand = (id) => setExpanded(expanded === id ? null : id);
+
+  const unlockedIds = (p) => (p.all_achievements || '').split(',').filter(Boolean);
+
+  const AchievementDropdown = ({p,isOpen}) => {
+    const ids = unlockedIds(p);
+    return (
+      <div className={'ach-dropdown' + (isOpen ? ' open' : '')}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:'4px'}}>
+          {ALL_ACHIEVEMENTS.map(a => {
+            const unlocked = ids.includes(a.id);
+            const t = TIER_CONFIG[a.tier] || TIER_CONFIG.common;
+            return (
+              <div key={a.id} style={{
+                display:'flex',alignItems:'center',gap:'6px',padding:'5px 6px',
+                background:unlocked ? t.bg : 'var(--surface-muted)',
+                border:'1px solid ' + (unlocked ? t.color2+'30' : 'var(--border)'),
+                fontSize:'10px',lineHeight:1.2,
+                opacity:unlocked ? 1 : 0.35
+              }} title={a.desc}>
+                <span style={{fontSize:'12px',color:unlocked?t.color2:'var(--text3)',width:14,textAlign:'center'}}>
+                  {unlocked ? <I n={a.icon.replace('fa-','')} /> : <I n="lock" />}
+                </span>
+                <span style={{color:unlocked?'var(--text)':'var(--text3)',fontWeight:unlocked?600:400}}>{a.name}</span>
+                {unlocked && <span style={{marginLeft:'auto',fontSize:'7px',color:t.color2,fontWeight:700}}>✓</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="page" style={{maxWidth:800}}>
       <div className="anim" style={{textAlign:'center',marginBottom:'32px'}}>
-        <div style={{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.12em',color:'var(--purple2)',marginBottom:'6px'}}>Season 2026</div>
-        <h1 style={{fontSize:'32px',fontWeight:'900',letterSpacing:'-0.02em',marginBottom:'4px'}}>Championship <span style={{background:'linear-gradient(135deg,var(--purple2),var(--purple))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Standings</span></h1>
-        <p style={{color:'var(--text2)',fontSize:'14px'}}>{lb.length} players competing for the title</p>
+        <div style={{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.12em',color:'var(--primary)',marginBottom:'6px'}}>Season 2026</div>
+        <h1 style={{fontSize:'32px',fontWeight:'900',letterSpacing:'-0.02em',marginBottom:'4px'}}>Championship <span style={{background:'linear-gradient(135deg,var(--primary),#8B0000)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Standings</span></h1>
+        <p style={{color:'var(--text2)',fontSize:'14px'}}>{lb.length} players competing</p>
       </div>
 
       {top3.length > 0 && (
@@ -788,23 +875,18 @@ const LeaderboardPage = () => {
             if (!p) return <div key={pi}></div>;
             const isFirst = pi === 0;
             const col = medalColors[pi];
+            const isOpen = expanded === p.id;
             return (
               <div key={p.id} style={{textAlign:'center',transform:isFirst?'translateY(-12px)':'none',position:'relative'}}>
-                <div style={{background:gradColors[pi],borderRadius:'20px',border:'1px solid ' + col + '30',padding:isFirst?'28px 16px 24px':'20px 14px 18px',margin:'0 4px'}}>
+                <div style={{background:gradColors[pi],borderRadius:'20px',border:'1px solid ' + col + '30',padding:isFirst?'28px 16px 18px':'20px 14px 16px',margin:'0 4px'}}>
                   <div style={{fontSize:'28px',marginBottom:'8px',color:col}}>
                     <I n={medalIcons[pi]} />
                   </div>
                   <div style={{width:isFirst?'72px':'56px',height:isFirst?'72px':'56px',borderRadius:'50%',overflow:'hidden',margin:'0 auto 10px',border:'3px solid ' + col,background:'var(--card2)'}}>
                     <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                   </div>
-                  <div style={{fontWeight:'800',fontSize:isFirst?'16px':'14px',marginBottom:'2px',display:'flex',alignItems:'center',justifyContent:'center',gap:'6px'}}>
-                    {p.username}
-                    {p.badges_data && p.badges_data.split('|').slice(0,3).map((b,i) => {
-                      const parts = b.split(':');
-                      if (parts.length < 3) return null;
-                      const tierColors = {common:'#22c55e',rare:'#4f7cff',epic:'#a855f7',legendary:'#ef4444',special:'#fb923c'};
-                      return <span key={i} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:'18px',height:'18px',borderRadius:'4px',background:tierColors[parts[1]||'common']+'20',fontSize:'10px',cursor:'help'}} title={parts[2]}><I n={parts[0].replace('fa-','')} /></span>;
-                    })}
+                  <div style={{fontWeight:'800',fontSize:isFirst?'16px':'14px',marginBottom:'2px',cursor:'pointer'}} onClick={()=>toggleExpand(p.id)}>
+                    {p.username} <I n={isOpen?'chevron-up':'chevron-down'} style={{fontSize:'10px',color:'var(--text3)'}} />
                   </div>
                   <div style={{fontSize:'10px',color:'var(--text2)',marginBottom:'8px'}}>
                     <span style={{display:'inline-flex',alignItems:'center',gap:'4px',padding:'2px 8px',borderRadius:'999px',background:getLevel(p.total_points).color+'15',color:getLevel(p.total_points).color,fontWeight:'700',fontSize:'9px',textTransform:'uppercase',letterSpacing:'0.04em'}}>
@@ -814,12 +896,14 @@ const LeaderboardPage = () => {
                   <div style={{fontWeight:'900',fontSize:isFirst?'28px':'22px',color:col}}>{p.total_points}</div>
                   <div style={{fontSize:'9px',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.06em',marginTop:'2px'}}>Points</div>
                   {d?.auth?.username===p.username && (
-                    <div style={{marginTop:'8px'}}><span className="badge badge-purple" style={{fontSize:'9px',padding:'2px 10px'}}>You</span></div>
+                    <div style={{marginTop:'8px'}}><span className="badge badge-accent" style={{fontSize:'9px',padding:'2px 10px'}}>You</span></div>
                   )}
                 </div>
                 <div style={{fontSize:'12px',fontWeight:'700',color:col,marginTop:'10px',textTransform:'uppercase',letterSpacing:'0.08em'}}>
                   {pi === 0 ? 'Championship Leader' : pi === 1 ? '2nd Place' : '3rd Place'}
                 </div>
+                {isOpen && <div style={{height:4}} />}
+                <AchievementDropdown p={p} isOpen={isOpen} />
               </div>
             );
           })}
@@ -833,34 +917,34 @@ const LeaderboardPage = () => {
           <span style={{fontSize:'11px',fontWeight:'600',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.06em',marginRight:'30px'}}>Races</span>
           <span style={{fontSize:'11px',fontWeight:'600',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.06em'}}>Points</span>
         </div>
-        <div className="card" style={{padding:'4px 16px',background:'var(--card)'}}>
+        <div className="card" style={{padding:'4px 16px'}}>
           {rest.map((p,i) => {
             const rank = i + 4;
+            const isOpen = expanded === p.id;
             return (
-              <div key={p.id} className={'lb-row'+(d?.auth?.username===p.username?' me':'')} style={{padding:'14px 8px'}}>
-                <div style={{width:'28px',textAlign:'center',fontWeight:'700',fontSize:'14px',color:'var(--text2)'}}>{rank}</div>
-                <div style={{width:'34px',height:'34px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
-                  <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                </div>
-                <div className="lb-name" style={{marginLeft:'8px'}}>
-                  <div className="lb-user" style={{fontSize:'14px',display:'flex',alignItems:'center',gap:'4px',flexWrap:'wrap'}}>
-                    {p.username} {d?.auth?.username===p.username && <span className="badge badge-purple" style={{fontSize:'8px',padding:'1px 6px'}}>You</span>}
-                    {p.badges_data && p.badges_data.split('|').slice(0,4).map((b,i) => {
-                      const parts = b.split(':');
-                      if (parts.length < 3) return null;
-                      const tierColors = {common:'#22c55e',rare:'#4f7cff',epic:'#a855f7',legendary:'#ef4444',special:'#fb923c'};
-                      return <span key={i} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:'16px',height:'16px',borderRadius:'3px',background:tierColors[parts[1]||'common']+'20',fontSize:'9px',cursor:'help'}} title={parts[2]}><I n={parts[0].replace('fa-','')} style={{fontSize:'8px'}} /></span>;
-                    })}
+              <React.Fragment key={p.id}>
+                <div className={'lb-row'+(d?.auth?.username===p.username?' me':'')} style={{padding:'10px 8px',cursor:'pointer'}} onClick={()=>toggleExpand(p.id)}>
+                  <div style={{width:'28px',textAlign:'center',fontWeight:'700',fontSize:'14px',color:'var(--text2)'}}>{rank}</div>
+                  <div style={{width:'34px',height:'34px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
+                    <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                   </div>
-                  <div className="lb-lvl" style={{fontSize:'10px',display:'flex',alignItems:'center',gap:'4px',marginTop:'2px'}}>
-                    <span style={{display:'inline-flex',alignItems:'center',gap:'3px',padding:'1px 6px',borderRadius:'999px',background:getLevel(p.total_points).color+'15',color:getLevel(p.total_points).color,fontWeight:'600',fontSize:'8px',textTransform:'uppercase',letterSpacing:'0.03em'}}>
-                      <I n={getLevel(p.total_points).icon} style={{fontSize:'7px'}} /> {getLevel(p.total_points).label}
-                    </span>
+                  <div className="lb-name" style={{marginLeft:'8px'}}>
+                    <div className="lb-user" style={{fontSize:'14px',display:'flex',alignItems:'center',gap:'4px',flexWrap:'wrap'}}>
+                      <span style={{borderBottom:'1px dotted var(--text3)'}}>{p.username}</span>
+                      {d?.auth?.username===p.username && <span className="badge badge-purple" style={{fontSize:'8px',padding:'1px 6px'}}>You</span>}
+                      <I n={isOpen?'chevron-up':'chevron-down'} style={{fontSize:'9px',color:'var(--text3)'}} />
+                    </div>
+                    <div className="lb-lvl" style={{fontSize:'10px',display:'flex',alignItems:'center',gap:'4px',marginTop:'2px'}}>
+                      <span style={{display:'inline-flex',alignItems:'center',gap:'3px',padding:'1px 6px',borderRadius:'999px',background:getLevel(p.total_points).color+'15',color:getLevel(p.total_points).color,fontWeight:'600',fontSize:'8px',textTransform:'uppercase',letterSpacing:'0.03em'}}>
+                        <I n={getLevel(p.total_points).icon} style={{fontSize:'7px'}} /> {getLevel(p.total_points).label}
+                      </span>
+                    </div>
                   </div>
+                  <div style={{fontSize:'12px',color:'var(--text2)',fontWeight:'500',marginLeft:'auto',marginRight:'24px'}}>{p.races_participated||0}</div>
+                  <div style={{fontWeight:'800',fontSize:'18px',color:'var(--success)',minWidth:'50px',textAlign:'right',fontFamily:'JetBrains Mono,monospace'}}>{p.total_points}</div>
                 </div>
-                <div style={{fontSize:'12px',color:'var(--text2)',fontWeight:'500',marginLeft:'auto',marginRight:'24px'}}>{p.races_participated||0}</div>
-                <div style={{fontWeight:'800',fontSize:'18px',color:'var(--green)',minWidth:'50px',textAlign:'right'}}>{p.total_points}</div>
-              </div>
+                <AchievementDropdown p={p} isOpen={isOpen} />
+              </React.Fragment>
             );
           })}
           {rest.length === 0 && top3.length > 0 && (
@@ -1048,42 +1132,46 @@ const PredictPage = ({ onNav }) => {
     <div className="page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={()=>setToast(null)} />}
 
-      <div className="hero anim" style={{minHeight:200,marginBottom:'16px'}}>
-        <div className="hero-bg" style={{backgroundImage:'url('+(nr?.hero||'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop')+')'}}></div>
+      {/* ===== HERO (just image) ===== */}
+      <div className="hero">
+        <div className="hero-bg" style={nr?.hero ? {backgroundImage:'url('+nr.hero+')'} : {}}></div>
         <div className="hero-overlay"></div>
-        <div className="hero-content">
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <div>
-              <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'6px'}}>
-                <span className="badge badge-purple"><I n="flag-checkered" style={{fontSize:10}} /> R{nr?.race_number||'-'}</span>
-                {nr && <span style={{fontSize:'20px'}}>{nr.flag}</span>}
-              </div>
-              <div style={{fontSize:'24px',fontWeight:'900',textTransform:'uppercase'}}>{nr?.country||''} GP</div>
-              <div style={{fontSize:'12px',color:'var(--text2)',marginTop:'2px'}}>{nr?.circuit_name||''}</div>
-            </div>
-            <div style={{textAlign:'right'}}>
-              <CountdownRing deadline={deadlineMs} open={data.predictionsOpen} text={data.countdownText} progress={data.progressBarWidth} />
-              <StatusBar progress={data.progressBarWidth} open={data.predictionsOpen} />
-            </div>
-          </div>
-        </div>
       </div>
 
+      {/* ===== RACE INFO (below hero) ===== */}
+      {nr && <div className="race-info" style={{marginBottom:20}}>
+        <div className="race-info-left">
+          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
+            <span className="badge badge-live" style={{fontSize:10,padding:'2px 8px'}}><I n="flag-checkered" style={{fontSize:10}} /> Round {nr.race_number}</span>
+            {data.isDoublePoints && <span className="badge badge-gold" style={{fontSize:10,padding:'2px 8px'}}><I n="bolt" style={{fontSize:10}} /> 2x</span>}
+          </div>
+          <div className="race-title" style={{fontSize:22}}>{nr.country}</div>
+          <div className="race-meta">{nr.circuit_name || ''}</div>
+        </div>
+        <div className="race-info-right">
+          <div style={{textAlign:'right'}}>
+            <div className="caps" style={{fontSize:9,marginBottom:2}}>Deadline</div>
+            <div className="mono" style={{fontSize:13,color:'var(--accent)',fontWeight:700}}>{data.countdownText || '—'}</div>
+          </div>
+          <CountdownRing deadline={deadlineMs} open={data.predictionsOpen} text={data.countdownText} progress={data.progressBarWidth} />
+        </div>
+      </div>}
+
       {!data.predictionsOpen && (
-        <div className="card" style={{padding:'14px 20px',marginBottom:'16px',background:'rgba(239,68,68,0.06)',borderColor:'rgba(239,68,68,0.2)'}}>
+        <div className="card" style={{padding:'14px 20px',marginBottom:'16px',background:'rgba(220,53,69,0.04)',borderColor:'rgba(220,53,69,0.12)'}}>
           <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-            <I n="lock" style={{color:'var(--red)'}} />
-            <span style={{fontWeight:'600',fontSize:'14px',color:'var(--red)'}}>Predictions Closed</span>
+            <I n="lock" style={{color:'var(--danger)'}} />
+            <span style={{fontWeight:'600',fontSize:'14px',color:'var(--danger)'}}>Predictions Closed</span>
             <span style={{color:'var(--text2)',fontSize:'13px',marginLeft:'auto'}}>Deadline has passed</span>
           </div>
         </div>
       )}
 
       {data.predictionsOpen && data.hasPrediction && !editing && (
-        <div className="card" style={{padding:'14px 20px',marginBottom:'16px',background:'rgba(34,197,94,0.06)',borderColor:'rgba(34,197,94,0.2)'}}>
+        <div className="card" style={{padding:'14px 20px',marginBottom:'16px',background:'rgba(40,167,69,0.04)',borderColor:'rgba(40,167,69,0.12)'}}>
           <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-            <I n="check-circle" style={{color:'var(--green)'}} />
-            <span style={{fontWeight:'600',fontSize:'14px',color:'var(--green)'}}>Prediction Submitted</span>
+            <I n="check-circle" style={{color:'var(--success)'}} />
+            <span style={{fontWeight:'600',fontSize:'14px',color:'var(--success)'}}>Prediction Submitted</span>
             <button className="btn btn-outline btn-sm" onClick={()=>setEditing(true)} style={{marginLeft:'auto'}}><I n="pencil" /> Edit</button>
           </div>
         </div>
@@ -1169,26 +1257,41 @@ const ResultsPage = ({ onNav }) => {
 
   if (!d.race) {
     return (
-      <div className="page" style={{maxWidth:600}}>
+      <div className="page">
         <div className="anim" style={{marginBottom:'20px',textAlign:'center'}}>
-          <h1 style={{fontSize:'24px',fontWeight:'800'}}>Race <span style={{color:'var(--purple2)'}}>Results</span></h1>
+          <h1 style={{fontSize:'24px',fontWeight:'800'}}>Race <span style={{color:'var(--accent)'}}>Results</span></h1>
           <p style={{color:'var(--text2)',fontSize:'13px',marginTop:'4px'}}>Select a race to view results</p>
         </div>
-        <div className="card" style={{padding:'12px 16px'}}>
-          {d.raceList?.map(rc => (
-            <div key={rc.id} className="race-row" style={{cursor:'pointer'}} onClick={() => loadRace(rc.id)}>
-              <div className="r-flag">{rc.flag}</div>
-              <div style={{flex:1}}>
-                <div className="r-name">{rc.country} GP</div>
-                <div className="r-meta">{new Date(rc.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
-              </div>
-              <div className="r-status">
-                {rc.status === 'completed' ? <span className="badge badge-green"><I n="check" style={{fontSize:9}} /> Results</span> :
-                 rc.status === 'cancelled' ? <span className="badge badge-red"><I n="ban" style={{fontSize:9}} /> Cancelled</span> :
-                 <span className="badge badge-gray"><I n="clock" style={{fontSize:9}} /> Upcoming</span>}
-              </div>
-            </div>
-          ))}
+        <div className="card" style={{overflow:'hidden'}}>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+            <thead>
+              <tr style={{borderBottom:'1px solid var(--border)'}}>
+                <td style={{padding:'10px 14px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Grand Prix</td>
+                <td style={{padding:'10px 14px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Circuit</td>
+                <td style={{padding:'10px 14px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Date</td>
+                <td style={{padding:'10px 14px',textAlign:'right',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Status</td>
+              </tr>
+            </thead>
+            <tbody>
+              {d.raceList?.map((rc,i) => (
+                <tr key={rc.id} onClick={() => loadRace(rc.id)} style={{cursor:'pointer',borderBottom:i<d.raceList.length-1?'1px solid var(--border-light)':'none',transition:'background 150ms'}} onMouseOver={e=>e.currentTarget.style.background='var(--surface-muted)'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>
+                  <td style={{padding:'10px 14px'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:10}}>
+                      <span style={{fontSize:22}}>{rc.flag}</span>
+                      <span style={{fontWeight:600}}><span className="racing">{rc.country}</span> GP</span>
+                    </div>
+                  </td>
+                  <td style={{padding:'10px 14px',color:'var(--text2)',fontSize:12}}>{rc.circuit_name||'—'}</td>
+                  <td style={{padding:'10px 14px',color:'var(--text2)',fontSize:12}}>{new Date(rc.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+                  <td style={{padding:'10px 14px',textAlign:'right'}}>
+                    {rc.status === 'completed' ? <span className="badge badge-green"><I n="check" style={{fontSize:9}} /> Results</span> :
+                     rc.status === 'cancelled' ? <span className="badge badge-red"><I n="ban" style={{fontSize:9}} /> Cancelled</span> :
+                     <span className="badge badge-gray"><I n="clock" style={{fontSize:9}} /> Upcoming</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     );
@@ -1197,19 +1300,25 @@ const ResultsPage = ({ onNav }) => {
   const r = d.race;
   return (
     <div className="page">
-      <div className="hero anim" style={{minHeight:180,marginBottom:'16px'}}>
-        <div className="hero-bg" style={{backgroundImage:'url('+(r?.hero||'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop')+')'}}></div>
-        <div className="hero-overlay" style={{background:'linear-gradient(180deg,rgba(12,15,22,0.3) 0%,rgba(12,15,22,0.9) 100%)'}}></div>
-        <div className="hero-content">
-          <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-            <span style={{fontSize:'28px'}}>{r?.flag||''}</span>
-            <div>
-              <div style={{fontSize:'22px',fontWeight:'900',textTransform:'uppercase'}}>{r?.country||''} GP</div>
-              <div style={{fontSize:'13px',color:'var(--text2)'}}>{r?.circuit_name||''} &middot; {r?.race_date ? new Date(r.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : ''}</div>
-            </div>
-          </div>
-        </div>
+      {/* ===== HERO ===== */}
+      <div className="hero" style={{height:200}}>
+        <div className="hero-bg" style={r?.hero ? {backgroundImage:'url('+r.hero+')'} : {}}></div>
+        <div className="hero-overlay"></div>
       </div>
+
+      {/* ===== RACE INFO ===== */}
+      {r && <div className="race-info" style={{marginBottom:20}}>
+        <div className="race-info-left">
+          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6,flexWrap:'wrap'}}>
+            {r.flag && <span style={{fontSize:20}}>{r.flag}</span>}
+          </div>
+          <div className="race-title"><span className="racing">{r.country}</span> GP</div>
+          <div className="race-meta">{r.circuit_name}{r.circuit_name && r.race_date ? ' \u00B7 ' : ''}{r.race_date ? new Date(r.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : ''}</div>
+        </div>
+        <div className="race-info-right">
+          {d?.race?.status === 'completed' && <span className="badge badge-green" style={{fontSize:11,padding:'4px 12px'}}><I n="check" /> Results</span>}
+        </div>
+      </div>}
 
       {!d.hasResults ? (
         <div className="card" style={{padding:'24px',textAlign:'center'}}>
@@ -1231,191 +1340,165 @@ const ResultsPage = ({ onNav }) => {
       ) : (
         <>
           {d.scoreRecord && (
-            <div className="stat-grid anim" style={{marginBottom:'16px'}}>
-              <div className="card stat-box">
-                <div className="v" style={{color:'var(--green)'}}>{d.scoreRecord.total_points}</div>
-                <div className="l">Total Points</div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:1,background:'var(--border)',marginBottom:16}}>
+              <div style={{background:'var(--surface)',padding:'16px 8px',textAlign:'center'}}>
+                <div className="mono" style={{fontSize:22,fontWeight:700,color:'var(--live)'}}>{d.scoreRecord.total_points}</div>
+                <div className="caps" style={{fontSize:10,marginTop:2}}>Total</div>
               </div>
-              <div className="card stat-box">
-                <div className="v" style={{color:'var(--blue)'}}>{d.scoreRecord.driver_points}</div>
-                <div className="l">Base Points</div>
+              <div style={{background:'var(--surface)',padding:'16px 8px',textAlign:'center'}}>
+                <div className="mono" style={{fontSize:22,fontWeight:700,color:'var(--text)'}}>{d.scoreRecord.driver_points}</div>
+                <div className="caps" style={{fontSize:10,marginTop:2}}>Base</div>
               </div>
-              <div className="card stat-box">
-                <div className="v" style={{color:'var(--purple2)'}}>{d.scoreRecord.top3_bonus}</div>
-                <div className="l">Podium Bonus</div>
+              <div style={{background:'var(--surface)',padding:'16px 8px',textAlign:'center'}}>
+                <div className="mono" style={{fontSize:22,fontWeight:700,color:'var(--gold)'}}>{d.scoreRecord.top3_bonus}</div>
+                <div className="caps" style={{fontSize:10,marginTop:2}}>Podium</div>
               </div>
-              <div className="card stat-box">
-                <div className="v" style={{color:'var(--orange)'}}>{d.scoreRecord.constructor_points}</div>
-                <div className="l">Constructor</div>
+              <div style={{background:'var(--surface)',padding:'16px 8px',textAlign:'center'}}>
+                <div className="mono" style={{fontSize:22,fontWeight:700,color:'var(--accent)'}}>{d.scoreRecord.constructor_points}</div>
+                <div className="caps" style={{fontSize:10,marginTop:2}}>Constructor</div>
               </div>
             </div>
           )}
 
-          {/* 1. Race Leaderboard — TOP with podium styling + fireworks */}
-          <div className="card anim anim-d1" style={{padding:'16px',marginBottom:'12px',position:'relative',overflow:'hidden',border:'1px solid rgba(255,215,0,0.15)'}}>
-            {/* Fireworks overlay */}
-            <div className="fireworks" style={{position:'absolute',inset:0,pointerEvents:'none',overflow:'hidden',opacity:0.3}}>
-              {[0,1,2,3,4,5].map(i => (
-                <div key={i} className="fw-particle" style={{
-                  position:'absolute',width:4,height:4,borderRadius:'50%',
-                  background:['var(--orange)','var(--purple2)','var(--blue)','var(--green)','var(--red)','#ff0'][i],
-                  left:Math.random()*90+5+'%',top:Math.random()*80+10+'%',
-                  animation:'firework '+(1.5+Math.random()*2)+'s ease-out infinite',
-                  animationDelay:Math.random()*3+'s',
-                  boxShadow:'0 0 6px 2px '+['rgba(255,215,0,0.6)','rgba(168,85,247,0.6)','rgba(79,124,255,0.6)','rgba(34,197,94,0.6)','rgba(239,68,68,0.6)','rgba(255,255,0,0.6)'][i]
-                }} />
-              ))}
-            </div>
-
-            <div style={{fontSize:'14px',fontWeight:'800',color:'var(--orange)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:'14px',textAlign:'center',position:'relative',zIndex:1}}>
-              <I n="crown" style={{marginRight:8}} />Race Podium
-            </div>
-
-            {/* Podium top 3 */}
-            <div style={{display:'flex',justifyContent:'center',alignItems:'flex-end',gap:'20px',marginBottom:'20px',position:'relative',zIndex:1,minHeight:180}}>
-              {(() => {
-                const top3 = d.raceLeaderboard?.slice(0,3) || [];
-                const podium = top3.length >= 2 ? [top3[1], top3[0], top3[2]] : top3.length === 2 ? [top3[1], top3[0]] : top3;
-                return podium.map((p,i) => {
-                  if (!p) return null;
-                  const isFirst = i === 1 || (podium.length === 2 && i === 1) || (podium.length === 1 && i === 0);
-                  const isSecond = i === 0 && podium.length >= 2;
-                  const isThird = i === 2;
-                  const color = isFirst ? 'var(--orange)' : isSecond ? '#a0a0a0' : '#cd7f32';
-                  const medal = isFirst ? '🥇' : isSecond ? '🥈' : '🥉';
-                  const barH = isFirst ? 130 : isSecond ? 100 : 90;
-                  return (
-                    <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'6px'}}>
-                      <div style={{width:48,height:48,borderRadius:'50%',overflow:'hidden',border:'3px solid '+color,boxShadow:'0 0 20px '+color+'40'}}>
-                        <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+          {/* ===== RACE LEADERBOARD ===== */}
+          <div className="card anim anim-d1" style={{marginBottom:12}}>
+            <div style={{padding:20}}>
+              {/* Podium */}
+              <div style={{display:'flex',justifyContent:'center',alignItems:'flex-end',gap:20,marginBottom:24,minHeight:150}}>
+                {(()=>{
+                  const t=d.raceLeaderboard?.slice(0,3)||[];
+                  const p=t.length>=2?[t[1],t[0],t[2]]:t;
+                  return p.map((x,i)=>{
+                    if(!x)return null;
+                    const f=i===1||(p.length===1&&i===0);
+                    const s=i===0&&p.length>=2;
+                    const c=f?'var(--gold)':s?'var(--silver)':'var(--bronze)';
+                    const m=f?'\u{1F451}':s?'\u{1F948}':'\u{1F949}';
+                    return <div key={i} style={{textAlign:'center'}}>
+                      <div style={{width:f?56:48,height:f?56:48,borderRadius:'50%',overflow:'hidden',margin:'0 auto 6px',border:'2px solid '+c,background:'var(--surface-muted)'}}>
+                        <img src={getAvatarUrl(x.avatar_style,x.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                       </div>
-                      <div style={{fontSize:'11px',fontWeight:'700',textAlign:'center',lineHeight:1.2}}>
-                        <a href={'view-predictions.php?user_id='+p.user_id+'&race_id='+d.race.id} target="_blank" style={{color:'inherit',textDecoration:'none'}}>{p.username}</a>
-                      </div>
-                      {p.full_name && <div style={{fontSize:'9px',color:'var(--text3)',textAlign:'center',lineHeight:1,marginTop:-2}}>{p.full_name}</div>}
-                      <div style={{fontSize:'20px',fontWeight:'900',color:color}}>+{p.total_points}</div>
-                      <div style={{width:80,height:barH,borderRadius:'10px 10px 0 0',background:'linear-gradient(180deg,'+color+','+color+'44)',border:'1px solid '+color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'28px'}}>
-                        {medal}
-                      </div>
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-
-            {/* Full leaderboard list */}
-            <div style={{position:'relative',zIndex:1}}>
-              <div style={{display:'grid',gridTemplateColumns:'30px 1fr 40px 40px 50px',gap:'4px',padding:'6px 10px',fontSize:'9px',fontWeight:'700',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.06em',borderBottom:'1px solid var(--border)'}}>
-                <span>#</span><span>Player</span><span style={{textAlign:'center'}}>Drv</span><span style={{textAlign:'center'}}>Bns</span><span style={{textAlign:'right'}}>Total</span>
+                      <div style={{fontWeight:700,fontSize:f?15:13,lineHeight:1.2}}>{x.username}</div>
+                      <div className="mono" style={{fontWeight:700,fontSize:f?28:22,color:c,lineHeight:1.2,marginTop:2}}>+{x.total_points}</div>
+                      <div style={{fontSize:28,marginTop:6}}>{m}</div>
+                    </div>;
+                  });
+                })()}
               </div>
-              {d.raceLeaderboard?.map((u,i) => {
-                const isTop3 = i < 3;
-                const isYou = d.auth?.username === u.username;
-                return (
-                  <div key={i} style={{
-                    display:'grid',gridTemplateColumns:'30px 1fr 40px 40px 50px',gap:'4px',
-                    padding:'7px 10px',borderRadius:8,
-                    background:isTop3 ? ['rgba(255,215,0,0.06)','rgba(192,192,192,0.06)','rgba(205,127,50,0.06)'][i] : isYou ? 'rgba(124,58,237,0.08)' : i%2===0 ? 'rgba(255,255,255,0.015)' : 'transparent',
-                    borderBottom:i < d.raceLeaderboard.length-1 ? '1px solid var(--border)' : 'none'
+              {/* Leaderboard table */}
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+                <thead>
+                  <tr style={{borderBottom:'1px solid var(--border)'}}>
+                    <td style={{padding:'8px 10px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>#</td>
+                    <td style={{padding:'8px 10px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Player</td>
+                    <td style={{padding:'8px 10px',textAlign:'right',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Driver</td>
+                    <td style={{padding:'8px 10px',textAlign:'right',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Bonus</td>
+                    <td style={{padding:'8px 10px',textAlign:'right',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Total</td>
+                  </tr>
+                </thead>
+                <tbody>{d.raceLeaderboard?.map((u,i)=>{
+                  const me=d.auth?.username===u.username;
+                  const bc=i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'';
+                  return <tr key={i} style={{
+                    borderBottom:i<d.raceLeaderboard.length-1?'1px solid var(--border-light)':'none',
+                    background:me?'var(--accent-soft)':'transparent'
                   }}>
-                    <div style={{display:'flex',alignItems:'center'}}>
-                      <span style={{
-                        width:22,height:22,borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',
-                        fontWeight:'800',fontSize:10,
-                        background:isTop3?['linear-gradient(135deg,var(--orange),#e67e22)','linear-gradient(135deg,#a0a0a0,#888)','linear-gradient(135deg,#cd7f32,#a0652e)'][i]:'rgba(255,255,255,0.05)',
-                        color:isTop3?'#fff':'var(--text2)'
-                      }}>{i+1}</span>
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',gap:6,minWidth:0}}>
-                      <div style={{width:24,height:24,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
-                        <img src={getAvatarUrl(u.avatar_style,u.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                      </div>
-                      <div style={{minWidth:0}}>
-                        <div style={{display:'flex',alignItems:'center',gap:3}}>
-                          <a href={'view-predictions.php?user_id='+u.user_id+'&race_id='+d.race.id} target="_blank" style={{fontWeight:'700',fontSize:'12px',color:isYou?'var(--purple2)':'var(--text)',textDecoration:'none'}}>{u.username}</a>
-                          {isYou && <span className="badge badge-purple" style={{fontSize:7,padding:'1px 4px'}}>You</span>}
+                    <td style={{padding:'8px 10px',fontFamily:'JetBrains Mono,monospace',fontWeight:600,fontSize:13,color:bc||'var(--text3)'}}>{i+1}</td>
+                    <td style={{padding:'8px 10px'}}>
+                      <div style={{display:'flex',alignItems:'center',gap:8}}>
+                        <div style={{width:26,height:26,borderRadius:'50%',overflow:'hidden',flexShrink:0,background:'var(--surface-muted)'}}>
+                          <img src={getAvatarUrl(u.avatar_style,u.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                         </div>
-                        {u.full_name && <div style={{fontSize:'9px',color:'var(--text3)',lineHeight:1.2}}>{u.full_name}</div>}
-                        {/* Achievements */}
-                        {u.achievements?.length > 0 && (
-                          <div style={{display:'flex',gap:3,marginTop:2}}>
-                            {u.achievements.map((a,j) => {
-                              const def = ALL_ACHIEVEMENTS.find(x => x.id === a.id);
-                              if (!def) return null;
-                              return (
-                                <span key={j} className="badge" style={{
-                                  fontSize:7,padding:'1px 5px',gap:2,
-                                  background:'rgba(124,58,237,0.12)',color:'var(--purple2)',border:'1px solid rgba(124,58,237,0.15)'
-                                }}>
-                                  <I n={def.icon.replace('fa-','')} style={{fontSize:7}} /> {def.name}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        )}
+                        <a href={'view-predictions.php?user_id='+u.user_id+'&race_id='+d.race.id} target="_blank" style={{fontWeight:600,fontSize:13,color:me?'var(--accent)':'var(--text)',textDecoration:'none'}}>{u.username}{me && <span className="badge badge-accent" style={{fontSize:7,padding:'1px 5px',marginLeft:4}}>You</span>}</a>
                       </div>
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
-                      <span style={{fontSize:'11px',fontWeight:'600',color:'var(--text2)'}}>{u.driver_points}</span>
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:3}}>
-                      {u.top3_bonus > 0 && <I n="crown" style={{fontSize:'9px',color:'var(--orange)'}} />}
-                      {u.constructor_points > 0 && <I n="wrench" style={{fontSize:'9px',color:'var(--blue)'}} />}
-                      {(u.top3_bonus > 0 || u.constructor_points > 0) && <span style={{fontSize:'10px',fontWeight:'600',color:'var(--green)'}}>+{u.top3_bonus+u.constructor_points}</span>}
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end'}}>
-                      <span style={{fontWeight:'900',fontSize:'16px',color:isTop3?['var(--orange)','#a0a0a0','#cd7f32'][i]:isYou?'var(--purple2)':'var(--green)'}}>{u.total_points}</span>
-                    </div>
-                  </div>
-                );
-              })}
+                    </td>
+                    <td style={{padding:'8px 10px',textAlign:'right',fontFamily:'JetBrains Mono,monospace',fontSize:13,color:'var(--text2)'}}>{u.driver_points}</td>
+                    <td style={{padding:'8px 10px',textAlign:'right',fontFamily:'JetBrains Mono,monospace',fontWeight:600,fontSize:13,color:u.top3_bonus+u.constructor_points>0?'var(--gold)':'var(--text3)'}}>{u.top3_bonus+u.constructor_points>0?'+'+(u.top3_bonus+u.constructor_points):0}</td>
+                    <td style={{padding:'8px 10px',textAlign:'right',fontFamily:'JetBrains Mono,monospace',fontWeight:700,fontSize:16,color:me?'var(--accent)':'var(--success)'}}>{u.total_points}</td>
+                  </tr>;
+                })}</tbody>
+              </table>
             </div>
           </div>
 
-          {/* 2. Official Results */}
-          <div className="card anim anim-d2" style={{padding:'14px 16px',marginBottom:'12px'}}>
-            <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
-              <I n="flag-checkered" style={{marginRight:10}} />Official Results
-            </div>
-            {d.actualResults?.map((res,i) => (
-              <div className="driver-row" key={i}>
-                <div className="driver-pos" style={{background:res.position <= 3 ? ['var(--orange)','#a0a0a0','#cd7f32'][res.position-1] + '33' : 'var(--card2)'}}>{res.position}</div>
-                <TeamBadge team={res.constructor_name} />
-                <div style={{flex:1,minWidth:0}}>
-                  <div className="driver-name">{res.driver_name}</div>
-                  <div className="team-name">{res.constructor_name}</div>
+          {/* ===== OFFICIAL RESULTS ===== */}
+          <div className="card anim anim-d2" style={{marginBottom:12}}>
+            <div style={{padding:'14px 16px'}}>
+              <div className="ch" style={{marginBottom:10}}><I n="flag-checkered" /><span>Official Results</span></div>
+              {d.actualResults ? (
+                <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+                  <thead>
+                    <tr style={{borderBottom:'1px solid var(--border)'}}>
+                      <td style={{padding:'8px 10px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Pos</td>
+                      <td style={{padding:'8px 10px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Driver</td>
+                      <td style={{padding:'8px 10px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Team</td>
+                      <td style={{padding:'8px 10px',textAlign:'right',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Pts</td>
+                    </tr>
+                  </thead>
+                  <tbody>{d.actualResults.map((res,i)=>{
+                    const tc=res.position<=3?['var(--gold)','var(--silver)','var(--bronze)'][res.position-1]:'';
+                    const pts=res.points_earned||(res.position<=10?[25,18,15,12,10,8,6,4,2,1][res.position-1]:0);
+                    return <tr key={i} style={{borderBottom:i<d.actualResults.length-1?'1px solid var(--border-light)':'none'}}>
+                      <td style={{padding:'8px 10px',fontFamily:'JetBrains Mono,monospace',fontWeight:600,fontSize:13,color:tc||'var(--text3)'}}>{res.position}</td>
+                      <td style={{padding:'8px 10px'}}>
+                        <div style={{display:'flex',alignItems:'center',gap:6}}>
+                          <TeamBadge team={res.constructor_name} />
+                          <span style={{fontWeight:500}}>{res.driver_name}</span>
+                          {res.fastest_lap>0&&<span style={{fontSize:9,color:'var(--accent)',fontWeight:600}}><I n="bolt" /> FL</span>}
+                        </div>
+                      </td>
+                      <td style={{padding:'8px 10px',color:'var(--text2)',fontSize:12}}>{res.constructor_name}</td>
+                      <td style={{padding:'8px 10px',textAlign:'right',fontFamily:'JetBrains Mono,monospace',fontWeight:700,fontSize:15,color:'var(--success)'}}>{pts}</td>
+                    </tr>;
+                  })}</tbody>
+                </table>
+              ) : (
+                <div style={{textAlign:'center',padding:20,color:'var(--text3)',fontSize:13}}>
+                  <I n="clock" style={{fontSize:24,marginBottom:8}} /><br />Official results not yet available
                 </div>
-                {res.fastest_lap > 0 && <span className="badge badge-purple" style={{fontSize:'9px'}}><I n="bolt" /> FL</span>}
-              </div>
-            ))}
+              )}
+            </div>
           </div>
 
-          {/* 3. Predictions vs Actual */}
-          <div className="card anim anim-d3" style={{padding:'14px 16px',marginBottom:'12px'}}>
-            <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>
-              <I n="list" style={{marginRight:10}} />Predictions vs Actual
-            </div>
-            {d.predictions?.map((p,i) => (
-              <div className="driver-row" key={i}>
-                <div className="driver-pos">{p.predicted_position}</div>
-                <TeamBadge team={p.team} />
-                <div style={{flex:1,minWidth:0}}>
-                  <div className="driver-name">{p.driver_name}</div>
+          {/* ===== YOUR PREDICTIONS ===== */}
+          <div className="card anim anim-d3" style={{marginBottom:12}}>
+            <div style={{padding:'14px 16px'}}>
+              <div className="ch" style={{marginBottom:10}}><I n="list" /><span>Your Predictions vs Actual</span></div>
+              {d.predictions ? (
+                <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+                  <thead>
+                    <tr style={{borderBottom:'1px solid var(--border)'}}>
+                      <td style={{padding:'8px 10px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Pred</td>
+                      <td style={{padding:'8px 10px',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Driver</td>
+                      <td style={{padding:'8px 10px',textAlign:'center',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Actual</td>
+                      <td style={{padding:'8px 10px',textAlign:'right',textTransform:'uppercase',fontSize:10,fontWeight:600,letterSpacing:'0.08em',color:'var(--text3)'}}>Pts</td>
+                    </tr>
+                  </thead>
+                  <tbody>{d.predictions.map((p,i)=>{
+                    return <tr key={i} style={{borderBottom:i<d.predictions.length-1?'1px solid var(--border-light)':'none'}}>
+                      <td style={{padding:'8px 10px',fontFamily:'JetBrains Mono,monospace',fontWeight:600,fontSize:13,color:'var(--text2)'}}>P{p.predicted_position}</td>
+                      <td style={{padding:'8px 10px'}}>
+                        <div style={{display:'flex',alignItems:'center',gap:6}}>
+                          <TeamBadge team={p.team} />
+                          <span style={{fontWeight:500}}>{p.driver_name}</span>
+                        </div>
+                      </td>
+                      <td style={{padding:'8px 10px',textAlign:'center'}}>{p.actual_position?(
+                        <span style={{display:'inline-flex',alignItems:'center',gap:6}}>
+                          <span style={{fontFamily:'JetBrains Mono,monospace',fontWeight:600,fontSize:13,color:p.is_exact?'var(--live)':'var(--danger)'}}>P{p.actual_position}</span>
+                          {p.is_exact?<span style={{fontSize:11,color:'var(--live)'}}><I n="check" /></span>:<span style={{fontSize:11,color:'var(--danger)'}}><I n="times" /></span>}
+                        </span>
+                      ):<span style={{color:'var(--text3)',fontSize:12}}>—</span>}</td>
+                      <td style={{padding:'8px 10px',textAlign:'right',fontFamily:'JetBrains Mono,monospace',fontWeight:700,fontSize:15,color:p.points_earned>0?'var(--success)':'var(--text3)'}}>{p.points_earned>0?'+'+p.points_earned:0}</td>
+                    </tr>;
+                  })}</tbody>
+                </table>
+              ) : (
+                <div style={{textAlign:'center',padding:20,color:'var(--text3)',fontSize:13}}>
+                  <I n="file" style={{fontSize:24,marginBottom:8}} /><br />No predictions for this race
                 </div>
-                {p.actual_position ? (
-                  <>
-                    <span style={{fontSize:'11px',color:'var(--text2)',marginRight:'4px'}}>P{p.actual_position}</span>
-                    {p.is_exact
-                      ? <span className="badge badge-green"><I n="check" style={{fontSize:9}} /></span>
-                      : <span className="badge badge-red"><I n="times" style={{fontSize:9}} /></span>
-                    }
-                    <span style={{fontWeight:'700',fontSize:'13px',color:'var(--green)',marginLeft:'6px',minWidth:30,textAlign:'right'}}>{p.points_earned > 0 ? '+'+p.points_earned : 0}</span>
-                  </>
-                ) : (
-                  <span style={{fontSize:'11px',color:'var(--text3)'}}>N/A</span>
-                )}
-              </div>
-            ))}
+              )}
+            </div>
           </div>
         </>
       )}
@@ -1462,34 +1545,34 @@ const ProfilePage = ({ user, onNav }) => {
       {toast && <Toast message={toast.message} type={toast.type} onClose={()=>setToast(null)} />}
 
       <div className="card anim" style={{padding:'32px',textAlign:'center',marginBottom:'24px'}}>
-        <div style={{width:'96px',height:'96px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',margin:'0 auto 16px',border:'3px solid var(--purple)'}}>
+        <div style={{width:'96px',height:'96px',borderRadius:'50%',overflow:'hidden',background:'var(--bg2)',margin:'0 auto 16px',border:'3px solid var(--primary)'}}>
           <img src={getAvatarUrl(data.currentAvatarStyle,data.auth?.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
         </div>
         <h2 style={{fontSize:'24px',fontWeight:'800'}}>{data.auth?.username||''}</h2>
         <p style={{color:'var(--text2)',fontSize:'14px',marginBottom:'6px'}}>{data.auth?.email||''}</p>
-        <div className="stat-grid" style={{marginTop:'20px',maxWidth:440,marginLeft:'auto',marginRight:'auto',gap:'12px'}}>
-          <div className="card stat-box" style={{background:'var(--card2)',padding:'18px 12px'}}>
-            <div className="v" style={{color:'var(--purple2)'}}>#{stats.rank||'-'}</div>
-            <div className="l">Rank</div>
-          </div>
-          <div className="card stat-box" style={{background:'var(--card2)',padding:'18px 12px'}}>
-            <div className="v" style={{color:'var(--green)'}}>{stats.total_points||0}</div>
-            <div className="l">Points</div>
-          </div>
-          <div className="card stat-box" style={{background:'var(--card2)',padding:'18px 12px'}}>
-            <div className="v" style={{color:'var(--blue)'}}>{stats.races_participated||0}</div>
-            <div className="l">Races</div>
-          </div>
-          <div className="card stat-box" style={{background:'var(--card2)',padding:'18px 12px'}}>
-            <div className="v" style={{color:'var(--orange)'}}>{data.accuracy||0}%</div>
-            <div className="l">Accuracy</div>
-          </div>
+          <div className="stat-grid" style={{marginTop:'20px',maxWidth:440,marginLeft:'auto',marginRight:'auto',gap:'12px'}}>
+            <div className="card stat-box" style={{background:'var(--bg2)',padding:'18px 12px'}}>
+              <div className="v" style={{color:'var(--primary)'}}>#{stats.rank||'-'}</div>
+              <div className="l">Rank</div>
+            </div>
+            <div className="card stat-box" style={{background:'var(--bg2)',padding:'18px 12px'}}>
+              <div className="v" style={{color:'var(--success)'}}>{stats.total_points||0}</div>
+              <div className="l">Points</div>
+            </div>
+            <div className="card stat-box" style={{background:'var(--bg2)',padding:'18px 12px'}}>
+              <div className="v" style={{color:'var(--accent)'}}>{stats.races_participated||0}</div>
+              <div className="l">Races</div>
+            </div>
+            <div className="card stat-box" style={{background:'var(--bg2)',padding:'18px 12px'}}>
+              <div className="v" style={{color:'var(--accent-warm)'}}>{data.accuracy||0}%</div>
+              <div className="l">Accuracy</div>
+            </div>
         </div>
       </div>
 
       <div className="card anim anim-d1" style={{padding:'24px',marginBottom:'24px'}}>
-        <div style={{fontSize:'14px',fontWeight:'700',color:'var(--text)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'16px'}}>
-          <I n="palette" style={{marginRight:10,color:'var(--purple2)'}} />Choose Your Avatar
+        <div className="caps-label" style={{fontSize:'14px',fontWeight:'700',marginBottom:'16px'}}>
+          <I n="palette" style={{marginRight:10,color:'var(--primary)'}} />Choose Your Avatar
         </div>
         <div className="avatar-grid">
           {Object.entries(avatars).map(([key, label]) => (
@@ -1502,8 +1585,8 @@ const ProfilePage = ({ user, onNav }) => {
       </div>
 
       <div className="card anim anim-d2" style={{padding:'24px',marginBottom:'24px'}}>
-        <div style={{fontSize:'14px',fontWeight:'700',color:'var(--text)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'20px'}}>
-          <I n="cog" style={{marginRight:10,color:'var(--purple2)'}} />Account Settings
+        <div className="caps-label" style={{fontSize:'14px',fontWeight:'700',marginBottom:'20px'}}>
+          <I n="cog" style={{marginRight:10,color:'var(--primary)'}} />Account Settings
         </div>
 
         <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
@@ -1562,33 +1645,33 @@ const ProfilePage = ({ user, onNav }) => {
       </div>
 
       <div className="card anim anim-d3" style={{padding:'24px',marginBottom:'24px'}}>
-        <div style={{fontSize:'14px',fontWeight:'700',color:'var(--text)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'16px'}}>
-          <I n="crosshairs" style={{marginRight:10,color:'var(--purple2)'}} />Prediction Accuracy
+        <div className="caps-label" style={{fontSize:'14px',fontWeight:'700',marginBottom:'16px'}}>
+          <I n="crosshairs" style={{marginRight:10,color:'var(--primary)'}} />Prediction Accuracy
         </div>
-        <div className="stat-grid" style={{gap:'12px'}}>
-          <div className="card stat-box" style={{background:'var(--card2)',padding:'18px 12px'}}>
-            <div className="v" style={{color:'var(--green)'}}>{data.accuracy}%</div>
-            <div className="l">Overall</div>
-          </div>
-          <div className="card stat-box" style={{background:'var(--card2)',padding:'18px 12px'}}>
-            <div className="v" style={{color:'var(--orange)'}}>{data.avgPositionError||'-'}</div>
-            <div className="l">Avg Error</div>
-          </div>
-          <div className="card stat-box" style={{background:'var(--card2)',padding:'18px 12px'}}>
-            <div className="v" style={{color:'var(--purple2)'}}>{data.exactMatches||0}</div>
-            <div className="l">Exact</div>
-          </div>
+          <div className="stat-grid" style={{gap:'12px'}}>
+            <div className="card stat-box" style={{background:'var(--bg2)',padding:'18px 12px'}}>
+              <div className="v" style={{color:'var(--success)'}}>{data.accuracy}%</div>
+              <div className="l">Overall</div>
+            </div>
+            <div className="card stat-box" style={{background:'var(--bg2)',padding:'18px 12px'}}>
+              <div className="v" style={{color:'var(--accent-warm)'}}>{data.avgPositionError||'-'}</div>
+              <div className="l">Avg Error</div>
+            </div>
+            <div className="card stat-box" style={{background:'var(--bg2)',padding:'18px 12px'}}>
+              <div className="v" style={{color:'var(--primary)'}}>{data.exactMatches||0}</div>
+              <div className="l">Exact</div>
+            </div>
         </div>
       </div>
 
       <div className="card anim anim-d4" style={{padding:'24px'}}>
-        <div style={{fontSize:'14px',fontWeight:'700',color:'var(--text)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'16px'}}>
-          <I n="crown" style={{marginRight:10,color:'var(--purple2)'}} />Best Performance
+        <div className="caps-label" style={{fontSize:'14px',fontWeight:'700',marginBottom:'16px'}}>
+          <I n="crown" style={{marginRight:10,color:'var(--primary)'}} />Best Performance
         </div>
         {data.bestRace ? (
-          <div style={{background:'var(--card2)',padding:'24px',borderRadius:'var(--rad)',textAlign:'center',marginBottom:'20px'}}>
-            <div style={{fontSize:'42px',fontWeight:'900',color:'var(--green)'}}>+{data.bestRace.total_points}</div>
-            <div style={{fontWeight:'700',fontSize:'15px',marginTop:'6px'}}>{data.bestRace.country} GP</div>
+          <div style={{background:'var(--bg2)',padding:'24px',borderRadius:'var(--rad)',textAlign:'center',marginBottom:'20px'}}>
+            <div style={{fontSize:'42px',fontWeight:'900',color:'var(--success)',fontFamily:'JetBrains Mono,monospace'}}>+{data.bestRace.total_points}</div>
+            <div style={{fontWeight:'700',fontSize:'15px',marginTop:'6px'}}><span className="racing">{data.bestRace.country}</span> GP</div>
             <div style={{fontSize:'12px',color:'var(--text2)',marginTop:'4px'}}>{new Date(data.bestRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
           </div>
         ) : (
@@ -1603,10 +1686,10 @@ const ProfilePage = ({ user, onNav }) => {
               <I n="flag-checkered" style={{fontSize:'12px',color:'var(--text3)'}} />
             </div>
             <div style={{flex:1}}>
-              <div className="r-name" style={{fontSize:'14px'}}>{rc.country} GP</div>
+              <div className="r-name" style={{fontSize:'14px'}}><span className="racing">{rc.country}</span> GP</div>
               <div className="r-meta">{new Date(rc.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
             </div>
-            <div style={{fontWeight:'800',fontSize:'16px',color:'var(--green)'}}>+{rc.total_points}</div>
+            <div style={{fontWeight:'800',fontSize:'16px',color:'var(--success)',fontFamily:'JetBrains Mono,monospace'}}>+{rc.total_points}</div>
           </div>
         )) : (
           <div style={{textAlign:'center',padding:'24px',color:'var(--text3)',fontSize:'13px'}}>No race history yet. Start predicting!</div>
@@ -1637,13 +1720,13 @@ const AchievementsPage = () => {
   return (
     <div className="page">
       <div className="anim" style={{marginBottom:'20px',textAlign:'center'}}>
-        <h1 style={{fontSize:'24px',fontWeight:'800'}}>Achievements</h1>
+        <h1 style={{fontSize:'24px',fontWeight:'800',color:'var(--text)'}}>Achievements</h1>
         <p style={{color:'var(--text2)',fontSize:'13px',marginTop:'4px'}}>Unlock every achievement to become the ultimate predictor</p>
       </div>
 
       <div className="stat-grid anim anim-d1" style={{maxWidth:500,margin:'0 auto 20px'}}>
         <div className="card stat-box">
-          <div className="v" style={{color:'var(--green)'}}>{unlockedCount}</div>
+          <div className="v" style={{color:'var(--success)'}}>{unlockedCount}</div>
           <div className="l">Unlocked</div>
         </div>
         <div className="card stat-box">
@@ -1651,11 +1734,11 @@ const AchievementsPage = () => {
           <div className="l">Total</div>
         </div>
         <div className="card stat-box">
-          <div className="v" style={{color:'var(--purple2)'}}>{completionPct}%</div>
+          <div className="v" style={{color:'var(--primary)'}}>{completionPct}%</div>
           <div className="l">Complete</div>
         </div>
         <div className="card stat-box">
-          <div className="v" style={{color:'var(--orange)'}}>{profile?.auth?.username?.charAt(0)?.toUpperCase()||''}</div>
+          <div className="v" style={{color:'var(--accent-warm)'}}>{profile?.auth?.username?.charAt(0)?.toUpperCase()||''}</div>
           <div className="l">Player</div>
         </div>
       </div>
@@ -1717,27 +1800,27 @@ const UpdatesPage = ({ onNav }) => {
   return (
     <div className="page">
       <div className="anim" style={{marginBottom:'20px',textAlign:'center'}}>
-        <h1 style={{fontSize:'24px',fontWeight:'800'}}>Race <span style={{color:'var(--purple2)'}}>Roundup</span></h1>
+        <h1 style={{fontSize:'24px',fontWeight:'800',color:'var(--text)'}}>Race <span style={{color:'var(--primary)'}}>Roundup</span></h1>
         <p style={{color:'var(--text2)',fontSize:'13px',marginTop:'4px'}}>Latest race results, standings, and prediction tracker</p>
       </div>
 
       {/* NEXT RACE — main focus, moved above last race */}
       {d.nextRace && (
-        <div className="card anim anim-d1" style={{padding:'16px',marginBottom:'16px',border:'1px solid rgba(124,58,237,0.2)'}}>
+        <div className="card anim anim-d1" style={{padding:'16px',marginBottom:'16px',border:'1px solid rgba(225,6,0,0.12)'}}>
           <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}}>
             <span style={{fontSize:'28px'}}>{d.nextRace.flag || '🏁'}</span>
             <div style={{flex:1}}>
-              <div style={{fontSize:'16px',fontWeight:'700'}}>{d.nextRace.country} GP <span className="badge badge-purple" style={{marginLeft:'8px',fontSize:'9px'}}>Up Next</span></div>
+              <div style={{fontSize:'16px',fontWeight:'700'}}><span className="racing">{d.nextRace.country}</span> GP <span className="badge badge-purple" style={{marginLeft:'8px',fontSize:'9px'}}>Up Next</span></div>
               <div style={{fontSize:'12px',color:'var(--text2)'}}>{new Date(d.nextRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} &middot; {d.nextRace.circuit_name}</div>
             </div>
           </div>
 
           {/* Calendar download buttons */}
           <div style={{display:'flex',gap:'8px',marginBottom:'14px',flexWrap:'wrap'}}>
-            <a href={'calendar.php?race_id='+d.nextRace.id} target="_blank" className="btn btn-sm" style={{background:'var(--card2)',color:'var(--text)',border:'1px solid var(--border2)'}}>
+            <a href={'calendar.php?race_id='+d.nextRace.id} target="_blank" className="btn btn-sm" style={{background:'var(--bg2)',color:'var(--text)',border:'1px solid var(--border)'}}>
               <I n="calendar-plus" style={{fontSize:12}} /> Download .ics <span style={{fontSize:9,color:'var(--text3)'}}>(iCal / Android / Outlook)</span>
             </a>
-            <a href={'calendar.php'} target="_blank" className="btn btn-sm" style={{background:'var(--card2)',color:'var(--text)',border:'1px solid var(--border2)'}}>
+            <a href={'calendar.php'} target="_blank" className="btn btn-sm" style={{background:'var(--bg2)',color:'var(--text)',border:'1px solid var(--border)'}}>
               <I n="calendar-alt" style={{fontSize:12}} /> Full Season Calendar
             </a>
           </div>
@@ -1755,8 +1838,8 @@ const UpdatesPage = ({ onNav }) => {
 
           {/* Full lists — no slice limit */}
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-            <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)',maxHeight:320,overflow:'auto'}}>
-              <div style={{fontSize:'10px',fontWeight:'700',color:'var(--green)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px',position:'sticky',top:0,background:'var(--card2)',paddingBottom:4,zIndex:1}}>
+            <div style={{background:'var(--bg2)',padding:'10px',borderRadius:'var(--rad)',maxHeight:320,overflow:'auto'}}>
+              <div style={{fontSize:'10px',fontWeight:'700',color:'var(--success)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px',position:'sticky',top:0,background:'var(--bg2)',paddingBottom:4,zIndex:1}}>
                 <I n="check-circle" style={{marginRight:4}} />Submitted ({d.submitted?.length||0})
               </div>
               {d.submitted?.length > 0 ? d.submitted.map((s,i) => (
@@ -1768,8 +1851,8 @@ const UpdatesPage = ({ onNav }) => {
                 </div>
               )) : <div style={{fontSize:'11px',color:'var(--text3)',padding:'8px 0'}}>No predictions yet</div>}
             </div>
-            <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)',maxHeight:320,overflow:'auto'}}>
-              <div style={{fontSize:'10px',fontWeight:'700',color:'var(--red)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px',position:'sticky',top:0,background:'var(--card2)',paddingBottom:4,zIndex:1}}>
+            <div style={{background:'var(--bg2)',padding:'10px',borderRadius:'var(--rad)',maxHeight:320,overflow:'auto'}}>
+              <div style={{fontSize:'10px',fontWeight:'700',color:'var(--danger)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px',position:'sticky',top:0,background:'var(--bg2)',paddingBottom:4,zIndex:1}}>
                 <I n="times-circle" style={{marginRight:4}} />Missing ({d.missing?.length||0})
               </div>
               {d.missing?.length > 0 ? d.missing.map((s,i) => (
@@ -1795,13 +1878,15 @@ const UpdatesPage = ({ onNav }) => {
           <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}}>
             <span style={{fontSize:'24px'}}>{d.lastRace.flag}</span>
             <div>
-              <div style={{fontSize:'16px',fontWeight:'700'}}>{d.lastRace.country} GP <span className="badge badge-green" style={{marginLeft:'8px',fontSize:'9px'}}>Completed</span></div>
+              <div style={{fontSize:'16px',fontWeight:'700'}}><span className="racing">{d.lastRace.country}</span> GP <span className="badge badge-green" style={{marginLeft:'8px',fontSize:'9px'}}>Completed</span></div>
+
+
               <div style={{fontSize:'12px',color:'var(--text2)'}}>{new Date(d.lastRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
             </div>
           </div>
 
           {d.raceWinner && (
-            <div style={{display:'flex',alignItems:'center',gap:'12px',padding:'12px',background:'var(--card2)',borderRadius:'var(--rad)',marginBottom:'12px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'12px',padding:'12px',background:'var(--bg2)',borderRadius:'var(--rad)',marginBottom:'12px'}}>
               <I n="trophy" style={{fontSize:'18px',color:'var(--orange)'}} />
               <div>
                 <div style={{fontSize:'13px',fontWeight:'600'}}>{d.raceWinner.driver_name} wins!</div>
@@ -1827,21 +1912,21 @@ const UpdatesPage = ({ onNav }) => {
           {d.topScorers?.map((s,i) => (
             <div className="lb-row" key={i} style={{padding:'8px 4px'}}>
               <div style={{fontSize:'16px',width:'24px',textAlign:'center'}}>{i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</div>
-              <div style={{width:'28px',height:'28px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
+              <div style={{width:'28px',height:'28px',borderRadius:'50%',overflow:'hidden',background:'var(--bg2)',flexShrink:0}}>
                 <img src={getAvatarUrl(s.avatar_style,s.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
               </div>
               <div className="lb-name">
                 <div className="lb-user">{s.username}</div>
               </div>
-              <div style={{fontSize:'15px',fontWeight:'700',color:'var(--green)'}}>+{s.total_points}</div>
+              <div style={{fontSize:'15px',fontWeight:'700',color:'var(--success)',fontFamily:'JetBrains Mono,monospace'}}>+{s.total_points}</div>
             </div>
           ))}
 
           {(d.podiumSweepUsers?.length > 0 || d.constructorBonusUsers?.length > 0) && (
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginTop:'12px'}}>
               {d.podiumSweepUsers?.length > 0 && (
-                <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)'}}>
-                  <div style={{fontSize:'10px',color:'var(--orange)',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'4px'}}><I n="crown" style={{marginRight:4}} />Podium Sweep</div>
+                <div style={{background:'var(--bg2)',padding:'10px',borderRadius:'var(--rad)'}}>
+                  <div style={{fontSize:'10px',color:'var(--accent-warm)',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'4px'}}><I n="crown" style={{marginRight:4}} />Podium Sweep</div>
                   <div style={{fontSize:'12px'}}>{d.podiumSweepUsers.join(', ')}</div>
                 </div>
               )}
@@ -1858,7 +1943,7 @@ const UpdatesPage = ({ onNav }) => {
 
       <div className="card anim anim-d3" style={{padding:'16px'}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
-          <span style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em'}}><I n="trophy" style={{color:'var(--orange)',marginRight:10}} />Leaderboard Snapshot</span>
+          <span className="caps-label"><I n="trophy" style={{color:'var(--accent-warm)',marginRight:10}} />Leaderboard Snapshot</span>
           <a className="btn btn-outline btn-sm" onClick={(e)=>{e.preventDefault();onNav('leaderboard')}}>Full Standings</a>
         </div>
         {d.leaderboard?.map((p,i) => (
@@ -1996,30 +2081,30 @@ const AdminPage = () => {
       {/* Loading overlay */}
       {submitting && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.9)',backdropFilter:'blur(24px)',zIndex:100,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
-          <div style={{width:80,height:80,border:'4px solid var(--orange)',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 1s linear infinite',marginBottom:24}} />
-          <div style={{color:'#fff',fontWeight:'800',fontSize:'24px',animation:'pulse 1s ease-in-out infinite',textTransform:'uppercase',fontStyle:'italic',letterSpacing:'0.04em'}}>Processing Telemetry...</div>
+          <div style={{width:80,height:80,border:'4px solid var(--accent-warm)',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 1s linear infinite',marginBottom:24}} />
+          <div style={{color:'var(--text)',fontWeight:'800',fontSize:'24px',animation:'pulse 1s ease-in-out infinite',textTransform:'uppercase',fontStyle:'italic',letterSpacing:'0.04em'}}>Processing Telemetry...</div>
         </div>
       )}
 
       {/* Header */}
       <div style={{marginBottom:32}}>
-        <span style={{background:'var(--red)',color:'#fff',fontSize:10,fontWeight:'900',padding:'4px 12px',borderRadius:999,textTransform:'uppercase',letterSpacing:'0.12em',display:'inline-block',marginBottom:12}}>
-          <I n="terminal" style={{marginRight:10}} />Manual Override Mode
-        </span>
-        <h1 style={{fontSize:48,fontWeight:'900',color:'#fff',fontStyle:'italic',textTransform:'uppercase',lineHeight:1.1}}>Race <span style={{background:'linear-gradient(135deg,var(--purple),var(--orange))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Commander</span></h1>
+          <span style={{background:'var(--danger)',color:'#fff',fontSize:10,fontWeight:'900',padding:'4px 12px',borderRadius:999,textTransform:'uppercase',letterSpacing:'0.12em',display:'inline-block',marginBottom:12}}>
+            <I n="terminal" style={{marginRight:10}} />Manual Override Mode
+          </span>
+          <h1 style={{fontSize:48,fontWeight:'900',color:'var(--text)',fontStyle:'italic',textTransform:'uppercase',lineHeight:1.1}}>Race <span style={{background:'linear-gradient(135deg,var(--primary),var(--accent-warm))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Commander</span></h1>
         <p style={{color:'var(--text2)',fontSize:14,marginTop:8}}>Update race results, calculate points, and move the season forward.</p>
       </div>
 
       {/* Main Card */}
-      <div className="card" style={{padding:32,borderTop:'4px solid var(--blue)',borderRadius:24}}>
+      <div className="card" style={{padding:32,borderTop:'4px solid var(--accent)',borderRadius:24}}>
 
         {/* Step 1: Race Selector */}
-        <div style={{marginBottom:32,padding:24,background:'rgba(79,124,255,0.08)',border:'1px solid rgba(79,124,255,0.2)',borderRadius:16,display:'flex',flexDirection:'row',alignItems:'center',gap:16,flexWrap:'wrap'}}>
-          <div style={{display:'flex',alignItems:'center',gap:8,color:'var(--blue)',fontWeight:'900',textTransform:'uppercase',fontSize:12,letterSpacing:'0.08em',whiteSpace:'nowrap'}}>
+        <div style={{marginBottom:32,padding:24,background:'rgba(0,210,190,0.04)',border:'1px solid rgba(0,210,190,0.12)',borderRadius:16,display:'flex',flexDirection:'row',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,color:'var(--accent)',fontWeight:'900',textTransform:'uppercase',fontSize:12,letterSpacing:'0.08em',whiteSpace:'nowrap'}}>
             <I n="flag-checkered" /> Step 1: Select Race
           </div>
           <select value={raceId} onChange={e => setRaceId(e.target.value)}
-            style={{flex:1,minWidth:200,padding:'14px 16px',borderRadius:12,background:'rgba(0,0,0,0.3)',border:'1px solid var(--border2)',color:'#fff',fontWeight:'700',fontSize:14,outline:'none',cursor:'pointer'}}>
+            style={{flex:1,minWidth:200,padding:'14px 16px',borderRadius:12,background:'var(--card)',border:'1px solid var(--border)',color:'var(--text)',fontWeight:'700',fontSize:14,outline:'none',cursor:'pointer'}}>
             <option value="">-- SELECT THE RACE YOU ARE UPDATING --</option>
             {races.map(r => (
               <option key={r.id} value={r.id}>
@@ -2032,13 +2117,13 @@ const AdminPage = () => {
         {/* Step 2: Parser */}
         <div style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:16,marginBottom:24}}>
           <div>
-            <h2 style={{fontSize:28,fontWeight:'900',color:'#fff',fontStyle:'italic',textTransform:'uppercase',lineHeight:1}}>Step 2: <span style={{color:'var(--blue)'}}>Ultra-Parser v2.0</span></h2>
+            <h2 style={{fontSize:28,fontWeight:'900',color:'var(--text)',fontStyle:'italic',textTransform:'uppercase',lineHeight:1}}>Step 2: <span style={{color:'var(--accent)'}}>Ultra-Parser v2.0</span></h2>
             <p style={{color:'var(--text3)',fontSize:12,marginTop:6}}>DUMP THE WHOLE TABLE FROM BBC / SKY / ESPN BELOW. AUTO-DETECTS DRIVERS.</p>
           </div>
           <div style={{display:'flex',gap:12,alignItems:'center'}}>
             <button className="btn btn-outline btn-sm" onClick={clearParser}><I n="trash-alt" /> Clear Deck</button>
-            <div style={{padding:'10px 20px',background:'var(--card2)',borderRadius:10,border:'1px solid rgba(79,124,255,0.2)'}}>
-              <span style={{color:'var(--blue)',fontWeight:'900',fontSize:13}}>{detectedCount} / {drivers.length} DETECTED</span>
+            <div style={{padding:'10px 20px',background:'var(--bg2)',borderRadius:10,border:'1px solid rgba(0,210,190,0.15)'}}>
+              <span style={{color:'var(--accent)',fontWeight:'900',fontSize:13}}>{detectedCount} / {drivers.length} DETECTED</span>
             </div>
           </div>
         </div>
@@ -2047,9 +2132,9 @@ const AdminPage = () => {
           {/* Input Zone */}
           <div>
             <div className="card" style={{position:'relative',padding:0,overflow:'hidden'}}>
-              <div style={{position:'absolute',top:12,left:16,fontSize:9,fontWeight:'900',color:'rgba(79,124,255,0.4)',textTransform:'uppercase',letterSpacing:'0.2em',pointerEvents:'none',zIndex:1}}>Input Stream</div>
+              <div style={{position:'absolute',top:12,left:16,fontSize:9,fontWeight:'900',color:'rgba(0,210,190,0.4)',textTransform:'uppercase',letterSpacing:'0.2em',pointerEvents:'none',zIndex:1}}>Input Stream</div>
               <textarea value={pasteText} onChange={e => autoParse(e.target.value)}
-                style={{width:'100%',height:500,padding:'40px 20px 20px',background:'rgba(0,0,0,0.3)',border:'1px solid var(--border2)',borderRadius:12,color:'var(--text)',fontSize:13,fontFamily:'monospace',lineHeight:1.7,outline:'none',resize:'none'}}
+                style={{width:'100%',height:500,padding:'40px 20px 20px',background:'var(--card)',border:'1px solid var(--border)',borderRadius:12,color:'var(--text)',fontSize:13,fontFamily:'monospace',lineHeight:1.7,outline:'none',resize:'none'}}
                 placeholder={"PASTE THE WHOLE DAMN TABLE HERE...\n\nExample:\n1 George Russell Mercedes 1:30:11\n2 Kimi Antonelli Mercedes +2.2\n3 Charles Leclerc Ferrari +5.5\n..."} />
             </div>
           </div>
@@ -2058,48 +2143,48 @@ const AdminPage = () => {
           <div style={{maxHeight:500,overflowY:'auto',paddingRight:8}}>
             {matches.map((m, i) => (
               <div key={i}
-                style={{display:'flex',alignItems:'center',gap:12,padding:'10px 14px',marginBottom:6,borderRadius:12,border:'1px solid ' + (m.driverId ? 'rgba(79,124,255,0.4)' : 'var(--border)'),background: m.driverId ? 'rgba(79,124,255,0.08)' : 'transparent',opacity: m.driverId ? 1 : 0.4,transition:'all 0.2s'}}>
-                <div style={{width:36,height:36,borderRadius:8,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'900',fontSize:16,color:'#fff',fontStyle:'italic',flexShrink:0}}>#{m.pos}</div>
+                style={{display:'flex',alignItems:'center',gap:12,padding:'10px 14px',marginBottom:6,borderRadius:12,border:'1px solid ' + (m.driverId ? 'rgba(0,210,190,0.3)' : 'var(--border)'),background: m.driverId ? 'rgba(0,210,190,0.04)' : 'transparent',opacity: m.driverId ? 1 : 0.4,transition:'all 0.2s'}}>
+                <div style={{width:36,height:36,borderRadius:8,background:'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'900',fontSize:16,color:'var(--text2)',fontStyle:'italic',flexShrink:0}}>#{m.pos}</div>
                 <select value={m.driverId} onChange={e => manualSelect(m.pos, e.target.value)}
-                  style={{flex:1,padding:'10px 12px',borderRadius:10,background:'rgba(0,0,0,0.3)',border:'1px solid var(--border2)',color:'#fff',fontWeight:'600',fontSize:13,outline:'none',cursor:'pointer'}}>
+                  style={{flex:1,padding:'10px 12px',borderRadius:10,background:'var(--card)',border:'1px solid var(--border)',color:'var(--text)',fontWeight:'600',fontSize:13,outline:'none',cursor:'pointer'}}>
                   <option value="">-- NO DRIVER DETECTED --</option>
                   {drivers.map(d => (
                     <option key={d.id} value={d.id}>{d.driver_name}</option>
                   ))}
                 </select>
-                <div style={{fontSize:9,fontWeight:'900',textTransform:'uppercase',letterSpacing:'0.08em',color: m.driverId ? 'var(--blue)' : 'var(--text3)',whiteSpace:'nowrap'}}>{m.driverId ? 'Detected' : 'Standby'}</div>
+                <div style={{fontSize:9,fontWeight:'900',textTransform:'uppercase',letterSpacing:'0.08em',color: m.driverId ? 'var(--accent)' : 'var(--text3)',whiteSpace:'nowrap'}}>{m.driverId ? 'Detected' : 'Standby'}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Launch Button */}
-        <div style={{marginTop:32,padding:24,background:'rgba(79,124,255,0.05)',border:'1px solid rgba(79,124,255,0.1)',borderRadius:16,display:'flex',flexDirection:'row',alignItems:'center',gap:24,flexWrap:'wrap'}}>
+        <div style={{marginTop:32,padding:24,background:'rgba(0,210,190,0.03)',border:'1px solid rgba(0,210,190,0.08)',borderRadius:16,display:'flex',flexDirection:'row',alignItems:'center',gap:24,flexWrap:'wrap'}}>
           <div style={{flex:1}}>
-            <h3 style={{fontSize:18,fontWeight:'900',color:'#fff',textTransform:'uppercase',fontStyle:'italic'}}>Ready for Launch?</h3>
+            <h3 style={{fontSize:18,fontWeight:'900',color:'var(--text)',textTransform:'uppercase',fontStyle:'italic'}}>Ready for Launch?</h3>
             <p style={{fontSize:13,color:'var(--text3)'}}>Double check the grid above. The system will calculate scores for all engineers once you hit the button.</p>
           </div>
           <button onClick={submitResults} disabled={submitting}
-            style={{whiteSpace:'nowrap',padding:'18px 48px',background:'linear-gradient(135deg,var(--blue),var(--purple))',border:'none',borderRadius:14,color:'#fff',fontWeight:'900',fontSize:18,cursor:'pointer',boxShadow:'0 8px 32px rgba(79,124,255,0.2)',transition:'all 0.2s',display:'flex',alignItems:'center',gap:12}}>
+            style={{whiteSpace:'nowrap',padding:'18px 48px',background:'linear-gradient(135deg,var(--accent),var(--primary))',border:'none',borderRadius:14,color:'#fff',fontWeight:'900',fontSize:18,cursor:'pointer',boxShadow:'0 8px 32px rgba(225,6,0,0.2)',transition:'all 0.2s',display:'flex',alignItems:'center',gap:12}}>
             <I n="rocket" /> DEPLOY CLASSIFICATION
           </button>
         </div>
       </div>
 
       {/* ===== RACE CONTROL — Post-Race Briefing & Tools ===== */}
-      <div className="card" style={{padding:32,borderTop:'4px solid var(--orange)',borderRadius:24,marginTop:24}}>
+      <div className="card" style={{padding:32,borderTop:'4px solid var(--accent-warm)',borderRadius:24,marginTop:24}}>
         <div style={{marginBottom:24}}>
-          <span style={{background:'var(--orange)',color:'#fff',fontSize:10,fontWeight:'900',padding:'4px 12px',borderRadius:999,textTransform:'uppercase',letterSpacing:'0.12em',display:'inline-block',marginBottom:12}}>
+          <span style={{background:'var(--accent-warm)',color:'#fff',fontSize:10,fontWeight:'900',padding:'4px 12px',borderRadius:999,textTransform:'uppercase',letterSpacing:'0.12em',display:'inline-block',marginBottom:12}}>
             <I n="cog" style={{marginRight:10}} />Race Control
           </span>
-          <h2 style={{fontSize:32,fontWeight:'900',color:'#fff',fontStyle:'italic',textTransform:'uppercase',lineHeight:1.1}}>Briefing &amp; <span style={{color:'var(--orange)'}}>Ops</span></h2>
+          <h2 style={{fontSize:32,fontWeight:'900',color:'var(--text)',fontStyle:'italic',textTransform:'uppercase',lineHeight:1.1}}>Briefing &amp; <span style={{color:'var(--accent-warm)'}}>Ops</span></h2>
           <p style={{color:'var(--text2)',fontSize:14,marginTop:8}}>Generate post-race debriefs, rescore races, create news posts, and manage the season.</p>
         </div>
 
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
           {/* Selected Race Details */}
-          <div style={{padding:20,background:'rgba(251,146,60,0.06)',border:'1px solid rgba(251,146,60,0.15)',borderRadius:16}}>
-            <div style={{fontSize:11,fontWeight:'700',color:'var(--orange)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:12}}>
+          <div style={{padding:20,background:'rgba(255,135,0,0.04)',border:'1px solid rgba(255,135,0,0.1)',borderRadius:16}}>
+            <div style={{fontSize:11,fontWeight:'700',color:'var(--accent-warm)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:12}}>
               <I n="flag-checkered" style={{marginRight:10}} />Selected Race
             </div>
             {raceId ? (() => {
@@ -2108,7 +2193,7 @@ const AdminPage = () => {
               const isComplete = r.status === 'completed';
               return (
                 <div>
-                  <div style={{fontSize:20,fontWeight:'800',marginBottom:4}}>{r.country || r.race_name} GP</div>
+                  <div style={{fontSize:20,fontWeight:'800',marginBottom:4}}><span className="racing">{r.country || r.race_name}</span> GP</div>
                   <div style={{fontSize:13,color:'var(--text2)',marginBottom:8}}>
                     {new Date(r.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
                     {' '}
@@ -2117,15 +2202,15 @@ const AdminPage = () => {
                     </span>
                   </div>
                   <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>
-                    <a href={'admin/generate-debriefs.php?race_id='+raceId} target="_blank" className="btn btn-sm" style={{background:'var(--orange)',color:'#fff',border:'none'}}>
+                    <a href={'admin/generate-debriefs.php?race_id='+raceId} target="_blank" className="btn btn-sm" style={{background:'var(--accent-warm)',color:'#fff',border:'none'}}>
                       <I n="newspaper" style={{fontSize:11}} /> Generate Debrief
                     </a>
                     {isComplete && (
-                      <a href={'admin/rescore-race.php?race_id='+raceId} target="_blank" className="btn btn-sm" style={{background:'var(--card)',color:'var(--text)',border:'1px solid var(--border2)'}}>
+                      <a href={'admin/rescore-race.php?race_id='+raceId} target="_blank" className="btn btn-sm" style={{background:'var(--card)',color:'var(--text)',border:'1px solid var(--border)'}}>
                         <I n="redo-alt" style={{fontSize:11}} /> Rescore
                       </a>
                     )}
-                    <a href={'admin/create-post.php?race_id='+raceId} target="_blank" className="btn btn-sm" style={{background:'var(--card)',color:'var(--text)',border:'1px solid var(--border2)'}}>
+                    <a href={'admin/create-post.php?race_id='+raceId} target="_blank" className="btn btn-sm" style={{background:'var(--card)',color:'var(--text)',border:'1px solid var(--border)'}}>
                       <I n="pen" style={{fontSize:11}} /> Create Post
                     </a>
                   </div>
@@ -2137,8 +2222,8 @@ const AdminPage = () => {
           </div>
 
           {/* Quick Links */}
-          <div style={{padding:20,background:'rgba(255,255,255,0.02)',border:'1px solid var(--border)',borderRadius:16}}>
-            <div style={{fontSize:11,fontWeight:'700',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:12}}>
+          <div style={{padding:20,background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:16}}>
+            <div className="caps-label" style={{marginBottom:12}}>
               <I n="link" style={{marginRight:10}} />Admin Tools
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:8}}>
@@ -2151,8 +2236,8 @@ const AdminPage = () => {
                 {url:'admin/diagnose.php',label:'Diagnostics',icon:'stethoscope',desc:'Fix duplicate entries'},
               ].map((t,i) => (
                 <a key={i} href={t.url} target="_blank" style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:10,background:'var(--card)',border:'1px solid var(--border)',textDecoration:'none',transition:'all 0.15s'}}>
-                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(251,146,60,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <I n={t.icon} style={{fontSize:12,color:'var(--orange)'}} />
+                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(255,135,0,0.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <I n={t.icon} style={{fontSize:12,color:'var(--accent-warm)'}} />
                   </div>
                   <div style={{flex:1}}>
                     <div style={{fontSize:12,fontWeight:'700',color:'var(--text)'}}>{t.label}</div>
@@ -2236,7 +2321,7 @@ const NewsPage = ({ onNav }) => {
   return (
     <div className="page" style={{maxWidth:700}}>
       <div className="anim" style={{marginBottom:20,textAlign:'center'}}>
-        <h1 style={{fontSize:24,fontWeight:'800'}}><I n="rss" style={{color:'var(--orange)',marginRight:8}} />Paddock News</h1>
+        <h1 style={{fontSize:24,fontWeight:'800',color:'var(--text)'}}><I n="rss" style={{color:'var(--accent-warm)',marginRight:8}} />Paddock News</h1>
         <p style={{color:'var(--text2)',fontSize:13,marginTop:4}}>Post-race debriefs, highlights, and community chatter</p>
       </div>
 
@@ -2249,13 +2334,13 @@ const NewsPage = ({ onNav }) => {
       ) : (
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
           {posts.map(post => (
-            <div key={post.id} className="card" style={{padding:20,borderLeft:'3px solid var(--orange)'}}>
+            <div key={post.id} className="card" style={{padding:20,borderLeft:'3px solid var(--accent-warm)'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
                 <div>
-                  <h2 style={{fontSize:18,fontWeight:'800',color:'var(--orange)',marginBottom:4}}>{post.title}</h2>
+                  <h2 style={{fontSize:18,fontWeight:'800',color:'var(--accent-warm)',marginBottom:4}}>{post.title}</h2>
                   {post.race_name && (
                     <div style={{fontSize:12,color:'var(--text3)'}}>
-                      <I n="flag-checkered" style={{marginRight:4}} />{post.race_name} - {post.country}
+                      <I n="flag-checkered" style={{marginRight:4}} />{post.race_name} - <span className="racing">{post.country}</span>
                     </div>
                   )}
                 </div>
@@ -2286,7 +2371,7 @@ const NewsPage = ({ onNav }) => {
                     {(comments[post.id] || []).map((c, i) => (
                       <div key={i} style={{background:'var(--card2)',padding:'8px 12px',borderRadius:8}}>
                         <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:2}}>
-                          <strong style={{fontSize:11,color:'var(--orange)'}}>{c.username}</strong>
+                          <strong style={{fontSize:11,color:'var(--accent-warm)'}}>{c.username}</strong>
                           <span style={{fontSize:10,color:'var(--text3)'}}>{c.created_at}</span>
                         </div>
                         <p style={{fontSize:12,color:'var(--text)'}}>{c.comment}</p>
@@ -2339,7 +2424,7 @@ const App = () => {
 
   if (loading) return null;
 
-  if (!user && getPageName() !== 'leaderboard') {
+  if (false && !user && getPageName() !== 'leaderboard') {
     return (
       <>
         <style>{`
@@ -2351,41 +2436,41 @@ const App = () => {
           <div style={{
             flex:'1.3',position:'relative',overflow:'hidden',display:'flex',
             alignItems:'center',justifyContent:'center',
-            background:'linear-gradient(135deg,#0c0f16 0%,#111620 100%)',
+            background:'linear-gradient(135deg,#F8F9FA 0%,#F0F2F5 100%)',
             minHeight:'100vh'
           }}>
             {/* Abstract gradient mesh */}
             <div style={{
               position:'absolute',inset:0,
-              background:'radial-gradient(ellipse at 20% 50%,rgba(124,58,237,0.12),transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(79,124,255,0.08),transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(251,146,60,0.06),transparent 50%)',
+              background:'radial-gradient(ellipse at 20% 50%,rgba(225,6,0,0.04),transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(0,210,190,0.03),transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(255,135,0,0.02),transparent 50%)',
             }} />
             {/* Subtle grid pattern */}
             <div style={{
               position:'absolute',inset:0,
-              backgroundImage:'linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px)',
+              backgroundImage:'linear-gradient(rgba(0,0,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.03) 1px,transparent 1px)',
               backgroundSize:'60px 60px'
             }} />
             {/* Brand content */}
             <div style={{position:'relative',zIndex:2,textAlign:'center',padding:'40px',maxWidth:480}}>
-              <div style={{width:72,height:72,background:'linear-gradient(135deg,var(--purple),var(--blue))',borderRadius:20,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 28px',fontSize:32,color:'#fff',boxShadow:'0 8px 32px rgba(124,58,237,0.3)',animation:'wlcmFade 0.6s ease both'}}>
+              <div style={{width:72,height:72,background:'linear-gradient(135deg,var(--primary),var(--accent))',borderRadius:20,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 28px',fontSize:32,color:'#fff',boxShadow:'0 8px 32px rgba(225,6,0,0.15)',animation:'wlcmFade 0.6s ease both'}}>
                 <I n="flag-checkered" />
               </div>
-              <h1 style={{fontSize:42,fontWeight:'900',color:'#fff',textTransform:'uppercase',letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:12,animation:'wlcmFade 0.6s ease 0.1s both'}}>
-                Paddock<br /><span style={{background:'linear-gradient(135deg,var(--purple2),var(--blue))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Picks</span>
+              <h1 style={{fontSize:42,fontWeight:'900',color:'var(--text)',textTransform:'uppercase',letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:12,animation:'wlcmFade 0.6s ease 0.1s both'}}>
+                Paddock<br /><span style={{background:'linear-gradient(135deg,var(--primary),var(--accent))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Picks</span>
               </h1>
               <p style={{color:'var(--text2)',fontSize:15,lineHeight:1.7,marginBottom:32,animation:'wlcmFade 0.6s ease 0.2s both'}}>
                 The ultimate F1 prediction league. Pick your drivers,<br />beat your rivals, own the podium.
               </p>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,animation:'wlcmFade 0.6s ease 0.25s both'}}>
                 {[{n:'24',l:'Races'},{n:'22',l:'Drivers'},{n:'11',l:'Teams'}].map((s,i) => (
-                  <div key={i} style={{background:'rgba(255,255,255,0.03)',border:'1px solid var(--border)',borderRadius:12,padding:'14px 8px',textAlign:'center'}}>
-                    <div style={{fontSize:24,fontWeight:'800',color:'var(--purple2)',lineHeight:1}}>{s.n}</div>
+                  <div key={i} style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:12,padding:'14px 8px',textAlign:'center'}}>
+                    <div style={{fontSize:24,fontWeight:'800',color:'var(--primary)',lineHeight:1}}>{s.n}</div>
                     <div style={{fontSize:10,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.06em',fontWeight:'600',marginTop:4}}>{s.l}</div>
                   </div>
                 ))}
               </div>
               <div style={{marginTop:24,display:'flex',alignItems:'center',justifyContent:'center',gap:8,animation:'wlcmFade 0.6s ease 0.3s both'}}>
-                <span style={{width:8,height:8,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 8px rgba(34,197,94,0.4)'}} />
+                <span className="pulse-dot" style={{boxShadow:'0 0 8px rgba(0,210,190,0.4)'}} />
                 <span style={{fontSize:12,color:'var(--text3)'}}>Season 2026 active</span>
               </div>
             </div>
@@ -2399,13 +2484,13 @@ const App = () => {
             <div style={{width:'100%',maxWidth:420,animation:'wlcmSlide 0.7s cubic-bezier(0.16,1,0.3,1) both'}}>
               {/* Small logo for mobile / right panel */}
               <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:32}}>
-                <div style={{width:36,height:36,background:'linear-gradient(135deg,var(--purple),var(--blue))',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,color:'#fff'}}>
+                <div style={{width:36,height:36,background:'linear-gradient(135deg,var(--primary),var(--accent))',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,color:'#fff'}}>
                   <I n="flag-checkered" />
                 </div>
                 <span style={{fontWeight:'800',fontSize:16,color:'var(--text)',letterSpacing:'-0.02em'}}>PADDOCK PICKS</span>
               </div>
 
-              <h2 style={{fontSize:28,fontWeight:'800',color:'#fff',marginBottom:6}}>
+              <h2 style={{fontSize:28,fontWeight:'800',color:'var(--text)',marginBottom:6}}>
                 Welcome back
               </h2>
               <p style={{color:'var(--text2)',fontSize:14,marginBottom:32}}>
@@ -2435,7 +2520,7 @@ const App = () => {
                   </div>
                 </div>
                 <input type="hidden" name="action" value="login" />
-                <button className="btn btn-primary btn-lg btn-block" style={{marginTop:6,background:'linear-gradient(135deg,var(--purple),var(--blue))',padding:'14px 24px',borderRadius:10,fontSize:15}}>
+                <button className="btn btn-primary btn-lg btn-block" style={{marginTop:6,background:'linear-gradient(135deg,var(--primary),var(--primary-hover))',padding:'14px 24px',borderRadius:10,fontSize:15}}>
                   Log In <I n="arrow-right" />
                 </button>
               </form>
@@ -2446,7 +2531,7 @@ const App = () => {
                 <div style={{flex:1,height:1,background:'var(--border)'}} />
               </div>
 
-              <button className="btn btn-outline btn-lg btn-block" style={{background:'var(--card2)',borderColor:'var(--border2)',padding:'14px 24px',borderRadius:10,fontSize:14}} onClick={() => setShowLogin('signup')}>
+              <button className="btn btn-outline btn-lg btn-block" style={{background:'var(--bg2)',borderColor:'var(--border)',padding:'14px 24px',borderRadius:10,fontSize:14}} onClick={() => setShowLogin('signup')}>
                 <I n="user-plus" /> Create Account
               </button>
 
@@ -2482,9 +2567,9 @@ const App = () => {
       {pn === 'admin' && <AdminPage />}
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} onAuth={handleAuth} defaultTab={typeof showLogin === 'string' ? showLogin : undefined} />}
       {/* Footer */}
-      <footer style={{padding:'24px 20px',borderTop:'1px solid var(--border)',marginTop:40,textAlign:'center'}}>
+      <footer style={{padding:'24px 24px',borderTop:'1px solid var(--border)',marginTop:40,textAlign:'center'}}>
         <p style={{fontSize:11,color:'var(--text3)',fontWeight:'600',letterSpacing:'0.04em'}}>
-          &copy; {new Date().getFullYear()} Paddock Picks &middot; Powered by <a href="https://www.scanerrific.com" target="_blank" rel="noopener noreferrer" style={{color:'var(--orange)',fontWeight:'700',textDecoration:'none'}}>Scanerrific</a>
+          &copy; {new Date().getFullYear()} Paddock Picks &middot; Powered by <a href="https://www.scanerrific.com" target="_blank" rel="noopener noreferrer" style={{color:'var(--accent-warm)',fontWeight:'700',textDecoration:'none'}}>Scanerrific</a>
           &middot; <a href="calendar.php" target="_blank" style={{color:'var(--text2)',textDecoration:'none'}}><I n="calendar-alt" style={{marginRight:4}} />Subscribe to Calendar</a>
         </p>
       </footer>

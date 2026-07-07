@@ -82,11 +82,34 @@ switch ($type) {
         $acc = $accuracyStmt->get_result()->fetch_assoc();
         $accuracy = ($acc['total'] ?? 0) > 0 ? round((($acc['exact'] ?? 0) / $acc['total']) * 100, 1) : 0;
         
-        // Recent results
-        $stmt = $db->prepare("SELECT r.id as race_id, r.race_name, r.country, s.total_points, r.race_date FROM scores s JOIN races r ON s.race_id = r.id WHERE s.user_id = ? ORDER BY r.race_date DESC LIMIT 3");
+        // Total races in season
+        $totalRaces = 0;
+        $trQ = $db->query("SELECT COUNT(*) as c FROM races");
+        if ($trQ) $totalRaces = (int)$trQ->fetch_assoc()['c'];
+
+        // Recent results (user's own scores)
+        $stmt = $db->prepare("SELECT r.id as race_id, r.race_name, r.country, r.race_number, s.total_points, r.race_date FROM scores s JOIN races r ON s.race_id = r.id WHERE s.user_id = ? ORDER BY r.race_date DESC LIMIT 3");
         $stmt->bind_param("i", $userId);
         $stmt->execute();
         $recentResults = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        // Race podiums (top 3 users per completed race)
+        $racePodiums = [];
+        $compRaces = $db->query("SELECT id, race_name, country, race_date FROM races WHERE status = 'completed' ORDER BY race_date DESC");
+        if ($compRaces) {
+            while ($race = $compRaces->fetch_assoc()) {
+                $pS = $db->prepare("SELECT u.id, u.username, u.avatar_style, s.total_points FROM scores s JOIN users u ON s.user_id = u.id WHERE s.race_id = ? ORDER BY s.total_points DESC LIMIT 3");
+                $rid = (int)$race['id'];
+                $pS->bind_param("i", $rid);
+                $pS->execute();
+                $podium = $pS->get_result()->fetch_all(MYSQLI_ASSOC);
+                if (count($podium) > 0) {
+                    $race['flag'] = getRaceFlag($race['country']);
+                    $race['podium'] = $podium;
+                    $racePodiums[] = $race;
+                }
+            }
+        }
         
         // Upcoming races
         $upcomingRaces = [];
@@ -121,6 +144,23 @@ switch ($type) {
             $lastRaceInfo['myScore'] = $myScoreStmt->get_result()->fetch_assoc();
         }
         
+        // Most picked race winner (P1) for last completed race
+        $mostPickedWinner = null;
+        if ($lastRaceInfo) {
+            $mpStmt = $db->prepare("SELECT p.driver_name, COUNT(*) as cnt FROM predictions p WHERE p.race_id = ? AND p.predicted_position = 1 GROUP BY p.driver_id, p.driver_name ORDER BY cnt DESC LIMIT 1");
+            $rid = (int)$lastRaceInfo['id'];
+            $mpStmt->bind_param("i", $rid);
+            $mpStmt->execute();
+            $mpRes = $mpStmt->get_result()->fetch_assoc();
+            if ($mpRes) {
+                $tpStmt = $db->prepare("SELECT COUNT(DISTINCT user_id) as total FROM predictions WHERE race_id = ?");
+                $tpStmt->bind_param("i", $rid);
+                $tpStmt->execute();
+                $totalPred = (int)$tpStmt->get_result()->fetch_assoc()['total'];
+                $mostPickedWinner = ['driver_name' => $mpRes['driver_name'], 'count' => (int)$mpRes['cnt'], 'total' => $totalPred];
+            }
+        }
+
         // Leaderboard full
         $leaderboard = getLeaderboard(200);
         
@@ -167,11 +207,14 @@ switch ($type) {
             'deadline' => $deadline ? $deadline->getTimestamp() * 1000 : 0,
             'lastRace' => $lastRaceInfo,
             'recentResults' => $recentResults,
+            'racePodiums' => $racePodiums,
             'upcomingRaces' => $upcomingRaces,
             'leaderboard' => $leaderboard,
             'userPicks' => $userPicks,
             'playersCount' => $playersCount,
             'totalPredictions' => (int)($acc['total'] ?? 0),
+            'totalRaces' => $totalRaces,
+            'mostPickedWinner' => $mostPickedWinner,
             'userAchievements' => $userAchievements,
         ]);
         } catch (Throwable $e) {

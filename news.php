@@ -71,116 +71,87 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News – <?php echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --f1-carbon: #0A0A0A;
-            --f1-text: #FFFFFF;
-            --nfs-pink: #ff0077;
-            --nfs-cyan: #00e5ff;
-            --nfs-orange: #ff6a00;
-            --nfs-green: #00ff88;
-            --nfs-purple: #8b5cf6;
-        }
+        :root{--canvas:#F5F3EF;--bg:#F5F3EF;--bg2:#FAF9F7;--surface:#FFF;--card:#FFF;--card2:#FAF9F7;--surface-muted:#FAF9F7;--border:#E8E5E0;--border-light:#F0EDE8;--text:#1A1A1A;--text2:#6B6864;--text3:#A09C96;--accent:#C41E3A;--accent-soft:#F5E6E9;--live:#2D6A4F;--gold:#C9A96E;--silver:#A8A5A0;--bronze:#B08050}
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', sans-serif; background: var(--canvas); color: var(--text);
+            min-height: 100vh;
         }
-        .hero-card {
-            position: relative;
-            border-radius: 16px;
-            overflow: hidden;
-            min-height: 160px;
-            display: flex;
-            align-items: center;
-        }
-        .hero-card .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(10,10,10,0.9), rgba(10,10,10,0.5));
-        }
-        .hero-card .hero-carbon {
-            position: absolute;
-            inset: 0;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 20px,
-                rgba(255,255,255,0.02) 20px,
-                rgba(255,255,255,0.02) 40px
-            );
-        }
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            padding: 32px 28px;
-        }
+        .hero{position:relative;height:200px;overflow:hidden}
+        .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+        .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.5) 100%)}
+        .race-info{background:var(--surface);border:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+        .race-info-left{flex:1;min-width:0}
+        .race-info-right{flex-shrink:0;display:flex;align-items:center;gap:12px}
+        .race-title{font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:24px;color:var(--text);line-height:1.2;margin-bottom:2px}
+        .race-meta{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
         .post-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
             transition: border-color 0.2s;
         }
         .post-card:hover {
-            border-color: rgba(255,0,119,0.2);
+            border-color: var(--accent);
         }
-        .nfs-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 18px;
-            background: linear-gradient(135deg, #ff0077, #ff6a00);
-            color: white;
-            font-weight: 700;
-            font-size: 0.8rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
+        .btn-accent {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; background: var(--accent);
+            color: #fff; font-weight: 700; font-size: 0.8rem;
+            border: none; cursor: pointer; transition: all 0.2s;
         }
-        .nfs-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(255,0,119,0.3);
-        }
+        .btn-accent:hover { opacity: 0.9; }
         .comment-input {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: white;
-            font-size: 0.85rem;
-            outline: none;
-            width: 100%;
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 8px 12px; color: var(--text);
+            font-size: 0.85rem; outline: none; width: 100%;
+            font-family: 'Inter', sans-serif;
         }
-        .comment-input:focus {
-            border-color: rgba(255,0,119,0.4);
-        }
+        .comment-input:focus { border-color: var(--accent); }
+
+        /* Override Tailwind colors for editorial theme */
+        .text-white { color: var(--text); }
+        .text-gray-300 { color: var(--text); }
+        .text-gray-400 { color: var(--text2); }
+        .text-gray-500 { color: var(--text2); }
+        .text-gray-600 { color: var(--text3); }
+        .text-red-400 { color: var(--accent); }
+        .text-\[#ff0077\] { color: var(--accent) !important; }
+        .text-\[#ff6a00\] { color: var(--accent) !important; }
+        .hover\:text-\[#ff0077\]:hover { color: var(--accent) !important; }
+        .hover\:text-\[#ff6a00\]:hover { color: var(--accent) !important; }
+        .border-white\/5, .border-white\/10 { border-color: var(--border); }
+        .bg-white\/5 { background: var(--surface-muted); }
+        .nfs-btn { background: var(--accent); color: #fff; }
+        .nfs-btn:hover { opacity: 0.9; box-shadow: none; transform: none; }
     </style>
 </head>
-<body style="background:var(--f1-carbon);color:var(--f1-text);min-height:100vh;">
+<body>
 
     <?php require_once __DIR__ . '/includes/nav.php'; ?>
 
-    <main class="pt-24 max-w-4xl mx-auto px-4 py-8">
+    <main class="max-w-4xl mx-auto px-4" style="padding-top:80px;padding-bottom:60px">
 
-        <!-- Hero -->
-        <div class="hero-card mb-8">
+        <!-- Hero Banner (just image) -->
+        <div class="hero" style="height:200px">
+            <div class="hero-bg" style="background-image:url('https://images.unsplash.com/photo-1678919225767-c2d4dff33ab4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fGVufHx8fA%3D%3D')"></div>
             <div class="hero-overlay"></div>
-            <div class="hero-carbon"></div>
-            <div class="hero-content">
-                <h1 class="text-3xl font-black text-white uppercase tracking-wide" style="font-family:'Bebas Neue',sans-serif;letter-spacing:0.04em">
-                    <i class="fas fa-newspaper text-[#ff0077] mr-3"></i>Paddock News
-                </h1>
-                <p class="text-gray-500 text-sm mt-1">Race debriefs, results roundups, and league updates</p>
+        </div>
+
+        <!-- Page Header (below hero) -->
+        <div class="race-info" style="margin-bottom:24px">
+            <div class="race-info-left">
+                <div class="race-title" style="font-size:24px"><i class="fas fa-newspaper" style="color:var(--accent);margin-right:8px"></i>Paddock News</div>
+                <div class="race-meta">Race debriefs, results roundups, and league updates</div>
             </div>
         </div>
 
         <?php if (empty($posts)): ?>
             <div class="text-center py-12">
                 <div class="text-6xl mb-4">📰</div>
-                <h2 class="text-2xl font-black text-gray-400 mb-2" style="font-family:'Bebas Neue',sans-serif;letter-spacing:0.03em">No News Yet</h2>
-                <p class="text-gray-500 text-sm">Check back after races are completed for post-race debrief and highlights!</p>
+                <h2 class="text-2xl font-black mb-2" style="font-family:'Playfair Display',serif;font-style:italic;letter-spacing:0.03em;color:var(--text3)">No News Yet</h2>
+                <p class="text-sm" style="color:var(--text2)">Check back after races are completed for post-race debrief and highlights!</p>
             </div>
         <?php else: ?>
             <div class="space-y-5">
@@ -189,22 +160,22 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                         <div class="mb-4">
                             <div class="flex items-start justify-between gap-4">
                                 <div>
-                                    <h2 class="text-xl font-black text-white" style="font-family:'Bebas Neue',sans-serif;letter-spacing:0.03em">
+                                    <h2 class="text-xl font-black" style="font-family:'Playfair Display',serif;font-style:italic;letter-spacing:0.03em">
                                         <?php echo htmlspecialchars($post['title']); ?>
                                     </h2>
                                     <?php if ($post['race_name']): ?>
-                                        <div class="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                                            <i class="fas fa-flag-checkered text-[#ff0077]"></i>
+                                        <div class="flex items-center gap-2 text-sm mt-1" style="color:var(--text2)">
+                                            <i class="fas fa-flag-checkered" style="color:var(--accent)"></i>
                                             <span><?php echo htmlspecialchars($post['race_name'] . ' – ' . $post['country']); ?></span>
                                         </div>
                                     <?php endif; ?>
                                 </div>
-                                <time class="text-xs text-gray-600 whitespace-nowrap">
+                                <time class="text-xs whitespace-nowrap" style="color:var(--text3)">
                                     <?php echo date('M d, Y H:i', strtotime($post['created_at'])); ?>
                                 </time>
                             </div>
-                            <div class="text-xs text-gray-600 mt-1">
-                                By <strong class="text-gray-400"><?php echo htmlspecialchars($post['username'] ?? 'System'); ?></strong>
+                            <div class="text-xs mt-1" style="color:var(--text3)">
+                                By <strong style="color:var(--text2)"><?php echo htmlspecialchars($post['username'] ?? 'System'); ?></strong>
                             </div>
                         </div>
 
@@ -218,42 +189,42 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             } else {
                                 $content = htmlspecialchars($rawContent);
                                 $content = nl2br($content);
-                                $content = preg_replace('/^(\s*(?:🥇|🥈|🥉|\d+\.|P\d+:?)\s*)([a-zA-Z0-9_\s]+?)(\s*-|\s*$)/m', '$1<strong class="text-[#ff0077]">$2</strong>$3', $content);
-                                $content = preg_replace('/@([a-zA-Z0-9_]+)/', '<strong class="text-[#ff0077]">@$1</strong>', $content);
+                                $content = preg_replace('/^(\s*(?:🥇|🥈|🥉|\d+\.|P\d+:?)\s*)([a-zA-Z0-9_\s]+?)(\s*-|\s*$)/m', '<strong style="color:var(--accent)">$1$2</strong>$3', $content);
+                                $content = preg_replace('/@([a-zA-Z0-9_]+)/', '<strong style="color:var(--accent)">@$1</strong>', $content);
                                 $content = preg_replace('/\*\*(.*?)\*\*/', '<strong class="text-white">$1</strong>', $content);
-                                $content = preg_replace('/__(.*?)__/', '<em class="text-[#ff6a00]">$1</em>', $content);
+                                $content = preg_replace('/__(.*?)__/', '<em style="color:var(--accent)">$1</em>', $content);
 
-                                echo '<div class="text-gray-300 text-sm leading-relaxed space-y-2">';
+                                echo '<div class="text-sm leading-relaxed space-y-2" style="color:var(--text)">';
                                 echo $content;
                                 echo '</div>';
                             }
                             ?>
                         </div>
 
-                        <div class="pt-4 border-t border-white/5 flex justify-between items-center">
+                        <div class="pt-4 flex justify-between items-center" style="border-top:1px solid var(--border)">
                             <div class="flex gap-4 text-sm">
                                 <button onclick="toggleLike(<?php echo $post['id']; ?>)" 
-                                        class="transition flex items-center gap-1 <?php echo $post['user_liked'] ? 'text-red-400' : 'text-gray-500 hover:text-red-400'; ?>" 
-                                        id="like-btn-<?php echo $post['id']; ?>">
+                                        class="transition flex items-center gap-1 <?php echo $post['user_liked'] ? 'text-red-400' : ''; ?>" 
+                                        id="like-btn-<?php echo $post['id']; ?>" style="color:<?php echo $post['user_liked'] ? 'var(--accent)' : 'var(--text2)'; ?>">
                                     <i class="fas fa-heart"></i>
                                     <span id="like-count-<?php echo $post['id']; ?>"><?php echo $post['like_count']; ?></span>
                                 </button>
                                 <button onclick="toggleComments(<?php echo $post['id']; ?>)" 
-                                        class="text-gray-500 hover:text-[#ff0077] transition flex items-center gap-1">
+                                        class="transition flex items-center gap-1" style="color:var(--text2)">
                                     <i class="fas fa-comment"></i>
                                     <span id="comment-count-<?php echo $post['id']; ?>"><?php echo $post['comment_count']; ?></span>
                                 </button>
                             </div>
                         </div>
 
-                        <div id="comments-<?php echo $post['id']; ?>" class="hidden mt-4 pt-4 border-t border-white/5">
+                        <div id="comments-<?php echo $post['id']; ?>" class="hidden mt-4 pt-4" style="border-top:1px solid var(--border)">
                             <div class="space-y-3 mb-4" id="comments-list-<?php echo $post['id']; ?>"></div>
                             <div class="flex gap-2">
                                 <input type="text" id="comment-input-<?php echo $post['id']; ?>" 
                                        placeholder="Write a comment..." 
                                        class="comment-input">
                                 <button onclick="addComment(<?php echo $post['id']; ?>)" 
-                                        class="nfs-btn text-xs px-4 py-2 whitespace-nowrap">
+                                        class="btn-accent text-xs px-4 py-2 whitespace-nowrap">
                                     Post
                                 </button>
                             </div>
@@ -264,10 +235,10 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         <?php endif; ?>
     </main>
 
-    <footer class="mt-12 border-t border-white/10 py-6 text-center">
-        <p class="text-gray-500 text-sm mb-2">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
-        <p class="text-gray-600 text-xs">
-            Powered by <a href="https://www.scanerrific.com" target="_blank" class="text-[#ff0077] hover:text-[#ff6a00] font-semibold transition">Scanerrific</a>
+    <footer class="mt-12 py-6 text-center" style="border-top:1px solid var(--border)">
+        <p class="text-sm mb-2" style="color:var(--text2)">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+        <p class="text-xs" style="color:var(--text3)">
+            Powered by <a href="https://www.scanerrific.com" target="_blank" style="color:var(--accent);font-weight:600">Scanerrific</a>
         </p>
     </footer>
 
@@ -309,8 +280,9 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 container.innerHTML = '';
                 data.comments.forEach(c => {
                     const el = document.createElement('div');
-                    el.className = 'bg-white/5 rounded p-3';
-                    el.innerHTML = '<div class="flex items-center gap-2 mb-1"><span class="font-semibold text-[#ff0077] text-sm">' + c.username + '</span><span class="text-xs text-gray-600">' + c.created_at + '</span></div><p class="text-gray-300 text-sm">' + c.comment + '</p>';
+                    el.className = 'p-3';
+                    el.style.cssText = 'background:var(--surface-muted);border:1px solid var(--border-light)';
+                    el.innerHTML = '<div class="flex items-center gap-2 mb-1"><span class="font-semibold text-sm" style="color:var(--accent)">' + c.username + '</span><span class="text-xs" style="color:var(--text3)">' + c.created_at + '</span></div><p class="text-sm" style="color:var(--text)">' + c.comment + '</p>';
                     container.appendChild(el);
                 });
             })

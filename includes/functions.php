@@ -347,11 +347,13 @@ function getLeaderboard($limit = 50) {
                 u.id, u.username, u.full_name, u.avatar_style, 
                 COALESCE(ut.total_points, 0) as total_points,
                 COALESCE(ut.races_participated, 0) as races_participated,
-                GROUP_CONCAT(CONCAT(a.icon, ':', a.tier, ':', a.name) SEPARATOR '|') as badges_data
+                GROUP_CONCAT(DISTINCT CONCAT(a.icon, ':', a.tier, ':', a.name) SEPARATOR '|') as badges_data,
+                GROUP_CONCAT(DISTINCT ua_all.achievement_id SEPARATOR ',') as all_achievements
             FROM users u 
             LEFT JOIN user_totals ut ON u.id = ut.user_id 
             LEFT JOIN user_achievements ua ON u.id = ua.user_id AND ua.is_displayed = 1
             LEFT JOIN achievements a ON ua.achievement_id = a.id
+            LEFT JOIN user_achievements ua_all ON u.id = ua_all.user_id
             GROUP BY u.id
             ORDER BY ut.total_points DESC, ut.races_participated DESC 
             LIMIT ?
@@ -513,7 +515,7 @@ function getRaceHeroImage($country) {
     }
 
     // Generic fallback — motorsport image
-    return 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop';
+    return 'https://images.unsplash.com/photo-1678919225767-c2d4dff33ab4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fGVufHx8fA%3D%3D';
 }
 
 /**

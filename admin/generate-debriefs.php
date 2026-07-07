@@ -90,159 +90,128 @@ $races = $completedRaces->fetch_all(MYSQLI_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate Race Debriefs - <?php echo SITE_NAME; ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../css/gaming-style.css">
+    <title>Generate Debriefs — <?php echo SITE_NAME; ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
     <style>
-        .post-content {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #e2e8f0;
+        :root{
+          --canvas:#F5F3EF;--bg:#F5F3EF;--surface:#FFF;--border:#E8E5E0;--border-light:#F0EDE8;
+          --text:#1A1A1A;--text2:#6B6864;--text3:#A09C96;
+          --accent:#C41E3A;--accent-soft:#F5E6E9;
+          --live:#2D6A4F;
         }
-        .post-content strong {
-            color: #fbbf24;
-            font-weight: 700;
-        }
-        .post-content em {
-            color: #94a3b8;
-            font-style: italic;
-        }
-        .post-race-debrief {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
-            border: 1px solid rgba(251, 191, 36, 0.2);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--canvas);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+        a{text-decoration:none;color:inherit}
+        .caps{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3)}
+        .card{background:var(--surface);border:1px solid var(--border)}
+        .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;font-size:10px;font-weight:500;border:1px solid}
+        .badge-accent{background:var(--accent-soft);color:var(--accent);border-color:rgba(196,30,58,0.15)}
+        .badge-live{background:rgba(45,106,79,0.08);color:var(--live);border-color:rgba(45,106,79,0.15)}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 18px;font-size:13px;font-weight:600;border:1px solid var(--border);cursor:pointer;transition:all 150ms;background:var(--surface);color:var(--text)}
+        .btn:hover{background:var(--canvas)}
+        .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .btn-primary:hover{opacity:0.9}
+        .btn-live{background:var(--live);color:#fff;border-color:var(--live)}
+        .btn-live:hover{opacity:0.9}
+        .page{max-width:720px;margin:0 auto;padding:40px 24px}
+        .flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
+        .mb-4{margin-bottom:16px}.mb-6{margin-bottom:24px}.mb-8{margin-bottom:32px}
+        .p-4{padding:16px}.p-6{padding:24px}.mt-3{margin-top:12px}
+        .msg{font-size:13px;padding:12px 16px;border:1px solid}
+        .msg.success{background:rgba(45,106,79,0.06);border-color:rgba(45,106,79,0.15);color:var(--live)}
+        .msg.error{background:rgba(196,30,58,0.06);border-color:rgba(196,30,58,0.15);color:var(--accent)}
+        .post-content{font-family:'Inter',sans-serif;line-height:1.7;font-size:14px}
+        .post-content strong{color:var(--accent);font-weight:700}
+        .ovf{max-height:360px;overflow-y:auto;background:var(--surface);border:1px solid var(--border);padding:16px}
     </style>
 </head>
-<body class="bg-slate-950 text-white font-sans">
-    <div class="min-h-screen">
-        <!-- Navigation -->
-        <nav class="border-b border-white/10 sticky top-0 z-50 bg-slate-950/95 backdrop-blur-sm">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-                <a href="race-control.php" class="flex items-center gap-2 hover:opacity-80 transition">
-                    <i class="fas fa-chevron-left"></i>
-                    <span class="font-bold text-orange-500">Back to Race Control</span>
-                </a>
-                <h1 class="text-2xl font-bold text-orange-500 flex items-center gap-2">
-                    <i class="fas fa-wand-magic-sparkles"></i> Generate Race Debriefs
-                </h1>
-                <div class="w-32"></div>
-            </div>
-        </nav>
+<body>
 
-        <!-- Main Content -->
-        <main class="max-w-4xl mx-auto px-4 py-8">
-            <!-- Message -->
-            <?php if ($message): ?>
-                <div class="mb-6 p-4 rounded-lg border <?php echo $success ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-300' : 'bg-red-900/20 border-red-500/30 text-red-300'; ?>">
-                    <?php echo $message; ?>
+    <!-- Nav -->
+    <nav style="background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">
+        <div style="display:flex;align-items:center;gap:8px">
+            <i class="fas fa-wand-magic-sparkles" style="color:var(--accent);font-size:16px"></i>
+            <span style="font-weight:700;font-size:16px">Generate Debriefs</span>
+        </div>
+        <a href="race-control.php" style="font-size:12px;color:var(--text2)"><i class="fas fa-chevron-left"></i> Race Control</a>
+    </nav>
+
+    <main class="page">
+
+        <!-- Message -->
+        <?php if ($message): ?>
+            <div class="msg <?php echo $success ? 'success' : 'error'; ?>" style="margin-bottom:20px"><?php echo $message; ?></div>
+        <?php endif; ?>
+
+        <!-- Preview Section -->
+        <?php if ($previewContent && $previewRace): ?>
+            <div class="card" style="padding:20px;margin-bottom:24px;border-left:3px solid var(--accent)">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                    <div style="font-weight:700;font-size:15px"><i class="fas fa-eye" style="margin-right:8px"></i>Preview: <?php echo htmlspecialchars($previewRace['race_name']); ?></div>
+                    <form method="POST" style="display:inline">
+                        <input type="hidden" name="race_id" value="<?php echo $previewRace['id']; ?>">
+                        <button type="submit" class="btn btn-live" style="font-size:12px"><i class="fas fa-check"></i> Publish</button>
+                    </form>
                 </div>
-            <?php endif; ?>
+                <div class="ovf">
+                    <div class="post-content"><?php echo $previewContent; ?></div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px">
+                    <form method="POST" style="display:inline">
+                        <input type="hidden" name="race_id" value="<?php echo $previewRace['id']; ?>">
+                        <button type="submit" class="btn btn-live" style="font-size:12px"><i class="fas fa-paper-plane"></i> Publish Debrief</button>
+                    </form>
+                    <button onclick="this.parentElement.parentElement.remove()" class="btn" style="font-size:12px"><i class="fas fa-times"></i> Close</button>
+                </div>
+            </div>
+        <?php endif; ?>
 
-            <!-- Preview Section -->
-            <?php if ($previewContent && $previewRace): ?>
-                <div class="mb-8 bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-500/30 rounded-lg p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold text-blue-400 flex items-center gap-2">
-                            <i class="fas fa-eye"></i> Preview: <?php echo htmlspecialchars($previewRace['race_name']); ?> Debrief
-                        </h3>
-                        <form method="POST" class="inline">
-                            <input type="hidden" name="race_id" value="<?php echo $previewRace['id']; ?>">
-                            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold text-sm transition">
-                                <i class="fas fa-check"></i> Publish This Debrief
-                            </button>
-                        </form>
-                    </div>
-                    <div class="bg-slate-800/50 border border-slate-600/30 rounded-lg p-4 max-h-96 overflow-y-auto">
-                        <div class="prose prose-invert max-w-none post-content">
-                            <?php echo $previewContent; ?>
+        <!-- Info -->
+        <div class="card" style="padding:20px;margin-bottom:24px;border-left:3px solid var(--live)">
+            <div style="font-weight:700;font-size:15px;margin-bottom:8px"><i class="fas fa-info-circle" style="margin-right:8px;color:var(--live)"></i>How it Works</div>
+            <p style="color:var(--text2);font-size:13px;margin-bottom:8px">Generates automated post-race debrief posts for completed races:</p>
+            <ul style="color:var(--text2);font-size:12px;margin-left:16px;display:flex;flex-direction:column;gap:4px">
+                <li>✅ Top 3 scoring users</li>
+                <li>✅ Race winner and constructor champion</li>
+                <li>✅ Participation statistics</li>
+                <li>✅ User achievements and highlights</li>
+                <li>✅ Next upcoming race info</li>
+            </ul>
+        </div>
+
+        <!-- Races List -->
+        <div style="margin-bottom:16px;font-weight:600;font-size:14px"><i class="fas fa-flag-checkered" style="margin-right:8px"></i>Completed Races</div>
+
+        <?php if (empty($races)): ?>
+            <div class="card" style="padding:32px;text-align:center"><span style="color:var(--text3);font-size:13px">No completed races found</span></div>
+        <?php else: ?>
+            <div style="display:flex;flex-direction:column;gap:8px">
+                <?php foreach ($races as $race): ?>
+                    <div class="card" style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+                        <div style="flex:1;min-width:0">
+                            <div style="font-weight:600;font-size:13px"><?php echo htmlspecialchars($race['race_name']); ?></div>
+                            <div class="caps" style="font-size:9px;margin-top:2px"><?php echo htmlspecialchars($race['country']); ?> &middot; <?php echo date('M d, Y', strtotime($race['race_date'])); ?></div>
+                            <span style="display:inline-block;font-size:9px;padding:1px 8px;margin-top:4px;font-weight:600;background:<?php echo $race['has_debrief']==='Yes'?'rgba(45,106,79,0.08)':'rgba(196,30,58,0.08)'; ?>;color:<?php echo $race['has_debrief']==='Yes'?'var(--live)':'var(--accent)'; ?>;border:1px solid <?php echo $race['has_debrief']==='Yes'?'rgba(45,106,79,0.15)':'rgba(196,30,58,0.15)'; ?>">
+                                Debrief: <?php echo $race['has_debrief']; ?>
+                            </span>
+                        </div>
+                        <div style="display:flex;gap:6px;flex-shrink:0">
+                            <form method="POST" style="display:inline">
+                                <input type="hidden" name="preview_race_id" value="<?php echo $race['id']; ?>">
+                                <button type="submit" class="btn" style="font-size:10px;padding:5px 12px"><i class="fas fa-eye"></i> Preview</button>
+                            </form>
+                            <form method="POST" style="display:inline">
+                                <input type="hidden" name="race_id" value="<?php echo $race['id']; ?>">
+                                <button type="submit" class="btn btn-primary" style="font-size:10px;padding:5px 12px">
+                                    <?php echo $race['has_debrief'] === 'Yes' ? 'Regen' : 'Generate'; ?>
+                                </button>
+                            </form>
                         </div>
                     </div>
-                    <div class="mt-4 flex gap-2">
-                        <form method="POST" class="inline">
-                            <input type="hidden" name="race_id" value="<?php echo $previewRace['id']; ?>">
-                            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold text-sm transition">
-                                <i class="fas fa-paper-plane"></i> Publish Debrief
-                            </button>
-                        </form>
-                        <button onclick="this.closest('.bg-gradient-to-br').remove()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold text-sm transition">
-                            <i class="fas fa-times"></i> Close Preview
-                        </button>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <!-- Info Card -->
-            <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-orange-500/20 rounded-lg p-6 mb-8">
-                <h2 class="text-xl font-bold text-orange-400 mb-2 flex items-center gap-2">
-                    <i class="fas fa-info-circle"></i> How it Works
-                </h2>
-                <p class="text-gray-300 text-sm">
-                    This tool generates automated post-race debrief posts for completed races. 
-                    Each debrief includes:
-                </p>
-                <ul class="text-gray-400 text-sm mt-3 space-y-1 ml-4">
-                    <li>✅ Top 3 scoring users (leaderboard)</li>
-                    <li>✅ Race winner and constructor champion</li>
-                    <li>✅ Participation statistics</li>
-                    <li>✅ User achievements and highlights</li>
-                    <li>✅ Next upcoming race info</li>
-                    <li>✅ F1 humor and community engagement</li>
-                </ul>
+                <?php endforeach; ?>
             </div>
-
-            <!-- Races List -->
-            <div class="space-y-4">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fas fa-flag-checkered"></i> Completed Races
-                </h3>
-
-                <?php if (empty($races)): ?>
-                    <div class="text-center py-8 bg-slate-900/50 rounded-lg border border-white/10">
-                        <p class="text-gray-400">No completed races found</p>
-                    </div>
-                <?php else: ?>
-                    <div class="space-y-3">
-                        <?php foreach ($races as $race): ?>
-                            <div class="bg-gradient-to-r from-slate-900 to-slate-950 border border-orange-500/20 rounded-lg p-4 flex items-center justify-between hover:border-orange-500/40 transition">
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-orange-400">
-                                        <?php echo htmlspecialchars($race['race_name']); ?>
-                                    </h4>
-                                    <p class="text-sm text-gray-400">
-                                        <i class="fas fa-map-marker-alt"></i> 
-                                        <?php echo htmlspecialchars($race['country']); ?> • 
-                                        <?php echo date('M d, Y', strtotime($race['race_date'])); ?>
-                                    </p>
-                                    <div class="mt-2">
-                                        <span class="inline-block px-2 py-1 text-xs rounded-full <?php echo $race['has_debrief'] === 'Yes' ? 'bg-emerald-900/30 text-emerald-300 border border-emerald-500/30' : 'bg-amber-900/30 text-amber-300 border border-amber-500/30'; ?>">
-                                            Debrief: <?php echo $race['has_debrief']; ?>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="flex gap-2">
-                                    <form method="POST" class="inline">
-                                        <input type="hidden" name="preview_race_id" value="<?php echo $race['id']; ?>">
-                                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold text-sm transition transform hover:scale-105 active:scale-95">
-                                            <i class="fas fa-eye"></i> Preview
-                                        </button>
-                                    </form>
-                                    <form method="POST" class="inline">
-                                        <input type="hidden" name="race_id" value="<?php echo $race['id']; ?>">
-                                        <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg font-bold text-sm transition transform hover:scale-105 active:scale-95">
-                                            <?php echo $race['has_debrief'] === 'Yes' ? 'Regenerate' : 'Generate'; ?>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </main>
-    </div>
+        <?php endif; ?>
+    </main>
 </body>
 </html>
