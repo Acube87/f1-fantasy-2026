@@ -161,6 +161,23 @@ switch ($type) {
             }
         }
 
+        // Most picked race winner (P1) for next race
+        $mostPickedNextWinner = null;
+        if ($nextRace) {
+            $mnStmt = $db->prepare("SELECT p.driver_name, COUNT(*) as cnt FROM predictions p WHERE p.race_id = ? AND p.predicted_position = 1 GROUP BY p.driver_id, p.driver_name ORDER BY cnt DESC LIMIT 1");
+            $nrid = (int)$nextRace['id'];
+            $mnStmt->bind_param("i", $nrid);
+            $mnStmt->execute();
+            $mnRes = $mnStmt->get_result()->fetch_assoc();
+            if ($mnRes) {
+                $tnStmt = $db->prepare("SELECT COUNT(DISTINCT user_id) as total FROM predictions WHERE race_id = ?");
+                $tnStmt->bind_param("i", $nrid);
+                $tnStmt->execute();
+                $totalNPred = (int)$tnStmt->get_result()->fetch_assoc()['total'];
+                $mostPickedNextWinner = ['driver_name' => $mnRes['driver_name'], 'count' => (int)$mnRes['cnt'], 'total' => $totalNPred];
+            }
+        }
+
         // Leaderboard full
         $leaderboard = getLeaderboard(200);
         
@@ -215,6 +232,7 @@ switch ($type) {
             'totalPredictions' => (int)($acc['total'] ?? 0),
             'totalRaces' => $totalRaces,
             'mostPickedWinner' => $mostPickedWinner,
+            'mostPickedNextWinner' => $mostPickedNextWinner,
             'userAchievements' => $userAchievements,
         ]);
         } catch (Throwable $e) {

@@ -643,19 +643,44 @@ const Dashboard = ({ onNav }) => {
 
         </div>
 
-        {/* My Picks */}
-        {data.userPicks?.length > 0 && (
+        {/* Next Round */}
+        {data.nextRace && (
           <div style={{display:'grid',gridTemplateColumns:'1fr',gap:'1px',background:'var(--border)'}}>
-            <div style={{background:'var(--surface)',padding:'16px'}}>
-              <div className="ch" style={{marginBottom:12}}><I n="list-ol" /><span>My Picks</span></div>
-              {data.userPicks.map((p,i) => (
-                <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'6px 0',borderBottom:i<data.userPicks.length-1?'1px solid var(--border-light)':'none'}}>
-                  <span className="mono" style={{width:22,height:22,background:'var(--accent)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:10}}>P{i+1}</span>
-                  <TeamBadge team={p.team} />
-                  <span style={{fontWeight:600,fontSize:13,flex:1}}>{p.driver_name}</span>
-                  <span className="mono" style={{fontSize:11,color:'var(--text3)'}}>#{p.predicted_position}</span>
+            <div style={{background:'var(--surface)',padding:'20px'}}>
+              <div className="ch" style={{marginBottom:16}}><I n="flag-checkered" /><span>Next Round</span></div>
+              <div style={{display:'flex',alignItems:'flex-start',gap:20}}>
+                {/* Left: Round number large */}
+                {data.totalRaces ? (
+                  <div style={{flexShrink:0,textAlign:'center',minWidth:70}}>
+                    <div className="mono" style={{fontSize:40,fontWeight:800,lineHeight:1,color:'var(--accent)'}}>{data.nextRace.race_number}</div>
+                    <div style={{fontSize:10,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',marginTop:2}}>/ {data.totalRaces}</div>
+                  </div>
+                ) : null}
+                {/* Right: Track details + button */}
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                    <span style={{fontSize:22}}>{data.nextRace.flag}</span>
+                    <span className="racing" style={{fontSize:22,lineHeight:1}}>{data.nextRace.country}</span>
+                    <span style={{fontWeight:400,color:'var(--text3)',fontSize:14}}>GP</span>
+                  </div>
+                  <div style={{fontSize:12,color:'var(--text2)',marginBottom:2}}>{data.nextRace.circuit_name}</div>
+                  <div style={{fontSize:11,color:'var(--text3)',marginBottom:16}}>{new Date(data.nextRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+
+                  {/* Most picked winner for this race */}
+                  {data.mostPickedNextWinner && (
+                    <div style={{fontSize:11,color:'var(--text2)',marginBottom:14,padding:'8px 10px',background:'var(--surface-muted)',border:'1px solid var(--border-light)'}}>
+                      <i className="fa-solid fa-users" style={{marginRight:6,color:'var(--text3)'}}></i>
+                      Most picked winner: <strong>{data.mostPickedNextWinner.driver_name}</strong>
+                      <span style={{color:'var(--text3)',marginLeft:4}}>({data.mostPickedNextWinner.count}/{data.mostPickedNextWinner.total} players)</span>
+                    </div>
+                  )}
+
+                  <button className="btn btn-sm" style={{background:'var(--text)',color:'#fff',padding:'8px 18px',fontSize:12,fontWeight:600,border:'none',cursor:'pointer',fontFamily:'Inter,sans-serif'}}
+                    onClick={()=>onNav('predict')}>
+                    Make Predictions <i className="fa-solid fa-arrow-right" style={{fontSize:10,marginLeft:4}}></i>
+                  </button>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         )}
