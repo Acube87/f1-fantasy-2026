@@ -39,15 +39,6 @@ $_navPoints = $navStats['total_points'] ?? ($stats['total_points'] ?? ($_SESSION
       </a>
       <?php endforeach; ?>
 
-      <!-- Points System — labelled so it's obvious -->
-      <a href="points-system.php"
-         class="topnav-link <?php echo $_navPage === 'points-system.php' ? 'active' : ''; ?>"
-         title="Points System"
-         style="width:auto;padding:0 10px;gap:6px;font-size:12px;font-weight:700;letter-spacing:0.01em;">
-        <i class="fas fa-bolt"></i>
-        <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;">Points</span>
-      </a>
-
       <?php if (isset($_navUser['username']) && ($_navUser['username'] === 'Angrycube' || !empty($_navUser['is_admin']))): ?>
       <a href="admin/race-control.php" class="topnav-link" title="Race Control"><i class="fas fa-tower-broadcast"></i></a>
       <?php endif; ?>
@@ -57,6 +48,13 @@ $_navPoints = $navStats['total_points'] ?? ($stats['total_points'] ?? ($_SESSION
     <!-- Right side -->
     <div class="topnav-right">
       <?php if ($_navUser): ?>
+
+      <!-- Points System link — pill button so it's always visible -->
+      <a href="points-system.php"
+         title="Points System — how scoring works"
+         style="display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:6px;border:1px solid <?php echo $_navPage === 'points-system.php' ? 'rgba(255,215,0,0.5)' : 'rgba(255,215,0,0.2)'; ?>;background:<?php echo $_navPage === 'points-system.php' ? 'rgba(255,215,0,0.15)' : 'rgba(255,215,0,0.06)'; ?>;color:#ffd700;font-size:11px;font-weight:800;text-decoration:none;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;transition:all 0.2s;">
+        <i class="fas fa-bolt" style="font-size:10px;"></i> Points Guide
+      </a>
 
       <!-- Points display -->
       <div class="topnav-wallet" title="Your total points">
