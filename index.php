@@ -99,19 +99,12 @@ h3,.h3{font-weight:600;letter-spacing:-0.01em;line-height:1.3}
 .race-info-right{flex-shrink:0;display:flex;align-items:center;gap:16px}
 .race-title{font-family:'Teko',sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;font-size:28px;color:var(--text);line-height:1;margin-bottom:2px}
 .race-meta{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
-@keyframes pulse-ring{0%{opacity:1}50%{opacity:0.5}100%{opacity:1}}
-@keyframes glow-green{0%{filter:drop-shadow(0 0 2px rgba(45,106,79,0.3))}50%{filter:drop-shadow(0 0 6px rgba(45,106,79,0.6))}100%{filter:drop-shadow(0 0 2px rgba(45,106,79,0.3))}}
-@keyframes glow-gold{0%{filter:drop-shadow(0 0 2px rgba(201,169,110,0.3))}50%{filter:drop-shadow(0 0 6px rgba(201,169,110,0.6))}100%{filter:drop-shadow(0 0 2px rgba(201,169,110,0.3))}}
-@keyframes glow-red{0%{filter:drop-shadow(0 0 2px rgba(196,30,58,0.3))}50%{filter:drop-shadow(0 0 6px rgba(196,30,58,0.6))}100%{filter:drop-shadow(0 0 2px rgba(196,30,58,0.3))}}
 .cd-ring{position:relative;width:56px;height:56px;flex-shrink:0}
 .cd-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.cd-ring circle{fill:none;stroke-width:4}
-.cd-ring .bg{stroke:var(--border)}
-.cd-ring .fg{stroke-linecap:round;transition:stroke-dashoffset 0.8s ease,stroke 0.5s ease}
-.cd-ring.pulse-green svg{animation:glow-green 2s ease-in-out infinite}
-.cd-ring.pulse-gold svg{animation:glow-gold 1.5s ease-in-out infinite}
-.cd-ring.pulse-red svg{animation:glow-red 0.8s ease-in-out infinite}
-.cd-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);font-weight:700}
+.cd-ring circle{fill:none}
+.cd-ring .bg{stroke:var(--border);stroke-width:3}
+.cd-ring .fg{stroke-linecap:round;transition:stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1),stroke 0.5s ease;stroke-width:3}
+.cd-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);font-weight:700;line-height:1.2}
 @media(max-width:768px){.hero{height:180px}.race-info{flex-direction:column;align-items:stretch;padding:16px;gap:12px;margin-top:16px}.race-title{font-size:20px}}
 /* ===== QUOTE ===== */
 .quote-block{max-width:680px;margin:0 auto 64px;padding-left:24px;border-left:2px solid var(--gold)}
@@ -368,30 +361,23 @@ const CountdownRing = ({ deadline, open, text, progress }) => {
   const [cd, setCd] = useState(text || '');
   const [offset, setOffset] = useState((1-(progress||0)/100)*180);
   const [ringColor, setRingColor] = useState('#2D6A4F');
-  const [pulse, setPulse] = useState('');
-  const circ = 180;
+  const circ = 2 * Math.PI * 27;
 
   useEffect(() => {
     if (!deadline) return;
     const tick = () => {
       const left = deadline - Date.now();
-      if (left <= 0) { setCd('Locked'); setOffset(0); setRingColor('var(--text3)'); setPulse(''); return; }
+      if (left <= 0) { setCd('Locked'); setOffset(0); setRingColor('var(--text3)'); return; }
       const d = Math.floor(left/86400000), h = Math.floor((left%86400000)/3600000), m = Math.floor((left%3600000)/60000);
       setCd(d > 0 ? d+'d '+h+'h' : h > 0 ? h+'h '+m+'m' : m > 0 ? m+'m' : '');
       const maxW = 7*24*60*60*1000;
-      const p = Math.min(Math.max((maxW-left)/maxW,0),1);
+      const elapsed = maxW - left;
+      const p = Math.min(Math.max(elapsed/maxW,0),1);
       setOffset(circ*(1-p));
       const daysLeft = left / 86400000;
-      if (daysLeft > 3) {
-        setRingColor('#2D6A4F');
-        setPulse('pulse-green');
-      } else if (daysLeft > 1) {
-        setRingColor('#C9A96E');
-        setPulse('pulse-gold');
-      } else {
-        setRingColor('#C41E3A');
-        setPulse('pulse-red');
-      }
+      if (daysLeft > 3) setRingColor('#2D6A4F');
+      else if (daysLeft > 1) setRingColor('#C9A96E');
+      else setRingColor('#C41E3A');
     };
     tick();
     const id = setInterval(tick, 1000);
@@ -399,7 +385,7 @@ const CountdownRing = ({ deadline, open, text, progress }) => {
   }, [deadline]);
 
   return (
-    <div className={'cd-ring'+(pulse?' '+pulse:'')}>
+    <div className="cd-ring">
       <svg viewBox="0 0 64 64">
         <circle className="bg" cx="32" cy="32" r="27"/>
         <circle className="fg" cx="32" cy="32" r="27" strokeDasharray={circ} strokeDashoffset={offset} style={{stroke:ringColor}}/>
