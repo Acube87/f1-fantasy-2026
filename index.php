@@ -253,7 +253,8 @@ const I = ({ n, s }) => React.createElement('i', { className: 'fa-solid fa-' + n
 const Nav = ({ user, page, onNav, onLogin, onLogout }) => {
   const links = [
     {page:'dashboard',icon:'grip'}, {page:'predict',icon:'list-ol'}, {page:'results',icon:'flag-checkered'},
-    {page:'updates',icon:'newspaper'}, {page:'news',icon:'rss'}, {page:'leaderboard',icon:'trophy'}, {page:'achievements',icon:'medal'}, {page:'profile',icon:'user'}
+    {page:'updates',icon:'newspaper'}, {page:'news',icon:'rss'}, {page:'leaderboard',icon:'trophy'}, {page:'achievements',icon:'medal'}, {page:'profile',icon:'user'},
+    {page:'__points__',icon:'bolt',label:'Points',href:'points-system.php'}
   ];
   return (
     <nav className="nav">
@@ -263,7 +264,13 @@ const Nav = ({ user, page, onNav, onLogin, onLogout }) => {
           PADDOCK
         </a>
         <div className="nav-links">
-          {links.map(l => (
+          {links.map(l => l.href ? (
+            <a key={l.page} href={l.href} className="nav-link" title={l.label}
+               style={{color:'#ffd700',border:'1px solid rgba(255,215,0,0.25)',background:'rgba(255,215,0,0.07)',borderRadius:'6px',padding:'4px 10px'}}>
+              <I n={l.icon} />
+              <span className="nav-label" style={{color:'#ffd700'}}>{l.label}</span>
+            </a>
+          ) : (
             <a key={l.page} href={'#'+l.page} className={'nav-link'+(page.split('?')[0]===l.page?' active':'')}
                onClick={(e)=>{e.preventDefault();onNav(l.page)}}>
               <I n={l.icon} />
