@@ -5,6 +5,11 @@ require_once __DIR__ . '/includes/avatars.php';
 $user        = getCurrentUser();
 $currentUser = $user;
 $stats       = $user ? getUserStats($user['id']) : [];
+
+if (!$user) {
+    header('Location: login.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
