@@ -1966,23 +1966,48 @@ const UpdatesPage = ({ onNav }) => {
         </div>
       )}
 
-      <div className="card anim anim-d3" style={{padding:'16px'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
-          <span className="caps-label"><I n="trophy" style={{color:'var(--accent-warm)',marginRight:10}} />Leaderboard Snapshot</span>
-          <a className="btn btn-outline btn-sm" onClick={(e)=>{e.preventDefault();onNav('leaderboard')}}>Full Standings</a>
+      <div style={{background:'var(--surface)',border:'1px solid var(--border)',padding:'16px'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}>
+          <span className="caps-label" style={{fontSize:11}}><I n="trophy" /> Standings</span>
+          <a className="btn btn-outline btn-sm" style={{fontSize:10}} onClick={(e)=>{e.preventDefault();onNav('leaderboard')}}>Full Standings</a>
         </div>
-        {d.leaderboard?.map((p,i) => (
-          <div className={'lb-row'+(d.auth?.username===p.username?' me':'')} key={i} style={{padding:'8px 4px'}}>
-            <div className={'lb-rk lb-rk-'+(i<3?(i+1):'')}>{i+1}</div>
-            <div style={{width:'28px',height:'28px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
+
+        {/* Column headers */}
+        <div style={{display:'flex',alignItems:'center',gap:8,padding:'6px 4px 6px 26px',borderBottom:'1px solid var(--border)',marginBottom:4}}>
+          <div style={{fontSize:9,fontWeight:700,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',width:28,flexShrink:0}}>Pos</div>
+          <div style={{fontSize:9,fontWeight:700,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',flex:1}}>Player</div>
+          <div style={{fontSize:9,fontWeight:700,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',textAlign:'right',width:50,flexShrink:0}}>Pts</div>
+        </div>
+
+        {d.leaderboard?.slice(0,10).map((p,i) => {
+          const isMe = d.auth?.username === p.username;
+          const medals = ['🥇','🥈','🥉'];
+          return (
+          <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'7px 4px',borderBottom:i<Math.min(d.leaderboard.length,10)-1?'1px solid var(--border-light)':'none',background:isMe?'rgba(0,0,0,0.02)':'transparent'}}>
+            <div style={{width:22,flexShrink:0,textAlign:'center',fontSize:12,lineHeight:1}}>
+              {i < 3 ? <span style={{fontSize:14}}>{medals[i]}</span> : <span className="mono" style={{fontSize:10,color:'var(--text3)'}}>{i+1}</span>}
+            </div>
+            <div style={{width:26,height:26,borderRadius:'50%',overflow:'hidden',background:'var(--surface-muted)',flexShrink:0}}>
               <img src={getAvatarUrl(p.avatar_style,p.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
             </div>
-            <div className="lb-name">
-              <div className="lb-user" style={{fontSize:'12px'}}>{p.username}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:12,fontWeight:600,color:'var(--text)',lineHeight:1.3}}>
+                {p.username}
+                {isMe && <span style={{fontSize:9,color:'var(--text3)',fontWeight:400,marginLeft:4}}>(you)</span>}
+              </div>
+              {p.full_name && <div style={{fontSize:10,color:'var(--text3)',lineHeight:1.2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.full_name}</div>}
             </div>
-            <div className="lb-pts" style={{fontSize:'14px'}}>{p.total_points}</div>
+            <div className="mono" style={{fontSize:14,fontWeight:700,color:'var(--text)',textAlign:'right',width:50,flexShrink:0}}>{p.total_points}</div>
           </div>
-        ))}
+          );
+        })}
+        {d.leaderboard?.length > 10 && (
+          <div style={{textAlign:'center',padding:'8px 0 0',fontSize:11,color:'var(--text3)'}}>
+            <a style={{cursor:'pointer',color:'var(--text2)',textDecoration:'none',fontWeight:600}} onClick={(e)=>{e.preventDefault();onNav('leaderboard')}}>
+              View all {d.leaderboard.length} players →
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
