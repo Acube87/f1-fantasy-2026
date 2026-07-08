@@ -1789,64 +1789,65 @@ const AchievementsPage = () => {
 
   return (
     <div className="page">
-      <div className="anim" style={{marginBottom:'20px',textAlign:'center'}}>
-        <h1 style={{fontSize:'24px',fontWeight:'800',color:'var(--text)'}}>Achievements</h1>
-        <p style={{color:'var(--text2)',fontSize:'13px',marginTop:'4px'}}>Unlock every achievement to become the ultimate predictor</p>
+      {/* Hero */}
+      <div className="hero">
+        <div className="hero-bg" style={{backgroundImage:'url(https://images.unsplash.com/photo-1678919225767-c2d4dff33ab4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fGVufHx8fA%3D%3D)'}}></div>
+        <div className="hero-overlay"></div>
       </div>
 
-      <div className="stat-grid anim anim-d1" style={{maxWidth:500,margin:'0 auto 20px'}}>
-        <div className="card stat-box">
-          <div className="v" style={{color:'var(--success)'}}>{unlockedCount}</div>
-          <div className="l">Unlocked</div>
-        </div>
-        <div className="card stat-box">
-          <div className="v" style={{color:'var(--text)'}}>{totalCount}</div>
-          <div className="l">Total</div>
-        </div>
-        <div className="card stat-box">
-          <div className="v" style={{color:'var(--primary)'}}>{completionPct}%</div>
-          <div className="l">Complete</div>
-        </div>
-        <div className="card stat-box">
-          <div className="v" style={{color:'var(--accent-warm)'}}>{profile?.auth?.username?.charAt(0)?.toUpperCase()||''}</div>
-          <div className="l">Player</div>
+      {/* Page Header */}
+      <div className="race-info">
+        <div className="race-info-left">
+          <div className="race-title">Achievements</div>
+          <div className="race-meta">Unlock every achievement to become the ultimate predictor</div>
         </div>
       </div>
 
+      {/* Stats row */}
+      <div className="r-grid" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'1px',background:'var(--border)',marginBottom:24}}>
+        {[
+          {val:unlockedCount, label:'Unlocked', color:'var(--live)'},
+          {val:totalCount, label:'Total', color:'var(--text)'},
+          {val:completionPct+'%', label:'Complete', color:'var(--accent)'},
+          {val:profile?.auth?.username||'', label:'Player', color:'var(--gold)'},
+        ].map((s,i) => (
+          <div key={i} style={{background:'var(--surface)',padding:'16px 12px',textAlign:'center'}}>
+            <div className="mono" style={{fontSize:22,fontWeight:700,color:s.color,lineHeight:1.2,marginBottom:2}}>{s.val}</div>
+            <div style={{fontSize:9,fontWeight:700,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em'}}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Achievement tiers */}
+      <div style={{display:'flex',flexDirection:'column',gap:'1px',background:'var(--border)'}}>
       {tiers.map(tier => {
         const t = TIER_CONFIG[tier];
         const items = ALL_ACHIEVEMENTS.filter(a => a.tier === tier);
         if (items.length === 0) return null;
         return (
-          <div key={tier} style={{marginBottom:'20px'}}>
-            <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'10px'}}>
-              <div style={{width:'3px',height:'16px',borderRadius:'2px',background:t.color2}}></div>
-              <span style={{fontSize:'12px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.06em',color:t.color2}}>{tierLabels[tier]}</span>
-              <span style={{fontSize:'11px',color:'var(--text3)',marginLeft:'auto'}}>{items.filter(a => unlockedIds.has(a.id)).length}/{items.length}</span>
+          <div key={tier} style={{background:'var(--surface)',padding:'20px'}}>
+            <div className="ch" style={{marginBottom:14}}>
+              <span style={{width:12,height:12,background:t.color2,display:'inline-block',flexShrink:0}}></span>
+              <span>{tierLabels[tier]}</span>
+              <span className="mono" style={{fontSize:11,color:'var(--text3)',marginLeft:'auto'}}>{items.filter(a => unlockedIds.has(a.id)).length}/{items.length}</span>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:'12px'}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:'1px',background:'var(--border)'}}>
               {items.map(ach => {
                 const isUnlocked = unlockedIds.has(ach.id);
                 return (
-                  <div key={ach.id} className={'card card-hover'+(isUnlocked?'':'')}
-                    style={{padding:'20px',borderLeft:'4px solid '+(isUnlocked?t.color2:'var(--border)'),background:isUnlocked?t.bg:'var(--card)',opacity:isUnlocked?1:0.7,filter:isUnlocked?'none':'grayscale(0.5)',position:'relative'}}>
-                    <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'14px'}}>
-                      <div style={{width:56,height:56,borderRadius:14,background:t.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'24px',color:t.color2,flexShrink:0}}>
+                  <div key={ach.id} style={{background:isUnlocked?t.bg:'var(--surface)',padding:'16px',opacity:isUnlocked?1:0.55,filter:isUnlocked?'none':'grayscale(0.6)',position:'relative',border:'none'}}>
+                    <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:10}}>
+                      <div style={{width:40,height:40,background:t.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,color:t.color2,flexShrink:0}}>
                         <I n={ach.icon.replace('fa-','')} />
                       </div>
-                      {!isUnlocked ? (
-                        <I n="lock" style={{fontSize:'16px',color:'var(--text3)'}} />
+                      {isUnlocked ? (
+                        <span style={{fontSize:11,color:t.color2}}><I n="check-circle" /></span>
                       ) : (
-                        <I n="check-circle" style={{fontSize:'16px',color:t.color2}} />
+                        <span style={{fontSize:11,color:'var(--text3)'}}><I n="lock" /></span>
                       )}
                     </div>
-                    <div style={{fontWeight:'700',fontSize:'15px',marginBottom:'6px',color:'var(--text)'}}>{ach.name}</div>
-                    <div style={{fontSize:'12px',color:'var(--text2)',lineHeight:1.4,marginBottom:'14px'}}>{ach.desc}</div>
-                    <div style={{paddingTop:'12px',borderTop:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                      <span style={{fontSize:'10px',fontWeight:'600',textTransform:'uppercase',color:'var(--text3)',letterSpacing:'0.03em'}}>How to Unlock</span>
-                      <span style={{fontSize:'9px',fontWeight:'700',textTransform:'uppercase',padding:'2px 10px',borderRadius:999,background:t.bg,color:t.color2,letterSpacing:'0.05em'}}>{tierLabels[tier]}</span>
-                    </div>
-                    <div style={{fontSize:'11px',color:'var(--text3)',marginTop:'6px',lineHeight:1.3}}>{ach.desc}</div>
+                    <div style={{fontWeight:700,fontSize:14,color:'var(--text)',marginBottom:4}}>{ach.name}</div>
+                    <div style={{fontSize:11,color:'var(--text2)',lineHeight:1.4,marginBottom:0}}>{ach.desc}</div>
                   </div>
                 );
               })}
@@ -1854,6 +1855,7 @@ const AchievementsPage = () => {
           </div>
         );
       })}
+      </div>
     </div>
   );
 };
