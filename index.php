@@ -803,20 +803,53 @@ const Dashboard = ({ onNav }) => {
         </div>
 
         {/* SCANERRIFIC */}
-        <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
-          <a href="https://scanerrific.com" target="_blank" rel="noopener" style={{background:'var(--surface)',padding:'16px',display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none',minHeight:80}}>
-            <img src="/assets/logo_refreshed_scanerrific_no_bg_black.png" alt="Scanerrific" style={{maxHeight:36,objectFit:'contain'}} />
-          </a>
-          <div style={{background:'var(--surface)',padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'center',gap:10,flexWrap:'wrap'}}>
-            <span style={{fontSize:11,fontWeight:600,color:'var(--text)',whiteSpace:'nowrap'}}>Fuel Your NPD</span>
-            <a href="https://scanerrific.com" target="_blank" rel="noopener" className="btn btn-sm btn-outline" style={{fontSize:9}}>Scanerrific.com</a>
-            <div style={{display:'flex',gap:6}}>
-              <a href="https://x.com/Scanerrific" target="_blank" rel="noopener" style={{width:22,height:22,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--surface-muted)',fontSize:10,color:'var(--text2)'}}><i className="fa-brands fa-twitter"></i></a>
-              <a href="https://www.facebook.com/profile.php?id=61574704850921" target="_blank" rel="noopener" style={{width:22,height:22,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--surface-muted)',fontSize:10,color:'var(--text2)'}}><i className="fa-brands fa-facebook-f"></i></a>
-              <a href="https://www.linkedin.com/company/86236157" target="_blank" rel="noopener" style={{width:22,height:22,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--surface-muted)',fontSize:10,color:'var(--text2)'}}><i className="fa-brands fa-linkedin-in"></i></a>
+        {(()=>{
+          const msgs = [
+            'Paddock Picks is proudly powered by Scanerrific.',
+            'Built by NPD professionals. Made for NPD professionals.',
+            'Sponsored by Scanerrific — helping food innovators stay organised.',
+            'The same team building better NPD software also built Paddock Picks.',
+            'Created by Scanerrific for our customers, partners and friends.',
+            'From sample management to race predictions... precision matters.',
+            'Predicting races is fun. Managing NPD shouldn\'t be difficult.',
+            'Built with love by the Scanerrific team.',
+            'Making food innovation simpler... and Formula 1 Sundays more competitive.',
+            'Helping teams organise food innovation since 2024. Keeping friends arguing about F1 ever since.',
+            'Scanerrific helps food manufacturers track samples across multiple sites.',
+            'Paddock Picks is a free community project funded by Scanerrific.',
+            'Scanerrific helps teams manage samples, recipes, trials and inventory.',
+            'Built by people who actually work in food manufacturing.',
+            'Stop searching for samples. Start finding them with Scanerrific.',
+            'Scan QR labels. Track every sample. Stay audit ready.',
+            'Every sample found is one less sample wasted.',
+            'Used by NPD teams across Europe.',
+            'Helping food manufacturers manage samples smarter.',
+            'One misplaced sample can delay an entire project. Scanerrific prevents that.',
+            'Race predictions by friends. NPD software by professionals.',
+            'Scanerrific — ordering, inventory, recipes, shelf life, trials.',
+            'Less searching. More developing. Powered by Scanerrific.',
+          ];
+          const today = new Date().toDateString().split(' ').slice(1,3).join('');
+          const hash = today.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+          const msg = msgs[hash % msgs.length];
+          return (
+          <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)'}}>
+            <a href="https://scanerrific.com" target="_blank" rel="noopener" style={{background:'var(--surface)',padding:'16px',display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none',minHeight:80}}>
+              <img src="/assets/logo_refreshed_scanerrific_no_bg_black.png" alt="Scanerrific" style={{maxHeight:36,objectFit:'contain'}} />
+            </a>
+            <div style={{background:'var(--surface)',padding:'12px 16px',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6}}>
+              <span style={{fontSize:11,color:'var(--text2)',textAlign:'center',lineHeight:1.4}}>{msg}</span>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <a href="https://scanerrific.com" target="_blank" rel="noopener" style={{fontSize:9,fontWeight:700,color:'var(--accent)',textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.08em'}}>Scanerrific.com</a>
+                <div style={{display:'flex',gap:4}}>
+                  <a href="https://x.com/Scanerrific" target="_blank" rel="noopener" style={{width:20,height:20,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--surface-muted)',fontSize:9,color:'var(--text2)'}}><i className="fa-brands fa-twitter"></i></a>
+                  <a href="https://www.facebook.com/profile.php?id=61574704850921" target="_blank" rel="noopener" style={{width:20,height:20,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--surface-muted)',fontSize:9,color:'var(--text2)'}}><i className="fa-brands fa-facebook-f"></i></a>
+                  <a href="https://www.linkedin.com/company/86236157" target="_blank" rel="noopener" style={{width:20,height:20,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--surface-muted)',fontSize:9,color:'var(--text2)'}}><i className="fa-brands fa-linkedin-in"></i></a>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </div>);
+        })()}
 
       </div>
 
