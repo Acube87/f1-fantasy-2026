@@ -1739,10 +1739,16 @@ const ProfilePage = ({ user, onNav }) => {
           <div className="ch"><I n="crown" /><span>Best Performance</span></div>
         </div>
         {data.bestRace ? (
-          <div style={{background:'var(--bg2)',padding:'24px',borderRadius:'var(--rad)',textAlign:'center',marginBottom:'20px'}}>
-            <div style={{fontSize:'42px',fontWeight:'900',color:'var(--success)',fontFamily:'JetBrains Mono,monospace'}}>+{data.bestRace.total_points}</div>
-            <div style={{fontWeight:'700',fontSize:'15px',marginTop:'6px'}}><span className="racing">{data.bestRace.country}</span> GP</div>
-            <div style={{fontSize:'12px',color:'var(--text2)',marginTop:'4px'}}>{new Date(data.bestRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+          <div style={{display:'flex',alignItems:'center',gap:16,padding:'16px',background:'var(--surface-muted)',border:'1px solid var(--border-light)',marginBottom:'20px'}}>
+            <div style={{textAlign:'center',flexShrink:0,minWidth:80}}>
+              <div className="mono" style={{fontSize:32,fontWeight:900,color:'var(--live)',lineHeight:1}}>+{data.bestRace.total_points}</div>
+              <div style={{fontSize:9,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',marginTop:2}}>Best Race</div>
+            </div>
+            <div style={{width:'1px',height:36,background:'var(--border)'}}></div>
+            <div>
+              <div style={{fontWeight:700,fontSize:14}}><span className="racing">{data.bestRace.country}</span> GP</div>
+              <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{new Date(data.bestRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+            </div>
           </div>
         ) : (
           <div style={{textAlign:'center',padding:'32px',color:'var(--text3)',fontSize:'13px',marginBottom:'20px'}}>No races yet</div>
@@ -1980,19 +1986,19 @@ const UpdatesPage = ({ onNav }) => {
             );
           })}
 
-          <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',margin:'14px 0 8px'}}>Top Scorers</div>
-          {d.topScorers?.map((s,i) => (
-            <div className="lb-row" key={i} style={{padding:'8px 4px'}}>
-              <div style={{fontSize:'16px',width:'24px',textAlign:'center'}}>{i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</div>
-              <div style={{width:'28px',height:'28px',borderRadius:'50%',overflow:'hidden',background:'var(--bg2)',flexShrink:0}}>
+          <div className="ch" style={{margin:'14px 0 8px'}}><I n="trophy" /><span>Top Scorers</span></div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'1px',background:'var(--border)'}}>
+          {d.topScorers?.slice(0,3).map((s,i) => (
+            <div key={i} style={{background:'var(--surface)',padding:'12px',textAlign:'center'}}>
+              <div style={{fontSize:20,lineHeight:1,marginBottom:6}}>{['🥇','🥈','🥉'][i]}</div>
+              <div style={{width:36,height:36,borderRadius:'50%',overflow:'hidden',background:'var(--surface-muted)',margin:'0 auto 6px'}}>
                 <img src={getAvatarUrl(s.avatar_style,s.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
               </div>
-              <div className="lb-name">
-                <div className="lb-user">{s.username}</div>
-              </div>
-              <div style={{fontSize:'15px',fontWeight:'700',color:'var(--success)',fontFamily:'JetBrains Mono,monospace'}}>+{s.total_points}</div>
+              <div style={{fontWeight:600,fontSize:12,color:'var(--text)',marginBottom:2}}>{s.username}</div>
+              <div className="mono" style={{fontSize:16,fontWeight:700,color:'var(--live)'}}>+{s.total_points}</div>
             </div>
           ))}
+          </div>
 
           {(d.podiumSweepUsers?.length > 0 || d.constructorBonusUsers?.length > 0) && (
             <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginTop:'12px'}}>
