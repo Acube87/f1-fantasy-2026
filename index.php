@@ -1753,21 +1753,24 @@ const ProfilePage = ({ user, onNav }) => {
         ) : (
           <div style={{textAlign:'center',padding:'32px',color:'var(--text3)',fontSize:'13px',marginBottom:'20px'}}>No races yet</div>
         )}
-        <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'12px'}}>
-          <div className="ch"><I n="history" /><span>Race History</span></div>
-        </div>
-        {data.recentRaces?.length > 0 ? data.recentRaces.map((rc,i) => (
-          <div className="race-row" key={i} style={{padding:'12px 0'}}>
-            <div style={{width:'32px',height:'32px',borderRadius:'8px',background:'var(--card2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-              <I n="flag-checkered" style={{fontSize:'12px',color:'var(--text3)'}} />
-            </div>
-            <div style={{flex:1}}>
-              <div className="r-name" style={{fontSize:'14px'}}><span className="racing">{rc.country}</span> GP</div>
-              <div className="r-meta">{new Date(rc.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
-            </div>
-            <div style={{fontWeight:'800',fontSize:'16px',color:'var(--success)',fontFamily:'JetBrains Mono,monospace'}}>+{rc.total_points}</div>
+        <div className="ch" style={{marginBottom:'12px'}}><I n="history" /><span>Race History</span></div>
+        {data.recentRaces?.length > 0 ? (
+          <div style={{display:'grid',gridTemplateColumns:'auto 1fr auto',gap:'1px',background:'var(--border)',borderRadius:'var(--rad)',overflow:'hidden'}}>
+            <div style={{background:'var(--surface-muted)',padding:'8px 10px',fontSize:10,fontWeight:700,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em'}}>Race</div>
+            <div style={{background:'var(--surface-muted)',padding:'8px 10px',fontSize:10,fontWeight:700,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em'}}>Date</div>
+            <div style={{background:'var(--surface-muted)',padding:'8px 10px',fontSize:10,fontWeight:700,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',textAlign:'right'}}>Score</div>
+            {data.recentRaces.map((rc,i) => (
+              <React.Fragment key={i}>
+                <div style={{background:'var(--surface)',padding:'10px',display:'flex',alignItems:'center',gap:8}}>
+                  <I n="flag-checkered" style={{fontSize:10,color:'var(--text3)'}} />
+                  <span className="racing" style={{fontWeight:600,fontSize:13}}>{rc.country} GP</span>
+                </div>
+                <div style={{background:'var(--surface)',padding:'10px',display:'flex',alignItems:'center',fontSize:12,color:'var(--text2)'}}>{new Date(rc.race_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+                <div style={{background:'var(--surface)',padding:'10px',display:'flex',alignItems:'center',justifyContent:'flex-end',fontWeight:700,fontSize:14,color:'var(--live)',fontFamily:'JetBrains Mono,monospace'}}>+{rc.total_points}</div>
+              </React.Fragment>
+            ))}
           </div>
-        )) : (
+        ) : (
           <div style={{textAlign:'center',padding:'24px',color:'var(--text3)',fontSize:'13px'}}>No race history yet. Start predicting!</div>
         )}
       </div>
