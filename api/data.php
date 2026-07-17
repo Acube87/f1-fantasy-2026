@@ -58,9 +58,8 @@ switch ($type) {
             $now = new DateTime('now', new DateTimeZone('UTC'));
             $isNextDoublePoints = isDoublePointsRace($nextRace);
             
-            if ($now < $deadline) {
+            if ($now->getTimestamp() < $deadline->getTimestamp()) {
                 $predictionsOpen = true;
-                $predictionStatus = 'OPEN';
                 $interval = $now->diff($deadline);
                 $totalDays = $interval->days;
                 $hours = $interval->h;
@@ -327,7 +326,7 @@ switch ($type) {
         // Calculate deadline
         $deadline = getPredictionDeadline($race['race_date']);
         $now = new DateTime('now', new DateTimeZone('UTC'));
-        $predictionsOpen = $now < $deadline;
+        $predictionsOpen = $now->getTimestamp() < $deadline->getTimestamp();
 
         // Countdown text and progress bar
         $countdownText = '';
@@ -908,7 +907,7 @@ switch ($type) {
 
         $deadline = getPredictionDeadline($race['race_date']);
         $now = new DateTime('now', new DateTimeZone('UTC'));
-        if ($now >= $deadline) {
+        if ($now->getTimestamp() >= $deadline->getTimestamp()) {
             echo json_encode(['success' => false, 'message' => 'Predictions are closed for this race']);
             exit;
         }
