@@ -602,8 +602,8 @@ function getPredictionDeadline($raceDateStr) {
     $deadline = clone $raceDate;
     
     if ($dayOfWeek == 7) {
-        // Race is on Sunday, deadline is Friday 00:00 (2 days before)
-        $deadline->modify('-2 days')->setTime(0, 0, 0);
+        // Race is on Sunday, deadline is Saturday 00:00 (1 day before, Friday midnight US time)
+        $deadline->modify('-1 day')->setTime(0, 0, 0);
     } elseif ($dayOfWeek == 6) {
         // Race is on Saturday (Sprint weekend), deadline is Saturday 00:00 (same day)
         $deadline->setTime(0, 0, 0);
