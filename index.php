@@ -1875,143 +1875,133 @@ const UpdatesPage = ({ onNav }) => {
   if (loading) return <div className="page" style={{textAlign:'center',paddingTop:120,color:'var(--text2)'}}><I n="spinner" /></div>;
   if (!d) return null;
 
+  const deadlineDisplay = d.nextRace?.deadline
+    ? new Date(d.nextRace.deadline).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})
+    : d.nextRace ? new Date(d.nextRace.race_date).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}) : '';
+
   return (
     <div className="page">
-      <div className="anim" style={{marginBottom:'20px',textAlign:'center'}}>
-        <h1 style={{fontSize:'24px',fontWeight:'800',color:'var(--text)'}}>Race <span style={{color:'var(--primary)'}}>Roundup</span></h1>
-        <p style={{color:'var(--text2)',fontSize:'13px',marginTop:'4px'}}>Latest race results, standings, and prediction tracker</p>
+      <div className="anim" style={{marginBottom:20,textAlign:'center'}}>
+        <h1 style={{fontSize:24,fontWeight:800,color:'var(--text)'}}>Race <span style={{color:'var(--primary)'}}>Roundup</span></h1>
+        <p style={{color:'var(--text2)',fontSize:13,marginTop:4}}>Latest race results, standings, and prediction tracker</p>
       </div>
 
-      {/* NEXT RACE — main focus, moved above last race */}
+      <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+
+      {/* NEXT RACE */}
       {d.nextRace && (
-        <div className="card anim anim-d1" style={{padding:'16px',marginBottom:'16px',border:'1px solid rgba(225,6,0,0.12)'}}>
-          <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}}>
-            <span style={{fontSize:'28px'}}>{d.nextRace.flag || '🏁'}</span>
+        <div className="card anim anim-d1" style={{padding:16,border:'1px solid rgba(225,6,0,0.12)'}}>
+          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+            <span style={{fontSize:28}}>{d.nextRace.flag || '🏁'}</span>
             <div style={{flex:1}}>
-              <div style={{fontSize:'16px',fontWeight:'700'}}><span className="racing">{d.nextRace.country}</span> GP <span className="badge badge-purple" style={{marginLeft:'8px',fontSize:'9px'}}>Up Next</span></div>
-              <div style={{fontSize:'12px',color:'var(--text2)'}}>{new Date(d.nextRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} &middot; {d.nextRace.circuit_name}</div>
+              <div style={{fontSize:15,fontWeight:700}}><span className="racing">{d.nextRace.country}</span> GP <span className="badge badge-purple" style={{marginLeft:8,fontSize:9}}>Up Next</span></div>
+              <div style={{fontSize:11,color:'var(--text2)'}}>{new Date(d.nextRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} &middot; {d.nextRace.circuit_name}</div>
             </div>
           </div>
 
-          {/* Calendar download buttons */}
-          <div style={{display:'flex',gap:'8px',marginBottom:'14px',flexWrap:'wrap'}}>
-            <a href={'calendar.php?race_id='+d.nextRace.id} target="_blank" className="btn btn-sm" style={{background:'var(--bg2)',color:'var(--text)',border:'1px solid var(--border)'}}>
-              <I n="calendar-plus" style={{fontSize:12}} /> Download .ics <span style={{fontSize:9,color:'var(--text3)'}}>(iCal / Android / Outlook)</span>
-            </a>
-            <a href={'calendar.php'} target="_blank" className="btn btn-sm" style={{background:'var(--bg2)',color:'var(--text)',border:'1px solid var(--border)'}}>
-              <I n="calendar-alt" style={{fontSize:12}} /> Full Season Calendar
-            </a>
-          </div>
+          <a href={'calendar.php?race_id='+d.nextRace.id} target="_blank" className="btn btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4,background:'var(--bg2)',color:'var(--text)',border:'1px solid var(--border)',fontSize:11,marginBottom:12}}>
+            <I n="calendar-plus" style={{fontSize:11}} /> Download .ics
+          </a>
 
-          {/* Progress bar */}
-          <div style={{marginBottom:'12px'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
-              <span style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)'}}>Prediction Progress</span>
-              <span style={{fontSize:'11px',fontWeight:'600',color:'var(--purple2)'}}>{d.submitted?.length||0}/{d.submitted?.length+d.missing?.length||0} players</span>
+          <div style={{marginBottom:12}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+              <span className="ch"><I n="users" /><span>Predictions</span></span>
+              <span className="mono" style={{fontSize:11,fontWeight:600,color:'var(--purple2)'}}>{d.submitted?.length||0}/{d.submitted?.length+d.missing?.length||0}</span>
             </div>
             <div className="status-bar">
               <div className="status-fill purple" style={{width:Math.max(d.submissionPct||0,3)+'%'}}></div>
             </div>
           </div>
 
-          {/* Full lists — no slice limit */}
-          <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-            <div style={{background:'var(--bg2)',padding:'10px',borderRadius:'var(--rad)',maxHeight:320,overflow:'auto'}}>
-              <div style={{fontSize:'10px',fontWeight:'700',color:'var(--success)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px',position:'sticky',top:0,background:'var(--bg2)',paddingBottom:4,zIndex:1}}>
-                <I n="check-circle" style={{marginRight:4}} />Submitted ({d.submitted?.length||0})
-              </div>
+          <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            <div style={{background:'var(--bg2)',padding:10,borderRadius:'var(--rad)',maxHeight:240,overflow:'auto'}}>
+              <div className="ch" style={{fontSize:10,color:'var(--success)',marginBottom:4,position:'sticky',top:0,background:'var(--bg2)',paddingBottom:4,zIndex:1}}><I n="check-circle" /><span>Submitted ({d.submitted?.length||0})</span></div>
               {d.submitted?.length > 0 ? d.submitted.map((s,i) => (
-                <div key={i} style={{display:'flex',alignItems:'center',gap:'6px',padding:'3px 0'}}>
-                  <div style={{width:'20px',height:'20px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
+                <div key={i} style={{display:'flex',alignItems:'center',gap:4,padding:'2px 0'}}>
+                  <div style={{width:18,height:18,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
                     <img src={getAvatarUrl(s.avatar_style,s.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                   </div>
-                  <span style={{fontSize:'11px',fontWeight:'600'}}>{s.username}</span>
+                  <span style={{fontSize:10,fontWeight:600}}>{s.username}</span>
                 </div>
-              )) : <div style={{fontSize:'11px',color:'var(--text3)',padding:'8px 0'}}>No predictions yet</div>}
+              )) : <div style={{fontSize:10,color:'var(--text3)',padding:'6px 0'}}>No predictions yet</div>}
             </div>
-            <div style={{background:'var(--bg2)',padding:'10px',borderRadius:'var(--rad)',maxHeight:320,overflow:'auto'}}>
-              <div style={{fontSize:'10px',fontWeight:'700',color:'var(--danger)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'6px',position:'sticky',top:0,background:'var(--bg2)',paddingBottom:4,zIndex:1}}>
-                <I n="times-circle" style={{marginRight:4}} />Missing ({d.missing?.length||0})
-              </div>
+            <div style={{background:'var(--bg2)',padding:10,borderRadius:'var(--rad)',maxHeight:240,overflow:'auto'}}>
+              <div className="ch" style={{fontSize:10,color:'var(--danger)',marginBottom:4,position:'sticky',top:0,background:'var(--bg2)',paddingBottom:4,zIndex:1}}><I n="times-circle" /><span>Missing ({d.missing?.length||0})</span></div>
               {d.missing?.length > 0 ? d.missing.map((s,i) => (
-                <div key={i} style={{display:'flex',alignItems:'center',gap:'6px',padding:'3px 0'}}>
-                  <div style={{width:'20px',height:'20px',borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
+                <div key={i} style={{display:'flex',alignItems:'center',gap:4,padding:'2px 0'}}>
+                  <div style={{width:18,height:18,borderRadius:'50%',overflow:'hidden',background:'var(--card2)',flexShrink:0}}>
                     <img src={getAvatarUrl(s.avatar_style,s.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                   </div>
-                  <span style={{fontSize:'11px',fontWeight:'600'}}>{s.username}</span>
+                  <span style={{fontSize:10,fontWeight:600}}>{s.username}</span>
                 </div>
-              )) : <div style={{fontSize:'11px',color:'var(--green)',padding:'8px 0'}}>Everyone has submitted!</div>}
+              )) : <div style={{fontSize:10,color:'var(--green)',padding:'6px 0'}}>All submitted!</div>}
             </div>
           </div>
 
-          <div style={{marginTop:12,fontSize:10,color:'var(--text3)',textAlign:'center'}}>
-            Deadline: {new Date(d.nextRace.race_date).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})} at midnight UTC
+          <div className="ch" style={{justifyContent:'center',marginTop:8,fontSize:9,color:'var(--text3)'}}>
+            <I n="clock" /><span>Deadline: {deadlineDisplay} at midnight UTC</span>
           </div>
         </div>
       )}
 
-      {/* LAST RACE — moved below next race */}
+      {/* LAST RACE */}
       {d.lastRace && (
-        <div className="card anim anim-d2" style={{padding:'16px',marginBottom:'16px'}}>
-          <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}}>
-            <span style={{fontSize:'24px'}}>{d.lastRace.flag}</span>
+        <div className="card anim anim-d2" style={{padding:16}}>
+          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+            <span style={{fontSize:24}}>{d.lastRace.flag}</span>
             <div>
-              <div style={{fontSize:'16px',fontWeight:'700'}}><span className="racing">{d.lastRace.country}</span> GP <span className="badge badge-green" style={{marginLeft:'8px',fontSize:'9px'}}>Completed</span></div>
-
-
-              <div style={{fontSize:'12px',color:'var(--text2)'}}>{new Date(d.lastRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+              <div style={{fontSize:15,fontWeight:700}}><span className="racing">{d.lastRace.country}</span> GP <span className="badge badge-green" style={{marginLeft:8,fontSize:9}}>Completed</span></div>
+              <div style={{fontSize:11,color:'var(--text2)'}}>{new Date(d.lastRace.race_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
             </div>
           </div>
 
           {d.raceWinner && (
-            <div style={{display:'flex',alignItems:'center',gap:'12px',padding:'12px',background:'var(--bg2)',borderRadius:'var(--rad)',marginBottom:'12px'}}>
-              <I n="trophy" style={{fontSize:'18px',color:'var(--orange)'}} />
+            <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:'var(--bg2)',borderRadius:'var(--rad)',marginBottom:10}}>
+              <I n="trophy" style={{fontSize:14,color:'var(--orange)'}} />
               <div>
-                <div style={{fontSize:'13px',fontWeight:'600'}}>{d.raceWinner.driver_name} wins!</div>
-                <div style={{fontSize:'11px',color:'var(--text2)'}}>{d.raceWinner.constructor_name}</div>
+                <div style={{fontSize:12,fontWeight:600}}>{d.raceWinner.driver_name} wins!</div>
+                <div style={{fontSize:10,color:'var(--text2)'}}>{d.raceWinner.constructor_name}</div>
               </div>
             </div>
           )}
 
-          <div style={{fontSize:'12px',fontWeight:'600',color:'var(--text2)',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'8px'}}>Top 5</div>
-          {d.top5Results?.map((res,i) => {
-            const colors = ['var(--orange)','#a0a0a0','#cd7f32'];
-            return (
-              <div className="driver-row" key={i} style={{padding:'7px 0'}}>
-                <div style={{width:'24px',textAlign:'center',fontWeight:'700',fontSize:'13px',color:i < 3 ? colors[i] : 'var(--text3)'}}>P{res.position}</div>
-                <TeamBadge team={res.constructor_name} />
-                <div style={{fontWeight:'600',fontSize:'12px'}}>{res.driver_name}</div>
-                <div style={{fontSize:'10px',color:'var(--text2)',marginLeft:'auto'}}>{res.constructor_name}</div>
-              </div>
-            );
-          })}
+          <div className="ch" style={{marginBottom:6}}><I n="list-ol" /><span>Top 5</span></div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--border)',marginBottom:12}}>
+          {d.top5Results?.slice(0,4).map((res,i) => (
+            <div key={i} style={{background:'var(--surface)',padding:'6px 8px',display:'flex',alignItems:'center',gap:6}}>
+              <span style={{fontWeight:700,fontSize:11,color:i===0?'var(--orange)':i===1?'#a0a0a0':i===2?'#cd7f32':'var(--text3)'}}>P{res.position}</span>
+              <TeamBadge team={res.constructor_name} />
+              <span style={{fontWeight:600,fontSize:10}}>{res.driver_name}</span>
+            </div>
+          ))}
+          </div>
 
-          <div className="ch" style={{margin:'14px 0 8px'}}><I n="trophy" /><span>Top Scorers</span></div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'1px',background:'var(--border)'}}>
+          <div className="ch" style={{marginBottom:6}}><I n="trophy" /><span>Top Scorers</span></div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'1px',background:'var(--border)',marginBottom:10}}>
           {d.topScorers?.slice(0,3).map((s,i) => (
-            <div key={i} style={{background:'var(--surface)',padding:'12px',textAlign:'center'}}>
-              <div style={{fontSize:20,lineHeight:1,marginBottom:6}}>{['🥇','🥈','🥉'][i]}</div>
-              <div style={{width:36,height:36,borderRadius:'50%',overflow:'hidden',background:'var(--surface-muted)',margin:'0 auto 6px'}}>
+            <div key={i} style={{background:'var(--surface)',padding:8,textAlign:'center'}}>
+              <div style={{fontSize:16,lineHeight:1,marginBottom:4}}>{['🥇','🥈','🥉'][i]}</div>
+              <div style={{width:30,height:30,borderRadius:'50%',overflow:'hidden',background:'var(--surface-muted)',margin:'0 auto 4px'}}>
                 <img src={getAvatarUrl(s.avatar_style,s.username)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
               </div>
-              <div style={{fontWeight:600,fontSize:12,color:'var(--text)',marginBottom:2}}>{s.username}</div>
-              <div className="mono" style={{fontSize:16,fontWeight:700,color:'var(--live)'}}>+{s.total_points}</div>
+              <div style={{fontWeight:600,fontSize:10,color:'var(--text)',marginBottom:1}}>{s.username}</div>
+              <div className="mono" style={{fontSize:14,fontWeight:700,color:'var(--live)'}}>+{s.total_points}</div>
             </div>
           ))}
           </div>
 
           {(d.podiumSweepUsers?.length > 0 || d.constructorBonusUsers?.length > 0) && (
-            <div className="r-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginTop:'12px'}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
               {d.podiumSweepUsers?.length > 0 && (
-                <div style={{background:'var(--bg2)',padding:'10px',borderRadius:'var(--rad)'}}>
-                  <div style={{fontSize:'10px',color:'var(--accent-warm)',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'4px'}}><I n="crown" style={{marginRight:4}} />Podium Sweep</div>
-                  <div style={{fontSize:'12px'}}>{d.podiumSweepUsers.join(', ')}</div>
+                <div style={{background:'var(--bg2)',padding:'8px 10px',borderRadius:'var(--rad)'}}>
+                  <div className="ch" style={{fontSize:10,color:'var(--accent-warm)',marginBottom:2}}><I n="crown" /><span>Podium Sweep</span></div>
+                  <div style={{fontSize:11}}>{d.podiumSweepUsers.join(', ')}</div>
                 </div>
               )}
               {d.constructorBonusUsers?.length > 0 && (
-                <div style={{background:'var(--card2)',padding:'10px',borderRadius:'var(--rad)'}}>
-                  <div style={{fontSize:'10px',color:'var(--blue)',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:'4px'}}><I n="wrench" style={{marginRight:4}} />Constructor Bonus</div>
-                  <div style={{fontSize:'12px'}}>{d.constructorBonusUsers.join(', ')}</div>
+                <div style={{background:'var(--card2)',padding:'8px 10px',borderRadius:'var(--rad)'}}>
+                  <div className="ch" style={{fontSize:10,color:'var(--blue)',marginBottom:2}}><I n="wrench" /><span>Constructor Bonus</span></div>
+                  <div style={{fontSize:11}}>{d.constructorBonusUsers.join(', ')}</div>
                 </div>
               )}
             </div>
@@ -2019,8 +2009,10 @@ const UpdatesPage = ({ onNav }) => {
         </div>
       )}
 
-      <div style={{background:'var(--surface)',border:'1px solid var(--border)',padding:'16px'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}>
+      </div>
+
+      <div style={{background:'var(--surface)',border:'1px solid var(--border)',padding:16}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
           <span className="caps-label" style={{fontSize:11}}><I n="trophy" /> Standings</span>
           <a className="btn btn-outline btn-sm" style={{fontSize:10}} onClick={(e)=>{e.preventDefault();onNav('leaderboard')}}>Full Standings</a>
         </div>

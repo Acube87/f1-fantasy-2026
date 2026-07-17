@@ -853,6 +853,7 @@ switch ($type) {
                 'circuit_name' => $nextRace['circuit_name'],
                 'race_date' => $nextRace['race_date'],
                 'flag' => getRaceFlag($nextRace['country']),
+                'deadline' => getPredictionDeadline($nextRace['race_date'])->getTimestamp() * 1000,
             ] : null,
             'topScorers' => $topScorers,
             'raceWinner' => $raceWinner,
