@@ -493,7 +493,7 @@ function getRaceHeroImage($country) {
         'Uk' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
         'UK' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
         'United kingdom' => 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?q=80&w=2070&auto=format&fit=crop',
-        'Hungary' => 'https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=2070&auto=format&fit=crop',
+        'Hungary' => 'https://wallpapercat.com/w/full/4/7/6/623580-3840x2160-desktop-4k-hungary-wallpaper-image.jpg',
         'Belgium' => 'https://img.redbull.com/images/c_crop,x_0,y_6,h_667,w_1000/c_fill,w_1850,h_1256/q_auto:low,f_jpg/redbullcom/2020/4/24/fkuxeu9tjzfdbmmuwzof/red-bull-racing-dutch-windmills',
         'Netherlands' => 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?q=80&w=2070&auto=format&fit=crop',
         'Italy' => 'https://images.unsplash.com/photo-1529260830199-42c24126f198?q=80&w=2070&auto=format&fit=crop',
