@@ -657,14 +657,13 @@ switch ($type) {
         $stmt->execute();
         $bestRace = $stmt->get_result()->fetch_assoc();
 
-        // Recent races (last 5)
+        // Recent races (full history)
         $stmt = $db->prepare("
             SELECT r.country, r.race_date, s.total_points
             FROM scores s
             JOIN races r ON s.race_id = r.id
             WHERE s.user_id = ?
             ORDER BY r.race_date DESC
-            LIMIT 5
         ");
         $stmt->bind_param("i", $userId);
         $stmt->execute();
