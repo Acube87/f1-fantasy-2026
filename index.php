@@ -2014,7 +2014,31 @@ const UpdatesPage = ({ onNav }) => {
 
       </div>
 
-      <div style={{background:'var(--surface)',border:'1px solid var(--border)',padding:16}}>
+      {/* RACE DEBRIEF FEED */}
+      {d.debriefs?.length > 0 && (
+        <div className="card anim" style={{padding:0,marginTop:16}}>
+          <div style={{padding:'14px 16px',borderBottom:'1px solid var(--border)'}}>
+            <h2 style={{fontSize:15,fontWeight:800}}><I n="newspaper" /> Race <span style={{color:'var(--primary)'}}>Debrief</span></h2>
+            <p style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Post-race analysis and community roundup</p>
+          </div>
+          {d.debriefs.map((post, i) => (
+            <div key={post.id} style={{padding:16,borderBottom:i < d.debriefs.length - 1 ? '1px solid var(--border-light)' : 'none'}}>
+              <div style={{marginBottom:8}}>
+                <div style={{fontSize:13,fontWeight:700,color:'var(--text)'}}>
+                  {post.title}
+                </div>
+                <div style={{fontSize:10,color:'var(--text3)',marginTop:2}}>
+                  by {post.author_name || 'System'} &middot; {new Date(post.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+                </div>
+              </div>
+              <div style={{fontSize:12,lineHeight:1.8,color:'var(--text2)',whiteSpace:'pre-wrap'}}
+                   dangerouslySetInnerHTML={{__html: post.content}} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{background:'var(--surface)',border:'1px solid var(--border)',padding:16,marginTop:16}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
           <span className="caps-label" style={{fontSize:11}}><I n="trophy" /> Standings</span>
           <a className="btn btn-outline btn-sm" style={{fontSize:10}} onClick={(e)=>{e.preventDefault();onNav('leaderboard')}}>Full Standings</a>

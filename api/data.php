@@ -835,6 +835,26 @@ switch ($type) {
             }
         }
 
+        // Race debrief posts
+        $debriefs = [];
+        $tableCheck = $db->query("SHOW TABLES LIKE 'posts'");
+        if ($tableCheck && $tableCheck->num_rows > 0) {
+            $postStmt = $db->query("
+                SELECT p.id, p.title, p.race_id, p.content, p.created_at, p.is_manual,
+                       r.race_name, r.country, u.username as author_name
+                FROM posts p 
+                LEFT JOIN races r ON p.race_id = r.id 
+                LEFT JOIN users u ON p.author_id = u.id 
+                ORDER BY p.created_at DESC 
+                LIMIT 10
+            ");
+            if ($postStmt) {
+                while ($row = $postStmt->fetch_assoc()) {
+                    $debriefs[] = $row;
+                }
+            }
+        }
+
         echo json_encode([
             'auth' => getUserData($user),
             'lastRace' => $lastRace ? [
@@ -863,6 +883,7 @@ switch ($type) {
             'constructorBonusUsers' => $constructorBonusUsers,
             'leaderboard' => $leaderboard,
             'constructors' => $constructors,
+            'debriefs' => $debriefs,
         ]);
         break;
 
