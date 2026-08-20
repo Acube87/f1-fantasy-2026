@@ -346,8 +346,9 @@ switch ($type) {
             $progressBarWidth = 100;
         }
 
-        // Get all drivers
-        $stmt = $db->prepare("SELECT id, driver_name, team FROM drivers ORDER BY team, driver_name");
+        // Get all drivers (Reserve = not racing, e.g. injured drivers crossed out by the
+        // driver-swap tool — these must NOT be pickable so nobody wastes a grid slot).
+        $stmt = $db->prepare("SELECT id, driver_name, team FROM drivers WHERE team NOT LIKE '%Reserve%' OR team IS NULL ORDER BY team, driver_name");
         $stmt->execute();
         $drivers = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
