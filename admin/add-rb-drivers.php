@@ -24,7 +24,7 @@ if ($isCli) {
     if (!$user || empty($user['is_admin'])) {
         die('Unauthorized');
     }
-    $apply = isset($_POST['apply']);
+    $apply = isset($_POST['apply']) || isset($_GET['apply']);
 }
 
 $db = getDB();
@@ -141,11 +141,10 @@ $races = $db->query("SELECT id, race_name, country, race_date, status FROM races
                 <?php endforeach; ?>
             </p>
 
-            <form method="POST">
-                <button type="submit" class="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-lg rounded-2xl transition transform hover:scale-[1.02]">
-                    <i class="fas fa-tools"></i> <?php echo $apply ? 'RE-RUN (idempotent)' : 'FIX RACING BULLS ROSTER'; ?>
-                </button>
-            </form>
+            <a href="?apply=1" onclick="return confirm('Add the missing Racing Bulls driver(s) to the roster? Existing picks are never touched.');"
+               class="block w-full text-center py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-lg rounded-2xl transition transform hover:scale-[1.02]">
+                <i class="fas fa-tools"></i> FIX RACING BULLS ROSTER
+            </a>
         </div>
     </div>
 </body>
