@@ -27,18 +27,16 @@ UPDATE drivers SET team = 'Reserve'          WHERE id = 'hadjar';
 
 -- ------------------------------------------------------------
 -- 2) AUTO-SUBSTITUTE PREDICTIONS
---    Any user who picked Hadjar now gets Lawson at the SAME
---    predicted position. If a user had already picked Lawson,
---    drop that duplicate first so the UNIQUE(user,race,driver)
---    key isn't violated.
+--    Any user who picked Hadjar gets Lawson at the SAME predicted
+--    position. If a user ALSO picked Lawson, we keep their own
+--    Lawson pick and drop their dead Hadjar slot instead (they
+--    keep the driver they actually wanted).
 -- ------------------------------------------------------------
 DELETE p
 FROM predictions p
-JOIN predictions x
-  ON x.user_id = p.user_id AND x.race_id = p.race_id
-WHERE p.race_id = @race_id
-  AND p.driver_id = 'lawson'
-  AND x.driver_id = 'hadjar';
+JOIN predictions inp
+  ON inp.race_id = p.race_id AND inp.user_id = p.user_id AND inp.driver_id = 'lawson'
+WHERE p.race_id = @race_id AND p.driver_id = 'hadjar';
 
 UPDATE predictions
 SET driver_id = 'lawson', driver_name = 'Liam Lawson'

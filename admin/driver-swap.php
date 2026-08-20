@@ -132,13 +132,19 @@ function applySwap($db, $raceId, $rows, $inTeam, $outTeam) {
             $userIds = array_column($affected->get_result()->fetch_all(MYSQLI_ASSOC), 'user_id');
 
             if (!empty($userIds)) {
-                // Drop any pre-existing incoming-driver pick for those users (avoids dup key errors).
-                $place = implode(',', array_fill(0, count($userIds), '?'));
-                $expunge = $db->prepare("DELETE FROM predictions WHERE race_id = ? AND driver_id = ? AND user_id IN ($place)");
-                $expunge->bind_param('is' . str_repeat('i', count($userIds)), $raceId, $inId, ...$userIds);
+                // If a user ALSO already picked the incoming driver, we keep THEIR explicit
+                // pick and drop the outgoing duplicate instead (they lose a dead slot,
+                // but keep the driver they actually wanted).
+                // Otherwise, re-point the outgoing pick at the incoming driver.
+                $expunge = $db->prepare("DELETE p
+                    FROM predictions p
+                    JOIN predictions inp
+                      ON inp.race_id = p.race_id AND inp.user_id = p.user_id AND inp.driver_id = ?
+                    WHERE p.race_id = ? AND p.driver_id = ?");
+                $expunge->bind_param('sis', $inId, $raceId, $outId);
                 $summary['conflict_expunges'] += $expunge->execute() ? $db->affected_rows : 0;
 
-                // Point outgoing predictions at the incoming driver.
+                // Point any remaining outgoing predictions at the incoming driver.
                 $rewrite = $db->prepare("UPDATE predictions SET driver_id = ?, driver_name = ? WHERE race_id = ? AND driver_id = ?");
                 $rewrite->bind_param('ssis', $inId, $inName, $raceId, $outId);
                 $rewrite->execute();
