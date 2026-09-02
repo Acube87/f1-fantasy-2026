@@ -29,22 +29,24 @@ $db = getDB();
 
 $title = '🏁 Italian GP Lineup — Hadjar OUT for Monza, Lawson in at Red Bull';
 
-$content = '<div class="post-race-debrief">'
-    . "\n\n" . '🏁 <strong>ITALIAN GP LINEUP — ACTION REQUIRED</strong>' . "\n\n"
-    . '<strong>What happened:</strong> Red Bull confirmed <strong>Isack Hadjar</strong> will <strong>miss the Italian GP (Monza)</strong> as he\'s yet to fully recover from his wrist injury. <strong>Liam Lawson</strong> again moves up from Racing Bulls to replace him (2nd straight event); <strong>Yuki Tsunoda</strong> fills Lawson\'s seat at Racing Bulls.' . "\n\n"
-    . '<strong>What we did in the app:</strong>' . "\n"
-    . '• <strong>Lawson</strong> is listed under Red Bull; <strong>Tsunoda</strong> under Racing Bulls.' . "\n"
-    . '• <strong>Hadjar is removed from the pick list</strong> (cannot be drafted — no wasted slots).' . "\n"
-    . '• Anyone who had picked Hadjar was <strong>auto-substituted to Lawson at the exact same position</strong> — nobody loses a pick.' . "\n"
-    . '• Picks that already included Lawson keep Lawson (his results follow the driver).' . "\n"
-    . '• Roster is a <strong>full 22-car grid</strong> — everyone predicts the same field.' . "\n\n"
-    . '<strong>Action needed (before Friday 23:59 UK):</strong>' . "\n"
-    . '• If you picked Hadjar before, check you now show <strong>Lawson</strong> in that spot. ✅' . "\n"
-    . '• If you were one of the affected users, you may be at <strong>21 picks</strong> — add a 22nd driver to complete your grid.' . "\n"
-    . '• Everyone else: just <strong>re-check your grid</strong> before the deadline. The prediction window is still open.' . "\n\n"
-    . '<strong>No scoring changes.</strong> Scoring runs normally after the race.' . "\n\n"
-    . 'Fair play, sharp picks. See you at Monza. 🏁'
-    . "\n\n" . '</div>';
+$content = '<div class="post-body">'
+    . '<div class="pb-kicker">Italian GP &middot; Monza &middot; Lineup</div>'
+    . '<div class="pb-title">Hadjar out, Lawson in at Red Bull</div>'
+    . '<div class="pb-lede">Red Bull confirmed <strong>Isack Hadjar</strong> will miss the Italian Grand Prix as he continues to recover from his wrist injury &mdash; with <strong>Liam Lawson</strong> stepping up for a second consecutive race.</div>'
+    . '<div class="pb-section"><div class="pb-label"><span class="num">01</span> What happened</div>'
+    . '<p>Hadjar sustained the injury during the summer break and has not recovered in time for Monza. With one seat open alongside <strong>Max Verstappen</strong>, <strong>Lawson</strong> moves up from Racing Bulls, while <strong>Yuki Tsunoda</strong> fills the Racing Bulls seat for another chance to impress.</p></div>'
+    . '<div class="pb-section"><div class="pb-label"><span class="num">02</span> What we did in the app</div>'
+    . '<ul>'
+    . '<li><strong>Lawson</strong> is now listed under Red Bull; <strong>Tsunoda</strong> under Racing Bulls.</li>'
+    . '<li><strong>Hadjar is removed from the pick list</strong> so nobody wastes a slot on an unavailable driver.</li>'
+    . '<li>Anyone who had picked Hadjar was <strong>auto-substituted to Lawson at the exact same position</strong> &mdash; nobody loses a pick.</li>'
+    . '<li>Picks that already included Lawson keep Lawson; results follow the driver.</li>'
+    . '<li>The roster stays a <strong>full 22-car grid</strong> &mdash; everyone predicts the same field.</li>'
+    . '</ul></div>'
+    . '<div class="pb-callout"><strong>Action required before Friday 23:59 UK.</strong> If you had picked Hadjar, confirm your grid now shows <strong>Lawson</strong> in that spot. Affected users may be at 21 picks &mdash; add a 22nd driver to complete your grid.</div>'
+    . '<div class="pb-medium">No scoring changes &mdash; scoring runs normally after the race.</div>'
+    . '<div class="pb-quote">&ldquo;Fair play, sharp picks. See you at Monza.&rdquo;</div>'
+    . '</div>';
 
 // Resolve Italian GP race id by name (not hardcoded).
 $stmt = $db->prepare("SELECT id FROM races WHERE race_name = 'Italian Grand Prix' AND status = 'upcoming' ORDER BY race_date LIMIT 1");
