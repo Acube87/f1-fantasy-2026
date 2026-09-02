@@ -50,14 +50,7 @@ if ($apply) {
         $sel->execute();
         $existing = $sel->get_result()->fetch_assoc();
         if ($existing) {
-            if (($existing['team'] ?? '') !== 'Racing Bulls') {
-                $upd->bind_param('s', $id);
-                $upd->execute();
-                $updated++;
-                $rows[] = "$id: team updated to Racing Bulls (was {$existing['team']})";
-            } else {
-                $rows[] = "$id: already Racing Bulls (ok)";
-            }
+            $rows[] = "$id: already exists (team: {$existing['team']}) — skipped";
         } else {
             $ins->bind_param('ss', $id, $name);
             $ins->execute();
