@@ -58,6 +58,21 @@ h3,.h3{font-weight:600;letter-spacing:-0.01em;line-height:1.3}
 .racing{font-family:'Teko',sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;line-height:1}
 .caps{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
 .ch{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2)}
+/* ===== POST BODY (standardized editorial article) ===== */
+.post-body{font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:16px;line-height:1.85;color:var(--text)}
+.post-body>div,.post-body>p,.post-body>ul,.post-body>ol{margin:0 0 1.1em;white-space:pre-wrap}
+.post-body>div{margin:0}
+.post-body strong{font-weight:700;color:var(--accent)}
+.post-body>div:first-child strong{color:var(--accent)}
+.post-body em{color:var(--gold);font-style:italic}
+.post-body ul,.post-body ol{margin-left:1.4em}
+.post-body li{margin:0.45em 0;list-style:none;position:relative;padding-left:1.1em}
+.post-body li::before{content:'\2014';position:absolute;left:0;color:var(--gold)}
+.post-body h3,.post-body h4,.post-body h5{font-family:'Inter',sans-serif;font-weight:700;letter-spacing:-0.01em;line-height:1.3;margin:1.4em 0 0.5em;font-size:15px;text-transform:uppercase;color:var(--text)}
+.post-body a{color:var(--accent);border-bottom:1px solid rgba(196,30,58,0.25)}
+.post-body img{max-width:100%;height:auto;border-radius:6px;margin:0.6em 0}
+.post-body>*:first-child{margin-top:0}
+.post-body>*:last-child{margin-bottom:0}
 /* ===== BUTTONS ===== */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;border:1px solid var(--border);border-radius:var(--rad-pill);cursor:pointer;transition:all 200ms;background:var(--surface);color:var(--text)}
 .btn:hover{background:var(--canvas);border-color:var(--border)}
@@ -2031,8 +2046,7 @@ const UpdatesPage = ({ onNav }) => {
                   by {post.author_name || 'System'} &middot; {new Date(post.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
                 </div>
               </div>
-              <div style={{fontSize:12,lineHeight:1.8,color:'var(--text2)',whiteSpace:'pre-wrap'}}
-                   dangerouslySetInnerHTML={{__html: post.content}} />
+              <div className="post-body" dangerouslySetInnerHTML={{__html: post.content}} />
             </div>
           ))}
         </div>
@@ -2473,8 +2487,7 @@ const NewsPage = ({ onNav }) => {
               </div>
 
               {/* Content */}
-              <div style={{fontSize:13,color:'var(--text)',lineHeight:1.7,marginBottom:16}}
-                dangerouslySetInnerHTML={{ __html: post.content }} />
+              <div className="post-body" dangerouslySetInnerHTML={{ __html: post.content }} />
 
               {/* Actions */}
               <div style={{display:'flex',alignItems:'center',gap:16,paddingTop:12,borderTop:'1px solid var(--border)'}}>
