@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Tool: Revert driver lineup to standard (pre-injury) state.
+ * Admin Tool: Apply the required 2026 driver lineup (Monza).
  *
  * Restores the original22-car grid:
  *   - Hadjar  → Red Bull Racing
@@ -30,11 +30,12 @@ if ($isCli) {
 
 $db = getDB();
 
-// The three drivers affected by the Dutch GP substitute.
+// The three drivers affected by the required lineup (Hadjar still out with a wrist
+// injury; Lawson in at Red Bull for a 2nd straight event; Tsunoda at Racing Bulls).
 $reverts = [
-    ['hadjar', 'Isack Hadjar', 'Red Bull Racing'],
-    ['lawson', 'Liam Lawson',  'Racing Bulls'],
-    ['tsunoda','Yuki Tsunoda', 'Reserve'],
+    ['lawson', 'Liam Lawson',  'Red Bull Racing'],
+    ['tsunoda','Yuki Tsunoda', 'Racing Bulls'],
+    ['hadjar', 'Isack Hadjar', 'Reserve'],
 ];
 
 // Snapshot current state.
@@ -67,7 +68,7 @@ $drivers  = $db->query("SELECT id, driver_name, team FROM drivers ORDER BY team,
 
 if ($isCli) {
     if (!$apply) {
-        echo "PREVIEW: revert lineup to standard22-car grid.\n";
+        echo "PREVIEW: apply required lineup.\n";
         foreach ($snap as $s) {
             $arrow = $s['changed'] ? " {$s['before']} →" : " (already)";
             echo "  {$s['name']}:{$arrow} {$s['after']}\n";
@@ -76,7 +77,7 @@ if ($isCli) {
         echo "Run with --apply to apply.\n";
         exit(0);
     }
-    echo "APPLIED: lineup reverted to standard.\n";
+    echo "APPLIED: lineup updated to required state.\n";
     foreach ($snap as $s) {
         $note = $s['changed'] ? "updated" : "already correct";
         echo "  {$s['name']}: {$s['before']} → {$s['after']} ($note)\n";
@@ -90,7 +91,7 @@ if ($isCli) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revert Lineup - Race Control</title>
+    <title>Apply Lineup - Race Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -105,16 +106,16 @@ if ($isCli) {
 
         <div class="g-card p-8 rounded-[2rem] border-t-4 border-t-purple-500">
             <h1 class="text-3xl font-black text-white italic uppercase mb-2">
-                🔄 Revert Lineup to Standard
+                🔄 Apply Required Lineup
             </h1>
             <p class="text-gray-400 text-sm mb-6">
-                Restores the original22-car grid after the Dutch GP substitute.
+                Applies the confirmed lineup for the Italian GP (Monza).
                 Existing user predictions are <strong class="text-white">never touched</strong>.
             </p>
 
             <?php if ($apply): ?>
             <div class="mb-6 p-4 rounded-xl border bg-green-500/10 border-green-500/30 text-green-400">
-                <p class="font-bold text-sm">✅ Lineup reverted — standard grid restored.</p>
+                <p class="font-bold text-sm">✅ Lineup updated to the required state.</p>
             </div>
             <?php endif; ?>
 
@@ -152,9 +153,9 @@ if ($isCli) {
                 <?php endforeach; ?>
             </p>
 
-            <a href="?apply=1" onclick="return confirm('Revert lineup to standard22-car grid? Predictions are NOT affected.');"
+            <a href="?apply=1" onclick="return confirm('Apply the required lineup? Predictions are NOT affected.');"
                class="block w-full text-center py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-lg rounded-2xl transition transform hover:scale-[1.02]">
-                <i class="fas fa-undo"></i> REVERT TO STANDARD LINEUP
+                <i class="fas fa-undo"></i> APPLY REQUIRED LINEUP
             </a>
         </div>
     </div>
