@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin Tool: Publish the official Dutch GP lineup-change briefing.
+ * Admin Tool: Publish the official Italian GP (Monza) lineup briefing.
  *
- * Replaces the existing announcement post for the Dutch GP with the full
+ * Replaces the existing announcement post for the Italian GP with the full
  * briefing (what changed + actions users must take). Falls back to creating
  * a new post if the announcement isn't found.
  *
@@ -27,27 +27,27 @@ if ($isCli) {
 
 $db = getDB();
 
-$title = '🏁 Dutch GP Lineup Change & App Update — Action Required';
+$title = '🏁 Italian GP Lineup — Hadjar OUT for Monza, Lawson in at Red Bull';
 
 $content = '<div class="post-race-debrief">'
-    . "\n\n" . '🏁 <strong>LINEUP CHANGE & APP UPDATE — DUTCH GP</strong>' . "\n\n"
-    . '<strong>What happened:</strong> Red Bull confirmed <strong>Isack Hadjar</strong> is out of the Dutch GP (wrist injury). <strong>Liam Lawson</strong> moves up from Racing Bulls to replace him; <strong>Yuki Tsunoda</strong> fills Lawson\'s seat at Racing Bulls.' . "\n\n"
+    . "\n\n" . '🏁 <strong>ITALIAN GP LINEUP — ACTION REQUIRED</strong>' . "\n\n"
+    . '<strong>What happened:</strong> Red Bull confirmed <strong>Isack Hadjar</strong> will <strong>miss the Italian GP (Monza)</strong> as he\'s yet to fully recover from his wrist injury. <strong>Liam Lawson</strong> again moves up from Racing Bulls to replace him (2nd straight event); <strong>Yuki Tsunoda</strong> fills Lawson\'s seat at Racing Bulls.' . "\n\n"
     . '<strong>What we did in the app:</strong>' . "\n"
-    . '• <strong>Lawson</strong> is now listed under Red Bull; <strong>Tsunoda</strong> under Racing Bulls.' . "\n"
+    . '• <strong>Lawson</strong> is listed under Red Bull; <strong>Tsunoda</strong> under Racing Bulls.' . "\n"
     . '• <strong>Hadjar is removed from the pick list</strong> (cannot be drafted — no wasted slots).' . "\n"
     . '• Anyone who had picked Hadjar was <strong>auto-substituted to Lawson at the exact same position</strong> — nobody loses a pick.' . "\n"
     . '• Picks that already included Lawson keep Lawson (his results follow the driver).' . "\n"
-    . '• Roster is back to the <strong>full 22-car grid</strong> — everyone predicts the same field.' . "\n\n"
+    . '• Roster is a <strong>full 22-car grid</strong> — everyone predicts the same field.' . "\n\n"
     . '<strong>Action needed (before Friday 23:59 UK):</strong>' . "\n"
     . '• If you picked Hadjar before, check you now show <strong>Lawson</strong> in that spot. ✅' . "\n"
     . '• If you were one of the affected users, you may be at <strong>21 picks</strong> — add a 22nd driver to complete your grid.' . "\n"
     . '• Everyone else: just <strong>re-check your grid</strong> before the deadline. The prediction window is still open.' . "\n\n"
     . '<strong>No scoring changes.</strong> Scoring runs normally after the race.' . "\n\n"
-    . 'Fair play, sharp picks. See you at Zandvoort. 🏁'
+    . 'Fair play, sharp picks. See you at Monza. 🏁'
     . "\n\n" . '</div>';
 
-// Resolve Dutch GP race id by name (not hardcoded).
-$stmt = $db->prepare("SELECT id FROM races WHERE race_name = 'Dutch Grand Prix' AND status = 'upcoming' ORDER BY race_date LIMIT 1");
+// Resolve Italian GP race id by name (not hardcoded).
+$stmt = $db->prepare("SELECT id FROM races WHERE race_name = 'Italian Grand Prix' AND status = 'upcoming' ORDER BY race_date LIMIT 1");
 $stmt->execute();
 $race = $stmt->get_result()->fetch_assoc();
 $raceId = $race ? (int)$race['id'] : 0;
@@ -78,11 +78,11 @@ if ($apply && $raceId) {
 
 if ($isCli) {
     if (!$raceId) {
-        echo "ERROR: Dutch Grand Prix not found.\n";
+        echo "ERROR: Italian Grand Prix not found.\n";
         exit(1);
     }
     if (!$apply) {
-        echo "PREVIEW: would " . ($existing ? "replace post #{$existing['id']}" : "create a new announcement") . " for the Dutch GP.\n";
+        echo "PREVIEW: would " . ($existing ? "replace post #{$existing['id']}" : "create a new announcement") . " for the Italian GP.\n";
         echo "Title: $title\n";
         echo "Run again with --apply to apply.\n";
         exit(0);
@@ -99,7 +99,7 @@ $latestTitle = $db->query("SELECT title FROM posts ORDER BY id DESC LIMIT 1")->f
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publish Dutch GP Briefing - Race Control</title>
+    <title>Publish Italian GP Briefing - Race Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -114,10 +114,10 @@ $latestTitle = $db->query("SELECT title FROM posts ORDER BY id DESC LIMIT 1")->f
 
         <div class="g-card p-8 rounded-[2rem] border-t-4 border-t-purple-500">
             <h1 class="text-3xl font-black text-white italic uppercase mb-2">
-                📣 Publish Dutch GP Briefing
+                📣 Publish Italian GP Briefing
             </h1>
             <p class="text-gray-400 text-sm mb-6">
-                Replaces the Dutch GP announcement post in the updates feed with the full
+                Replaces the Italian GP announcement post in the updates feed with the full
                 briefing (lineup changes + actions users must take before the deadline).
             </p>
 
