@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin Tool: Publish the official Italian GP (Monza) lineup briefing.
+ * Admin Tool: Publish the official Azerbaijan GP (Baku) lineup briefing.
  *
- * Replaces the existing announcement post for the Italian GP with the full
+ * Replaces the existing announcement post for the Azerbaijan GP with the full
  * briefing (what changed + actions users must take). Falls back to creating
  * a new post if the announcement isn't found.
  *
@@ -27,29 +27,31 @@ if ($isCli) {
 
 $db = getDB();
 
-$title = '🏁 Italian GP Lineup — Hadjar OUT for Monza, Lawson in at Red Bull';
+$title = 'Azerbaijan GP Lineup — Hadjar Returns to Red Bull';
 
 $content = '<div class="post-body">'
-    . '<div class="pb-kicker">Italian GP &middot; Monza &middot; Lineup</div>'
-    . '<div class="pb-title">Hadjar out, Lawson in at Red Bull</div>'
-    . '<div class="pb-lede">Red Bull confirmed <strong>Isack Hadjar</strong> will miss the Italian Grand Prix as he continues to recover from his wrist injury &mdash; with <strong>Liam Lawson</strong> stepping up for a second consecutive race.</div>'
-    . '<div class="pb-section"><div class="pb-label"><span class="num">01</span> What happened</div>'
-    . '<p>Hadjar sustained the injury during the summer break and has not recovered in time for Monza. With one seat open alongside <strong>Max Verstappen</strong>, <strong>Lawson</strong> moves up from Racing Bulls, while <strong>Yuki Tsunoda</strong> fills the Racing Bulls seat for another chance to impress.</p></div>'
+    . '<div class="pb-kicker">Azerbaijan GP &middot; Baku &middot; Lineup</div>'
+    . '<div class="pb-title">Hadjar is back in the Red Bull seat</div>'
+    . '<div class="pb-lede"><strong>Isack Hadjar</strong> has been declared fit and returns from his wrist injury this weekend, re-joining <strong>Max Verstappen</strong> at Red Bull for the Azerbaijan Grand Prix.</div>'
+    . '<div class="pb-section"><div class="pb-label"><span class="num">01</span> What changed</div>'
+    . '<p>Hadjar missed the Dutch, Italian and Spanish Grands Prix after injuring his wrist in training during the summer break. He has now completed his rehabilitation and been given the all-clear for Baku&rsquo;s high-downforce street circuit.</p>'
+    . '<p>With Hadjar back, <strong>Liam Lawson</strong> returns to Racing Bulls after standing in at Red Bull, and <strong>Yuki Tsunoda</strong> steps back down to reserve duties. Red Bull thanked Lawson for covering three races.</p></div>'
     . '<div class="pb-section"><div class="pb-label"><span class="num">02</span> What we did in the app</div>'
     . '<ul>'
-    . '<li><strong>Lawson</strong> is now listed under Red Bull; <strong>Tsunoda</strong> under Racing Bulls.</li>'
-    . '<li><strong>Hadjar is removed from the pick list</strong> so nobody wastes a slot on an unavailable driver.</li>'
-    . '<li>Anyone who had picked Hadjar was <strong>auto-substituted to Lawson at the exact same position</strong> &mdash; nobody loses a pick.</li>'
-    . '<li>Picks that already included Lawson keep Lawson; results follow the driver.</li>'
-    . '<li>The roster stays a <strong>full 22-car grid</strong> &mdash; everyone predicts the same field.</li>'
+    . '<li><strong>Hadjar</strong> is listed under Red Bull Racing and is available to pick again.</li>'
+    . '<li><strong>Lawson</strong> is listed under Racing Bulls; <strong>Tsunoda</strong> drops to reserve and off the pick list.</li>'
+    . '<li>Any pick you had for <strong>Tsunoda</strong> has been moved to <strong>Hadjar</strong> in the same position.</li>'
+    . '<li>If you had already picked <strong>Hadjar</strong> yourself, that pick is kept and the vacated slot is simply cleared.</li>'
+    . '<li><strong>Lawson picks were never touched</strong> &mdash; his results follow the driver either way.</li>'
+    . '<li>The roster is a <strong>full 22-car grid</strong> &mdash; everyone predicts the same field.</li>'
     . '</ul></div>'
-    . '<div class="pb-callout"><strong>Action required before Friday 23:59 UK.</strong> If you had picked Hadjar, confirm your grid now shows <strong>Lawson</strong> in that spot. Affected users may be at 21 picks &mdash; add a 22nd driver to complete your grid.</div>'
-    . '<div class="pb-medium">No scoring changes &mdash; scoring runs normally after the race.</div>'
-    . '<div class="pb-quote">&ldquo;Fair play, sharp picks. See you at Monza.&rdquo;</div>'
+    . '<div class="pb-callout"><strong>Action required before midnight UK time tonight (Friday).</strong> Baku is a Saturday race, so the prediction window shuts at midnight. Check your grid, and if a slot was cleared, add a driver to get back to a full 22.</div>'
+    . '<div class="pb-medium">No scoring changes &mdash; completed results are unaffected and scoring runs normally after the race.</div>'
+    . '<div class="pb-quote">&ldquo;Welcome back, Isack. Baku is a low-grip, high-commitment track &mdash; good luck to everyone.&rdquo;</div>'
     . '</div>';
 
-// Resolve Italian GP race id by name (not hardcoded).
-$stmt = $db->prepare("SELECT id FROM races WHERE race_name = 'Italian Grand Prix' AND status = 'upcoming' ORDER BY race_date LIMIT 1");
+// Resolve Azerbaijan GP race id by name (not hardcoded).
+$stmt = $db->prepare("SELECT id FROM races WHERE race_name = 'Azerbaijan Grand Prix' ORDER BY race_date DESC LIMIT 1");
 $stmt->execute();
 $race = $stmt->get_result()->fetch_assoc();
 $raceId = $race ? (int)$race['id'] : 0;
@@ -80,11 +82,11 @@ if ($apply && $raceId) {
 
 if ($isCli) {
     if (!$raceId) {
-        echo "ERROR: Italian Grand Prix not found.\n";
+        echo "ERROR: Azerbaijan Grand Prix not found.\n";
         exit(1);
     }
     if (!$apply) {
-        echo "PREVIEW: would " . ($existing ? "replace post #{$existing['id']}" : "create a new announcement") . " for the Italian GP.\n";
+        echo "PREVIEW: would " . ($existing ? "replace post #{$existing['id']}" : "create a new announcement") . " for the Azerbaijan GP.\n";
         echo "Title: $title\n";
         echo "Run again with --apply to apply.\n";
         exit(0);
@@ -101,7 +103,7 @@ $latestTitle = $db->query("SELECT title FROM posts ORDER BY id DESC LIMIT 1")->f
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publish Italian GP Briefing - Race Control</title>
+    <title>Publish Azerbaijan GP Briefing - Race Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/gaming-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -116,10 +118,10 @@ $latestTitle = $db->query("SELECT title FROM posts ORDER BY id DESC LIMIT 1")->f
 
         <div class="g-card p-8 rounded-[2rem] border-t-4 border-t-purple-500">
             <h1 class="text-3xl font-black text-white italic uppercase mb-2">
-                📣 Publish Italian GP Briefing
+                📣 Publish Azerbaijan GP Briefing
             </h1>
             <p class="text-gray-400 text-sm mb-6">
-                Replaces the Italian GP announcement post in the updates feed with the full
+                Replaces the Azerbaijan GP announcement post in the updates feed with the full
                 briefing (lineup changes + actions users must take before the deadline).
             </p>
 
