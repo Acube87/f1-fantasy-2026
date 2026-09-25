@@ -266,6 +266,10 @@ switch ($type) {
         $stmt->bind_param("i", $user['id']);
         $stmt->execute();
         $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        foreach ($posts as &$p) {
+            $p['hero'] = $p['country'] ? getRaceHeroImage($p['country']) : null;
+        }
+        unset($p);
         echo json_encode([
             'auth' => getUserData($user),
             'posts' => $posts,
@@ -851,6 +855,7 @@ switch ($type) {
             ");
             if ($postStmt) {
                 while ($row = $postStmt->fetch_assoc()) {
+                    $row['hero'] = $row['country'] ? getRaceHeroImage($row['country']) : null;
                     $debriefs[] = $row;
                 }
             }

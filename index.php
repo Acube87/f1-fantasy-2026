@@ -2043,16 +2043,29 @@ const UpdatesPage = ({ onNav }) => {
             <p style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Post-race analysis and community roundup</p>
           </div>
           {d.debriefs.map((post, i) => (
-            <div key={post.id} style={{padding:16,borderBottom:i < d.debriefs.length - 1 ? '1px solid var(--border-light)' : 'none'}}>
-              <div style={{marginBottom:8}}>
-                <div style={{fontSize:13,fontWeight:700,color:'var(--text)'}}>
-                  {post.title}
+            <div key={post.id} style={{borderBottom:i < d.debriefs.length - 1 ? '1px solid var(--border-light)' : 'none'}}>
+              {post.hero && (
+                <div style={{position:'relative',height:132,overflow:'hidden',borderBottom:'1px solid var(--border)'}}>
+                  <div className="hero-bg" style={{backgroundImage:'url('+post.hero+')',backgroundPosition:'center 42%'}}></div>
+                  <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.05) 60%)'}}></div>
+                  {post.country && (
+                    <div style={{position:'absolute',left:16,bottom:12,display:'flex',alignItems:'center',gap:8}}>
+                      <span style={{fontSize:11,fontWeight:800,textTransform:'uppercase',letterSpacing:'0.1em',color:'#fff',textShadow:'0 1px 6px rgba(0,0,0,0.6)'}}>{post.country}</span>
+                    </div>
+                  )}
                 </div>
-                <div style={{fontSize:10,color:'var(--text3)',marginTop:2}}>
-                  by {post.author_name || 'System'} &middot; {new Date(post.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+              )}
+              <div style={{padding:16}}>
+                <div style={{marginBottom:8}}>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--text)'}}>
+                    {post.title}
+                  </div>
+                  <div style={{fontSize:10,color:'var(--text3)',marginTop:2}}>
+                    by {post.author_name || 'System'} &middot; {new Date(post.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+                  </div>
                 </div>
+                <div className="post-body" dangerouslySetInnerHTML={{__html: post.content}} />
               </div>
-              <div className="post-body" dangerouslySetInnerHTML={{__html: post.content}} />
             </div>
           ))}
         </div>
@@ -2476,7 +2489,19 @@ const NewsPage = ({ onNav }) => {
       ) : (
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
           {posts.map(post => (
-            <div key={post.id} className="card" style={{padding:20,borderLeft:'3px solid var(--accent-warm)'}}>
+            <div key={post.id} className="card" style={{padding:0,overflow:'hidden',borderLeft:'3px solid var(--accent-warm)'}}>
+              {post.hero && (
+                <div style={{position:'relative',height:190,overflow:'hidden'}}>
+                  <div className="hero-bg" style={{backgroundImage:'url('+post.hero+')',backgroundPosition:'center 42%'}}></div>
+                  <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.08) 55%)'}}></div>
+                  {post.country && (
+                    <div style={{position:'absolute',left:20,bottom:14,right:20,display:'flex',alignItems:'center',gap:8}}>
+                      <span className="racing" style={{fontSize:15,color:'#fff',textShadow:'0 1px 8px rgba(0,0,0,0.7)'}}>{post.country}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div style={{padding:20}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
                 <div>
                   <h2 style={{fontSize:18,fontWeight:'800',color:'var(--accent-warm)',marginBottom:4}}>{post.title}</h2>
@@ -2527,6 +2552,7 @@ const NewsPage = ({ onNav }) => {
                   </div>
                 </div>
               )}
+              </div>
             </div>
           ))}
         </div>

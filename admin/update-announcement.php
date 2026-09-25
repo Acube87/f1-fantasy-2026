@@ -27,6 +27,18 @@ if ($isCli) {
 
 $db = getDB();
 
+$authorId = 0;
+if (!$isCli) {
+    $authorId = (int)$user['id'];
+} else {
+    $stmt = $db->prepare("SELECT id FROM users WHERE username = 'Angrycube' LIMIT 1");
+    $stmt->execute();
+    $authorId = (int)($stmt->get_result()->fetch_assoc()['id'] ?? 0);
+}
+if (!$authorId) {
+    die('ERROR: could not resolve an author user id.');
+}
+
 $title = 'Azerbaijan GP Lineup — Hadjar Returns to Red Bull';
 
 $content = '<div class="post-body">'
@@ -56,28 +68,37 @@ $stmt->execute();
 $race = $stmt->get_result()->fetch_assoc();
 $raceId = $race ? (int)$race['id'] : 0;
 
-// Find the existing announcement post (race-linked, author Race Control).
+// Find the existing announcement post (race-linked, same author).
 $existing = null;
 if ($raceId) {
-    $stmt = $db->prepare("SELECT id FROM posts WHERE race_id = ? AND author_id = 3 ORDER BY id DESC LIMIT 1");
-    $stmt->bind_param('i', $raceId);
+    $stmt = $db->prepare("SELECT id FROM posts WHERE race_id = ? AND author_id = ? ORDER BY id DESC LIMIT 1");
+    $stmt->bind_param('ii', $raceId, $authorId);
     $stmt->execute();
     $existing = $stmt->get_result()->fetch_assoc();
 }
 
 $mode = '';
+$error = null;
 if ($apply && $raceId) {
     if ($existing) {
         $stmt = $db->prepare('UPDATE posts SET title = ?, content = ? WHERE id = ?');
         $stmt->bind_param('ssi', $title, $content, $existing['id']);
-        $stmt->execute();
-        $mode = 'updated';
+        if (!$stmt->execute()) {
+            $error = $db->error;
+        } else {
+            $mode = 'updated';
+        }
     } else {
-        $stmt = $db->prepare('INSERT INTO posts (race_id, title, content, author_id, is_manual) VALUES (?, ?, ?, 3, 1)');
-        $stmt->bind_param('iss', $raceId, $title, $content);
-        $stmt->execute();
-        $mode = 'created';
+        $stmt = $db->prepare('INSERT INTO posts (race_id, title, content, author_id, is_manual) VALUES (?, ?, ?, ?, 1)');
+        $stmt->bind_param('issi', $raceId, $title, $content, $authorId);
+        if (!$stmt->execute()) {
+            $error = $db->error;
+        } else {
+            $mode = 'created';
+        }
     }
+} elseif ($apply && !$raceId) {
+    $error = 'Azerbaijan Grand Prix row not found, so there is no race to attach the post to.';
 }
 
 if ($isCli) {
@@ -91,7 +112,13 @@ if ($isCli) {
         echo "Run again with --apply to apply.\n";
         exit(0);
     }
+    if ($error) {
+        echo "ERROR: $error\n";
+        exit(1);
+    }
     echo "APPLIED ($mode): $title\n";
+    $check = $db->query("SELECT p.id, p.race_id, p.author_id, p.title FROM posts p ORDER BY p.id DESC LIMIT 1")->fetch_assoc();
+    echo "VERIFIED: post #{$check['id']} race_id={$check['race_id']} author_id={$check['author_id']}\n";
     exit(0);
 }
 
@@ -125,9 +152,23 @@ $latestTitle = $db->query("SELECT title FROM posts ORDER BY id DESC LIMIT 1")->f
                 briefing (lineup changes + actions users must take before the deadline).
             </p>
 
+            <?php if ($error): ?>
+            <div class="mb-6 p-4 rounded-xl border bg-red-500/10 border-red-500/30 text-red-400">
+                <p class="font-bold text-sm">❌ Publish failed — nothing was saved.</p>
+                <p class="text-xs mt-1 text-red-300/80"><?php echo htmlspecialchars($error); ?></p>
+            </div>
+            <?php endif; ?>
+
             <?php if ($mode): ?>
+            <?php
+            $verify = $db->query("SELECT id, race_id, author_id, created_at FROM posts ORDER BY id DESC LIMIT 1")->fetch_assoc();
+            ?>
             <div class="mb-6 p-4 rounded-xl border bg-green-500/10 border-green-500/30 text-green-400">
                 <p class="font-bold text-sm">✅ Announcement <?php echo $mode; ?> — it's live at the top of the updates feed.</p>
+                <p class="text-xs mt-1 text-green-300/80">
+                    Post #<?php echo (int)$verify['id']; ?> &middot; race #<?php echo (int)$verify['race_id']; ?>
+                    &middot; author #<?php echo (int)$verify['author_id']; ?>
+                </p>
             </div>
             <?php endif; ?>
 
