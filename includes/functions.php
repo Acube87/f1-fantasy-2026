@@ -480,7 +480,7 @@ function getRaceHeroImage($country) {
         'Australia' => 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2070&auto=format&fit=crop',
         'China' => 'https://images.unsplash.com/photo-1618631954937-526e872edb89?q=80&w=2070&auto=format&fit=crop',
         'Japan' => 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop',
-        'Bahrain' => 'https://images.unsplash.com/photo-1517404215738-15263e9f9178?q=80&w=2070&auto=format&fit=crop',
+        'Bahrain' => 'https://media.istockphoto.com/id/497245753/photo/kingdom-of-bahrain-middle-east.jpg?s=2048x2048&w=is&k=20&c=p1_gYOIvZKw6WnsPF1XPcvn__7l_ueoBbH-d9d69P64=',
         'Saudi Arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
         'Saudi arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
         // Miami GP has country='United States' in DB — normalization → 'United states'
