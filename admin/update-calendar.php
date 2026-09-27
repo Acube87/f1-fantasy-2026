@@ -157,31 +157,71 @@ if (!$apply) {
 }
 
 // ---------------------------------------------------------------------- backup
+// Introspect the real schema instead of assuming columns: the live `races`
+// table may not have every column the local one does (e.g. updated_at).
+$schema = array();
+$r = $db->query("SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT
+                 FROM information_schema.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'races'");
+while ($x = $r->fetch_assoc()) { $schema[$x['COLUMN_NAME']] = $x; }
+
 $db->query("CREATE TABLE IF NOT EXISTS races_bak_official2026 LIKE races");
 $have = array();
 $r = $db->query("SELECT id FROM races_bak_official2026");
 while ($x = $r->fetch_assoc()) { $have[(int)$x['id']] = true; }
+
 $backedUp = 0;
 foreach ($before as $id => $row) {
     if (isset($have[$id])) { continue; }
-    $ins = $db->prepare("INSERT INTO races_bak_official2026
-        (id, race_name, circuit_name, country, race_date, race_number, status, f1_race_id, results_fetched, results_fetched_at, created_at, updated_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-    $bId = (int)$row['id'];
-    $bName = (string)$row['race_name'];
-    $bCircuit = (string)$row['circuit_name'];
-    $bCountry = (string)$row['country'];
-    $bDate = (string)$row['race_date'];
-    $bNum = (int)$row['race_number'];
-    $bStatus = (string)$row['status'];
-    $bF1 = null;
-    $bFetched = 0;
-    $bFetchedAt = null;
+
     $bNow = date('Y-m-d H:i:s');
-    $ins->bind_param('issssississs',
-        $bId, $bName, $bCircuit, $bCountry, $bDate, $bNum, $bStatus,
-        $bF1, $bFetched, $bFetchedAt, $bNow, $bNow);
-    $ins->execute();
+    $wanted = array(
+        'id' => (int)$row['id'],
+        'race_name' => (string)$row['race_name'],
+        'circuit_name' => (string)$row['circuit_name'],
+        'country' => (string)$row['country'],
+        'race_date' => (string)$row['race_date'],
+        'race_number' => (int)$row['race_number'],
+        'status' => (string)$row['status'],
+        'f1_race_id' => null,
+        'results_fetched' => 0,
+        'results_fetched_at' => null,
+        'created_at' => $bNow,
+        'updated_at' => $bNow,
+    );
+
+    $useCols = array();
+    $useVals = array();
+    $types = '';
+    foreach ($schema as $col => $meta) {
+        if (!array_key_exists($col, $wanted)) { continue; }
+        $v = $wanted[$col];
+        if ($v === null) {
+            if ($meta['IS_NULLABLE'] === 'NO') {
+                if ($meta['COLUMN_DEFAULT'] !== null) {
+                    $v = $meta['COLUMN_DEFAULT'];
+                } else {
+                    $v = (strpos($meta['DATA_TYPE'], 'int') !== false) ? 0 : '';
+                }
+            }
+        }
+        if ($v === null) { $types .= 's'; } else { $types .= (is_int($v) ? 'i' : 's'); }
+        $useCols[] = $col;
+        $useVals[] = $v;
+    }
+
+    $sql = "INSERT INTO races_bak_official2026 (" . implode(',', $useCols) . ") VALUES ("
+        . implode(',', array_fill(0, count($useCols), '?')) . ")";
+    $ins = $db->prepare($sql);
+    $refs = array();
+    foreach ($useVals as $k => $v) { $refs[$k] = &$useVals[$k]; }
+    array_unshift($refs, $types);
+    call_user_func_array(array($ins, 'bind_param'), $refs);
+    if (!$ins->execute()) {
+        out("!! BACKUP FAILED for race id $id: " . $ins->error);
+        out("!! No changes have been written. Aborting so nothing is lost.");
+        exit(1);
+    }
     $backedUp++;
 }
 out("Backed up $backedUp row(s) into races_bak_official2026.");
