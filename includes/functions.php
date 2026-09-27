@@ -498,7 +498,7 @@ function getRaceHeroImage($country) {
         'Netherlands' => 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?q=80&w=2070&auto=format&fit=crop',
         'Italy' => 'https://images.unsplash.com/photo-1529260830199-42c24126f198?q=80&w=2070&auto=format&fit=crop',
         'Azerbaijan' => 'https://images.unsplash.com/photo-1744701821206-15eef2edcb1e?q=80&w=2070&auto=format&fit=crop',
-        'Singapore' => 'https://images.unsplash.com/photo-1525625230556-3a56cc544253?q=80&w=2070&auto=format&fit=crop',
+        'Singapore' => 'https://images.unsplash.com/photo-1600086695646-e3bcbca775a4?q=80&w=2070&auto=format&fit=crop',
         'Usa' => 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?q=80&w=2070&auto=format&fit=crop',
         'USA' => 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?q=80&w=2070&auto=format&fit=crop',
         'Mexico' => 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?q=80&w=2070&auto=format&fit=crop',
