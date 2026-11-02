@@ -136,7 +136,7 @@ switch ($type) {
         if ($lrStmt && $lr = $lrStmt->fetch_assoc()) {
             $lastRaceInfo = $lr;
             $lastRaceInfo['flag'] = getRaceFlag($lr['country']);
-            $lastRaceInfo['hero'] = getRaceHeroImage($lr['country']);
+            $lastRaceInfo['hero'] = getRaceHeroImage($lr);
             $myScoreStmt = $db->prepare("SELECT total_points, driver_points, top3_bonus, constructor_points FROM scores WHERE user_id = ? AND race_id = ?");
             $myScoreStmt->bind_param("ii", $userId, $lr['id']);
             $myScoreStmt->execute();
@@ -214,7 +214,7 @@ switch ($type) {
                 'race_date' => $nextRace['race_date'],
                 'race_number' => $nextRace['race_number'],
                 'flag' => getRaceFlag($nextRace['country']),
-                'hero' => getRaceHeroImage($nextRace['country']),
+                'hero' => getRaceHeroImage($nextRace),
             ] : null,
             'predictionStatus' => $predictionStatus,
             'predictionsOpen' => $predictionsOpen,
@@ -254,7 +254,7 @@ switch ($type) {
         }
         $posts = [];
         $stmt = $db->prepare("
-            SELECT p.id, p.race_id, p.title, p.content, p.created_at, r.race_name, r.country, u.username, p.is_manual,
+            SELECT p.id, p.race_id, p.title, p.content, p.created_at, r.race_name, r.country, r.circuit_name, u.username, p.is_manual,
                    (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) as like_count,
                    (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id) as comment_count,
                    (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id AND user_id = ?) as user_liked
@@ -267,7 +267,7 @@ switch ($type) {
         $stmt->execute();
         $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         foreach ($posts as &$p) {
-            $p['hero'] = $p['country'] ? getRaceHeroImage($p['country']) : null;
+            $p['hero'] = $p['country'] ? getRaceHeroImage($p) : null;
         }
         unset($p);
         echo json_encode([
@@ -427,7 +427,7 @@ switch ($type) {
                 'circuit_name' => $race['circuit_name'],
                 'race_date' => $race['race_date'],
                 'flag' => getRaceFlag($race['country']),
-                'hero' => getRaceHeroImage($race['country']),
+                'hero' => getRaceHeroImage($race),
             ],
             'drivers' => $drivers,
             'existingPredictions' => $predictions,
@@ -468,7 +468,7 @@ switch ($type) {
                         'race_date' => $r['race_date'],
                         'status' => $r['status'],
                         'flag' => getRaceFlag($r['country']),
-                        'hero' => getRaceHeroImage($r['country']),
+                        'hero' => getRaceHeroImage($r),
                     ];
                 }
             }
@@ -591,7 +591,7 @@ switch ($type) {
                 'circuit_name' => $race['circuit_name'],
                 'race_date' => $race['race_date'],
                 'flag' => getRaceFlag($race['country']),
-                'hero' => getRaceHeroImage($race['country']),
+                'hero' => getRaceHeroImage($race),
             ],
             'hasResults' => $hasResults,
             'predictions' => $predictions,
@@ -846,7 +846,7 @@ switch ($type) {
         if ($tableCheck && $tableCheck->num_rows > 0) {
             $postStmt = $db->query("
                 SELECT p.id, p.title, p.race_id, p.content, p.created_at, p.is_manual,
-                       r.race_name, r.country, u.username as author_name
+                       r.race_name, r.country, r.circuit_name, u.username as author_name
                 FROM posts p 
                 LEFT JOIN races r ON p.race_id = r.id 
                 LEFT JOIN users u ON p.author_id = u.id 
@@ -855,7 +855,7 @@ switch ($type) {
             ");
             if ($postStmt) {
                 while ($row = $postStmt->fetch_assoc()) {
-                    $row['hero'] = $row['country'] ? getRaceHeroImage($row['country']) : null;
+                    $row['hero'] = $row['country'] ? getRaceHeroImage($row) : null;
                     $debriefs[] = $row;
                 }
             }

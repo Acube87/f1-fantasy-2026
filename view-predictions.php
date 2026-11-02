@@ -144,7 +144,7 @@ if (!$gatedPage) {
 $isMe = ($currentUser['id'] === $targetUserId);
 $displayName = htmlspecialchars($targetUser['username']);
 $raceFlag = getRaceFlag($race['country'] ?? '');
-$raceHero = getRaceHeroImage($race['country'] ?? '');
+$raceHero = getRaceHeroImage($race);
 $isDoublePoints = isDoublePointsRace($race);
 $raceDate = new DateTime($race['race_date']);
 $raceDateFormatted = $raceDate->format('j F Y');
@@ -428,7 +428,7 @@ $F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
         <!-- Hero Banner (just image) -->
         <div class="hero" style="height:220px;margin-bottom:0">
             <?php if ($raceHero): ?>
-            <div class="hero-bg" style="background-image:url('<?php echo $raceHero; ?>')"></div>
+            <div class="hero-bg" style="background-image:url('<?php echo htmlspecialchars($raceHero, ENT_QUOTES); ?>'),url('/assets/heroes/fallback.svg')"></div>
             <?php endif; ?>
             <div class="hero-overlay"></div>
         </div>

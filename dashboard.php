@@ -311,7 +311,7 @@ if ($cr) $completedRaces = (int)$cr->fetch_assoc()['c'];
 
         <!-- Hero Race Display -->
         <div class="hero-display">
-            <div class="hero-bg" style="background-image:url('<?php echo getRaceHeroImage($nextRace['country'] ?? ''); ?>');"></div>
+            <div class="hero-bg" style="background-image:url('<?php echo htmlspecialchars(getRaceHeroImage($nextRace ?? ''), ENT_QUOTES); ?>'),url('/assets/heroes/fallback.svg');"></div>
             <div class="hero-overlay"></div>
             <div class="hero-content">
                 <?php if ($nextRace): ?>

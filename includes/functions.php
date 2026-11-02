@@ -469,9 +469,21 @@ function getUserStats($userId) {
 }
 
 /**
- * Get dynamic hero image based on country
+ * Get a race hero, preferring circuit identity where countries host multiple GPs.
+ * Accept a country string for older callers, or a full race row.
  */
-function getRaceHeroImage($country) {
+function getRaceHeroImage($race) {
+    $country = is_array($race) ? ($race['country'] ?? '') : (string)$race;
+    $circuit = is_array($race) ? trim($race['circuit_name'] ?? '') : '';
+    $raceName = is_array($race) ? trim($race['race_name'] ?? '') : '';
+    if ($circuit === 'Circuit of the Americas' || $raceName === 'United States Grand Prix') {
+        return '/assets/heroes/austin.webp';
+    }
+    if ($circuit === 'Miami International Autodrome' || $raceName === 'Miami Grand Prix') {
+        $country = 'Miami';
+    } elseif ($circuit === 'Las Vegas Strip Circuit' || $raceName === 'Las Vegas Grand Prix') {
+        $country = 'Las Vegas';
+    }
     // normalize the country string so keys are matched reliably
     $key = trim($country);
     $key = ucfirst(strtolower($key));
@@ -483,8 +495,7 @@ function getRaceHeroImage($country) {
         'Bahrain' => 'https://images.unsplash.com/photo-1547548731-e95343697eb4?q=80&w=2532&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         'Saudi Arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
         'Saudi arabia' => 'https://images.unsplash.com/photo-1551041777-ed07f99c67d1?q=80&w=2070&auto=format&fit=crop',
-        // Miami GP has country='United States' in DB — normalization → 'United states'
-        'United states' => 'https://images.unsplash.com/photo-1617170788758-725d9475a32b?q=80&w=2070&auto=format&fit=crop',
+        'United states' => '/assets/heroes/austin.webp',
         'Miami' => 'https://images.unsplash.com/photo-1617170788758-725d9475a32b?q=80&w=2070&auto=format&fit=crop',
         'Monaco' => 'https://images.unsplash.com/photo-1641491095983-f41553fc6db9?q=80&w=2832&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         'Canada' => 'https://images.unsplash.com/photo-1610141353646-14306dc6a9ab?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -499,10 +510,9 @@ function getRaceHeroImage($country) {
         'Italy' => 'https://images.unsplash.com/photo-1529260830199-42c24126f198?q=80&w=2070&auto=format&fit=crop',
         'Azerbaijan' => 'https://images.unsplash.com/photo-1744701821206-15eef2edcb1e?q=80&w=2070&auto=format&fit=crop',
         'Singapore' => 'https://images.unsplash.com/photo-1600086695646-e3bcbca775a4?q=80&w=2070&auto=format&fit=crop',
-        'Usa' => 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?q=80&w=2070&auto=format&fit=crop',
-        'USA' => 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?q=80&w=2070&auto=format&fit=crop',
+        'Usa' => '/assets/heroes/austin.webp',
         'Mexico' => 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?q=80&w=2070&auto=format&fit=crop',
-        'Brazil' => 'https://images.unsplash.com/photo-1483728642387-aa95229753c4?q=80&w=2070&auto=format&fit=crop',
+        'Brazil' => '/assets/heroes/brazil.webp',
         'Las Vegas' => 'https://images.unsplash.com/photo-1581351123004-757df051db8e?q=80&w=2070&auto=format&fit=crop',
         'Las vegas' => 'https://images.unsplash.com/photo-1581351123004-757df051db8e?q=80&w=2070&auto=format&fit=crop',
         'Qatar' => 'https://images.unsplash.com/photo-1511222409051-bd12c6686146?q=80&w=2070&auto=format&fit=crop',
@@ -514,8 +524,7 @@ function getRaceHeroImage($country) {
         return $images[$key];
     }
 
-    // Generic fallback — motorsport image
-    return 'https://images.unsplash.com/photo-1678919225767-c2d4dff33ab4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fGVufHx8fA%3D%3D';
+    return '/assets/heroes/fallback.svg';
 }
 
 /**

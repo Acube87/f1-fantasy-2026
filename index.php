@@ -113,7 +113,7 @@ h3,.h3{font-weight:600;letter-spacing:-0.01em;line-height:1.3}
 @media(max-width:768px){.page{padding:72px 12px 40px}}
 /* ===== FLOATING ACTIONS ===== */
 .hero{position:relative;height:280px;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-color:#1a1a2e;background-image:linear-gradient(135deg,#1a1a2e,#16213e)}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-color:#1a1a2e;background-image:url(/assets/heroes/fallback.svg)}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.5) 100%)}
 .race-info{background:var(--surface);border:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:24px}
 .race-info-left{flex:1;min-width:0}
@@ -313,6 +313,15 @@ const getAvatarUrl = (style, seed) => {
 
 const I = ({ n, s }) => React.createElement('i', { className: 'fa-solid fa-' + n, style: s });
 
+// Keep a local image underneath each photo, including while loading or on failure.
+const RaceHeroBackground = ({ src, position = 'center' }) => (
+  <div className="hero-bg" style={{
+    backgroundImage: [src && `url(${JSON.stringify(src)})`, 'url(/assets/heroes/fallback.svg)'].filter(Boolean).join(', '),
+    backgroundPosition: position
+  }} />
+);
+
+
 
 const LoginModal = ({ onClose, onAuth, defaultTab }) => {
   const [tab, setTab] = useState(defaultTab || 'login');
@@ -485,7 +494,7 @@ const Dashboard = ({ onNav }) => {
 
       {/* ===== HERO (just image) ===== */}
       <div className="hero">
-        <div className="hero-bg" style={heroBg ? {backgroundImage:'url('+heroBg+')'} : {}}></div>
+        <RaceHeroBackground src={heroBg} />
         <div className="hero-overlay"></div>
       </div>
 
@@ -1215,7 +1224,7 @@ const PredictPage = ({ onNav }) => {
 
       {/* ===== HERO (just image) ===== */}
       <div className="hero">
-        <div className="hero-bg" style={nr?.hero ? {backgroundImage:'url('+nr.hero+')'} : {}}></div>
+        <RaceHeroBackground src={nr?.hero} />
         <div className="hero-overlay"></div>
       </div>
 
@@ -1393,7 +1402,7 @@ const ResultsPage = ({ onNav }) => {
     <div className="page">
       {/* ===== HERO ===== */}
       <div className="hero" style={{height:200}}>
-        <div className="hero-bg" style={r?.hero ? {backgroundImage:'url('+r.hero+')'} : {}}></div>
+        <RaceHeroBackground src={r?.hero} />
         <div className="hero-overlay"></div>
       </div>
 
@@ -1821,7 +1830,7 @@ const AchievementsPage = () => {
     <div className="page">
       {/* Hero */}
       <div className="hero">
-        <div className="hero-bg" style={{backgroundImage:'url(https://images.unsplash.com/photo-1678919225767-c2d4dff33ab4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fGVufHx8fA%3D%3D)'}}></div>
+        <RaceHeroBackground src="https://images.unsplash.com/photo-1678919225767-c2d4dff33ab4?q=80&w=2070&auto=format&fit=crop" />
         <div className="hero-overlay"></div>
       </div>
 
@@ -2046,7 +2055,7 @@ const UpdatesPage = ({ onNav }) => {
             <div key={post.id} style={{borderBottom:i < d.debriefs.length - 1 ? '1px solid var(--border-light)' : 'none'}}>
               {post.hero && (
                 <div style={{position:'relative',height:132,overflow:'hidden',borderBottom:'1px solid var(--border)'}}>
-                  <div className="hero-bg" style={{backgroundImage:'url('+post.hero+')',backgroundPosition:'center 42%'}}></div>
+                  <RaceHeroBackground src={post.hero} position="center 42%" />
                   <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.05) 60%)'}}></div>
                   {post.country && (
                     <div style={{position:'absolute',left:16,bottom:12,display:'flex',alignItems:'center',gap:8}}>
@@ -2492,7 +2501,7 @@ const NewsPage = ({ onNav }) => {
             <div key={post.id} className="card" style={{padding:0,overflow:'hidden',borderLeft:'3px solid var(--accent-warm)'}}>
               {post.hero && (
                 <div style={{position:'relative',height:190,overflow:'hidden'}}>
-                  <div className="hero-bg" style={{backgroundImage:'url('+post.hero+')',backgroundPosition:'center 42%'}}></div>
+                  <RaceHeroBackground src={post.hero} position="center 42%" />
                   <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.08) 55%)'}}></div>
                   {post.country && (
                     <div style={{position:'absolute',left:20,bottom:14,right:20,display:'flex',alignItems:'center',gap:8}}>
