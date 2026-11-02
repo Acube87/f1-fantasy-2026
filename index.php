@@ -2130,6 +2130,8 @@ const UpdatesPage = ({ onNav }) => {
 const AdminPage = () => {
   const [races, setRaces] = useState([]);
   const [drivers, setDrivers] = useState([]);
+  const [driversByRace, setDriversByRace] = useState({});
+  const baseDrivers = useRef([]);
   const [raceId, setRaceId] = useState('');
   const [pasteText, setPasteText] = useState('');
   const [matches, setMatches] = useState([]);
@@ -2143,9 +2145,17 @@ const AdminPage = () => {
       if (d.error) return;
       setRaces(d.races || []);
       setDrivers(d.drivers || []);
+      baseDrivers.current = d.drivers || [];
+      setDriversByRace(d.driversByRace || {});
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    setDrivers(driversByRace[raceId] || baseDrivers.current);
+    setPasteText('');
+    setDetectedCount(0);
+  }, [raceId, driversByRace]);
 
   useEffect(() => {
     if (drivers.length > 0) {
@@ -2277,6 +2287,12 @@ const AdminPage = () => {
             ))}
           </select>
         </div>
+
+        {races.find(r => String(r.id) === String(raceId))?.substitution_note && (
+          <p style={{marginBottom:20,color:'var(--live)',fontSize:13}}>
+            {races.find(r => String(r.id) === String(raceId)).substitution_note}
+          </p>
+        )}
 
         {/* Step 2: Parser */}
         <div style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:16,marginBottom:24}}>

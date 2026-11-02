@@ -92,6 +92,7 @@ if ($isPredictionOpen) {
 $stmt = $db->prepare("SELECT id, driver_name, team FROM drivers ORDER BY team, driver_name");
 $stmt->execute();
 $drivers = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$drivers = raceDriverNames($race, $drivers);
 
 // Get existing predictions for this race
 $predictions = [];

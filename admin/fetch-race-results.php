@@ -6,6 +6,7 @@
  */
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/driver-substitutions.php';
 require_once __DIR__ . '/../includes/achievements.php';
 
 // Allow running from command line or web
@@ -95,7 +96,7 @@ foreach ($racesToFetch as $race) {
     
     // Insert each result
     foreach ($results as $result) {
-        $driverId = $result['Driver']['driverId'];
+        $driverId = raceDriverSlotId($race, $result['Driver']['driverId']);
         $driverName = $result['Driver']['givenName'] . ' ' . $result['Driver']['familyName'];
         $constructorId = $result['Constructor']['constructorId'];
         $constructorName = $result['Constructor']['name'];

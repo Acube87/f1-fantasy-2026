@@ -17,6 +17,7 @@
  *   php admin/driver-swap.php --race=14 --swap=hadjar:lawson --in-team="Red Bull Racing" --out-team="Reserve" --apply
  */
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/driver-substitutions.php';
 
 $isCli = (PHP_SAPI === 'cli');
 
@@ -87,6 +88,20 @@ function report($msg, $isCli = false) {
 
 /** Apply the substitution: roster updates + prediction rewrite, in one transaction. */
 function applySwap($db, $raceId, $rows, $inTeam, $outTeam) {
+    $raceStmt = $db->prepare("SELECT country, race_date FROM races WHERE id = ?");
+    $raceStmt->bind_param('i', $raceId);
+    $raceStmt->execute();
+    $swapRace = $raceStmt->get_result()->fetch_assoc();
+    if (!$swapRace) throw new Exception('Race not found.');
+    $automaticSwaps = getRaceDriverSubstitutions($swapRace);
+    foreach ($rows as $row) {
+        foreach ($automaticSwaps as $slot => $replacement) {
+            if (in_array($row['outgoing'], [$slot, $replacement['id']], true)
+                || in_array($row['incoming'], [$slot, $replacement['id']], true)) {
+                throw new Exception(raceDriverSubstitutionNote($swapRace) . ' Select this race in Race Control and enter the replacement driver’s result; no manual swap is needed.');
+            }
+        }
+    }
     $summary = ['roster' => [], 'prediction_rewrites' => 0, 'conflict_expunges' => 0];
     $db->begin_transaction();
     try {
@@ -132,17 +147,17 @@ function applySwap($db, $raceId, $rows, $inTeam, $outTeam) {
             $userIds = array_column($affected->get_result()->fetch_all(MYSQLI_ASSOC), 'user_id');
 
             if (!empty($userIds)) {
-                // If a user ALSO already picked the incoming driver, we keep THEIR explicit
-                // pick and drop the outgoing duplicate instead (they lose a dead slot,
-                // but keep the driver they actually wanted).
-                // Otherwise, re-point the outgoing pick at the incoming driver.
-                $expunge = $db->prepare("DELETE p
+                // Never discard a user's slot to resolve a duplicate replacement.
+                $conflict = $db->prepare("SELECT p.id
                     FROM predictions p
                     JOIN predictions inp
                       ON inp.race_id = p.race_id AND inp.user_id = p.user_id AND inp.driver_id = ?
-                    WHERE p.race_id = ? AND p.driver_id = ?");
-                $expunge->bind_param('sis', $inId, $raceId, $outId);
-                $summary['conflict_expunges'] += $expunge->execute() ? $db->affected_rows : 0;
+                    WHERE p.race_id = ? AND p.driver_id = ? LIMIT 1");
+                $conflict->bind_param('sis', $inId, $raceId, $outId);
+                $conflict->execute();
+                if ($conflict->get_result()->num_rows > 0) {
+                    throw new Exception('A user has picked both drivers. Swap cancelled; every prediction and roster entry has been preserved.');
+                }
 
                 // Point any remaining outgoing predictions at the incoming driver.
                 $rewrite = $db->prepare("UPDATE predictions SET driver_id = ?, driver_name = ? WHERE race_id = ? AND driver_id = ?");

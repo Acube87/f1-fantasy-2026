@@ -146,12 +146,13 @@ switch ($type) {
         // Most picked race winner (P1) for last completed race
         $mostPickedWinner = null;
         if ($lastRaceInfo) {
-            $mpStmt = $db->prepare("SELECT p.driver_name, COUNT(*) as cnt FROM predictions p WHERE p.race_id = ? AND p.predicted_position = 1 GROUP BY p.driver_id, p.driver_name ORDER BY cnt DESC LIMIT 1");
+            $mpStmt = $db->prepare("SELECT p.driver_id, p.driver_name, COUNT(*) as cnt FROM predictions p WHERE p.race_id = ? AND p.predicted_position = 1 GROUP BY p.driver_id, p.driver_name ORDER BY cnt DESC LIMIT 1");
             $rid = (int)$lastRaceInfo['id'];
             $mpStmt->bind_param("i", $rid);
             $mpStmt->execute();
             $mpRes = $mpStmt->get_result()->fetch_assoc();
             if ($mpRes) {
+                $mpRes = raceDriverNames($lastRaceInfo, [$mpRes])[0];
                 $tpStmt = $db->prepare("SELECT COUNT(DISTINCT user_id) as total FROM predictions WHERE race_id = ?");
                 $tpStmt->bind_param("i", $rid);
                 $tpStmt->execute();
@@ -163,12 +164,13 @@ switch ($type) {
         // Most picked race winner (P1) for next race
         $mostPickedNextWinner = null;
         if ($nextRace) {
-            $mnStmt = $db->prepare("SELECT p.driver_name, COUNT(*) as cnt FROM predictions p WHERE p.race_id = ? AND p.predicted_position = 1 GROUP BY p.driver_id, p.driver_name ORDER BY cnt DESC LIMIT 1");
+            $mnStmt = $db->prepare("SELECT p.driver_id, p.driver_name, COUNT(*) as cnt FROM predictions p WHERE p.race_id = ? AND p.predicted_position = 1 GROUP BY p.driver_id, p.driver_name ORDER BY cnt DESC LIMIT 1");
             $nrid = (int)$nextRace['id'];
             $mnStmt->bind_param("i", $nrid);
             $mnStmt->execute();
             $mnRes = $mnStmt->get_result()->fetch_assoc();
             if ($mnRes) {
+                $mnRes = raceDriverNames($nextRace, [$mnRes])[0];
                 $tnStmt = $db->prepare("SELECT COUNT(DISTINCT user_id) as total FROM predictions WHERE race_id = ?");
                 $tnStmt->bind_param("i", $nrid);
                 $tnStmt->execute();
@@ -187,6 +189,7 @@ switch ($type) {
             $pStmt->bind_param("ii", $userId, $nextRace['id']);
             $pStmt->execute();
             $userPicks = $pStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $userPicks = raceDriverNames($nextRace, $userPicks);
         }
         
         // Players count
@@ -283,10 +286,17 @@ switch ($type) {
         }
         $races = $db->query("SELECT id, race_name, country, race_date, status FROM races ORDER BY race_date ASC")->fetch_all(MYSQLI_ASSOC);
         $drivers = $db->query("SELECT id, driver_name, team FROM drivers ORDER BY team, driver_name")->fetch_all(MYSQLI_ASSOC);
+        $driversByRace = [];
+        foreach ($races as &$adminRace) {
+            $driversByRace[$adminRace['id']] = raceDriverNames($adminRace, $drivers);
+            $adminRace['substitution_note'] = raceDriverSubstitutionNote($adminRace);
+        }
+        unset($adminRace);
         echo json_encode([
             'auth' => getUserData($user),
             'races' => $races,
             'drivers' => $drivers,
+            'driversByRace' => $driversByRace,
         ]);
         break;
 
@@ -355,6 +365,7 @@ switch ($type) {
         $stmt = $db->prepare("SELECT id, driver_name, team FROM drivers WHERE team NOT LIKE '%Reserve%' OR team IS NULL ORDER BY team, driver_name");
         $stmt->execute();
         $drivers = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $drivers = raceDriverNames($race, $drivers);
 
         // Get existing predictions for this race
         $predictions = [];
@@ -510,6 +521,7 @@ switch ($type) {
         $stmt->bind_param("ii", $userId, $raceId);
         $stmt->execute();
         $predictions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $predictions = raceDriverNames($race, $predictions);
 
         // Get actual race results
         $stmt = $db->prepare("

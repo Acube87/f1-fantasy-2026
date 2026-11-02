@@ -56,6 +56,7 @@ $stmt = $db->prepare("
 $stmt->bind_param("ii", $userId, $raceId);
 $stmt->execute();
 $predictions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$predictions = raceDriverNames($race, $predictions);
 
 // Get actual race results
 $stmt = $db->prepare("

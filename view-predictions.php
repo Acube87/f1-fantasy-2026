@@ -142,6 +142,7 @@ if (!$gatedPage) {
 }
 
 $isMe = ($currentUser['id'] === $targetUserId);
+$predictions = raceDriverNames($race, $predictions);
 $displayName = htmlspecialchars($targetUser['username']);
 $raceFlag = getRaceFlag($race['country'] ?? '');
 $raceHero = getRaceHeroImage($race);

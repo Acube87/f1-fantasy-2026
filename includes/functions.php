@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/driver-substitutions.php';
 
 /**
  * Fetch F1 race results from API
@@ -8,7 +9,7 @@ function fetchRaceResults($raceId) {
     $db = getDB();
     
     // Get race info
-    $stmt = $db->prepare("SELECT race_number, f1_race_id FROM races WHERE id = ?");
+    $stmt = $db->prepare("SELECT race_number, f1_race_id, country, race_date FROM races WHERE id = ?");
     $stmt->bind_param("i", $raceId);
     $stmt->execute();
     $race = $stmt->get_result()->fetch_assoc();
@@ -51,7 +52,7 @@ function fetchRaceResults($raceId) {
     $insertStmt = $db->prepare("INSERT INTO race_results (race_id, driver_id, driver_name, constructor_id, constructor_name, position, points, fastest_lap, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
     foreach ($results as $result) {
-        $driverId = $result['Driver']['driverId'] ?? '';
+        $driverId = raceDriverSlotId($race, $result['Driver']['driverId'] ?? '');
         $driverName = ($result['Driver']['givenName'] ?? '') . ' ' . ($result['Driver']['familyName'] ?? '');
         $constructorId = $result['Constructor']['constructorId'] ?? '';
         $constructorName = $result['Constructor']['name'] ?? '';

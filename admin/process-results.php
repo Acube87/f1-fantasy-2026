@@ -11,10 +11,10 @@ if (!isAdmin()) {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-$raceId = $data['race_id'] ?? null;
+$raceId = filter_var($data['race_id'] ?? null, FILTER_VALIDATE_INT);
 $results = $data['results'] ?? []; // pos => driver_id
 
-if (!$raceId || empty($results)) {
+if (!$raceId || $raceId < 1 || !is_array($results) || empty($results)) {
     echo json_encode(['success' => false, 'message' => 'Missing race ID or results data']);
     exit;
 }
@@ -22,8 +22,6 @@ if (!$raceId || empty($results)) {
 $db = getDB();
 
 try {
-    $db->begin_transaction();
-
     // 1. Get Race Details
     $stmt = $db->prepare("SELECT * FROM races WHERE id = ?");
     $stmt->bind_param("i", $raceId);
@@ -31,6 +29,11 @@ try {
     $race = $stmt->get_result()->fetch_assoc();
 
     if (!$race) throw new Exception("Race not found");
+
+    $drivers = $db->query("SELECT id, driver_name, team FROM drivers ORDER BY team, driver_name")->fetch_all(MYSQLI_ASSOC);
+    $drivers = raceDriverNames($race, $drivers);
+    $results = normalizeRaceClassification($race, $results, $drivers);
+    $driverMap = array_column($drivers, null, 'id');
 
     // 1.5 Auto-migrate race_results table if columns are missing (Railway DB compatibility)
     // Check and add columns independently to prevent duplicate column crashed
@@ -54,19 +57,22 @@ try {
         $db->query("ALTER TABLE scores ADD COLUMN constructor_points INT DEFAULT 0 AFTER driver_points");
     }
 
+    // MySQL DDL commits implicitly. Start the data transaction AFTER compatibility migrations.
+    $db->begin_transaction();
+
     // 2. Clear Existing Results
-    $db->query("DELETE FROM race_results WHERE race_id = $raceId");
+    $delete = $db->prepare("DELETE FROM race_results WHERE race_id = ?");
+    $delete->bind_param('i', $raceId);
+    $delete->execute();
 
     // 3. Insert New Results
     $f1Points = [1 => 25, 2 => 18, 3 => 15, 4 => 12, 5 => 10, 6 => 8, 7 => 6, 8 => 4, 9 => 2, 10 => 1];
     $stmt = $db->prepare("INSERT INTO race_results (race_id, driver_id, driver_name, constructor_name, position, points, status) VALUES (?, ?, ?, ?, ?, ?, 'Finished')");
     
     foreach ($results as $pos => $driverId) {
-        // Fetch driver details for recording
-        $dStmt = $db->prepare("SELECT driver_name, team FROM drivers WHERE id = ?");
-        $dStmt->bind_param("s", $driverId);
-        $dStmt->execute();
-        $driver = $dStmt->get_result()->fetch_assoc();
+        // A race replacement keeps the original prediction slot and constructor,
+        // with the replacement's name stored in the race classification.
+        $driver = $driverMap[$driverId];
         
         if ($driver) {
             $pts = $f1Points[$pos] ?? 0;
@@ -96,7 +102,7 @@ try {
     $db->commit();
     echo json_encode(['success' => true]);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     if (isset($db)) $db->rollback();
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

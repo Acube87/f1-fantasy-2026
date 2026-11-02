@@ -28,6 +28,12 @@ $races = $stmt->fetch_all(MYSQLI_ASSOC);
 // Fetch all drivers for the manual selection
 $stmt = $db->query("SELECT id, driver_name, team FROM drivers ORDER BY team, driver_name");
 $drivers = $stmt->fetch_all(MYSQLI_ASSOC);
+$driversByRace = [];
+$substitutionNotes = [];
+foreach ($races as $race) {
+    $driversByRace[$race['id']] = raceDriverNames($race, $drivers);
+    $substitutionNotes[$race['id']] = raceDriverSubstitutionNote($race);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -113,6 +119,7 @@ $drivers = $stmt->fetch_all(MYSQLI_ASSOC);
                     </option>
                 <?php endforeach; ?>
             </select>
+            <p id="substitutionNote" style="display:none;margin-top:12px;color:var(--live);font-size:13px"></p>
         </div>
 
         <!-- STEP 2: Parser -->
@@ -182,7 +189,22 @@ $drivers = $stmt->fetch_all(MYSQLI_ASSOC);
     <style id="detectStyle"></style>
 
     <script>
-        const driversList = <?php echo json_encode($drivers); ?>;
+        let driversList = <?php echo json_encode($drivers); ?>;
+        const driversByRace = <?php echo json_encode($driversByRace); ?>;
+        const substitutionNotes = <?php echo json_encode($substitutionNotes); ?>;
+        document.getElementById('raceSelect').addEventListener('change', function () {
+            driversList = driversByRace[this.value] || <?php echo json_encode($drivers); ?>;
+            document.querySelectorAll('.driver-select').forEach(select => {
+                const value = select.value;
+                select.replaceChildren(new Option('-- No driver --', ''));
+                driversList.forEach(driver => select.add(new Option(driver.driver_name, driver.id)));
+                select.value = value;
+            });
+            const note = document.getElementById('substitutionNote');
+            note.textContent = substitutionNotes[this.value] || '';
+            note.style.display = note.textContent ? 'block' : 'none';
+            if (document.getElementById('resultsPaste').value.trim()) autoParse();
+        });
 
         function clearParser() {
             document.getElementById('resultsPaste').value = "";
@@ -196,7 +218,18 @@ $drivers = $stmt->fetch_all(MYSQLI_ASSOC);
             const selectors = document.querySelectorAll('.driver-select');
             
             // Temporary clear logic
-            selectors.forEach(s => s.value = "");
+            selectors.forEach(s => {
+                s.value = "";
+                const pos = s.getAttribute('data-pos');
+                const row = document.getElementById(`row-${pos}`);
+                const status = document.getElementById(`status-${pos}`);
+                row.style.opacity = '0.5';
+                row.style.borderColor = 'var(--border)';
+                row.style.background = 'var(--surface)';
+                status.textContent = 'Standby';
+                status.style.color = 'var(--text3)';
+                status.style.fontWeight = '500';
+            });
             
             let detectedCount = 0;
 
@@ -205,7 +238,7 @@ $drivers = $stmt->fetch_all(MYSQLI_ASSOC);
                 const posMatch = line.match(/^(\d+)/);
                 const targetPos = posMatch ? parseInt(posMatch[1]) : (index + 1);
                 
-                if (targetPos > driversList.length) return;
+                if (targetPos < 1 || targetPos > driversList.length) return;
 
                 // Strip numbers and common noise, then normalize accents (ü -> u, é -> e)
                 let cleanLine = line.replace(/^\d+/, '').replace(/[+\-]?\d+[:.]\d+[:.]?\d*/g, '').toLowerCase().trim();
