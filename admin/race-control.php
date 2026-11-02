@@ -34,6 +34,9 @@ foreach ($races as $race) {
     $driversByRace[$race['id']] = raceDriverNames($race, $drivers);
     $substitutionNotes[$race['id']] = raceDriverSubstitutionNote($race);
 }
+$selectedRaceId = (int)($_GET['race_id'] ?? 0);
+$displayDrivers = $driversByRace[$selectedRaceId] ?? $drivers;
+header('Cache-Control: no-store, max-age=0');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -114,7 +117,7 @@ foreach ($races as $race) {
                 <?php foreach ($races as $race): 
                     $statusLabel = $race['status'] === 'completed' ? '✅ DONE' : '🔓 UPCOMING';
                 ?>
-                    <option value="<?php echo $race['id']; ?>">
+                    <option value="<?php echo $race['id']; ?>" <?php echo (int)$race['id'] === $selectedRaceId ? 'selected' : ''; ?>>
                         <?php echo $statusLabel; ?> — RD <?php echo $race['id']; ?> — <?php echo htmlspecialchars($race['race_name']); ?> (<?php echo date('M d', strtotime($race['race_date'])); ?>)
                     </option>
                 <?php endforeach; ?>
@@ -156,7 +159,7 @@ foreach ($races as $race) {
                                 <span style="width:28px;text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:var(--text3)">#<?php echo $i; ?></span>
                                 <select data-pos="<?php echo $i; ?>" class="driver-select" style="flex:1;padding:6px 10px;font-size:12px">
                                     <option value="">-- No driver --</option>
-                                    <?php foreach ($drivers as $d): ?>
+                                    <?php foreach ($displayDrivers as $d): ?>
                                         <option value="<?php echo $d['id']; ?>">
                                             <?php echo htmlspecialchars($d['driver_name']); ?>
                                         </option>
@@ -189,11 +192,12 @@ foreach ($races as $race) {
     <style id="detectStyle"></style>
 
     <script>
-        let driversList = <?php echo json_encode($drivers); ?>;
+        let driversList = <?php echo json_encode($displayDrivers); ?>;
         const driversByRace = <?php echo json_encode($driversByRace); ?>;
         const substitutionNotes = <?php echo json_encode($substitutionNotes); ?>;
-        document.getElementById('raceSelect').addEventListener('change', function () {
-            driversList = driversByRace[this.value] || <?php echo json_encode($drivers); ?>;
+        function updateRaceDrivers() {
+            const raceId = document.getElementById('raceSelect').value;
+            driversList = driversByRace[raceId] || <?php echo json_encode($drivers); ?>;
             document.querySelectorAll('.driver-select').forEach(select => {
                 const value = select.value;
                 select.replaceChildren(new Option('-- No driver --', ''));
@@ -201,10 +205,14 @@ foreach ($races as $race) {
                 select.value = value;
             });
             const note = document.getElementById('substitutionNote');
-            note.textContent = substitutionNotes[this.value] || '';
+            note.textContent = substitutionNotes[raceId] || '';
             note.style.display = note.textContent ? 'block' : 'none';
             if (document.getElementById('resultsPaste').value.trim()) autoParse();
-        });
+        }
+        document.getElementById('raceSelect').addEventListener('change', updateRaceDrivers);
+        // Browsers can restore a selected race without firing a change event.
+        window.addEventListener('pageshow', updateRaceDrivers);
+        updateRaceDrivers();
 
         function clearParser() {
             document.getElementById('resultsPaste').value = "";
