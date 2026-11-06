@@ -35,7 +35,8 @@ foreach ($races as $race) {
     $substitutionNotes[$race['id']] = raceDriverSubstitutionNote($race);
 }
 $selectedRaceId = (int)($_GET['race_id'] ?? 0);
-$displayDrivers = $driversByRace[$selectedRaceId] ?? $drivers;
+$defaultDrivers = raceDriverNames(getNextRace() ?: ['race_date' => gmdate('Y-m-d')], $drivers);
+$displayDrivers = $driversByRace[$selectedRaceId] ?? $defaultDrivers;
 header('Cache-Control: no-store, max-age=0');
 ?>
 <!DOCTYPE html>
@@ -197,7 +198,7 @@ header('Cache-Control: no-store, max-age=0');
         const substitutionNotes = <?php echo json_encode($substitutionNotes); ?>;
         function updateRaceDrivers() {
             const raceId = document.getElementById('raceSelect').value;
-            driversList = driversByRace[raceId] || <?php echo json_encode($drivers); ?>;
+            driversList = driversByRace[raceId] || <?php echo json_encode($defaultDrivers); ?>;
             document.querySelectorAll('.driver-select').forEach(select => {
                 const value = select.value;
                 select.replaceChildren(new Option('-- No driver --', ''));

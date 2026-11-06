@@ -26,6 +26,7 @@ try {
     $db->query('CREATE TABLE user_totals (user_id INT PRIMARY KEY, total_points INT, races_participated INT)');
     $db->query("INSERT INTO races VALUES (20,'Mexico City Grand Prix','Mexico','2026-11-01'),(21,'Brazilian Grand Prix','Brazil','2026-11-08')");
     $db->query("INSERT INTO drivers VALUES ('ocon','Esteban Ocon','Haas F1 Team'),('bearman','Oliver Bearman','Haas F1 Team'),('norris','Lando Norris','McLaren')");
+    $db->query("INSERT INTO drivers VALUES ('hamilton','Lewis Hamilton','Ferrari'),('verstappen','Max Verstappen','Red Bull Racing'),('alonso','Fernando Alonso','Aston Martin')");
     $db->query("INSERT INTO predictions (id,user_id,race_id,driver_id,driver_name,predicted_position) VALUES (1,1,20,'ocon','Esteban Ocon',1),(2,1,20,'bearman','Oliver Bearman',2),(3,1,20,'norris','Lando Norris',3),(4,2,20,'ocon','Esteban Ocon',6),(5,1,21,'ocon','Esteban Ocon',6)");
     $db->query("INSERT INTO race_results VALUES (20,'ocon','Esteban Ocon',NULL,'Haas F1 Team',1),(20,'bearman','Oliver Bearman',NULL,'Haas F1 Team',2),(20,'norris','Lando Norris',NULL,'McLaren',3)");
     $db->query('INSERT INTO scores VALUES (1,21,11,5,0,0,16,NOW())');
@@ -38,9 +39,21 @@ try {
     $mexicoRoster = raceDriverNames($mexico, $roster);
     check(count($mexicoRoster) === count($roster), 'Replacement must not add a grid slot');
     check(array_column($mexicoRoster,'driver_name','id')['ocon'] === 'Ryo Hirakawa', 'Mexico must display Hirakawa');
-    check(raceDriverNames($brazil, $roster) === $roster, 'Brazil roster must be untouched');
-    $otherYear = $mexico; $otherYear['race_date'] = '2027-11-01';
-    check(raceDriverNames($otherYear, $roster) === $roster, 'Other seasons must be untouched');
+    $brazilRoster = raceDriverNames($brazil, $roster);
+    check(count($brazilRoster) === count($roster), 'Brazil replacement must not add a grid slot');
+    check(array_column($brazilRoster,'driver_name','id')['ocon'] === 'Rafael Camara', 'Brazil must display Camara in the Ocon slot');
+    check(raceDriverSlotId($brazil,'camara') === 'ocon', 'Camara must score against existing Ocon picks');
+    check(raceDriverSlotId($mexico,'camara') === 'camara', 'Camara must not replace Hirakawa in Mexico');
+    foreach ([['USA','2026-11-21'],['Qatar','2026-11-29'],['Abu Dhabi','2026-12-06'],['Mexico','2027-11-01']] as [$country,$date]) {
+        $futureRace = ['country'=>$country,'race_date'=>$date];
+        check(array_column(raceDriverNames($futureRace,$roster),'driver_name','id')['ocon'] === 'Rafael Camara', 'All future races must show Camara');
+        check(raceDriverSlotId($futureRace,'camara') === 'ocon', 'All future Camara results must match existing picks');
+    }
+    $earlierBrazil = $brazil; $earlierBrazil['race_date'] = '2025-11-09';
+    check(raceDriverNames($earlierBrazil,$roster) === $roster, 'Past Brazil races must be untouched');
+    $otherYear = $mexico; $otherYear['race_date'] = '2025-11-01';
+    check(raceDriverNames($otherYear, $roster) === $roster, 'Past seasons must be untouched');
+    check(getRaceDriverSubstitutions([]) === [], 'Missing dates must not activate the replacement');
     check(raceDriverSlotId($brazil,'hirakawa') === 'hirakawa', 'Aliases must be race-specific');
     calculateRaceScores(20);
     $scoreQuery = 'SELECT user_id,race_id,driver_points,constructor_points,top3_bonus,total_points FROM scores ORDER BY user_id,race_id';
@@ -71,7 +84,20 @@ try {
     check($snapshot('drivers') === $beforeRoster, 'Global driver roster must remain identical');
     check($db->query("SELECT driver_name FROM race_results WHERE race_id=20 AND driver_id='ocon'")->fetch_assoc()['driver_name'] === 'Ryo Hirakawa', 'Classification must name Hirakawa');
     check((int)$db->query('SELECT total_points FROM user_totals WHERE user_id=1')->fetch_assoc()['total_points'] === 98, 'Season total must retain other race points');
-    echo "PASS: Mexico-only roster and aliases; duplicate/invalid result rejection; exact-match, podium and constructor scoring; repeat scoring; all saved predictions, global drivers and other-race scores unchanged.\n";
+    $mexicoResults = $db->query('SELECT * FROM race_results WHERE race_id=20 ORDER BY position')->fetch_all(MYSQLI_ASSOC);
+    $brazilClassification = normalizeRaceClassification($brazil,[6=>'camara'],$brazilRoster);
+    check($brazilClassification === [6=>'ocon'], 'Brazil classification must retain the predicted seat');
+    $brazilDriver = array_column($brazilRoster,null,'id')[$brazilClassification[6]];
+    $insertBrazil = $db->prepare('INSERT INTO race_results (race_id,driver_id,driver_name,constructor_name,position) VALUES (21,?,?,?,6)');
+    $insertBrazil->bind_param('sss',$brazilDriver['id'],$brazilDriver['driver_name'],$brazilDriver['team']);
+    $insertBrazil->execute();
+    calculateRaceScores(21);
+    calculateRaceScores(21);
+    check($db->query($scoreQuery)->fetch_all(MYSQLI_ASSOC) === $baseline, 'Camara must earn identical position and constructor points, including on rescoring');
+    check($snapshot('predictions') === $beforePicks, 'Brazil substitution must not alter any saved picks');
+    check($snapshot('drivers') === $beforeRoster, 'Brazil substitution must not change the global roster');
+    check($db->query('SELECT * FROM race_results WHERE race_id=20 ORDER BY position')->fetch_all(MYSQLI_ASSOC) === $mexicoResults, 'Brazil must not affect Mexico results');
+    echo "PASS: Hirakawa in Mexico; Camara from Brazil onward, including future seasons; original prediction slots and positions preserved; scoring and rescoring correct; past results, saved predictions and global roster unchanged.\n";
 } finally {
     $server->query("DROP DATABASE `$testName`");
 }

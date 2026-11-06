@@ -1,6 +1,6 @@
 <?php
 /**
- * Race-only replacement drivers occupy the ORIGINAL prediction slot.
+ * Replacement drivers occupy the ORIGINAL prediction slot for applicable races.
  * Never rename a global driver or rewrite a user's saved picks for these swaps.
  * Result imports must use raceDriverSlotId() before storing results, so scoring,
  * accuracy and achievements continue to join on the original driver_id.
@@ -8,6 +8,11 @@
 function getRaceDriverSubstitutions(array $race): array {
     if (($race['country'] ?? '') === 'Mexico' && ($race['race_date'] ?? '') === '2026-11-01') {
         return ['ocon' => ['id' => 'hirakawa', 'driver_name' => 'Ryo Hirakawa', 'replaces' => 'Esteban Ocon']];
+    }
+    // Permanent replacement from Brazil onward, including future seasons.
+    // Earlier races keep their original driver, including Hirakawa in Mexico.
+    if (($race['race_date'] ?? '') >= '2026-11-08') {
+        return ['ocon' => ['id' => 'camara', 'driver_name' => 'Rafael Camara', 'replaces' => 'Esteban Ocon']];
     }
     return [];
 }

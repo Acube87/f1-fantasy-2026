@@ -292,10 +292,11 @@ switch ($type) {
             $adminRace['substitution_note'] = raceDriverSubstitutionNote($adminRace);
         }
         unset($adminRace);
+        $defaultDrivers = raceDriverNames(getNextRace() ?: ['race_date' => gmdate('Y-m-d')], $drivers);
         echo json_encode([
             'auth' => getUserData($user),
             'races' => $races,
-            'drivers' => $drivers,
+            'drivers' => $defaultDrivers,
             'driversByRace' => $driversByRace,
         ]);
         break;
