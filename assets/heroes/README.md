@@ -13,3 +13,9 @@ https://media.formula1.com/image/upload/ar_16%3A9%2Cc_fill%2Cg_south/c_fit%2Cw_1
 https://www.formula1.com/en/racing/2026/brazil
 
 https://media.formula1.com/image/upload/c_lfill%2Cw_1600/q_auto/v1740000001/content/dam/fom-website/2018-redesign-assets/Racehub%20header%20images%2016x9/Brazil.webp
+
+`las-vegas.webp` is the Las Vegas race cover from Formula 1's 2026 Las Vegas race page, retrieved on 2026-11-09:
+
+https://www.formula1.com/en/racing/2026/las-vegas
+
+https://media.formula1.com/image/upload/c_lfill,w_1600/q_auto/v1740000001/content/dam/fom-website/2018-redesign-assets/Racehub%20header%20images%2016x9/Las%20Vegas.webp
